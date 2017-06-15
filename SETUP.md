@@ -46,6 +46,12 @@ If successful, the terminal prompt change to denote the active environment. To d
 
 The virtual environment has now been created. For further convenience, one can use the autoenv tool to automatically activate the virtual environment, but its usage falls outside the scope of this document.
 
+#### Environment Variables
+To run the Django server, the following environment variables must be set:
+
+* `DJANGO_SECRET_KEY` - This should be any valid secret string. See the [Django documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-SECRET_KEY) for more information.
+* `DJANGO_DEBUG` - This should be set to `false` when in production, but will default to `true` if otherwise unset.
+
 #### Installing Requirements
 To install requirements, execute:
 
