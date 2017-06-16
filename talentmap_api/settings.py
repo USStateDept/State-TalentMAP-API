@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'django_extensions',
     'rest_framework',
     'debug_toolbar',
-    'django_extensions',
 
     # TalentMap Apps
     'talentmap_api.common',
