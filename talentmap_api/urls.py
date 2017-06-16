@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^api/v1/language/', include('talentmap_api.language.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),

@@ -22,6 +22,10 @@ class LanguageQualificationSerializer(serializers.ModelSerializer):
     language = serializers.StringRelatedField()
     written_proficiency = serializers.StringRelatedField()
     spoken_proficiency = serializers.StringRelatedField()
+    representation = serializers.SerializerMethodField()
+
+    def get_representation(self, obj):
+        return str(obj)
 
     class Meta:
         model = Qualification
