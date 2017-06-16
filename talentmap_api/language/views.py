@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from talentmap_api.language.models import Language, Proficiency, Qualification
+from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer
 
 
 class LanguageListView(ReadOnlyModelViewSet):
@@ -16,7 +17,7 @@ class LanguageListView(ReadOnlyModelViewSet):
 
 class LanguageProficiencyListView(ReadOnlyModelViewSet):
     """
-    Lists all available languages.
+    Lists all available language proficiencies.
     """
 
     serializer_class = LanguageProficiencySerializer
@@ -27,7 +28,7 @@ class LanguageProficiencyListView(ReadOnlyModelViewSet):
 
 class LanguageQualificationListView(ReadOnlyModelViewSet):
     """
-    Lists all available languages.
+    Lists all available languages qualifications.
     """
 
     serializer_class = LanguageQualificationSerializer
