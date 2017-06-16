@@ -1,7 +1,10 @@
 dj-database-url==0.4.2
 Django==1.11.2
 django-debug-toolbar==1.8
+django-extensions==1.7.9
 djangorestframework==3.6.3
+lxml==3.8.0
 psycopg2==2.7.1
 pytz==2017.2
+six==1.10.0
 sqlparse==0.2.3

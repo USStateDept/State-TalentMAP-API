@@ -19,6 +19,10 @@ class LanguageProficiencySerializer(serializers.ModelSerializer):
 
 class LanguageQualificationSerializer(serializers.ModelSerializer):
 
+    language = serializers.StringRelatedField()
+    written_proficiency = serializers.StringRelatedField()
+    spoken_proficiency = serializers.StringRelatedField()
+
     class Meta:
         model = Qualification
         fields = "__all__"

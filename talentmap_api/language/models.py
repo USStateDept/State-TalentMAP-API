@@ -38,7 +38,7 @@ class Proficiency(models.Model):
     description = models.TextField(null=False, help_text="Text describing the level of proficiency")
 
     def __str__(self):
-        return "{}".format(code)
+        return "{}".format(self.code)
 
     class Meta:
         managed = True
@@ -61,3 +61,4 @@ class Qualification(models.Model):
 
     class Meta:
         managed = True
+        unique_together = (('language', 'written_proficiency', 'spoken_proficiency'))
