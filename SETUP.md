@@ -1,9 +1,9 @@
 Requirements:
-* Python 2.7
+* Python 3.6
 
 ### Setting up a virtual environment
 
-It is strongly recommended to use a virtual environment while developing contributions to this project. This following steps will serve as a guide for setting up a virtual environment, and assumes Python 2.7 is installed.
+It is strongly recommended to use a virtual environment while developing contributions to this project. This following steps will serve as a guide for setting up a virtual environment, and assumes Python 3.6 is installed.
 
 ##### Install Virtualenv
 To install virtualenv, simply execute the following command:
@@ -13,25 +13,25 @@ pip install virtualenv
 
 After virtualenv has been successfully installed, we can now make a virtual environment for the project. It can be located anywhere on the system, but it is generally recommended to place it alongside the project code for ease of location.
 
-###### Locating Python 2.7
-First, we need to determine the location of our Python 2.7 installation. Execute the following command to determine the location of the python executable. (If the shell command `python` is already aliased to Python 2.7, you can skip this step)
+###### Locating Python 3.6
+First, we need to determine the location of our Python 3.6 installation. Execute the following command to determine the location of the python executable. (If the shell command `python` is already aliased to Python 3.6, you can skip this step)
 
 ```
-which python2.7
+which python3.6
 ```
 
-If python 2.7 is properly installed, this will return a path to the executable.
+If python 3.6 is properly installed, this will return a path to the executable.
 
 ###### Creating the environment
 The following command will create a virtual environment:
 ```
-virtualenv -p <path to python 2.7> <desired location of the virtual environment>
+virtualenv -p <path to python 3.6> <desired location of the virtual environment>
 ```
 
-If the `python` alias points to python 2.7, then the `-p` argument is optional. Examples:
+If the `python` alias points to python 3.6, then the `-p` argument is optional. Examples:
 
 ```
-virtualenv -p /usr/bin/python2.7 ~/Projects/talentmap-env
+virtualenv -p /usr/bin/python3.6 ~/Projects/talentmap-env
 
 virtualenv ~/Projects/talentmap-env
 ```
