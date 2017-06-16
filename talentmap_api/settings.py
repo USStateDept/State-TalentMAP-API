@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'debug_toolbar',
 
     # TalentMap Apps
     'talentmap_api.language'
@@ -54,6 +55,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Third-party
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
@@ -104,6 +108,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Debug toolbar settings
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -123,3 +131,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
