@@ -3,4 +3,4 @@ machine:
     version: 3.6.0
 test:
   override:
-    - pytest --cov=talentmap_api
+    - pytest --cov=talentmap_api --cov-report xml:$CIRCLE_ARTIFACTS/pytest-cov/coverage.xml --junit-xml=$CIRCLE_ARTIFACTS/pytest-cov/py.test.xml --cov-config .coveragerc
