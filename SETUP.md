@@ -65,7 +65,7 @@ Before running the server, the database must be initialized.
 #### Setting the Environment Variables
 Django accesses database information by looking at the following environment variables:
 
-* `DATABASE_URL` - This should be set to a valid database connection string. For example `postgres://username:password@url.com:5432/data_base_name`
+* `DATABASE_URL` - This should be set to a valid database connection string. For example `postgresql://ubuntu:@127.0.0.1:5432/circle_test`
 
 This can be set by using `EXPORT` in the terminal, or setting up a profile or autoenv to set these.
 
