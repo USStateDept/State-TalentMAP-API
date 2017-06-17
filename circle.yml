@@ -2,5 +2,7 @@ machine:
   python:
     version: 3.6.0
 test:
+  pre:
+    - mkdir -p $CIRCLE_ARTIFACTS/pytest-cov/
   override:
-    - pytest --cov=talentmap_api --cov-report xml:$CIRCLE_ARTIFACTS/pytest-cov/coverage.xml --junit-xml=$CIRCLE_ARTIFACTS/pytest-cov/py.test.xml --cov-config .coveragerc
+    - pytest --cov=talentmap_api --cov-report xml:$CIRCLE_ARTIFACTS/pytest-cov/coverage.xml --cov-config .coveragerc
