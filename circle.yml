@@ -1,7 +1,6 @@
 machine:
   python:
     version: 3.6.0
-general:
-  branches:
-    only:
-      - dev
+test:
+  override:
+    - pytest --cov=talentmap_api
