@@ -37,6 +37,9 @@ class Proficiency(models.Model):
     code = models.CharField(max_length=2, null=False, help_text="The code representing the linguistic proficiency")
     description = models.TextField(null=False, help_text="Text describing the level of proficiency")
 
+    # The ordered ranking of proficiencies for greater than/less than comparisons
+    RANKING = ["F", "X", "P", "0", "0+", "1", "1+", "2", "2+", "3", "3+", "4", "4+", "5"]
+
     def __str__(self):
         return "{}".format(self.code)
 

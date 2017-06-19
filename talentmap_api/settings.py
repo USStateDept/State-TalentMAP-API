@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'django_filters',
     'django_extensions',
     'rest_framework',
     'debug_toolbar',
@@ -80,6 +81,13 @@ TEMPLATES = [
         },
     },
 ]
+
+# Rest framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'talentmap_api.common.filters.DisabledHTMLFilterBackend',
+    ),
+}
 
 
 # Logging Settings

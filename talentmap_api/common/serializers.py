@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db.models.constants import LOOKUP_SEP
 
 
 class PrefetchedSerializer(serializers.ModelSerializer):
@@ -49,6 +50,6 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         for field in model._meta.get_fields():
             if field.get_internal_type() in related_field_types and not hasattr(field, 'related_name'):
                 queryset = queryset.prefetch_related("{}{}".format(prefix, field.name))
-                queryset = cls.prefetch_model(field.related_model, queryset, prefix="{}{}__".format(prefix, field.name))
+                queryset = cls.prefetch_model(field.related_model, queryset, prefix="{}{}{}".format(prefix, field.name, LOOKUP_SEP))
 
         return queryset
