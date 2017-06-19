@@ -38,6 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party
+    'django_extensions',
+    'rest_framework',
+    'debug_toolbar',
+
+    # TalentMap Apps
+    'talentmap_api.common',
+    'talentmap_api.language'
 ]
 
 MIDDLEWARE = [
@@ -48,6 +57,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Third-party
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
@@ -68,6 +80,53 @@ TEMPLATES = [
     },
 ]
 
+
+# Logging Settings
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filters': ['require_debug_true'],
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'console': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
+
+
 WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 
 
@@ -77,7 +136,7 @@ WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 # Set up the DB from a connection string in the environment variable, DATABASE_URL
 # see https://github.com/kennethreitz/dj-database-url for more info
 
-DATABASES = {'default': dj_database_url.config(conn_max_age=10)}
+DATABASES = {'default': dj_database_url.config(conn_max_age=1)}
 
 
 # Password validation
@@ -98,6 +157,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Debug toolbar settings
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -117,3 +180,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
