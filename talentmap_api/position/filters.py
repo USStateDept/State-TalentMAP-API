@@ -7,7 +7,7 @@ from talentmap_api.language.models import Qualification
 
 
 class PositionFilter(filters.FilterSet):
-    language_requirements = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
 
     class Meta:
         model = Position
