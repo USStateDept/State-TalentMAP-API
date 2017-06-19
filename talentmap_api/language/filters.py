@@ -21,12 +21,25 @@ class LanguageFilter(filters.FilterSet):
 
 class ProficiencyFilter(filters.FilterSet):
     at_least = filters.CharFilter(name="code", method="filter_at_least")
+    at_most = filters.CharFilter(name="code", method="filter_at_most")
+
+    def filter_at_most(self, queryset, name, value):
+        '''
+        Evaluates if a proficiency is of at most a certain level
+        F > X > P > 0 > 0+ . . . 5
+        '''
+        value = value.replace("plus", "+")
+        index = Proficiency.RANKING.index(value) + 1
+        valid_ranks = Proficiency.RANKING[:index]
+        lookup = LOOKUP_SEP.join([name, "in"])
+        return queryset.filter(Q(**{lookup: valid_ranks}))
 
     def filter_at_least(self, queryset, name, value):
         '''
         Evaluates if a proficiency is of at least a certain level
         F > X > P > 0 > 0+ . . . 5
         '''
+        value = value.replace("plus", "+")
         index = Proficiency.RANKING.index(value)
         valid_ranks = Proficiency.RANKING[index:]
         lookup = LOOKUP_SEP.join([name, "in"])

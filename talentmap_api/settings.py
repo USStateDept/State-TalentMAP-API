@@ -24,9 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", True)
+DEBUG = False
+if os.environ.get("DJANGO_DEBUG") in ["1", "True", "true"]:
+    DEBUG = True
 
-ALLOWED_HOSTS = []
+# This is * for now, but should be set to a proper host when deployed
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
