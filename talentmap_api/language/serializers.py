@@ -1,23 +1,24 @@
 from rest_framework import serializers
 
+from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.language.models import Language, Proficiency, Qualification
 
 
-class LanguageSerializer(serializers.ModelSerializer):
+class LanguageSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Language
         fields = "__all__"
 
 
-class LanguageProficiencySerializer(serializers.ModelSerializer):
+class LanguageProficiencySerializer(PrefetchedSerializer):
 
     class Meta:
         model = Proficiency
         fields = "__all__"
 
 
-class LanguageQualificationSerializer(serializers.ModelSerializer):
+class LanguageQualificationSerializer(PrefetchedSerializer):
 
     language = serializers.StringRelatedField()
     written_proficiency = serializers.StringRelatedField()

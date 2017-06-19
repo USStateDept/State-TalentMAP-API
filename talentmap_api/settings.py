@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     # TalentMap Apps
     'talentmap_api.common',
+    'talentmap_api.position',
     'talentmap_api.language'
 ]
 
