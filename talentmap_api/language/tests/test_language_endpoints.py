@@ -30,7 +30,6 @@ def test_language_list(client):
 @pytest.mark.usefixtures("test_language_endpoints_fixture")
 def test_language_proficiency_list(client):
     response = client.get('/api/v1/language/proficiencies/')
-    print(response.data)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 10
 

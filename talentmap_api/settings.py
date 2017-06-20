@@ -24,9 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", True)
+DEBUG = False
+if os.environ.get("DJANGO_DEBUG") in ["1", "True", "true"]:
+    DEBUG = True
 
-ALLOWED_HOSTS = []
+# This is * for now, but should be set to a proper host when deployed
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,12 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'django_filters',
     'django_extensions',
     'rest_framework',
     'debug_toolbar',
 
     # TalentMap Apps
     'talentmap_api.common',
+    'talentmap_api.position',
     'talentmap_api.language'
 ]
 
@@ -79,6 +84,13 @@ TEMPLATES = [
         },
     },
 ]
+
+# Rest framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'talentmap_api.common.filters.DisabledHTMLFilterBackend',
+    ),
+}
 
 
 # Logging Settings
