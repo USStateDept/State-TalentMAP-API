@@ -52,8 +52,13 @@ class XMLloader():
                 # Find a matching entry for the tag from the tag map
                 item = tag.find(key, tag.nsmap)
                 if item is not None:
-                    # If we have a matching entry, set the instance's property to that value
-                    setattr(instance, self.tag_map[key], item.text)
+                    # If we have a matching entry, and the map is not a callable,
+                    # set the instance's property to that value
+                    if not callable(self.tag_map[key]):
+                        setattr(instance, self.tag_map[key], item.text)
+                    else:
+                        # Tag map is a callable, so call it with instance + item
+                        self.tag_map[key](instance, item)
 
             # Append our instance
             instances.append(instance)

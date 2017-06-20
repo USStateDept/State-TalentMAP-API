@@ -8,6 +8,7 @@ This is a simple list of endpoints as a temporary documentation placeholder unti
 | `/api/v1/language/proficiencies/` | List of all available language proficiency levels |
 | `/api/v1/language/qualifications/` | List of all available language qualifications |
 | `/api/v1/position/` | List all positions |
+| `/api/v1/position/grades/` | List all grades |
 
 ### Filters
 

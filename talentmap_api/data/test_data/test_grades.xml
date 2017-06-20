@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HREXDATA:GRADES xmlns:GRADES="namespace" xmlns:HREXDATA="namespace2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GRADES:GRADE>
+    <GRADES:GRD_GRADE_CODE xsi:nil="false">00</GRADES:GRD_GRADE_CODE>
+  </GRADES:GRADE>
+</HREXDATA:GRADES>
