@@ -9,3 +9,16 @@ class Position(models.Model):
 
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
+
+    grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
+
+
+class Grade(models.Model):
+    '''
+    The grade model represents a job grade
+    '''
+
+    code = models.CharField(max_length=2, db_index=True, unique=True, null=False)
+
+    def __str__(self):
+        return "{}".format(self.code)

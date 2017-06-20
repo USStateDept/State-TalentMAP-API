@@ -8,6 +8,7 @@ This is a simple list of endpoints as a temporary documentation placeholder unti
 | `/api/v1/language/proficiencies/` | List of all available language proficiency levels |
 | `/api/v1/language/qualifications/` | List of all available language qualifications |
 | `/api/v1/position/` | List all positions |
+| `/api/v1/position/grades/` | List all grades |
 
 ### Filters
 
@@ -25,6 +26,6 @@ To search for a position where multiple values are true (via logical AND) combin
 
 `/api/v1/position/?languages__language__name=German,French`
 
-To search where either case is true (via logical OR), use the same parameter twice:
+To search where either case is true (via logical OR), use the `in` lookup:
 
-`/api/v1/position/?languages__language__name=German&languages__language__name=French`
+`/api/v1/position/?languages__language__name__in=German,French`

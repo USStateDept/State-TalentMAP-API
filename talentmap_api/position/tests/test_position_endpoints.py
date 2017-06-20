@@ -14,9 +14,14 @@ def test_position_endpoints_fixture():
     qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
     qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, written_proficiency=proficiency_2)
 
+    # Create some grades
+    grade = mommy.make('position.Grade', code="00")
+    grade_2 = mommy.make('position.Grade', code="01")
+    mommy.make('position.Grade', _quantity=8)
+
     # Create a position with the specific qualification
-    mommy.make('position.Position', language_requirements=[qualification])
-    mommy.make('position.Position', language_requirements=[qualification_2])
+    mommy.make('position.Position', language_requirements=[qualification], grade=grade)
+    mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2)
 
     # Create some junk positions to add numbers
     mommy.make('position.Position', _quantity=8)
@@ -51,5 +56,28 @@ def test_position_filtering(client):
     assert len(response.data) == 1
 
     response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=4')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_grade_list(client):
+    response = client.get('/api/v1/position/grades/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 10
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_grade_filtering(client):
+    response = client.get('/api/v1/position/grades/?code=00')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+    response = client.get('/api/v1/position/grades/?code__in=00,01')
+
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2

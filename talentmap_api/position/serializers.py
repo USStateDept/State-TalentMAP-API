@@ -1,10 +1,13 @@
+from rest_framework import serializers
+
 from talentmap_api.common.serializers import PrefetchedSerializer
 
-from talentmap_api.position.models import Position
+from talentmap_api.position.models import Position, Grade
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 
 
 class PositionSerializer(PrefetchedSerializer):
+    grade = serializers.StringRelatedField()
 
     class Meta:
         model = Position
@@ -19,3 +22,10 @@ class PositionSerializer(PrefetchedSerializer):
                 }
             }
         }
+
+
+class GradeSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = Grade
+        fields = "__all__"
