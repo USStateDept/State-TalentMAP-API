@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HREXDATA:SKILLS xmlns:SKILLS="namespace" xmlns:HREXDATA="namespace2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SKILLS:SKILL>
+    <SKILLS:SKILL_CODE xsi:nil="false">0010</SKILLS:SKILL_CODE>
+    <SKILLS:SKILL_DESCRIPTION xsi:nil="false">EXECUTIVE (PAS)</SKILLS:SKILL_DESCRIPTION>
+  </SKILLS:SKILL>
+</HREXDATA:SKILLS>

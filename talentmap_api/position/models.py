@@ -11,14 +11,27 @@ class Position(models.Model):
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
 
     grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
+    skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
 
 
 class Grade(models.Model):
     '''
-    The grade model represents a job grade
+    The grade model represents an individual job grade
     '''
 
     code = models.CharField(max_length=2, db_index=True, unique=True, null=False)
 
     def __str__(self):
         return "{}".format(self.code)
+
+
+class Skill(models.Model):
+    '''
+    The skill model represents an individual job skill
+    '''
+
+    code = models.CharField(max_length=4, db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
+    description = models.TextField(null=False, help_text="Text description of the job skill")
+
+    def __str__(self):
+        return "{} ({})".format(self.description, self.code)

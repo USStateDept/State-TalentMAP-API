@@ -4,7 +4,7 @@ import logging
 
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade
+from talentmap_api.position.models import Grade, Skill
 
 
 class Command(BaseCommand):
@@ -17,7 +17,8 @@ class Command(BaseCommand):
         self.modes = {
             'languages': mode_languages,
             'proficiencies': mode_proficiencies,
-            'grades': mode_grades
+            'grades': mode_grades,
+            'skills': mode_skills
         }
 
     def add_arguments(self, parser):
@@ -62,6 +63,17 @@ def mode_grades():
     instance_tag = "GRADES:GRADE"
     tag_map = {
       "GRADES:GRD_GRADE_CODE": "code"
+    }
+
+    return (model, instance_tag, tag_map)
+
+
+def mode_skills():
+    model = Skill
+    instance_tag = "SKILLS:SKILL"
+    tag_map = {
+        "SKILLS:SKILL_CODE": "code",
+        "SKILLS:SKILL_DESCRIPTION": "description"
     }
 
     return (model, instance_tag, tag_map)
