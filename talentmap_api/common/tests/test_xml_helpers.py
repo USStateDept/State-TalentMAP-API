@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from talentmap_api.language.models import Language, Proficiency
+from talentmap_api.position.models import Grade
 
 
 @pytest.mark.django_db()

@@ -58,3 +58,26 @@ def test_position_filtering(client):
     response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=4')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_grade_list(client):
+    response = client.get('/api/v1/position/grades/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 10
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_grade_filtering(client):
+    response = client.get('/api/v1/position/grades/?code=00')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+    response = client.get('/api/v1/position/grades/?code__in=00,01')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
