@@ -4,4 +4,4 @@ The following management commands are available. More detailed help can be found
 
 ##### Data Loading
 
-* `load_language_xml <FILE> <MODE>` - Provided to load language reference data into the database. XML files should be in the format as provided by the Department of State (These are not currently provided in the repository). Mode is either "languages" when loading a list of languages, or "proficiencies" when loading the list of proficiencies. 
+* `load_xml <FILE> <MODE>` - Provided to load reference data into the database. XML files should be in the format as provided by the Department of State (These are not currently provided in the repository). Available modes are: "languages", "proficiencies", "grades"
