@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'rest_framework',
+    'rest_framework_swagger',
     'debug_toolbar',
 
     # TalentMap Apps

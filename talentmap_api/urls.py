@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
+from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
+    url(r'^$', get_swagger_view(title='TalentMAP API')),
     url(r'^api/v1/language/', include('talentmap_api.language.urls')),
     url(r'^api/v1/position/', include('talentmap_api.position.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
