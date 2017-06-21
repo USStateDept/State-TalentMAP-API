@@ -13,6 +13,9 @@ class Position(models.Model):
     grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
     skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
 
+    organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
+    bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
+
 
 class Grade(models.Model):
     '''
