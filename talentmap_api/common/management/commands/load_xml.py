@@ -1,10 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
 
 import logging
+import re
 
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill
+from talentmap_api.organization.models import Organization
 
 
 class Command(BaseCommand):
@@ -18,7 +20,8 @@ class Command(BaseCommand):
             'languages': mode_languages,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
-            'skills': mode_skills
+            'skills': mode_skills,
+            'organizations': mode_organizations,
         }
 
     def add_arguments(self, parser):
@@ -26,9 +29,14 @@ class Command(BaseCommand):
         parser.add_argument('type', nargs=1, type=str, choices=self.modes.keys(), help="The type of data in the XML")
 
     def handle(self, *args, **options):
-        model, instance_tag, tag_map = self.modes[options['type'][0]]()
+        model, instance_tag, tag_map, post_load_function = self.modes[options['type'][0]]()
 
         loader = XMLloader(model, instance_tag, tag_map)
+
+        # Run the post load function, if it exists
+        if callable(post_load_function):
+            post_load_function()
+
         count = loader.create_models_from_xml(options['file'][0])
 
         self.logger.info("Loaded {} entities from {}".format(count, options['file'][0]))
@@ -44,7 +52,7 @@ def mode_languages():
         "LANGUAGES:LANG_EFFECTIVE_DATE": "effective_date"
     }
 
-    return (model, instance_tag, tag_map)
+    return (model, instance_tag, tag_map, None)
 
 
 def mode_proficiencies():
@@ -55,7 +63,7 @@ def mode_proficiencies():
       "LANGUAGE_PROFICIENCY:LP_DESC": "description"
     }
 
-    return (model, instance_tag, tag_map)
+    return (model, instance_tag, tag_map, None)
 
 
 def mode_grades():
@@ -65,7 +73,7 @@ def mode_grades():
       "GRADES:GRD_GRADE_CODE": "code"
     }
 
-    return (model, instance_tag, tag_map)
+    return (model, instance_tag, tag_map, None)
 
 
 def mode_skills():
@@ -76,4 +84,23 @@ def mode_skills():
         "SKILLS:SKILL_DESCRIPTION": "description"
     }
 
-    return (model, instance_tag, tag_map)
+    return (model, instance_tag, tag_map, None)
+
+
+def mode_organizations():
+    model = Organization
+    instance_tag = "ORGS:ORGANIZATION"
+    tag_map = {
+        "ORGS:ORG_CODE": "code",
+        "ORGS:ORG_SHORT_DESC": "short_description",
+        "ORGS:ORG_LONG_DESC": lambda instance, item: setattr(instance, "long_description", re.sub(' +', ' ', item.text).strip()),
+        "ORGS:ORG_PARENT_ORG_CODE": "_parent_organization_code",
+        "ORGS:ORG_BUREAU_ORG_CODE": "_parent_bureau_code"
+    }
+
+    # Update relationships
+    def post_load_function():
+        for org in Organization.objects.all():
+            org.update_relationships()
+
+    return (model, instance_tag, tag_map, post_load_function)
