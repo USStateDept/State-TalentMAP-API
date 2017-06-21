@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management import call_command
 
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade
+from talentmap_api.position.models import Grade, Skill
 
 
 @pytest.mark.django_db()
@@ -37,3 +37,13 @@ def test_xml_grades_loading():
 
     assert Grade.objects.count() == 1
     assert Grade.objects.filter(code="00").count() == 1
+
+
+@pytest.mark.django_db()
+def test_xml_skills_loading():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_skills.xml'),
+                 'skills')
+
+    assert Skill.objects.count() == 1
+    assert Skill.objects.filter(code="0010").count() == 1

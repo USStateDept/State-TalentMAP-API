@@ -1,6 +1,7 @@
 import pytest
 
 from model_mommy import mommy
+from model_mommy.recipe import Recipe, seq
 from rest_framework import status
 
 
@@ -17,11 +18,16 @@ def test_position_endpoints_fixture():
     # Create some grades
     grade = mommy.make('position.Grade', code="00")
     grade_2 = mommy.make('position.Grade', code="01")
-    mommy.make('position.Grade', _quantity=8)
+    mommy.make_recipe('talentmap_api.position.tests.grade', _quantity=8)
+
+    # Create some skills
+    skill = mommy.make('position.Skill', code="0010")
+    skill_2 = mommy.make('position.Skill', code="0020")
+    mommy.make_recipe('talentmap_api.position.tests.skill', _quantity=8)
 
     # Create a position with the specific qualification
-    mommy.make('position.Position', language_requirements=[qualification], grade=grade)
-    mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2)
+    mommy.make('position.Position', language_requirements=[qualification], grade=grade, skill=skill)
+    mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
 
     # Create some junk positions to add numbers
     mommy.make('position.Position', _quantity=8)
@@ -78,6 +84,29 @@ def test_grade_filtering(client):
     assert len(response.data) == 1
 
     response = client.get('/api/v1/position/grades/?code__in=00,01')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 2
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_skill_list(client):
+    response = client.get('/api/v1/position/skills/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 10
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_skill_filtering(client):
+    response = client.get('/api/v1/position/skills/?code=0010')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+    response = client.get('/api/v1/position/skills/?code__in=0010,0020')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
