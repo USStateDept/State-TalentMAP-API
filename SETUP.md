@@ -86,4 +86,6 @@ To access the API locally, one can run:
 python manage.py runserver
 ```
 
+Viewing `localhost:8000` should serve you with Swagger documentation on the API.
+
 For production, it is recommended to set up uwsgi settings, which fall outside of the scope of this document.

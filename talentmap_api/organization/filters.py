@@ -5,11 +5,11 @@ from talentmap_api.common.filters import ALL_TEXT_LOOKUPS
 
 
 class OrganizationFilter(filters.FilterSet):
-    bureau_organization = filters.RelatedFilter(OrganizationFilter, name='bureau_organization', queryset=Organization.objects.all())
-    parent_organization = filters.RelatedFilter(OrganizationFilter, name='bureau_organization', queryset=Organization.objects.all())
+    bureau_organization = filters.RelatedFilter('organization.OrganizationFilter', name='bureau_organization', queryset=Organization.objects.all())
+    parent_organization = filters.RelatedFilter('organization.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
 
     class Meta:
-        model = Qualification
+        model = Organization
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
