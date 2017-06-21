@@ -19,7 +19,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^api/v1/language/', include('talentmap_api.language.urls')),
-    url(r'^api/v1/position/', include('talentmap_api.position.urls'))
+    url(r'^api/v1/position/', include('talentmap_api.position.urls')),
+    url(r'^api/v1/organization/', include('talentmap_api.organization.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:  # pragma: no cover

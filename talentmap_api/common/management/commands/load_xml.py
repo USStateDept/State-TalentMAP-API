@@ -32,12 +32,11 @@ class Command(BaseCommand):
         model, instance_tag, tag_map, post_load_function = self.modes[options['type'][0]]()
 
         loader = XMLloader(model, instance_tag, tag_map)
+        count = loader.create_models_from_xml(options['file'][0])
 
         # Run the post load function, if it exists
         if callable(post_load_function):
             post_load_function()
-
-        count = loader.create_models_from_xml(options['file'][0])
 
         self.logger.info("Loaded {} entities from {}".format(count, options['file'][0]))
 

@@ -1,6 +1,8 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from talentmap_api.organization.models import Organization
+from talentmap_api.organization.filters import OrganizationFilter
+from talentmap_api.organization.serializers import OrganizationSerializer
 
 
 class OrganizationListView(ReadOnlyModelViewSet):
