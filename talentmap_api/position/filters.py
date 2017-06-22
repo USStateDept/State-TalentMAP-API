@@ -8,7 +8,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter
 from talentmap_api.organization.models import Organization
 
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class PositionFilter(filters.FilterSet):
@@ -20,7 +20,12 @@ class PositionFilter(filters.FilterSet):
 
     class Meta:
         model = Position
-        fields = {}
+        fields = {
+            "position_number": ALL_TEXT_LOOKUPS,
+            "is_overseas": ["exact"],
+            "create_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS
+        }
 
 
 class GradeFilter(filters.FilterSet):

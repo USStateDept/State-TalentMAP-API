@@ -30,7 +30,10 @@ def test_position_endpoints_fixture():
     mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
 
     # Create some junk positions to add numbers
-    mommy.make('position.Position', _quantity=8)
+    mommy.make('position.Position',
+               organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+               bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+               _quantity=8)
 
 
 @pytest.mark.django_db()

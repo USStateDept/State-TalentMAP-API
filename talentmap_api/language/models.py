@@ -1,5 +1,7 @@
 from django.db import models
 
+import logging
+
 
 class Language(models.Model):
     '''
@@ -60,24 +62,30 @@ class Qualification(models.Model):
     spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_proficiency')
 
     @staticmethod
-    def get_or_create_by_codes(language_code, written_proficiency, spoken_proficiency):
+    def get_or_create_by_codes(language_code, written_proficiency_code, spoken_proficiency_code):
         '''
         Gets or creates a language qualification using the language and proficiency codes.
 
         Args:
             language_code (str) - The language's code, for example "FR" for French
-            written_proficiency (str) - The written proficiency's code, for example "2+"
-            spoken_proficiency (str) - The spoken proficiency's code, for example "2+"
+            written_proficiency_code (str) - The written proficiency's code, for example "2+"
+            spoken_proficiency_code (str) - The spoken proficiency's code, for example "2+"
 
         Returns:
             obj: The qualification object
             bool: Whether the object was created or found
         '''
-        language = Language.objects.get(code=language_code)
-        written_proficiency = Proficiency.objects.get(code=written_proficiency)
-        spoken_proficiency = Proficiency.objects.get(code=spoken_proficiency)
+        language = Language.objects.filter(code=language_code)
+        written_proficiency = Proficiency.objects.filter(code=written_proficiency_code)
+        spoken_proficiency = Proficiency.objects.filter(code=spoken_proficiency_code)
 
-        return Qualification.objects.get_or_create(language=language, written_proficiency=written_proficiency, spoken_proficiency=spoken_proficiency)
+        if language.count() != 1 or written_proficiency.count() != 1 or spoken_proficiency.count() != 1:
+            logging.getLogger('console').warn("Tried to create language qualification, but failed: {} ({}) {} ({}) {} ({})".format(
+                language_code, language.count(), written_proficiency_code, written_proficiency.count(), spoken_proficiency_code, spoken_proficiency.count()
+            ))
+            return None, False
+
+        return Qualification.objects.get_or_create(language=language.first(), written_proficiency=written_proficiency.first(), spoken_proficiency=spoken_proficiency.first())
 
     def __str__(self):
         return "{} {}/{}".format(self.language, self.written_proficiency, self.spoken_proficiency)
