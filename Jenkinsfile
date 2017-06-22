@@ -125,7 +125,8 @@ def updateTaskDefinition(String buildTag, String taskFamily) {
 
 def createTaskDefinitionJson(String buildTag, String taskFamily){
   def outputFileName = "TD_${taskFamily}_${buildTag}.json"
-  sh "aws ecs --region ${AWS_REGION}  describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.containerDefinitions = (.taskDefinition.containerDefinitions | map( if .name == \"${JOB}\" then .image = \"${DOCKER_IMAGE_NAME}:${buildTag}\" else . end )) | .taskDefinition | {family:.family, taskRoleArn:.taskRoleArn, networkMode:.networkMode, containerDefinitions:.containerDefinitions, volumes:.volumes, placementConstraints:.placementConstraints}' > ${outputFileName}"
+  def imageUrl = "${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${buildTag}"
+  sh "aws ecs --region ${AWS_REGION}  describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.containerDefinitions = (.taskDefinition.containerDefinitions | map( if .name == \"${JOB}\" then .image = \"${imageUrl}\" else . end )) | .taskDefinition | {family:.family, taskRoleArn:.taskRoleArn, networkMode:.networkMode, containerDefinitions:.containerDefinitions, volumes:.volumes, placementConstraints:.placementConstraints}' > ${outputFileName}"
   return "${outputFileName}"
 }
 
