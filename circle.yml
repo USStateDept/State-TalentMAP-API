@@ -3,6 +3,10 @@ machine:
     version: 3.6.0
   environment:
     CC_TEST_REPORTER_ID: 61cf394238222f3d820e702a4679e5bac871cf7fd9395ee614d3d4e4afcd5a4f
+dependencies:
+  post:
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
 test:
   pre:
     - mkdir -p $CIRCLE_ARTIFACTS/pytest-cov/
