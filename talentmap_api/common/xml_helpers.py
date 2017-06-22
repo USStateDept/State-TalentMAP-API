@@ -6,7 +6,7 @@ from django.forms.models import model_to_dict
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 
-from lxml import etree as ET
+import defusedxml.lxml as ET
 import logging
 
 

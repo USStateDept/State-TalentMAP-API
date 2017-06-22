@@ -15,4 +15,5 @@ test:
     - pytest --cov=talentmap_api --cov-report xml:$CIRCLE_ARTIFACTS/pytest-cov/coverage.xml:
         environment:
           DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
+    - bandit -r .
     - bundle exec rspec; cc-test-reporter after-build --exit-code $?
