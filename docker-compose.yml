@@ -1,0 +1,24 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - 8080:8080
+    links:
+      - db
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SECRET_KEY=development_secret_key
+      - DATABASE_URL=postgres://talentmap-user@db/talentmap
+  db:
+    image: postgres:9.6.3
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=talentmap
+      - POSTGRES_USER=talentmap-user
+volumes:
+  pgdata:
