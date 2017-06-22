@@ -13,7 +13,7 @@ test:
     - ./cc-test-reporter before-build
   override:
     - bandit -r .
-    - pytest --cov=talentmap_api
+    - pytest --cov=talentmap_api:
         environment:
           DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
   post:
