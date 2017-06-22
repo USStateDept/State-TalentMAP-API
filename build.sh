@@ -2,6 +2,7 @@
 
 set -e
 
+pip install virtualenv
 virtualenv talentmap-env
 source talentmap-env/bin/activate
 
