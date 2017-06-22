@@ -17,4 +17,4 @@ test:
         environment:
           DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
   post:
-    - ./cc-test-reporter after-build --exit-code $?
+    - ./cc-test-reporter after-build -t coverage.py --exit-code $?
