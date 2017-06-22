@@ -43,7 +43,7 @@ node('talentmap_base') {
     stage ("Deploy – Update Service") {
       // Update the service with the new task definition and desired count
       def taskRevision = getTaskDefRevision("${TASK_FAMILY}")
-      def desiredCount = getEcsServiceDesiredCount("${SERVICE_NAME}")
+      def desiredCount = getEcsServiceDesiredCount("${CLUSTER_NAME}", "${SERVICE_NAME}")
       updateEcsService("${CLUSTER_NAME}", "${SERVICE_NAME}", "${TASK_FAMILY}", taskRevision, desiredCount)
     }
 
@@ -139,7 +139,7 @@ def getTaskDefRevision(String taskFamily) {
 }
 
 def getEcsServiceDesiredCount(String clusterName, String serviceName) {
-  def desiredCount = sh "aws --region ${AWS_REGION} ecs describe-services --cluster ${clusterName} --services ${SERVICE_NAME} | jq '.services[0].desiredCount'"
+  def desiredCount = sh "aws --region ${AWS_REGION} ecs describe-services --cluster ${clusterName} --services ${serviceName} | jq '.services[0].desiredCount'"
   if (desiredCount == 0) {
     desiredCount = 1
   }
