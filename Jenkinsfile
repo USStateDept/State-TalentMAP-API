@@ -12,7 +12,7 @@ TASK_FAMILY = "${CLUSTER_NAME}_${BRANCH_NAME}"
 SERVICE_NAME = "${TASK_FAMILY}_service"
 
 IMAGE_BUILD_TAG = "v_${BRANCH_NAME}_${env.BUILD_NUMBER}"
-DOCKER_REGISTRY = "https://346011101664.dkr.ecr.us-east-1.amazonaws.com"
+DOCKER_REGISTRY = "346011101664.dkr.ecr.us-east-1.amazonaws.com"
 DOCKER_IMAGE_NAME = "talentmap/api"
 
 JOB = "${env.JOB_NAME}".split('/')[0]
@@ -96,7 +96,7 @@ if ("${BRANCH_NAME}".equals("test")) {
 * Docker Methods
 */
 def pushDockerImage(String dockerRegistry, String dockerRepoName, String tag){
-  docker.withRegistry("${dockerRegistry}") {
+  docker.withRegistry("https://${dockerRegistry}") {
     docker.image("${dockerRepoName}").push("${tag}")
   }
 }
