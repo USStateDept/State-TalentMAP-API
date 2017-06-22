@@ -18,7 +18,8 @@ def DOCKER_IMAGE_NAME = "talentmap/api"
 def JOB = "${env.JOB_NAME}".split('/')[0]
 
 def taskRevision, desiredCount
-
+//FAKING BRANCH FOR TESTING
+BRANCH_NAME = "jenkins-cicd"
 /**
 * Core Pipeline
 */
