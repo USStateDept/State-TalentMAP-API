@@ -1,11 +1,16 @@
 from django.db import models
 
+from talentmap_api.organization.models import Organization
+from talentmap_api.language.models import Qualification
+
 
 class Position(models.Model):
     '''
     The position model represents a job by combining different requirements, as
     well as geographic location
     '''
+
+    position_number = models.TextField(null=True, help_text='The position number')
 
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
@@ -15,6 +20,73 @@ class Position(models.Model):
 
     organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
     bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
+
+    is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
+
+    create_date = models.DateField(null=True, help_text="The creation date of the position")
+    update_date = models.DateField(null=True, help_text="The update date of this position")
+
+    # Values from the original XML/DB that are maintained but not displayed
+    _seq_num = models.TextField(null=True)
+    _title_code = models.TextField(null=True)
+    _org_code = models.TextField(null=True)
+    _bureau_code = models.TextField(null=True)
+    _skill_code = models.TextField(null=True)
+    _staff_ptrn_skill_code = models.TextField(null=True)
+    _pay_plan_code = models.TextField(null=True)
+    _status_code = models.TextField(null=True)
+    _service_type_code = models.TextField(null=True)
+    _grade_code = models.TextField(null=True)
+    _post_code = models.TextField(null=True)
+    _language_1_code = models.TextField(null=True)
+    _language_2_code = models.TextField(null=True)
+    _location_code = models.TextField(null=True)
+    # These are not the required languages, those are in language_1_code, etc.
+    _language_req_1_code = models.TextField(null=True)
+    _language_req_2_code = models.TextField(null=True)
+    _language_1_spoken_proficiency_code = models.TextField(null=True)
+    _language_1_written_proficiency_code = models.TextField(null=True)
+    _language_2_spoken_proficiency_code = models.TextField(null=True)
+    _language_2_written_proficiency_code = models.TextField(null=True)
+    _create_id = models.TextField(null=True)
+    _update_id = models.TextField(null=True)
+    _jobcode_code = models.TextField(null=True)
+    _occ_series_code = models.TextField(null=True)
+
+    def update_relationships(self):
+        '''
+        Update the position relationships
+        '''
+        # Update language requirements
+        self.language_requirements.clear()
+        if self._language_1_code:
+            qualification = Qualification.get_or_create_by_codes(self._language_1_code,
+                                                                 self._language_1_written_proficiency_code,
+                                                                 self._language_1_spoken_proficiency_code)[0]
+            if qualification:
+                self.language_requirements.add(qualification)
+        if self._language_2_code:
+            qualification = Qualification.get_or_create_by_codes(self._language_2_code,
+                                                                 self._language_2_written_proficiency_code,
+                                                                 self._language_2_spoken_proficiency_code)[0]
+            if qualification:
+                self.language_requirements.add(qualification)
+
+        # Update grade
+        if self._grade_code:
+            self.grade = Grade.objects.filter(code=self._grade_code).first()
+
+        # Update skill
+        if self._skill_code:
+            self.skill = Skill.objects.filter(code=self._skill_code).first()
+
+        # Update organizations
+        if self._org_code:
+            self.organization = Organization.objects.filter(code=self._org_code).first()
+        if self._bureau_code:
+            self.bureau = Organization.objects.filter(code=self._bureau_code).first()
+
+        self.save()
 
 
 class Grade(models.Model):
