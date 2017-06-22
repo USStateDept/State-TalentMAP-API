@@ -2,7 +2,7 @@
 This file contains helpers for loading data into the database from XML files
 '''
 
-from lxml import etree as ET
+import defusedxml.lxml as ET
 
 
 class XMLloader():
