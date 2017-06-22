@@ -36,6 +36,11 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
                 self.fields[name] = nested["class"](**kwargs)
 
+        # Ignore any fields that begin with _
+        for field in list(self.fields.keys()):
+            if field[0] == "_":
+                self.fields.pop(field)
+
     @classmethod
     def prefetch_model(cls, model, queryset, prefix=""):
         '''

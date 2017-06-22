@@ -2,12 +2,17 @@
 This file contains helpers for loading data into the database from XML files
 '''
 
+from django.forms.models import model_to_dict
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models import Q
+
 from lxml import etree as ET
+import logging
 
 
 class XMLloader():
 
-    def __init__(self, model, instance_tag, tag_map):
+    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None):
         '''
         Instantiates the XMLloader
 
@@ -15,11 +20,15 @@ class XMLloader():
             model (Class) - The model class used to create instances
             instance_tag (str) - The name of a tag which defines a new instance
             tag_map (dict) - A dictionary defining what XML tags map to which model fields
+            collision_behavior (str) - What to do when a collision is detected (update or delete)
+            collision_field (str) - The field to detect collisions on
         '''
 
         self.model = model
         self.instance_tag = instance_tag
         self.tag_map = tag_map
+        self.collision_behavior = collision_behavior
+        self.collision_field = collision_field
 
     def create_models_from_xml(self, xml_filepath):
         '''
@@ -30,11 +39,15 @@ class XMLloader():
             xml_filepath (str) - The filepath to the XML file to load
 
         Returns:
-            int: The number of instances created from the XML file
+            list: The list of new instance ids
+            list: The list of updated instance ids
         '''
 
         # A list of instances to instantiate with a bulk create
-        instances = []
+        new_instances = []
+
+        # A list of updated instance id's
+        updated_instances = []
 
         # Parse the XML tree
         xml_tree = ET.parse(xml_filepath)
@@ -55,15 +68,44 @@ class XMLloader():
                     # If we have a matching entry, and the map is not a callable,
                     # set the instance's property to that value
                     if not callable(self.tag_map[key]):
-                        setattr(instance, self.tag_map[key], item.text)
+                        if len(item.text.strip()) > 0:
+                            setattr(instance, self.tag_map[key], item.text)
                     else:
                         # Tag map is a callable, so call it with instance + item
                         self.tag_map[key](instance, item)
 
-            # Append our instance
-            instances.append(instance)
+            # Check for collisions
+            if self.collision_field:
+                q_kwargs = {}
+                q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
+                collisions = type(instance).objects.filter(**q_kwargs)
+                if collisions.count() > 1:
+                    logging.getLogger('console').warn("Looking for collision on {}, field {}, value {}; found {}. Skipping item.".format(type(instance).__name__, self.collision_field, getattr(instance, self.collision_field), collisions.count()))
+                    continue
+                elif collisions.count() == 1:
+                    # We have exactly one collision, so handle it
+                    if self.collision_behavior == 'delete':
+                        collisions.delete()
+                        new_instances.append(instance)
+                    elif self.collision_behavior == 'update':
+                        # Update our collided instance
+                        update_dict = dict(instance.__dict__)
+                        del update_dict["id"]
+                        del update_dict["_state"]
+                        collisions.update(**update_dict)
+                        updated_instances.append(collisions.first().id)
+                        continue
+                    elif self.collision_behavior == 'skip':
+                        # Skip this instance, because it already exists
+                        continue
+                else:
+                    new_instances.append(instance)
+            else:
+                # Append our instance
+                new_instances.append(instance)
+
+        new_instances = self.model.objects.bulk_create(new_instances)
+        new_instances = [instance.id for instance in new_instances]
 
         # Create our instances
-        self.model.objects.bulk_create(instances)
-
-        return len(instances)
+        return (new_instances, updated_instances)
