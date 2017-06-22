@@ -135,13 +135,14 @@ def registerTaskDefinition(String taskDefFileName, String taskFamily) {
 
 def getTaskDefRevision(String taskFamily) {
   def revision = sh returnStdout: true, script: "aws --region ${AWS_REGION} ecs describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.revision'"
-  return revision
+  return revision.trim()
 }
 
 def getEcsServiceDesiredCount(String clusterName, String serviceName) {
   def desiredCount = sh returnStdout: true, script: "aws --region ${AWS_REGION} ecs describe-services --cluster ${clusterName} --services ${serviceName} | jq '.services[0].desiredCount'"
-  if (desiredCount == 0) {
-    desiredCount = 1
+  desiredCount = String.valueOf(desiredCount).trim()
+  if (desiredCount.equals("0")) {
+    desiredCount = "1"
   }
   return desiredCount
 }
