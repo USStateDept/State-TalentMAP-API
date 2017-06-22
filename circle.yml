@@ -13,8 +13,8 @@ test:
     - ./cc-test-reporter before-build
   override:
     - bandit -r .
-    - pytest --cov=talentmap_api --cov-report xml:./coverage.xml:
+    - pytest --cov=. --cov-report xml:./coverage.xml:
         environment:
           DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
   post:
-    - ./cc-test-reporter after-build -t coverage.py --exit-code $?
+    - ./cc-test-reporter after-build --exit-code $?
