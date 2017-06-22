@@ -12,4 +12,4 @@ RUN chmod +x ${TM_HOME}/entrypoint.sh
 RUN chmod +x ${TM_HOME}/build.sh
 
 RUN apk add --update bash
-ENTRYPOINT ["${TM_HOME}/entrypoint.sh"]
+ENTRYPOINT ["entrypoint.sh"]
