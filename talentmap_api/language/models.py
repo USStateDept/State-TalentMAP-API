@@ -59,6 +59,26 @@ class Qualification(models.Model):
     written_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='written_qualifications')
     spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_proficiency')
 
+    @staticmethod
+    def get_or_create_by_codes(language_code, written_proficiency, spoken_proficiency):
+        '''
+        Gets or creates a language qualification using the language and proficiency codes.
+
+        Args:
+            language_code (str) - The language's code, for example "FR" for French
+            written_proficiency (str) - The written proficiency's code, for example "2+"
+            spoken_proficiency (str) - The spoken proficiency's code, for example "2+"
+
+        Returns:
+            obj: The qualification object
+            bool: Whether the object was created or found
+        '''
+        language = Language.objects.get(code=language_code)
+        written_proficiency = Proficiency.objects.get(code=written_proficiency)
+        spoken_proficiency = Proficiency.objects.get(code=spoken_proficiency)
+
+        return Qualification.objects.get_or_create(language=language, written_proficiency=written_proficiency, spoken_proficiency=spoken_proficiency)
+
     def __str__(self):
         return "{} {}/{}".format(self.language, self.written_proficiency, self.spoken_proficiency)
 
