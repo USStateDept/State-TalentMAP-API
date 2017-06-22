@@ -3,21 +3,20 @@ BRANCH_NAME = "dev"
 /**
 * Constants & Global Variables
 */
-def GITHUB_URL = "https://github.com/18F/State-TalentMAP-API"
+GITHUB_URL = "https://github.com/18F/State-TalentMAP-API"
 
-def AWS_REGION = "us-east-1"
+AWS_REGION = "us-east-1"
 
-def CLUSTER_NAME = "TalentMAP"
-def TASK_FAMILY = "${CLUSTER_NAME}_${BRANCH_NAME}"
-def SERVICE_NAME = "${TASK_FAMILY}_service"
+CLUSTER_NAME = "TalentMAP"
+TASK_FAMILY = "${CLUSTER_NAME}_${BRANCH_NAME}"
+SERVICE_NAME = "${TASK_FAMILY}_service"
 
-def IMAGE_BUILD_TAG = "v_${BRANCH_NAME}_${env.BUILD_NUMBER}"
-def DOCKER_REGISTRY = "https://346011101664.dkr.ecr.us-east-1.amazonaws.com"
-def DOCKER_IMAGE_NAME = "talentmap/api"
+IMAGE_BUILD_TAG = "v_${BRANCH_NAME}_${env.BUILD_NUMBER}"
+DOCKER_REGISTRY = "https://346011101664.dkr.ecr.us-east-1.amazonaws.com"
+DOCKER_IMAGE_NAME = "talentmap/api"
 
-def JOB = "${env.JOB_NAME}".split('/')[0]
+JOB = "${env.JOB_NAME}".split('/')[0]
 
-def taskRevision, desiredCount
 //FAKING BRANCH FOR TESTING
 BRANCH_NAME = "jenkins-cicd"
 /**
@@ -43,8 +42,8 @@ node('talentmap_base') {
     }
     stage ("Deploy – Update Service") {
       // Update the service with the new task definition and desired count
-      taskRevision = getTaskDefRevision("${TASK_FAMILY}")
-      desiredCount = getEcsServiceDesiredCount("${SERVICE_NAME}")
+      def taskRevision = getTaskDefRevision("${TASK_FAMILY}")
+      def desiredCount = getEcsServiceDesiredCount("${SERVICE_NAME}")
       updateEcsService("${CLUSTER_NAME}", "${SERVICE_NAME}", "${TASK_FAMILY}", taskRevision, desiredCount)
     }
 
@@ -83,7 +82,8 @@ if ("${BRANCH_NAME}".equals("test")) {
   node('talentmap_base') {
     try {
       stage ('Test – Cleanup'){
-        updateEcsService("${CLUSTER_NAME}", "${SERVICE_NAME}", "${TASK_FAMILY}", taskRevision, desiredCount)
+        def taskRevision = getTaskDefRevision("${TASK_FAMILY}")
+        updateEcsService("${CLUSTER_NAME}", "${SERVICE_NAME}", "${TASK_FAMILY}", taskRevision, 0)
       }
     } catch (Exception err) {
       currentBuild.result = 'FAILURE'
