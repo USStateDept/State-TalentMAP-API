@@ -131,7 +131,8 @@ def registerTaskDefinition(String taskDefFileName, String taskFamily) {
 }
 
 def getTaskDefRevision(String taskFamily) {
-  return sh "aws --region ${AWS_REGION} ecs describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.revision'"
+  def revision = sh "aws --region ${AWS_REGION} ecs describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.revision'"
+  return revision
 }
 
 def getEcsServiceDesiredCount(String clusterName, String serviceName) {
