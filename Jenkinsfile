@@ -134,12 +134,12 @@ def registerTaskDefinition(String taskDefFileName, String taskFamily) {
 }
 
 def getTaskDefRevision(String taskFamily) {
-  def revision = sh "aws --region ${AWS_REGION} ecs describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.revision'"
+  def revision = sh returnStdout: true, script: "aws --region ${AWS_REGION} ecs describe-task-definition --task-definition ${taskFamily} | jq '.taskDefinition.revision'"
   return revision
 }
 
 def getEcsServiceDesiredCount(String clusterName, String serviceName) {
-  def desiredCount = sh "aws --region ${AWS_REGION} ecs describe-services --cluster ${clusterName} --services ${serviceName} | jq '.services[0].desiredCount'"
+  def desiredCount = sh returnStdout: true, script: "aws --region ${AWS_REGION} ecs describe-services --cluster ${clusterName} --services ${serviceName} | jq '.services[0].desiredCount'"
   if (desiredCount == 0) {
     desiredCount = 1
   }
@@ -152,11 +152,11 @@ def updateEcsService(String clusterName, String serviceName, String taskFamily, 
 
 def findUriForEcsService(String clusterName, String serviceName) {
   //NOTE: Double-check line if multiple load balancer come into play
-  def targetGroupArn = sh "aws --region ${AWS_REGION} ecs  describe-services --cluster ${clusterName} --service ${serviceName} | jq -r '.services[0].loadBalancers[0].targetGroupArn"
-  def targetGroup = sh "aws --region ${AWS_REGION} elbv2 describe-target-groups --target-group-arns ${targetGroupArn}"
-  def lbArn = sh "echo \"${targetGroup}\" | jq -r '.TargetGroups[0].LoadBalancerArns[0]'"
-  def healthCheckPath = sh "echo \"${targetGroup}\" | jq -r '.TargetGroups[0].HealthCheckPath'"
+  def targetGroupArn = sh returnStdout: true, script: "aws --region ${AWS_REGION} ecs  describe-services --cluster ${clusterName} --service ${serviceName} | jq -r '.services[0].loadBalancers[0].targetGroupArn"
+  def targetGroup = sh returnStdout: true, script: "aws --region ${AWS_REGION} elbv2 describe-target-groups --target-group-arns ${targetGroupArn}"
+  def lbArn = sh returnStdout: true, script: "echo \"${targetGroup}\" | jq -r '.TargetGroups[0].LoadBalancerArns[0]'"
+  def healthCheckPath = sh returnStdout: true, script: "echo \"${targetGroup}\" | jq -r '.TargetGroups[0].HealthCheckPath'"
   //NOTE: Assuming that the base URI of the container is the same as the healthCheckPath
-  def lbDns = sh "aws --region ${AWS_REGION} elbv2 describe-load-balancers --load-balancer-arns ${lbArn} | jq -r '.LoadBalancers[0].DNSName'"
+  def lbDns = sh returnStdout: true, script: "aws --region ${AWS_REGION} elbv2 describe-load-balancers --load-balancer-arns ${lbArn} | jq -r '.LoadBalancers[0].DNSName'"
   return "${lbDns}${healthCheckPath}"
 }
