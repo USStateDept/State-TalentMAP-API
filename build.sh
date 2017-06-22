@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 virtualenv talentmap-env
 source talentmap-env/bin/activate
 
