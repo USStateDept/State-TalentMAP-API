@@ -1,3 +1,5 @@
+//FAKING BRANCH FOR TESTING
+BRANCH_NAME = "dev"
 /**
 * Constants & Global Variables
 */
