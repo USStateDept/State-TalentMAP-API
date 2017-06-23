@@ -31,6 +31,8 @@ if os.environ.get("DJANGO_DEBUG") in ["1", "True", "true"]:
 # This is * for now, but should be set to a proper host when deployed
 ALLOWED_HOSTS = ['*']
 
+# CORS Settings
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'corsheaders',
     'django_filters',
     'django_extensions',
     'rest_framework',
@@ -66,6 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # Third-party
+    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
