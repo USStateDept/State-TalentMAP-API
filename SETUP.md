@@ -50,7 +50,7 @@ The virtual environment has now been created. For further convenience, one can u
 To run the Django server, the following environment variables must be set:
 
 * `DJANGO_SECRET_KEY` - This should be any valid secret string. See the [Django documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-SECRET_KEY) for more information.
-* `DJANGO_DEBUG` - This should be set to `false` when in production, but will default to `true` if otherwise unset.
+* `DJANGO_DEBUG` - Set to `true` to run Django in Debug mode, which is helpful for development. It will default to `false`.
 
 #### Installing Requirements
 To install requirements, execute:
