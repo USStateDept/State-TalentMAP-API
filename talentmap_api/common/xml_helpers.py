@@ -68,8 +68,9 @@ class XMLloader():
                     # If we have a matching entry, and the map is not a callable,
                     # set the instance's property to that value
                     if not callable(self.tag_map[key]):
-                        if len(item.text.strip()) > 0:
-                            setattr(instance, self.tag_map[key], item.text)
+                        data = item.text
+                        if data and len(data.strip()) > 0:
+                            setattr(instance, self.tag_map[key], data)
                     else:
                         # Tag map is a callable, so call it with instance + item
                         self.tag_map[key](instance, item)
@@ -80,7 +81,7 @@ class XMLloader():
                 q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
                 collisions = type(instance).objects.filter(**q_kwargs)
                 if collisions.count() > 1:
-                    logging.getLogger('console').warn("Looking for collision on {}, field {}, value {}; found {}. Skipping item.".format(type(instance).__name__, self.collision_field, getattr(instance, self.collision_field), collisions.count()))
+                    logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
                     continue
                 elif collisions.count() == 1:
                     # We have exactly one collision, so handle it

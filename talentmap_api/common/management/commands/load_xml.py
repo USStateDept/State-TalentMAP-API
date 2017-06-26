@@ -50,7 +50,7 @@ class Command(BaseCommand):
         if callable(post_load_function):
             post_load_function(new_ids, updated_ids)
 
-        self.logger.info("XML Load Report\n\tNew: {}\n\tUpdated: {}\t\t".format(len(new_ids), len(updated_ids)))
+        self.logger.info(f"XML Load Report\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\t\t")
 
 
 def mode_languages():

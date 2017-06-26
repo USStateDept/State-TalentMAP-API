@@ -97,7 +97,7 @@ class Grade(models.Model):
     code = models.CharField(max_length=2, db_index=True, unique=True, null=False)
 
     def __str__(self):
-        return "{}".format(self.code)
+        return f"{self.code}"
 
 
 class Skill(models.Model):
@@ -109,4 +109,4 @@ class Skill(models.Model):
     description = models.TextField(null=False, help_text="Text description of the job skill")
 
     def __str__(self):
-        return "{} ({})".format(self.description, self.code)
+        return f"{self.description} ({self.code})"
