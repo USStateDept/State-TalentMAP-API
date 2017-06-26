@@ -11,23 +11,6 @@ from talentmap_api.organization.models import Organization
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
-class PositionFilter(filters.FilterSet):
-    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
-    grade = filters.RelatedFilter('talentmap_api.position.filters.GradeFilter', name='grade', queryset=Grade.objects.all())
-    skill = filters.RelatedFilter('talentmap_api.position.filters.SkillFilter', name='skill', queryset=Skill.objects.all())
-    organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
-    bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
-
-    class Meta:
-        model = Position
-        fields = {
-            "position_number": ALL_TEXT_LOOKUPS,
-            "is_overseas": ["exact"],
-            "create_date": DATE_LOOKUPS,
-            "update_date": DATE_LOOKUPS
-        }
-
-
 class GradeFilter(filters.FilterSet):
 
     class Meta:
@@ -44,4 +27,21 @@ class SkillFilter(filters.FilterSet):
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "description": ALL_TEXT_LOOKUPS
+        }
+
+
+class PositionFilter(filters.FilterSet):
+    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
+    skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
+    organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
+    bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
+
+    class Meta:
+        model = Position
+        fields = {
+            "position_number": ALL_TEXT_LOOKUPS,
+            "is_overseas": ["exact"],
+            "create_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS
         }
