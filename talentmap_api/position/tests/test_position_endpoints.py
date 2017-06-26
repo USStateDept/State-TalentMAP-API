@@ -71,6 +71,20 @@ def test_position_filtering(client):
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_position_grade_skill_filters(client):
+    response = client.get('/api/v1/position/?grade__code=00')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+    response = client.get('/api/v1/position/?skill__code=0010')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_grade_list(client):
     response = client.get('/api/v1/position/grades/')
 
