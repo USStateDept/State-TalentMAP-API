@@ -54,6 +54,17 @@ def test_xml_collision_update():
 
 
 @pytest.mark.django_db()
+def test_xml_null_values():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_languages_nulls.xml'),
+                 'languages')
+
+    assert Language.objects.count() == 2
+    assert Language.objects.filter(code="GM").count() == 1
+    assert Language.objects.filter(code="FR").count() == 1
+
+
+@pytest.mark.django_db()
 def test_xml_language_loading():
     call_command('load_xml',
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_languages.xml'),

@@ -54,8 +54,8 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         related_field_types = ["OneToOneField", "ManyToManyField", "ForeignKey"]
         for field in model._meta.get_fields():
             if field.get_internal_type() in related_field_types and not hasattr(field, 'related_name'):
-                queryset = queryset.prefetch_related("{}{}".format(prefix, field.name))
+                queryset = queryset.prefetch_related(f"{prefix}{field.name}")
                 if field.related_model != model:
-                    queryset = cls.prefetch_model(field.related_model, queryset, prefix="{}{}{}".format(prefix, field.name, LOOKUP_SEP))
+                    queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}")
 
         return queryset

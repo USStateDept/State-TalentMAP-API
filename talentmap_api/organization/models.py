@@ -31,7 +31,7 @@ class Organization(models.Model):
             if self.code != self._parent_bureau_code:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:
-                    logging.getLogger('console').warn("While setting organization relationships, got {} values for bureau code {}".format(bureau.count(), self._parent_bureau_code))
+                    logging.getLogger('console').warn(f"While setting organization relationships, got {bureau.count()} values for bureau code {self._parent_bureau_code}")
                 else:
                     self.bureau_organization = bureau.first()
             else:
@@ -39,11 +39,11 @@ class Organization(models.Model):
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
             if org.count() != 1:
-                logging.getLogger('console').warn("While setting organization relationships, got {} values for org code {}".format(org.count(), self._parent_organization_code))
+                logging.getLogger('console').warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
             else:
                 self.parent_organization = org.first()
 
         self.save()
 
     def __str__(self):
-        return "{} ({})".format(self.long_description, self.short_description)
+        return f"{self.long_description} ({self.short_description})"

@@ -16,7 +16,7 @@ class Language(models.Model):
     effective_date = models.DateField(null=False, help_text="The date after which the language is in effect")
 
     def __str__(self):
-        return "{} ({})".format(self.long_description, self.code)
+        return f"{self.long_description} ({self.code})"
 
     class Meta:
         managed = True
@@ -43,7 +43,7 @@ class Proficiency(models.Model):
     RANKING = ["F", "X", "P", "0", "0+", "1", "1+", "2", "2+", "3", "3+", "4", "4+", "5"]
 
     def __str__(self):
-        return "{}".format(self.code)
+        return f"{self.code}"
 
     class Meta:
         managed = True
@@ -80,15 +80,13 @@ class Qualification(models.Model):
         spoken_proficiency = Proficiency.objects.filter(code=spoken_proficiency_code)
 
         if language.count() != 1 or written_proficiency.count() != 1 or spoken_proficiency.count() != 1:
-            logging.getLogger('console').warn("Tried to create language qualification, but failed: {} ({}) {} ({}) {} ({})".format(
-                language_code, language.count(), written_proficiency_code, written_proficiency.count(), spoken_proficiency_code, spoken_proficiency.count()
-            ))
+            logging.getLogger('console').warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {written_proficiency_code} ({written_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
             return None, False
 
         return Qualification.objects.get_or_create(language=language.first(), written_proficiency=written_proficiency.first(), spoken_proficiency=spoken_proficiency.first())
 
     def __str__(self):
-        return "{} {}/{}".format(self.language, self.written_proficiency, self.spoken_proficiency)
+        return f"{self.language} {self.written_proficiency}/{self.spoken_proficiency}"
 
     class Meta:
         managed = True
