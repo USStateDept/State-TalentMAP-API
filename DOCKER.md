@@ -6,7 +6,7 @@ docker-compose run app python manage.py migrate
 docker-compose up
 ```
 
-A server will now be running at `http://localhost:8080`.
+A server will now be running at `http://localhost:8000`.
 
 You will need to `docker-compose build` whenever `requirements.txt` changes since the dependencies are installed in the docker image (see `Dockerfile`).
 
