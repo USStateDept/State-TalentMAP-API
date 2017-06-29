@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
+from django.contrib.postgres.search import SearchVector
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
@@ -43,4 +44,26 @@ def multi_field_filter(fields, lookup_expr='exact', exclude=False):
             return queryset.exclude(q_obj)
         else:
             return queryset.filter(q_obj)
+    return filter_method
+
+
+def full_text_search(fields):
+    '''
+    Curries a function suitable for use as a filter's method to perform FTS.
+    (This function should be expanded as FTS functionality needs additional complexity)
+
+    Args:
+        fields (list) - List of fields for search vectors which will be combined for the search
+
+    Returns:
+        callable: A function suitable for use as a filter's method override
+    '''
+    # Create our vectors
+    vectors = [SearchVector(x) for x in fields]
+    final_vector = vectors[0]
+    for vector in vectors[1:]:
+        final_vector += vector
+
+    def filter_method(queryset, name, value):
+        return queryset.annotate(search=final_vector).filter(search=value).distinct()
     return filter_method

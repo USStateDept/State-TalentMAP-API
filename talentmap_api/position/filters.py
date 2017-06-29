@@ -8,7 +8,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter
 from talentmap_api.organization.models import Organization
 
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -38,6 +38,16 @@ class PositionFilter(filters.FilterSet):
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
     organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
+
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="position_number", method=full_text_search(
+        fields=[
+            "organization__long_description",
+            "bureau__long_description",
+            "skill__description",
+            "language_requirements__language__long_description"
+        ]
+    ))
 
     class Meta:
         model = Position
