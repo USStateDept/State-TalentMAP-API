@@ -62,7 +62,7 @@ class QualificationFilter(filters.FilterSet):
     written_proficiency = filters.RelatedFilter(ProficiencyFilter, name='written_proficiency', queryset=Proficiency.objects.all())
     spoken_proficiency = filters.RelatedFilter(ProficiencyFilter, name='spoken_proficiency', queryset=Proficiency.objects.all())
 
-    avaialbe = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Qualification
