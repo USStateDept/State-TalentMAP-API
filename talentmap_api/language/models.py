@@ -59,7 +59,7 @@ class Qualification(models.Model):
 
     language = models.ForeignKey('Language', on_delete=models.PROTECT, null=False, related_name='qualifications')
     written_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='written_qualifications')
-    spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_proficiency')
+    spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_qualifications')
 
     @staticmethod
     def get_or_create_by_codes(language_code, written_proficiency_code, spoken_proficiency_code):

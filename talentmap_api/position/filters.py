@@ -12,6 +12,7 @@ from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
+    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Grade
@@ -21,6 +22,7 @@ class GradeFilter(filters.FilterSet):
 
 
 class SkillFilter(filters.FilterSet):
+    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Skill
