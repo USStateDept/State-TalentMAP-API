@@ -94,7 +94,7 @@ class Grade(models.Model):
     The grade model represents an individual job grade
     '''
 
-    code = models.CharField(max_length=2, db_index=True, unique=True, null=False)
+    code = models.TextField(db_index=True, unique=True, null=False)
 
     def __str__(self):
         return f"{self.code}"
@@ -105,7 +105,7 @@ class Skill(models.Model):
     The skill model represents an individual job skill
     '''
 
-    code = models.CharField(max_length=4, db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
     description = models.TextField(null=False, help_text="Text description of the job skill")
 
     def __str__(self):

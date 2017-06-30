@@ -10,7 +10,7 @@ class Language(models.Model):
     but is maintained as a seperate model to facilitate filtering and logical seperations.
     '''
 
-    code = models.CharField(max_length=2, db_index=True, unique=True, null=False, help_text="The two letter code representation of the language")
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The two letter code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
     effective_date = models.DateField(null=False, help_text="The date after which the language is in effect")
@@ -36,7 +36,7 @@ class Proficiency(models.Model):
                      X - for a "not taken" state on a proficiency exam
     '''
 
-    code = models.CharField(max_length=2, null=False, unique=True, help_text="The code representing the linguistic proficiency")
+    code = models.TextField(null=False, unique=True, help_text="The code representing the linguistic proficiency")
     description = models.TextField(null=False, help_text="Text describing the level of proficiency")
 
     # The ordered ranking of proficiencies for greater than/less than comparisons
@@ -59,7 +59,7 @@ class Qualification(models.Model):
 
     language = models.ForeignKey('Language', on_delete=models.PROTECT, null=False, related_name='qualifications')
     written_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='written_qualifications')
-    spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_proficiency')
+    spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_qualifications')
 
     @staticmethod
     def get_or_create_by_codes(language_code, written_proficiency_code, spoken_proficiency_code):
