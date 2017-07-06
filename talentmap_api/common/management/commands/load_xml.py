@@ -3,10 +3,10 @@ from django.core.management.base import BaseCommand, CommandError
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position
-from talentmap_api.organization.models import Organization
+from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
 
 class Command(BaseCommand):
@@ -22,7 +22,9 @@ class Command(BaseCommand):
             'grades': mode_grades,
             'skills': mode_skills,
             'organizations': mode_organizations,
-            'positions': mode_positions
+            'positions': mode_positions,
+            'tours_of_duty': mode_tour_of_duty,
+            'posts': mode_post
         }
 
     def add_arguments(self, parser):
@@ -109,7 +111,7 @@ def mode_organizations():
     tag_map = {
         "ORGS:ORG_CODE": "code",
         "ORGS:ORG_SHORT_DESC": "short_description",
-        "ORGS:ORG_LONG_DESC": lambda instance, item: setattr(instance, "long_description", re.sub(' +', ' ', item.text).strip()),
+        "ORGS:ORG_LONG_DESC": strip_extra_spaces("long_description"),
         "ORGS:ORG_PARENT_ORG_CODE": "_parent_organization_code",
         "ORGS:ORG_BUREAU_ORG_CODE": "_parent_bureau_code"
     }
@@ -134,7 +136,7 @@ def mode_positions():
         "POSITIONS:POS_BUREAU_CODE": "_bureau_code",
         "POSITIONS:POS_SKILL_CODE": "_skill_code",
         "POSITIONS:POS_STAFF_PTRN_SKILL_CODE": "_staff_ptrn_skill_code",
-        "POSITIONS:POS_OVERSEAS_IND": lambda instance, item: setattr(instance, "is_overseas", bool(item.text)),
+        "POSITIONS:POS_OVERSEAS_IND": parse_boolean("is_overseas"),
         "POSITIONS:POS_PAY_PLAN_CODE": "_pay_plan_code",
         "POSITIONS:POS_STATUS_CODE": "_status_code",
         "POSITIONS:POS_SERVICE_TYPE_CODE": "_service_type_code",
@@ -161,5 +163,42 @@ def mode_positions():
     def post_load_function(new_ids, updated_ids):
         for pos in Position.objects.filter(id__in=new_ids+updated_ids):
             pos.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
+def mode_tour_of_duty():
+    model = TourOfDuty
+    instance_tag = "TOUR_OF_DUTIES:TOUR_OF_DUTY"
+    collision_field = "code"
+    tag_map = {
+        "TOUR_OF_DUTIES:TOD_CODE": "code",
+        "TOUR_OF_DUTIES:TOD_DESC_TEXT": "short_description",
+        "TOUR_OF_DUTIES:TOD_SHORT_DESC": lambda instance, item: setattr(instance, "long_description", re.sub('&amp;', '&', item.text).strip()),
+        "TOUR_OF_DUTIES:TOD_MONTHS_NUM": "months"
+    }
+
+    return (model, instance_tag, tag_map, collision_field, None)
+
+
+def mode_post():
+    model = Post
+    instance_tag = "BIDPOSTS:BIDDING_TOOL"
+    collision_field = "code"
+    tag_map = {
+        "BIDPOSTS:DSC_CD": "code",
+        "BIDPOSTS:LOC_GVT_GEOLOC_DESC": "description",
+        "BIDPOSTS:TOD_CODE": "_tod_code",
+        "BIDPOSTS:BT_COST_OF_LIVING_ADJUST_NUM": "cost_of_living_adjustment",
+        "BIDPOSTS:BT_DIFFERENTIAL_RATE_NUM": "differential_rate",
+        "BIDPOSTS:BT_REST_RELAXATION_POINT_TEXT": strip_extra_spaces("rest_relaxation_point"),
+        "BIDPOSTS:BT_DANGER_PAY_NUM": "danger_pay",
+        "BIDPOSTS:BT_CONSUMABLE_ALLOWANCE_FLG": parse_boolean("has_consumable_allowance"),
+        "BIDPOSTS:BT_SERVICE_NEEDS_DIFF_FLG": parse_boolean("has_service_needs_differential"),
+    }
+
+    def post_load_function(new_ids, updated_ids):
+        for loc in Post.objects.filter(id__in=new_ids+updated_ids):
+            loc.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)

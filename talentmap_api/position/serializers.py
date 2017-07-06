@@ -9,6 +9,7 @@ from talentmap_api.language.serializers import LanguageQualificationSerializer
 class PositionSerializer(PrefetchedSerializer):
     grade = serializers.StringRelatedField()
     skill = serializers.StringRelatedField()
+    post = serializers.StringRelatedField()
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
 

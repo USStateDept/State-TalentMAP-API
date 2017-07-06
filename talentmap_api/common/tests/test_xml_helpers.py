@@ -8,7 +8,7 @@ from model_mommy import mommy
 
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position
-from talentmap_api.organization.models import Organization
+from talentmap_api.organization.models import Organization, TourOfDuty, Post
 
 
 @pytest.mark.django_db(transaction=True)
@@ -21,6 +21,17 @@ def test_xml_collision_noaction():
 
     assert Skill.objects.count() == 1
     assert Skill.objects.filter(description="START DESCRIPTION").count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_xml_collision_noaction_multiples():
+    mommy.make('position.Position', _seq_num="111", _quantity=3)
+
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_positions.xml'),
+                 'positions')
+
+    assert Position.objects.filter(_seq_num="111").count() == 3
 
 
 @pytest.mark.django_db(transaction=True)
@@ -115,6 +126,31 @@ def test_xml_organizations_loading():
     assert Organization.objects.filter(code="010101").count() == 1
 
 
+@pytest.mark.django_db()
+def test_xml_tour_of_duty_loading():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_tour_of_duty.xml'),
+                 'tours_of_duty')
+
+    assert TourOfDuty.objects.count() == 3
+    assert TourOfDuty.objects.filter(code="2").count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_xml_post_loading():
+    tod_1 = mommy.make('organization.TourOfDuty', code="I")
+    tod_2 = mommy.make('organization.TourOfDuty', code="O")
+
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_bidding_tool_posts.xml'),
+                 'posts')
+
+    assert Post.objects.count() == 2
+    assert Post.objects.filter(code="AF1000000").count() == 1
+    assert Post.objects.filter(code="AF1000000").first().tour_of_duty == tod_2
+    assert Post.objects.filter(code="AE1200000").first().tour_of_duty == tod_1
+
+
 @pytest.mark.django_db(transaction=True)
 def test_xml_positions_loading():
     # Make the objects that this position will be linking to
@@ -128,6 +164,8 @@ def test_xml_positions_loading():
     skill = mommy.make('position.Skill', code="9017")
     grade = mommy.make('position.Grade', code="05")
 
+    post = mommy.make('organization.Post', code="SL2000000")
+
     call_command('load_xml',
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_positions.xml'),
                  'positions')
@@ -140,3 +178,5 @@ def test_xml_positions_loading():
 
     assert position.skill == skill
     assert position.grade == grade
+
+    assert position.post == post

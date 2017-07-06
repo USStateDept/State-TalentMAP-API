@@ -8,6 +8,7 @@ from django.db.models import Q
 
 import defusedxml.lxml as ET
 import logging
+import re
 
 
 class XMLloader():
@@ -110,3 +111,25 @@ class XMLloader():
 
         # Create our instances
         return (new_instances, updated_instances)
+
+
+def strip_extra_spaces(field):
+    '''
+    Creates a function for processing a specific field by removing duplicated and
+    trailing spaces during XML loading
+    '''
+    def process_function(instance, item):
+        setattr(instance, field, re.sub(' +', ' ', item.text).strip())
+    return process_function
+
+
+def parse_boolean(field):
+    '''
+    Creates a function for processing booleans from a string
+    '''
+    def process_function(instance, item):
+        value = False
+        if item.text in ["1", "True", "true", "Y", "T"]:
+            value = True
+        setattr(instance, field, value)
+    return process_function

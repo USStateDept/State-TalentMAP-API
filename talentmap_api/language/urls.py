@@ -11,5 +11,5 @@ urlpatterns = [
     url(r'^proficiencies/(?P<pk>[0-9]+)/$', views.LanguageProficiencyListView.as_view(get_retrieve), name='view-language-proficiency-details'),
 
     url(r'^qualifications/$', views.LanguageQualificationListView.as_view(get_list), name='view-language-qualifications'),
-    url(r'^qualificiations/(?P<pk>[0-9]+)/$', views.LanguageQualificationListView.as_view(get_retrieve), name='view-language-qualification-details'),
+    url(r'^qualifications/(?P<pk>[0-9]+)/$', views.LanguageQualificationListView.as_view(get_retrieve), name='view-language-qualification-details'),
 ]

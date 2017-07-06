@@ -1,6 +1,6 @@
 from django.db import models
 
-from talentmap_api.organization.models import Organization, Location
+from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
 
 
@@ -20,7 +20,7 @@ class Position(models.Model):
 
     organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
     bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
-    location = models.ForeignKey('organization.Location', related_name='positions', null=True, help_text='The position location')
+    post = models.ForeignKey('organization.post', related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
 
@@ -89,7 +89,7 @@ class Position(models.Model):
 
         # Update location
         if self._location_code:
-            self.location = Location.objects.filter(code=self._location_code).first()
+            self.post = Post.objects.filter(code=self._location_code).first()
 
         self.save()
 

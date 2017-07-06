@@ -3,7 +3,7 @@ import rest_framework_filters as filters
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 
-from talentmap_api.organization.models import Organization, Location, TourOfDuty
+from talentmap_api.organization.models import Organization, Post, TourOfDuty
 from talentmap_api.common.filters import multi_field_filter, ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS
 
 
@@ -24,7 +24,7 @@ class OrganizationFilter(filters.FilterSet):
 
 
 class TourOfDutyFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="locations__positions", lookup_expr="isnull", exclude=True)
+    available = filters.BooleanFilter(name="posts__positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = TourOfDuty
@@ -36,13 +36,13 @@ class TourOfDutyFilter(filters.FilterSet):
         }
 
 
-class LocationFilter(filters.FilterSet):
+class PostFilter(filters.FilterSet):
     tour_of_duty = filters.RelatedFilter(TourOfDutyFilter, name='tour_of_duty', queryset=TourOfDuty.objects.all())
 
     available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
-        model = Location
+        model = Post
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "description": ALL_TEXT_LOOKUPS,

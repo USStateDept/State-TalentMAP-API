@@ -63,13 +63,13 @@ class TourOfDuty(models.Model):
         return f"{self.long_description}"
 
 
-class Location(models.Model):
+class Post(models.Model):
     '''
-    Represents a location and its related fields
+    Represents a post and its related fields
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The location code, a combination of country and granular location codes")
-    description = models.TextField(null=False, help_text="Long-format description of the organization")
+    description = models.TextField(null=False, help_text="Long-format description of the post")
 
     cost_of_living_adjustment = models.IntegerField(null=False, default=0, help_text="Cost of living adjustment number")
     differential_rate = models.IntegerField(null=False, default=0, help_text="Differential rate number")
@@ -80,13 +80,13 @@ class Location(models.Model):
     has_consumable_allowance = models.BooleanField(default=False)
     has_service_needs_differential = models.BooleanField(default=False)
 
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="locations", help_text="The tour of duty")
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
 
     _tod_code = models.TextField(null=True)
 
     def update_relationships(self):
         if self._tod_code:
-            self.tour_of_duty = TourOfDuty.objects.filter(code=_tod_code).first()
+            self.tour_of_duty = TourOfDuty.objects.filter(code=self._tod_code).first()
 
         self.save()
 
