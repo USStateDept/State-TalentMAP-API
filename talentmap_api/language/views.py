@@ -7,7 +7,11 @@ from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, Qu
 
 class LanguageListView(ReadOnlyModelViewSet):
     """
-    Lists all available languages.
+    retrieve:
+    Return the given language.
+
+    list:
+    Return a list of all languages.
     """
 
     serializer_class = LanguageSerializer
@@ -19,7 +23,11 @@ class LanguageListView(ReadOnlyModelViewSet):
 
 class LanguageProficiencyListView(ReadOnlyModelViewSet):
     """
-    Lists all available language proficiencies.
+    retrieve:
+    Return the given proficiency.
+
+    list:
+    Return a list of all proficiencies.
     """
 
     serializer_class = LanguageProficiencySerializer
@@ -31,7 +39,11 @@ class LanguageProficiencyListView(ReadOnlyModelViewSet):
 
 class LanguageQualificationListView(ReadOnlyModelViewSet):
     """
-    Lists all available languages qualifications.
+    retrieve:
+    Return the given qualification.
+
+    list:
+    Return a list of all qualifications.
     """
 
     serializer_class = LanguageQualificationSerializer
