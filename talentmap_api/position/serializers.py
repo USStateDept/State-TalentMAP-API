@@ -45,10 +45,6 @@ class PositionSerializer(PrefetchedSerializer):
                 "class": PostSerializer,
                 "field": "post",
                 "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "description"
-                    ],
                     "many": False,
                     "read_only": True
                 }

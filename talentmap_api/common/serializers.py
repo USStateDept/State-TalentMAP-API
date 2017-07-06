@@ -12,8 +12,9 @@ class PrefetchedSerializer(serializers.ModelSerializer):
     "serializer_field_name": {
         "class": SomeSerializer,
         "field": "SourceDataField",
-        "override_fields": [] // List of fields to _only_ include
         "kwargs": {
+            "override_fields": [] // List of fields to _only_ include
+            "override_exclude": []
             "read_only": True,
             "many": True
         }
