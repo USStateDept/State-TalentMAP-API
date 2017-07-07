@@ -4,6 +4,7 @@ from talentmap_api.common.serializers import PrefetchedSerializer
 
 from talentmap_api.position.models import Position, Grade, Skill
 from talentmap_api.language.serializers import LanguageQualificationSerializer
+from talentmap_api.organization.serializers import PostSerializer
 
 
 class PositionSerializer(PrefetchedSerializer):
@@ -37,6 +38,14 @@ class PositionSerializer(PrefetchedSerializer):
                 "field": "language_requirements",
                 "kwargs": {
                     "many": True,
+                    "read_only": True
+                }
+            },
+            "post": {
+                "class": PostSerializer,
+                "field": "post",
+                "kwargs": {
+                    "many": False,
                     "read_only": True
                 }
             }
