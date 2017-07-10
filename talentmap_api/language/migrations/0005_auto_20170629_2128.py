@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='language',
             name='code',
-            field=models.TextField(db_index=True, help_text='The two letter code representation of the language', unique=True),
+            field=models.TextField(db_index=True, help_text='The code representation of the language', unique=True),
         ),
         migrations.AlterField(
             model_name='proficiency',

@@ -7,10 +7,10 @@ class Language(models.Model):
     '''
     The language model represents an individual language, such as English, French, et. al.
     It is typically linked together with a language proficiency to create a qualification,
-    but is maintained as a seperate model to facilitate filtering and logical seperations.
+    but is maintained as a separate model to facilitate filtering and logical separations.
     '''
 
-    code = models.TextField(db_index=True, unique=True, null=False, help_text="The two letter code representation of the language")
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
     effective_date = models.DateField(null=False, help_text="The date after which the language is in effect")
