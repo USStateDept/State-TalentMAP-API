@@ -11,6 +11,7 @@ class OrganizationFilter(filters.FilterSet):
     bureau_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='bureau_organization', queryset=Organization.objects.all())
     parent_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
 
+    # Name here must be a valid field, but it is ignored when overriden by the method parameter
     available = filters.BooleanFilter(name="bureau_positions", method=multi_field_filter(fields=["bureau_positions", "organization_positions"], lookup_expr="isnull", exclude=True))
 
     class Meta:

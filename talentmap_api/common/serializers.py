@@ -41,12 +41,15 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
                 self.fields[name] = nested["class"](**kwargs)
 
-        # Ignore any fields that begin with _
+        # Iterate over our fields and modify the list as necessary
         for field in list(self.fields.keys()):
+            # Ignore any fields that begin with _
             if field[0] == "_":
                 self.fields.pop(field)
+            # If we have overriden fields, remove fields not present in the requested list
             elif len(override_fields) > 0 and field not in override_fields:
                 self.fields.pop(field)
+            # If we have overriden exclusions, remove fields present in the exclusion list
             elif field in override_exclude:
                 self.fields.pop(field)
 

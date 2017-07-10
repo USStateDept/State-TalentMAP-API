@@ -24,7 +24,11 @@ class DisabledHTMLFilterBackend(DjangoFilterBackend):
 
 def multi_field_filter(fields, lookup_expr='exact', exclude=False):
     '''
-    Curries a function suitable for use as a filter's method.
+    Curries a function suitable for use as a filter's method. This function allows
+    for filtering across multiple relationships, for example, a filter parameter of
+    'available' might wish to be valid only if 'fieldA' and 'fieldB' are both valid.
+    This is achieved by calling multi_field_filter(['fieldA', 'fieldB']) and using
+    the returned method as the 'method' parameter of the filter.
 
     Args:
         fields (list) - List of fields to lookup
@@ -61,6 +65,9 @@ def full_text_search(fields):
     # Create our vectors
     vectors = [SearchVector(x) for x in fields]
     final_vector = vectors[0]
+
+    # Each column creates its own search vector, but since we're using the same
+    # term across all vectors, we need to combine them. This is done via addition operator
     for vector in vectors[1:]:
         final_vector += vector
 
