@@ -7,7 +7,11 @@ from talentmap_api.position.serializers import PositionSerializer, GradeSerializ
 
 class PositionListView(ReadOnlyModelViewSet):
     """
-    Lists all positions.
+    retrieve:
+    Return the given position.
+
+    list:
+    Return a list of all positions.
     """
 
     serializer_class = PositionSerializer
@@ -20,28 +24,36 @@ class PositionListView(ReadOnlyModelViewSet):
 
 
 class GradeListView(ReadOnlyModelViewSet):
-        """
-        Lists all job grades.
-        """
+    """
+    retrieve:
+    Return the given grade.
 
-        serializer_class = GradeSerializer
-        filter_class = GradeFilter
+    list:
+    Return a list of all grades.
+    """
 
-        def get_queryset(self):
-            queryset = Grade.objects.all()
-            queryset = self.serializer_class.prefetch_model(Grade, queryset)
-            return queryset
+    serializer_class = GradeSerializer
+    filter_class = GradeFilter
+
+    def get_queryset(self):
+        queryset = Grade.objects.all()
+        queryset = self.serializer_class.prefetch_model(Grade, queryset)
+        return queryset
 
 
 class SkillListView(ReadOnlyModelViewSet):
-        """
-        Lists all job skills.
-        """
+    """
+    retrieve:
+    Return the given skill.
 
-        serializer_class = SkillSerializer
-        filter_class = SkillFilter
+    list:
+    Return a list of all skills.
+    """
 
-        def get_queryset(self):
-            queryset = Skill.objects.all()
-            queryset = self.serializer_class.prefetch_model(Skill, queryset)
-            return queryset
+    serializer_class = SkillSerializer
+    filter_class = SkillFilter
+
+    def get_queryset(self):
+        queryset = Skill.objects.all()
+        queryset = self.serializer_class.prefetch_model(Skill, queryset)
+        return queryset

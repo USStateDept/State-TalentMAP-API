@@ -47,3 +47,48 @@ class Organization(models.Model):
 
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"
+
+
+class TourOfDuty(models.Model):
+    '''
+    Represents a tour of duty
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The tour of duty code")
+    long_description = models.TextField(null=False, help_text="Long-format description of the tour of duty")
+    short_description = models.TextField(null=False, help_text="Short-format description of the tour of duty")
+    months = models.IntegerField(null=False, default=0, help_text="The number of months for this tour of duty")
+
+    def __str__(self):
+        return f"{self.long_description}"
+
+
+class Post(models.Model):
+    '''
+    Represents a post and its related fields
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The location code, a combination of country and granular location codes")
+    description = models.TextField(null=False, help_text="Long-format description of the post")
+
+    cost_of_living_adjustment = models.IntegerField(null=False, default=0, help_text="Cost of living adjustment number")
+    differential_rate = models.IntegerField(null=False, default=0, help_text="Differential rate number")
+    danger_pay = models.IntegerField(null=False, default=0, help_text="Danger pay number")
+
+    rest_relaxation_point = models.TextField(null=False, blank=True, help_text="Rest and relaxation point")
+
+    has_consumable_allowance = models.BooleanField(default=False)
+    has_service_needs_differential = models.BooleanField(default=False)
+
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
+
+    _tod_code = models.TextField(null=True)
+
+    def update_relationships(self):
+        if self._tod_code:
+            self.tour_of_duty = TourOfDuty.objects.filter(code=self._tod_code).first()
+
+        self.save()
+
+    def __str__(self):
+        return f"{self.description}"

@@ -13,6 +13,8 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         "class": SomeSerializer,
         "field": "SourceDataField",
         "kwargs": {
+            "override_fields": [] // List of fields to _only_ include
+            "override_exclude": []
             "read_only": True,
             "many": True
         }
@@ -20,6 +22,9 @@ class PrefetchedSerializer(serializers.ModelSerializer):
     }
     '''
     def __init__(self, *args, **kwargs):
+        override_fields = kwargs.pop("override_fields", [])
+        override_exclude = kwargs.pop("override_exclude", [])
+
         # Initializer our parent serializer
         super(PrefetchedSerializer, self).__init__(*args, **kwargs)
 
@@ -36,9 +41,16 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
                 self.fields[name] = nested["class"](**kwargs)
 
-        # Ignore any fields that begin with _
+        # Iterate over our fields and modify the list as necessary
         for field in list(self.fields.keys()):
+            # Ignore any fields that begin with _
             if field[0] == "_":
+                self.fields.pop(field)
+            # If we have overriden fields, remove fields not present in the requested list
+            elif len(override_fields) > 0 and field not in override_fields:
+                self.fields.pop(field)
+            # If we have overriden exclusions, remove fields present in the exclusion list
+            elif field in override_exclude:
                 self.fields.pop(field)
 
     @classmethod
