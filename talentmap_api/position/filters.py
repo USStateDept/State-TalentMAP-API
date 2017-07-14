@@ -43,6 +43,7 @@ class PositionFilter(filters.FilterSet):
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
         fields=[
+            "title",
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
@@ -55,6 +56,7 @@ class PositionFilter(filters.FilterSet):
         model = Position
         fields = {
             "position_number": ALL_TEXT_LOOKUPS,
+            "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS
