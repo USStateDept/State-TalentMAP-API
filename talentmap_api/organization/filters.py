@@ -20,7 +20,8 @@ class OrganizationFilter(filters.FilterSet):
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
-            "is_bureau": ['exact']
+            "is_bureau": ['exact'],
+            "is_regional": ['exact']
         }
 
 

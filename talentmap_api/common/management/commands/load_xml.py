@@ -32,6 +32,7 @@ class Command(BaseCommand):
         parser.add_argument('type', nargs=1, type=str, choices=self.modes.keys(), help="The type of data in the XML")
         parser.add_argument('--delete', dest='delete', action='store_true', help='Delete collisions')
         parser.add_argument('--update', dest='update', action='store_true', help='Update collisions')
+        parser.add_argument('--skippost', dest='skip_post', action='store_true', help='Skip post load functions')
 
     def handle(self, *args, **options):
         model, instance_tag, tag_map, collision_field, post_load_function = self.modes[options['type'][0]]()
@@ -49,7 +50,7 @@ class Command(BaseCommand):
         new_ids, updated_ids = loader.create_models_from_xml(options['file'][0])
 
         # Run the post load function, if it exists
-        if callable(post_load_function):
+        if callable(post_load_function) and not options['skip_post']:
             post_load_function(new_ids, updated_ids)
 
         self.logger.info(f"XML Load Report\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\t\t")
@@ -132,6 +133,7 @@ def mode_positions():
         "POSITIONS:POS_SEQ_NUM": "_seq_num",
         "POSITIONS:POS_NUM_TEXT": "position_number",
         "POSITIONS:POS_TITLE_CODE": "_title_code",
+        "POSITIONS:POS_TITLE_DESC": "title",
         "POSITIONS:POS_ORG_CODE": "_org_code",
         "POSITIONS:POS_BUREAU_CODE": "_bureau_code",
         "POSITIONS:POS_SKILL_CODE": "_skill_code",

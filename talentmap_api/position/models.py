@@ -11,6 +11,7 @@ class Position(models.Model):
     '''
 
     position_number = models.TextField(null=True, help_text='The position number')
+    title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
