@@ -3,14 +3,15 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 
 from talentmap_api.language.models import Qualification, Proficiency, Language
-from talentmap_api.common.filters import multi_field_filter, ALL_TEXT_LOOKUPS
+from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class LanguageFilter(filters.FilterSet):
     # Convenience filter of "name" which will perform a contains lookup on the description
     name = filters.CharFilter(name="long_description", lookup_expr="contains")
 
-    available = filters.BooleanFilter(name="qualifications__positions", lookup_expr="isnull", exclude=True)
+    available = filters.BooleanFilter(name="qualifications__positions", method=negate_boolean_filter("isnull"))
 
     class Meta:
         model = Language
@@ -66,4 +67,8 @@ class QualificationFilter(filters.FilterSet):
 
     class Meta:
         model = Qualification
-        fields = {}
+        fields = {
+            "language": FOREIGN_KEY_LOOKUPS,
+            "written_proficiency": FOREIGN_KEY_LOOKUPS,
+            "spoken_proficiency": FOREIGN_KEY_LOOKUPS
+        }

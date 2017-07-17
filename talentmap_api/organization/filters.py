@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
-from talentmap_api.common.filters import multi_field_filter, ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class OrganizationFilter(filters.FilterSet):
@@ -20,13 +21,15 @@ class OrganizationFilter(filters.FilterSet):
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
+            "bureau_organization": FOREIGN_KEY_LOOKUPS,
+            "parent_organization": FOREIGN_KEY_LOOKUPS,
             "is_bureau": ['exact'],
             "is_regional": ['exact']
         }
 
 
 class TourOfDutyFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="posts__positions", lookup_expr="isnull", exclude=True)
+    available = filters.BooleanFilter(name="posts__positions", method=negate_boolean_filter("isnull"))
 
     class Meta:
         model = TourOfDuty
@@ -52,6 +55,7 @@ class PostFilter(filters.FilterSet):
             "differential_rate": INTEGER_LOOKUPS,
             "danger_pay": INTEGER_LOOKUPS,
             "rest_relaxation_point": ALL_TEXT_LOOKUPS,
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "has_consumable_allowance": ["exact"],
             "has_service_needs_differential": ["exact"]
         }

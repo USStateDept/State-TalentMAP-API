@@ -95,6 +95,7 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'talentmap_api.common.filters.DisabledHTMLFilterBackend',
+        'rest_framework.filters.OrderingFilter'
     ),
 }
 
