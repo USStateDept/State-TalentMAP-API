@@ -44,12 +44,12 @@ class ShareView(APIView):
         a string explanation of the validation error.
         '''
         if "mode" not in request.data:
-            return (False, "POSTs to this endpoint require the mode parameter")
+            return (False, "POSTs to this endpoint require the 'mode' parameter")
         elif request.data.get("mode") not in self.AVAILABLE_MODES:
             return (False, f"Mode must be one of the following: {','.join(self.AVAILABLE_MODES)}")
 
         if "type" not in request.data:
-            return (False, "POSTs to this endpoint require the type parameter")
+            return (False, "POSTs to this endpoint require the 'type' parameter")
         elif request.data.get("type") not in self.AVAILABLE_TYPES.keys():
             return (False, f"Type must be one of the following: {','.join(self.AVAILABLE_TYPES.keys())}")
 
