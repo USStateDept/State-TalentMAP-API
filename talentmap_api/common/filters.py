@@ -25,7 +25,7 @@ class DisabledHTMLFilterBackend(DjangoFilterBackend):
 
 def negate_boolean_filter(lookup_expr):
     '''
-    Curries a function which xecutes a boolean filter, but negating the incoming value.
+    Curries a function which executes a boolean filter, but negating the incoming value.
     This is needed because in the case of reversing a many to many relationship
     an exclusion is not always equivalent to a negative filter.
 
