@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'talentmap_api.common',
     'talentmap_api.position',
     'talentmap_api.language',
-    'talentmap_api.organization'
+    'talentmap_api.organization',
+    'talentmap_api.user_profile',
 ]
 
 MIDDLEWARE = [

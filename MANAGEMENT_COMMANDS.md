@@ -9,3 +9,5 @@ The following management commands are available. More detailed help can be found
 * `load_all_data <FILEPATH>` - Loads all XML files from the given file path, using default DOS xml file names.
 
 * `update_relationships` - Updates all relationships for models which have foreign keys. (This is useful if there was a partial data load)
+
+* `create_user <USERNAME> <EMAIL> <PASSWORD>` - Creates a user

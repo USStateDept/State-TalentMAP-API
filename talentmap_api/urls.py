@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^api/v1/language/', include('talentmap_api.language.urls')),
     url(r'^api/v1/position/', include('talentmap_api.position.urls')),
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls')),
+    url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:  # pragma: no cover
