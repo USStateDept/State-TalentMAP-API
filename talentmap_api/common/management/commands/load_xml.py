@@ -175,8 +175,8 @@ def mode_tour_of_duty():
     collision_field = "code"
     tag_map = {
         "TOUR_OF_DUTIES:TOD_CODE": "code",
-        "TOUR_OF_DUTIES:TOD_DESC_TEXT": "short_description",
-        "TOUR_OF_DUTIES:TOD_SHORT_DESC": lambda instance, item: setattr(instance, "long_description", re.sub('&amp;', '&', item.text).strip()),
+        "TOUR_OF_DUTIES:TOD_SHORT_DESC": "short_description",
+        "TOUR_OF_DUTIES:TOD_DESC_TEXT": lambda instance, item: setattr(instance, "long_description", re.sub('&amp;', '&', item.text).strip()),
         "TOUR_OF_DUTIES:TOD_MONTHS_NUM": "months"
     }
 

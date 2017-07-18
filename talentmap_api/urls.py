@@ -19,12 +19,15 @@ from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_expiring_authtoken import views as auth_views
 
+from talentmap_api.common.views import ShareView
+
 urlpatterns = [
     url(r'^$', get_swagger_view(title='TalentMAP API')),
     url(r'^api/v1/language/', include('talentmap_api.language.urls')),
     url(r'^api/v1/position/', include('talentmap_api.position.urls')),
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls')),
     url(r'^api/v1/accounts/profile/', include('talentmap_api.user_profile.urls')),
+    url(r'^api/v1/share/', ShareView.as_view()),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
