@@ -22,7 +22,6 @@ class PrefetchedSerializer(serializers.ModelSerializer):
     }
     '''
     def __init__(self, *args, **kwargs):
-        print(kwargs)
         override_fields = kwargs.pop("override_fields", [])
         override_exclude = kwargs.pop("override_exclude", [])
 
@@ -34,7 +33,6 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             for name, nested in self.Meta.nested.items():
                 # Get the nested serializer's kwargs
                 kwargs = nested.get("kwargs", {})
-                print(kwargs)
 
                 # If our serializer field name is not the same as the source, specify it
                 if nested.get("field", False) and name != nested["field"]:
