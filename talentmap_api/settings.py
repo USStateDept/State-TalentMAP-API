@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import dj_database_url
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +35,13 @@ ALLOWED_HOSTS = ['*']
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
 
+# Login paths for Swagger UI
+LOGIN_URL = 'rest_framework:login'
+LOGOUT_URL = 'rest_framework:logout'
+
+# Authorization token lifetime
+EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(days=1)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,6 +57,8 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_expiring_authtoken',
     'rest_framework_swagger',
     'debug_toolbar',
 
@@ -96,6 +106,10 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'talentmap_api.common.filters.DisabledHTMLFilterBackend',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_expiring_authtoken.authentication.ExpiringTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
 

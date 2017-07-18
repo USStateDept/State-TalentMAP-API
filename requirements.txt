@@ -13,6 +13,7 @@ django-extensions==1.7.9
 django-filter==1.0.4
 django-rest-swagger==2.1.2
 djangorestframework==3.6.3
+djangorestframework-expiring-authtoken==0.1.4
 djangorestframework-filters==0.10.1
 gitdb2==2.0.2
 GitPython==2.1.5
