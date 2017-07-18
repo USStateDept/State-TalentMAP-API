@@ -35,7 +35,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                 kwargs = nested.get("kwargs", {})
 
                 # If our serializer field name is not the same as the source, specify it
-                if name != nested["field"]:
+                if nested.get("field", False) and name != nested["field"]:
                     kwargs["source"] = nested["field"]
                     self.fields.pop(nested["field"])
 
