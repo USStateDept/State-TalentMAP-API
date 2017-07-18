@@ -22,6 +22,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
     }
     '''
     def __init__(self, *args, **kwargs):
+        print(kwargs)
         override_fields = kwargs.pop("override_fields", [])
         override_exclude = kwargs.pop("override_exclude", [])
 
@@ -33,11 +34,32 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             for name, nested in self.Meta.nested.items():
                 # Get the nested serializer's kwargs
                 kwargs = nested.get("kwargs", {})
+                print(kwargs)
 
                 # If our serializer field name is not the same as the source, specify it
                 if nested.get("field", False) and name != nested["field"]:
                     kwargs["source"] = nested["field"]
                     self.fields.pop(nested["field"])
+
+                # If our parent serializer has field limitations on the child, pass them down
+                child_override_fields = []
+                child_override_exclude = []
+
+                for pair in [(override_fields, "override_fields"), (override_exclude, "override_exclude")]:
+                    overrides = pair[0]
+                    child_overrides = []
+
+                    for field in overrides:
+                        split_field = field.split(LOOKUP_SEP)
+                        # Skip this field if we don't have a nested field
+                        if len(split_field) == 1:
+                            continue
+                        if split_field[0] == name or split_field[0] == nested.get("field", ""):
+                            child_overrides.append(LOOKUP_SEP.join(split_field[1:]))
+
+                    # If we have child overrides, attach them to the child's kwargs
+                    if len(child_overrides) > 0:
+                        kwargs[pair[1]] = child_overrides
 
                 self.fields[name] = nested["class"](**kwargs)
 
