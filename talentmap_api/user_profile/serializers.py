@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
+    favorite_positions = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = UserProfile
