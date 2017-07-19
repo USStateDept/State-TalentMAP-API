@@ -15,6 +15,8 @@ class UserSerializer(PrefetchedSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
+    favorite_positions = serializers.StringRelatedField(many=True)
+    language_qualifications = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = UserProfile
@@ -23,27 +25,6 @@ class UserProfileSerializer(PrefetchedSerializer):
             "user": {
                 "class": UserSerializer,
                 "kwargs": {
-                    "read_only": True
-                }
-            },
-            "language_qualifications": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "favorite_positions": {
-                "class": PositionSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "position_number",
-                        "title",
-                        "post",
-                        "post__description"
-                    ],
-                    "many": True,
                     "read_only": True
                 }
             }
