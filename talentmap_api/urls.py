@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework_expiring_authtoken import views as auth_views
 
 from talentmap_api.common.views import ShareView
 
@@ -25,8 +26,15 @@ urlpatterns = [
     url(r'^api/v1/language/', include('talentmap_api.language.urls')),
     url(r'^api/v1/position/', include('talentmap_api.position.urls')),
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls')),
+    url(r'^api/v1/accounts/profile/', include('talentmap_api.user_profile.urls')),
     url(r'^api/v1/share/', ShareView.as_view()),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Auth patterns
+urlpatterns += [
+    url(r'^api/v1/accounts/token/', auth_views.obtain_expiring_auth_token),
+    url(r'^api/v1/accounts/', include('rest_framework.urls')),
+]
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar

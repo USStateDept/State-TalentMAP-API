@@ -55,6 +55,9 @@ class Position(models.Model):
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
 
+    def __str__(self):
+        return f"[{self.position_number}] {self.title} ({self.post})"
+
     def update_relationships(self):
         '''
         Update the position relationships
