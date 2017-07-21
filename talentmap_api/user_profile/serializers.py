@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
@@ -6,6 +8,7 @@ from talentmap_api.position.serializers import PositionSerializer
 
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.position.models import Position
 
 
 class UserSerializer(PrefetchedSerializer):
@@ -52,6 +55,20 @@ class UserProfileSerializer(PrefetchedSerializer):
 
 
 class UserProfileWritableSerializer(PrefetchedSerializer):
+
+    def validate(self, data):
+        '''
+        Validate user profile here, mainly position preferences as this is an
+        arbitrary json object
+        '''
+        if 'position_preferences' in data:
+            # Verify that position preferences are a valid set of position filters
+            try:
+                Position.objects.filter(Q(**data.get('position_preferences')))
+            except:
+                raise ValidationError("Position preferences must be a valid set of position filters")
+
+        return data
 
     class Meta:
         model = UserProfile

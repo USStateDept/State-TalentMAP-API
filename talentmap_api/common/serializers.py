@@ -40,9 +40,6 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                     self.fields.pop(nested["field"])
 
                 # If our parent serializer has field limitations on the child, pass them down
-                child_override_fields = []
-                child_override_exclude = []
-
                 for pair in [(override_fields, "override_fields"), (override_exclude, "override_exclude")]:
                     overrides = pair[0]
                     child_overrides = []
@@ -56,7 +53,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                             child_overrides.append(LOOKUP_SEP.join(split_field[1:]))
 
                     # If we have child overrides, attach them to the child's kwargs
-                    if len(child_overrides) > 0:
+                    if child_overrides:
                         kwargs[pair[1]] = child_overrides
 
                 self.fields[name] = nested["class"](**kwargs)
@@ -66,10 +63,10 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             # Ignore any fields that begin with _
             if field[0] == "_":
                 self.fields.pop(field)
-            # If we have overriden fields, remove fields not present in the requested list
-            elif len(override_fields) > 0 and field not in override_fields:
+            # If we have overidden fields, remove fields not present in the requested list
+            elif override_fields and field not in override_fields:
                 self.fields.pop(field)
-            # If we have overriden exclusions, remove fields present in the exclusion list
+            # If we have overidden exclusions, remove fields present in the exclusion list
             elif field in override_exclude:
                 self.fields.pop(field)
 
