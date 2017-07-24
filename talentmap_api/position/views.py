@@ -1,8 +1,13 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from django.db.models import Q
+
+from rest_framework.permissions import IsAuthenticated
 
 from talentmap_api.position.models import Position, Grade, Skill
 from talentmap_api.position.filters import PositionFilter, GradeFilter, SkillFilter
 from talentmap_api.position.serializers import PositionSerializer, GradeSerializer, SkillSerializer
+
+from talentmap_api.user_profile.models import UserProfile
 
 
 class PositionListView(ReadOnlyModelViewSet):
@@ -19,6 +24,38 @@ class PositionListView(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = Position.objects.all()
+        queryset = self.serializer_class.prefetch_model(Position, queryset)
+        return queryset
+
+
+class PositionFavoriteListView(ReadOnlyModelViewSet):
+    """
+    list:
+    Return a list of all of the user's favorite positions.
+    """
+
+    serializer_class = PositionSerializer
+    filter_class = PositionFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
+        queryset = self.serializer_class.prefetch_model(Position, queryset)
+        return queryset
+
+
+class PositionPreferredListView(ReadOnlyModelViewSet):
+    """
+    list:
+    Return a list of all positions, filtered by user preferences.
+    """
+
+    serializer_class = PositionSerializer
+    filter_class = PositionFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Position.objects.filter(Q(**UserProfile.objects.get(user=self.request.user).position_preferences))
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 

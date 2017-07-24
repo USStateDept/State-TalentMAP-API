@@ -31,3 +31,10 @@ class LanguageQualificationSerializer(PrefetchedSerializer):
     class Meta:
         model = Qualification
         fields = "__all__"
+
+
+class LanguageQualificationWritableSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = Qualification
+        fields = "__all__"

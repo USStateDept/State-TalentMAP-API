@@ -8,7 +8,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter
 from talentmap_api.organization.models import Organization, Post
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -43,6 +43,7 @@ class PositionFilter(filters.FilterSet):
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
         fields=[
+            "title",
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
@@ -55,7 +56,14 @@ class PositionFilter(filters.FilterSet):
         model = Position
         fields = {
             "position_number": ALL_TEXT_LOOKUPS,
+            "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
+            "languages": FOREIGN_KEY_LOOKUPS,
+            "grade": FOREIGN_KEY_LOOKUPS,
+            "skill": FOREIGN_KEY_LOOKUPS,
+            "organization": FOREIGN_KEY_LOOKUPS,
+            "bureau": FOREIGN_KEY_LOOKUPS,
+            "post": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS
         }
