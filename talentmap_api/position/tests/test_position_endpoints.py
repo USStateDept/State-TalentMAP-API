@@ -4,6 +4,8 @@ from model_mommy import mommy
 from model_mommy.recipe import Recipe, seq
 from rest_framework import status
 
+from itertools import cycle
+
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
@@ -30,10 +32,12 @@ def test_position_endpoints_fixture():
     mommy.make('position.Position', language_requirements=[qualification], grade=grade, skill=skill)
     mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
 
+    is_overseas = [True, False]
     # Create some junk positions to add numbers
     mommy.make('position.Position',
                organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
                bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+               is_overseas=cycle(is_overseas),
                _quantity=8)
 
 
@@ -147,3 +151,17 @@ def test_available_filtering(client, endpoint, available, expected_count):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == expected_count
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_domestic_filtering(client):
+    response_1 = client.get('/api/v1/position/?domestic=true')
+    response_2 = client.get('/api/v1/position/?is_overseas=false')
+
+    assert response_1.data == response_2.data
+
+    response_1 = client.get('/api/v1/position/?domestic=false')
+    response_2 = client.get('/api/v1/position/?is_overseas=true')
+
+    assert response_1.data == response_2.data
