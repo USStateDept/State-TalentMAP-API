@@ -138,7 +138,7 @@ def mode_positions():
         "POSITIONS:POS_BUREAU_CODE": "_bureau_code",
         "POSITIONS:POS_SKILL_CODE": "_skill_code",
         "POSITIONS:POS_STAFF_PTRN_SKILL_CODE": "_staff_ptrn_skill_code",
-        "POSITIONS:POS_OVERSEAS_IND": parse_boolean("is_overseas"),
+        "POSITIONS:POS_OVERSEAS_IND": parse_boolean("is_overseas", ['O']),
         "POSITIONS:POS_PAY_PLAN_CODE": "_pay_plan_code",
         "POSITIONS:POS_STATUS_CODE": "_status_code",
         "POSITIONS:POS_SERVICE_TYPE_CODE": "_service_type_code",

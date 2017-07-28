@@ -40,6 +40,8 @@ class PositionFilter(filters.FilterSet):
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
 
+    domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
+
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
         fields=[
