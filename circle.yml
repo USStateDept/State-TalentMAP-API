@@ -3,6 +3,8 @@ machine:
     version: 3.6.0
   environment:
     CC_TEST_REPORTER_ID: 61cf394238222f3d820e702a4679e5bac871cf7fd9395ee614d3d4e4afcd5a4f
+  services:
+    - docker
 dependencies:
   post:
     - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -16,5 +18,9 @@ test:
     - pytest --cov=. --cov-report xml:./coverage.xml:
         environment:
           DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
+    - docker pull owasp/zap2docker-weekly
+    - |
+      docker run -t owasp/zap2docker-weekly zap-baseline.py \
+      -t http://127.0.0.1:8000/ -m 3 -i
   post:
     - ./cc-test-reporter after-build --exit-code $?
