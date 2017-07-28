@@ -123,13 +123,13 @@ def strip_extra_spaces(field):
     return process_function
 
 
-def parse_boolean(field):
+def parse_boolean(field, true_values=["1", "True", "true", "Y", "T"]):
     '''
     Creates a function for processing booleans from a string
     '''
     def process_function(instance, item):
         value = False
-        if item.text in ["1", "True", "true", "Y", "T"]:
+        if item.text in true_values:
             value = True
         setattr(instance, field, value)
     return process_function

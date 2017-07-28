@@ -27,6 +27,7 @@ class Position(models.Model):
 
     create_date = models.DateField(null=True, help_text="The creation date of the position")
     update_date = models.DateField(null=True, help_text="The update date of this position")
+    effective_date = models.DateField(null=True, help_text="The effective date of this position")
 
     # Values from the original XML/DB that are maintained but not displayed
     _seq_num = models.TextField(null=True)
