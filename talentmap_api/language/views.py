@@ -1,13 +1,21 @@
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework import mixins
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from talentmap_api.common.mixins import ActionDependentSerializerMixin
 
 from talentmap_api.language.models import Language, Proficiency, Qualification
-from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer
+from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer
 from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter
 
 
 class LanguageListView(ReadOnlyModelViewSet):
     """
-    Lists all available languages.
+    retrieve:
+    Return the given language.
+
+    list:
+    Return a list of all languages.
     """
 
     serializer_class = LanguageSerializer
@@ -19,7 +27,11 @@ class LanguageListView(ReadOnlyModelViewSet):
 
 class LanguageProficiencyListView(ReadOnlyModelViewSet):
     """
-    Lists all available language proficiencies.
+    retrieve:
+    Return the given proficiency.
+
+    list:
+    Return a list of all proficiencies.
     """
 
     serializer_class = LanguageProficiencySerializer
@@ -29,13 +41,32 @@ class LanguageProficiencyListView(ReadOnlyModelViewSet):
         return Proficiency.objects.all()
 
 
-class LanguageQualificationListView(ReadOnlyModelViewSet):
+class LanguageQualificationListView(mixins.RetrieveModelMixin,
+                                    mixins.ListModelMixin,
+                                    mixins.CreateModelMixin,
+                                    ActionDependentSerializerMixin,
+                                    GenericViewSet):
     """
-    Lists all available languages qualifications.
+    retrieve:
+    Return the given qualification.
+
+    list:
+    Return a list of all qualifications.
+
+    create:
+    Add a language qualification if it does not exist.
     """
+
+    serializers = {
+        "default": LanguageQualificationSerializer,
+        "create": LanguageQualificationWritableSerializer
+    }
 
     serializer_class = LanguageQualificationSerializer
     filter_class = QualificationFilter
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        return Qualification.objects.all()
+        queryset = Qualification.objects.all()
+        queryset = self.serializer_class.prefetch_model(Qualification, queryset)
+        return queryset

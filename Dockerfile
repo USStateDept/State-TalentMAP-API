@@ -1,15 +1,12 @@
-FROM python:3.6-alpine
+FROM python:3.6
 
-ENV TM_HOME /talentmap
-RUN mkdir ${TM_HOME}
-WORKDIR ${TM_HOME}
-ADD . ${TM_HOME}
+ENV PYTHONUNBUFFERED 1
 
-# WSGI will listen on this port
-EXPOSE 8000
+# Note that we want postgresql-client so 'manage.py dbshell' works.
+RUN apt-get update && apt-get install -y postgresql-client
 
-RUN chmod +x ${TM_HOME}/entrypoint.sh
-RUN chmod +x ${TM_HOME}/build.sh
+RUN mkdir /app
+WORKDIR /app
 
-RUN apk add --update bash
-ENTRYPOINT ["/talentmap/entrypoint.sh"]
+ADD requirements.txt /app/
+RUN pip install -r requirements.txt

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import dj_database_url
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,6 +32,15 @@ if os.environ.get("DJANGO_DEBUG") in ["1", "True", "true"]:
 # This is * for now, but should be set to a proper host when deployed
 ALLOWED_HOSTS = ['*']
 
+# CORS Settings
+CORS_ORIGIN_ALLOW_ALL = True
+
+# Login paths for Swagger UI
+LOGIN_URL = 'rest_framework:login'
+LOGOUT_URL = 'rest_framework:logout'
+
+# Authorization token lifetime
+EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(days=1)
 
 # Application definition
 
@@ -43,9 +53,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party
+    'corsheaders',
     'django_filters',
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_expiring_authtoken',
     'rest_framework_swagger',
     'debug_toolbar',
 
@@ -53,7 +66,8 @@ INSTALLED_APPS = [
     'talentmap_api.common',
     'talentmap_api.position',
     'talentmap_api.language',
-    'talentmap_api.organization'
+    'talentmap_api.organization',
+    'talentmap_api.user_profile',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +80,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # Third-party
+    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -91,6 +106,11 @@ TEMPLATES = [
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'talentmap_api.common.filters.DisabledHTMLFilterBackend',
+        'rest_framework.filters.OrderingFilter'
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_expiring_authtoken.authentication.ExpiringTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
 

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.organization.models import Organization
+from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
 
 class OrganizationSerializer(PrefetchedSerializer):
@@ -26,4 +26,19 @@ class OrganizationSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Organization
-        exclude = ["_parent_bureau_code", "_parent_organization_code"]
+        fields = "__all__"
+
+
+class PostSerializer(PrefetchedSerializer):
+    tour_of_duty = serializers.StringRelatedField()
+
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+
+class TourOfDutySerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = TourOfDuty
+        fields = "__all__"

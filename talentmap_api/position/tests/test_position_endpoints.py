@@ -10,6 +10,7 @@ from rest_framework import status
 def test_position_endpoints_fixture():
     # Create a specific language, proficiency, and qualification
     language = mommy.make('language.Language', code="DE", long_description="German", short_description="Ger")
+    language_2 = mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
     proficiency = mommy.make('language.Proficiency', code="3")
     proficiency_2 = mommy.make('language.Proficiency', code="4")
     qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
@@ -30,7 +31,10 @@ def test_position_endpoints_fixture():
     mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
 
     # Create some junk positions to add numbers
-    mommy.make('position.Position', _quantity=8)
+    mommy.make('position.Position',
+               organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+               bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+               _quantity=8)
 
 
 @pytest.mark.django_db()
@@ -64,6 +68,20 @@ def test_position_filtering(client):
     response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=4')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+def test_position_grade_skill_filters(client):
+    response = client.get('/api/v1/position/?grade__code=00')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+
+    response = client.get('/api/v1/position/?skill__code=0010')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
 
 
 @pytest.mark.django_db()
@@ -110,3 +128,22 @@ def test_skill_filtering(client):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_endpoints_fixture")
+@pytest.mark.parametrize("endpoint, available, expected_count", [
+    ("/api/v1/language/", True, 1),
+    ("/api/v1/language/", False, 1),
+    ("/api/v1/language/proficiencies/", True, 2),
+    ("/api/v1/language/proficiencies/", False, 0),
+    ("/api/v1/position/grades/", True, 2),
+    ("/api/v1/position/grades/", False, 8),
+    ("/api/v1/position/skills/", True, 2),
+    ("/api/v1/position/skills/", False, 8),
+])
+def test_available_filtering(client, endpoint, available, expected_count):
+    response = client.get(f'{endpoint}?available={available}')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == expected_count

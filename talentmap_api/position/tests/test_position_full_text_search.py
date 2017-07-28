@@ -1,0 +1,44 @@
+import pytest
+
+from model_mommy import mommy
+from model_mommy.recipe import Recipe, seq
+from rest_framework import status
+
+
+# Might move this fixture to a session fixture if we end up needing languages elsewhere
+@pytest.fixture
+def test_position_fts_fixture():
+    # Create some junk positions to add numbers
+    mommy.make('position.Position',
+               organization__long_description="German Embassy",
+               bureau__long_description="German Embassy",
+               skill__description="Doctor",
+               language_requirements__language__long_description="German")
+
+    mommy.make('position.Position',
+               organization__long_description="French Embassy",
+               bureau__long_description="French Embassy",
+               skill__description="Doctor",
+               language_requirements__language__long_description="French")
+
+    mommy.make('position.Position',
+               organization__long_description="French Attache",
+               bureau__long_description="French Attache",
+               skill__description="Colorguard",
+               language_requirements__language__long_description="French")
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_position_fts_fixture")
+@pytest.mark.parametrize("term, expected_count", [
+    ("embassy", 2),
+    ("embassy doctor", 2),
+    ("doctor", 2),
+    ("german doctor", 1),
+    ("french doctor", 1),
+])
+def test_available_filtering(client, term, expected_count):
+    response = client.get(f'/api/v1/position/?q={term}')
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == expected_count
