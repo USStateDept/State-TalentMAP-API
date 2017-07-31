@@ -12,6 +12,10 @@ class PositionSerializer(PrefetchedSerializer):
     skill = serializers.StringRelatedField()
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
+    representation = serializers.SerializerMethodField()
+
+    def get_representation(self, obj):
+        return str(obj)
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database

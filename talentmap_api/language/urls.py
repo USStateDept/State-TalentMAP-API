@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^proficiencies/$', views.LanguageProficiencyListView.as_view(get_list), name='view-language-proficiencies'),
     url(r'^proficiencies/(?P<pk>[0-9]+)/$', views.LanguageProficiencyListView.as_view(get_retrieve), name='view-language-proficiency-details'),
 
-    url(r'^qualifications/$', views.LanguageQualificationListView.as_view(get_list), name='view-language-qualifications'),
+    url(r'^qualifications/$', views.LanguageQualificationListView.as_view({**get_list, "put": "create"}), name='view-language-qualifications'),
     url(r'^qualifications/(?P<pk>[0-9]+)/$', views.LanguageQualificationListView.as_view(get_retrieve), name='view-language-qualification-details'),
 ]

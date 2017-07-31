@@ -14,6 +14,8 @@ class Organization(models.Model):
 
     # An organization is a Bureau if its bureau code is the same as its code
     is_bureau = models.BooleanField(default=False, help_text="Boolean indicator if this organization is a bureau")
+    # An organization is a regional organization if it's parent organization code is 000000
+    is_regional = models.BooleanField(default=False, help_text="Boolean indicator if this organization is regional")
 
     parent_organization = models.ForeignKey('organization.Organization', on_delete=models.SET_NULL, null=True, related_name="organizion_children", help_text="The parent organization of this organization")
     bureau_organization = models.ForeignKey('organization.Organization', on_delete=models.SET_NULL, null=True, related_name="bureau_children", help_text="The parent Bureau for this organization")
@@ -38,7 +40,9 @@ class Organization(models.Model):
                 self.is_bureau = True
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
-            if org.count() != 1:
+            if self._parent_organization_code == "000000":
+                self.is_regional = True
+            elif org.count() != 1:
                 logging.getLogger('console').warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
             else:
                 self.parent_organization = org.first()

@@ -11,6 +11,7 @@ class Position(models.Model):
     '''
 
     position_number = models.TextField(null=True, help_text='The position number')
+    title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
@@ -53,6 +54,9 @@ class Position(models.Model):
     _update_id = models.TextField(null=True)
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
+
+    def __str__(self):
+        return f"[{self.position_number}] {self.title} ({self.post})"
 
     def update_relationships(self):
         '''
