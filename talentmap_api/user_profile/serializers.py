@@ -20,8 +20,8 @@ class UserSerializer(PrefetchedSerializer):
 
 
 class SharableSerializer(PrefetchedSerializer):
-    sharing_user = serializers.StringRelatedField()
-    receiving_user = serializers.StringRelatedField()
+    sharing_user = serializers.StringRelatedField(read_only=True)
+    receiving_user = serializers.StringRelatedField(read_only=True)
 
     content = serializers.SerializerMethodField()
 
@@ -101,4 +101,4 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = "__all__"
+        fields = ["language_qualifications", "favorite_positions", "position_preferences"]
