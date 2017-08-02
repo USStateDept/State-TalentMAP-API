@@ -14,5 +14,8 @@ class Command(BaseCommand):
         parser.add_argument('password', nargs=1, type=str, help="The desired password for the user")
 
     def handle(self, *args, **options):
-        User.objects.create_user(options['username'][0], options['email'][0], options['password'][0])
-        self.logger.info(f"Successfully created {options['username'][0]} ({options['email'][0]})")
+        if User.objects.filter(email=options['email'][0]).count() == 0:
+            User.objects.create_user(options['username'][0], options['email'][0], options['password'][0])
+            self.logger.info(f"Successfully created {options['username'][0]} ({options['email'][0]})")
+        else:
+            self.logger.info(f"User with email {options['email'][0]} already exists")
