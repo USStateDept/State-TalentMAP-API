@@ -46,7 +46,7 @@ def test_sharing_update_fixture(authorized_user):
 ])
 @pytest.mark.usefixtures("test_sharing_fixture")
 def test_payload_validation(authorized_client, authorized_user, payload, resp):
-    response = authorized_client.post("/api/v1/accounts/profile/share/", payload)
+    response = authorized_client.post("/api/v1/share/", payload)
 
     assert response.status_code == resp
 
