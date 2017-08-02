@@ -21,7 +21,6 @@ parameterized_data = [
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),
     ('/api/v1/position/skills/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
     ('/api/v1/position/grades/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
-    ('/api/v1/position/preferred/', 'position.Position', 'talentmap_api.position.tests.position', False),
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
 
     # Language Endpoints

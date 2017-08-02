@@ -9,7 +9,7 @@ from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer
 
 from django.contrib.auth.models import User
-from talentmap_api.user_profile.models import UserProfile, Sharable
+from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
 from talentmap_api.position.models import Position
 
 
@@ -59,7 +59,7 @@ class UserProfileSerializer(PrefetchedSerializer):
                         "representation"
                     ],
                     "many": True,
-                    "read_only": True
+                    "read_only": True,
                 }
             },
             "favorite_positions": {
@@ -85,20 +85,25 @@ class UserProfileSerializer(PrefetchedSerializer):
 
 class UserProfileWritableSerializer(PrefetchedSerializer):
 
+    class Meta:
+        model = UserProfile
+        fields = ["language_qualifications", "favorite_positions"]
+
+
+class SavedSearchSerializer(PrefetchedSerializer):
     def validate(self, data):
         '''
-        Validate user profile here, mainly position preferences as this is an
-        arbitrary json object
+        Validate the incoming filters to ensure they are valid
         '''
-        if 'position_preferences' in data:
-            # Verify that position preferences are a valid set of position filters
-            try:
-                Position.objects.filter(Q(**data.get('position_preferences')))
-            except:
-                raise ValidationError("Position preferences must be a valid set of position filters")
+        # if 'position_preferences' in data:
+        #     # Verify that position preferences are a valid set of position filters
+        #     try:
+        #         Position.objects.filter(Q(**data.get('position_preferences')))
+        #     except:
+        #         raise ValidationError("Position preferences must be a valid set of position filters")
 
         return data
 
     class Meta:
-        model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "position_preferences"]
+        model = SavedSearch
+        fields = "__all__"

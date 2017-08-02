@@ -25,7 +25,6 @@ def test_user_profile_favorites(authorized_client, authorized_user, test_user_pr
     assert resp.status_code == status.HTTP_200_OK
     assert len(resp.data["favorite_positions"]) == 0
     assert len(resp.data["language_qualifications"]) == 0
-    assert resp.data["position_preferences"] == {}
 
     resp = authorized_client.patch('/api/v1/accounts/profile/', data=json.dumps({
         "favorite_positions": [1, 3],
@@ -35,34 +34,18 @@ def test_user_profile_favorites(authorized_client, authorized_user, test_user_pr
     assert resp.status_code == status.HTTP_200_OK
     assert len(resp.data["favorite_positions"]) == 2
     assert len(resp.data["language_qualifications"]) == 1
-    assert resp.data["position_preferences"] == {}
 
     assert list(authorized_user.profile.favorite_positions.values_list("id", flat=True)) == [1, 3]
     assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [1]
 
     resp = authorized_client.patch('/api/v1/accounts/profile/', data=json.dumps({
         "favorite_positions": [2],
-        "language_qualifications": [2],
-        "position_preferences": {
-            "post__danger_pay__gte": 20,
-        }
+        "language_qualifications": [2]
     }), content_type="application/json")
 
     assert resp.status_code == status.HTTP_200_OK
     assert len(resp.data["favorite_positions"]) == 1
     assert len(resp.data["language_qualifications"]) == 1
-    assert resp.data["position_preferences"] == {'post__danger_pay__gte': 20}
 
     assert list(authorized_user.profile.favorite_positions.values_list("id", flat=True)) == [2]
     assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [2]
-
-    # Post a bad position preferences
-    resp = authorized_client.patch('/api/v1/accounts/profile/', data=json.dumps({
-        "favorite_positions": [2],
-        "language_qualifications": [2],
-        "position_preferences": {
-            "asdf": 20,
-        }
-    }), content_type="application/json")
-
-    assert resp.status_code == status.HTTP_400_BAD_REQUEST

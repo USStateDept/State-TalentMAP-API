@@ -25,6 +25,9 @@ class UserProfileView(mixins.RetrieveModelMixin,
     """
     retrieve:
     Return the current user profile
+
+    partial_update:
+    Update the current user profile
     """
     serializers = {
         "default": UserProfileSerializer,
