@@ -72,6 +72,9 @@ class SavedSearchView(GenericViewSet,
     serializer_class = SavedSearchSerializer
     permission_classes = (IsAuthenticated,)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user.profile)
+
     def get_queryset(self):
         queryset = SavedSearch.objects.filter(owner=self.request.user.profile)
         self.serializer_class.prefetch_model(SavedSearch, queryset)

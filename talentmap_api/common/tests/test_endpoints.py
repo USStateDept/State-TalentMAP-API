@@ -14,6 +14,7 @@ from django.apps import apps
 from django.core.management import call_command
 
 from talentmap_api.position.tests.mommy_recipes import favorite_position
+from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
 
 parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
@@ -32,6 +33,9 @@ parameterized_data = [
     ('/api/v1/organization/', 'organization.Organization', 'talentmap_api.organization.tests.orphaned_organization', True),
     ('/api/v1/post/', 'organization.Post', 'talentmap_api.organization.tests.post', True),
     ('/api/v1/tour_of_duty/', 'organization.TourOfDuty', 'talentmap_api.organization.tests.tour_of_duty', True),
+
+    # Saved Searches
+    ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True)
 ]
 
 
@@ -66,7 +70,11 @@ def test_endpoints_retrieve(authorized_client, authorized_user, endpoint, model,
     number = random.randint(5, 10)
     # Create a random amount of objects from the recipe, if it is given
     if recipe:
-        mommy.make_recipe(recipe, _quantity=number)
+        if callable(recipe):
+            for i in range(0, number):
+                recipe()
+        else:
+            mommy.make_recipe(recipe, _quantity=number)
     elif model:
         mommy.make(model, _quantity=number)
 

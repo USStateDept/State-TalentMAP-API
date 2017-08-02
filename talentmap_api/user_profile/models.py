@@ -46,7 +46,7 @@ class SavedSearch(models.Model):
     owner = models.ForeignKey(UserProfile, related_name="saved_searches")
 
     name = models.TextField(default="Saved Search", help_text="The name of the saved search")
-    endpoint = models.TextField(null=True, help_text="The endpoint for this search and filter")
+    endpoint = models.TextField(help_text="The endpoint for this search and filter")
     filters = JSONField(default=dict, help_text="JSON object containing filters representing the saved search")
 
     date_created = models.DateTimeField(auto_now_add=True)
