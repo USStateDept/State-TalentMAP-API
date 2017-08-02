@@ -1,13 +1,15 @@
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.apps import apps
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer
 
 from django.contrib.auth.models import User
-from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.user_profile.models import UserProfile, Sharable
 from talentmap_api.position.models import Position
 
 
@@ -15,6 +17,26 @@ class UserSerializer(PrefetchedSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name"]
+
+
+class SharableSerializer(PrefetchedSerializer):
+    sharing_user = serializers.StringRelatedField(read_only=True)
+    receiving_user = serializers.StringRelatedField(read_only=True)
+
+    content = serializers.SerializerMethodField()
+
+    def get_content(self, obj):
+        model = apps.get_model(obj.sharable_model)
+        instance = model.objects.get(id=obj.sharable_id)
+
+        return {
+            "representation": f"{instance}",
+            "url": reverse(f'view-{obj.sharable_model}-details', kwargs={"pk": obj.sharable_id}, request=self.context.get("request"))
+        }
+
+    class Meta:
+        model = Sharable
+        fields = ["id", "sharing_user", "receiving_user", "content", "read"]
 
 
 class UserProfileSerializer(PrefetchedSerializer):
@@ -50,6 +72,13 @@ class UserProfileSerializer(PrefetchedSerializer):
                     "many": True,
                     "read_only": True
                 }
+            },
+            "received_shares": {
+                "class": SharableSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
             }
         }
 
@@ -72,4 +101,4 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = "__all__"
+        fields = ["language_qualifications", "favorite_positions", "position_preferences"]
