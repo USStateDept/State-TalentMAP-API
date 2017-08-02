@@ -11,8 +11,11 @@ from django.apps import apps
 
 from talentmap_api.common.mixins import ActionDependentSerializerMixin
 
-from talentmap_api.user_profile.models import UserProfile, Sharable
-from talentmap_api.user_profile.serializers import UserProfileSerializer, UserProfileWritableSerializer, SharableSerializer
+from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
+from talentmap_api.user_profile.serializers import (UserProfileSerializer,
+                                                    UserProfileWritableSerializer,
+                                                    SharableSerializer,
+                                                    SavedSearchSerializer)
 
 from talentmap_api.position.models import Position
 from talentmap_api.position.serializers import PositionSerializer
@@ -41,6 +44,38 @@ class UserProfileView(mixins.RetrieveModelMixin,
         queryset = UserProfile.objects.filter(user=self.request.user)
         self.serializer_class.prefetch_model(UserProfile, queryset)
         return queryset.first()
+
+
+class SavedSearchView(GenericViewSet,
+                      mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin):
+    '''
+    create:
+    Creates a new saved share
+
+    partial_update:
+    Edits a saved share
+
+    retrieve:
+    Retrieves a specific saved share
+
+    list:
+    Lists all of the user's saved shares
+
+    destroy:
+    Deletes a specified saved search
+    '''
+
+    serializer_class = SavedSearchSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = SavedSearch.objects.filter(owner=self.request.user.profile)
+        self.serializer_class.prefetch_model(SavedSearch, queryset)
+        return queryset
 
 
 class ShareView(GenericViewSet,

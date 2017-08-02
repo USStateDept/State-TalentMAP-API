@@ -31,7 +31,7 @@ class SharableSerializer(PrefetchedSerializer):
 
         return {
             "representation": f"{instance}",
-            "url": reverse(f'view-{obj.sharable_model}-details', kwargs={"pk": obj.sharable_id}, request=self.context.get("request"))
+            "url": reverse(f'{obj.sharable_model}-detail', kwargs={"pk": obj.sharable_id}, request=self.context.get("request"))
         }
 
     class Meta:

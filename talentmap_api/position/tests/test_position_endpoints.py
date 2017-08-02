@@ -91,7 +91,7 @@ def test_position_grade_skill_filters(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_grade_list(client):
-    response = client.get('/api/v1/position/grades/')
+    response = client.get('/api/v1/grade/')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 10
@@ -100,12 +100,12 @@ def test_grade_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_grade_filtering(client):
-    response = client.get('/api/v1/position/grades/?code=00')
+    response = client.get('/api/v1/grade/?code=00')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 1
 
-    response = client.get('/api/v1/position/grades/?code__in=00,01')
+    response = client.get('/api/v1/grade/?code__in=00,01')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
@@ -114,7 +114,7 @@ def test_grade_filtering(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_skill_list(client):
-    response = client.get('/api/v1/position/skills/')
+    response = client.get('/api/v1/skill/')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 10
@@ -123,12 +123,12 @@ def test_skill_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_skill_filtering(client):
-    response = client.get('/api/v1/position/skills/?code=0010')
+    response = client.get('/api/v1/skill/?code=0010')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 1
 
-    response = client.get('/api/v1/position/skills/?code__in=0010,0020')
+    response = client.get('/api/v1/skill/?code__in=0010,0020')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 2
@@ -139,12 +139,12 @@ def test_skill_filtering(client):
 @pytest.mark.parametrize("endpoint, available, expected_count", [
     ("/api/v1/language/", True, 1),
     ("/api/v1/language/", False, 1),
-    ("/api/v1/language/proficiencies/", True, 2),
-    ("/api/v1/language/proficiencies/", False, 0),
-    ("/api/v1/position/grades/", True, 2),
-    ("/api/v1/position/grades/", False, 8),
-    ("/api/v1/position/skills/", True, 2),
-    ("/api/v1/position/skills/", False, 8),
+    ("/api/v1/language_proficiency/", True, 2),
+    ("/api/v1/language_proficiency/", False, 0),
+    ("/api/v1/grade/", True, 2),
+    ("/api/v1/grade/", False, 8),
+    ("/api/v1/skill/", True, 2),
+    ("/api/v1/skill/", False, 8),
 ])
 def test_available_filtering(client, endpoint, available, expected_count):
     response = client.get(f'{endpoint}?available={available}')

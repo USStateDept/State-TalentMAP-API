@@ -19,19 +19,19 @@ parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
     # Position Endpoints
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),
-    ('/api/v1/position/skills/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
-    ('/api/v1/position/grades/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
+    ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
+    ('/api/v1/grade/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
 
     # Language Endpoints
     ('/api/v1/language/', 'language.Language', 'talentmap_api.language.tests.language', True),
-    ('/api/v1/language/proficiencies/', 'language.Proficiency', 'talentmap_api.language.tests.proficiency', True),
-    ('/api/v1/language/qualifications/', 'language.Qualification', None, True),
+    ('/api/v1/language_proficiency/', 'language.Proficiency', 'talentmap_api.language.tests.proficiency', True),
+    ('/api/v1/language_qualification/', 'language.Qualification', None, True),
 
     # Organization Endpoints
     ('/api/v1/organization/', 'organization.Organization', 'talentmap_api.organization.tests.orphaned_organization', True),
-    ('/api/v1/organization/posts/', 'organization.Post', 'talentmap_api.organization.tests.post', True),
-    ('/api/v1/organization/tod/', 'organization.TourOfDuty', 'talentmap_api.organization.tests.tour_of_duty', True),
+    ('/api/v1/post/', 'organization.Post', 'talentmap_api.organization.tests.post', True),
+    ('/api/v1/tour_of_duty/', 'organization.TourOfDuty', 'talentmap_api.organization.tests.tour_of_duty', True),
 ]
 
 
