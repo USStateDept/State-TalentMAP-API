@@ -30,25 +30,23 @@ class OrganizationSerializer(PrefetchedSerializer):
 
 
 class LocationSerializer(PrefetchedSerializer):
+    representation = serializers.SerializerMethodField()
+
+    def get_representation(self, obj):
+        return str(obj)
+
     class Meta:
         model = Location
         fields = "__all__"
 
 
 class PostSerializer(PrefetchedSerializer):
+    location = serializers.StringRelatedField()
     tour_of_duty = serializers.StringRelatedField()
 
     class Meta:
         model = Post
         fields = "__all__"
-        nested = {
-            "location": {
-                "class": LocationSerializer,
-                "kwargs": {
-                    "read_only": True
-                }
-            }
-        }
 
 
 class TourOfDutySerializer(PrefetchedSerializer):

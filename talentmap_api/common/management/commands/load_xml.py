@@ -218,7 +218,7 @@ def mode_location():
     }
 
     def post_load_function(new_ids, updated_ids):
-        for loc in Location.objects.filter(post__isnull=True):
+        for loc in Location.objects.filter(posts__isnull=True):
             Post.objects.create(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)

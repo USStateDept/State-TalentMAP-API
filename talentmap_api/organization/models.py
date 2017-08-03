@@ -79,7 +79,7 @@ class Location(models.Model):
     country = models.TextField(default="", blank=True)
 
     def __str__(self):
-        return ", ".join([self.city, self.state, self.country])
+        return ", ".join([x for x in [self.city, self.state, self.country] if x])
 
 
 class Post(models.Model):
@@ -87,7 +87,7 @@ class Post(models.Model):
     Represents a post and its related fields
     '''
 
-    location = models.OneToOneField(Location, null=True, related_name="post", help_text="The location of the post")
+    location = models.ForeignKey(Location, null=True, related_name="posts", help_text="The location of the post")
 
     cost_of_living_adjustment = models.IntegerField(null=False, default=0, help_text="Cost of living adjustment number")
     differential_rate = models.IntegerField(null=False, default=0, help_text="Differential rate number")
