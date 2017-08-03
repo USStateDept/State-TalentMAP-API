@@ -94,7 +94,7 @@ class Position(models.Model):
 
         # Update location
         if self._location_code:
-            self.post = Post.objects.filter(code=self._location_code).first()
+            self.post = Post.objects.filter(location__code=self._location_code).first()
 
         self.save()
 

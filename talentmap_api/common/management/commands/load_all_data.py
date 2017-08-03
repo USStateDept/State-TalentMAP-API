@@ -17,6 +17,7 @@ class Command(BaseCommand):
         # These models should have update_relationships
         self.files = {
             'languages': 'language.xml',
+            'locations': 'locations.xml',
             'proficiencies': 'language_proficiency.xml',
             'grades': 'grade.xml',
             'skills': 'skill.xml',

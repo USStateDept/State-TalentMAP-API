@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 
 
 class OrganizationSerializer(PrefetchedSerializer):
@@ -29,12 +29,26 @@ class OrganizationSerializer(PrefetchedSerializer):
         fields = "__all__"
 
 
+class LocationSerializer(PrefetchedSerializer):
+    class Meta:
+        model = Location
+        fields = "__all__"
+
+
 class PostSerializer(PrefetchedSerializer):
     tour_of_duty = serializers.StringRelatedField()
 
     class Meta:
         model = Post
         fields = "__all__"
+        nested = {
+            "location": {
+                "class": LocationSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            }
+        }
 
 
 class TourOfDutySerializer(PrefetchedSerializer):

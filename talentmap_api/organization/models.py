@@ -67,13 +67,27 @@ class TourOfDuty(models.Model):
         return f"{self.long_description}"
 
 
+class Location(models.Model):
+    '''
+    Represents a geographic location
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique location code")
+
+    city = models.TextField(default="", blank=True)
+    state = models.TextField(default="", blank=True)
+    country = models.TextField(default="", blank=True)
+
+    def __str__(self):
+        return ", ".join([self.city, self.state, self.country])
+
+
 class Post(models.Model):
     '''
     Represents a post and its related fields
     '''
 
-    code = models.TextField(db_index=True, unique=True, null=False, help_text="The location code, a combination of country and granular location codes")
-    description = models.TextField(null=False, help_text="Long-format description of the post")
+    location = models.OneToOneField(Location, null=True, related_name="post", help_text="The location of the post")
 
     cost_of_living_adjustment = models.IntegerField(null=False, default=0, help_text="Cost of living adjustment number")
     differential_rate = models.IntegerField(null=False, default=0, help_text="Differential rate number")
@@ -87,12 +101,16 @@ class Post(models.Model):
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
 
     _tod_code = models.TextField(null=True)
+    _location_code = models.TextField(null=True)
 
     def update_relationships(self):
         if self._tod_code:
             self.tour_of_duty = TourOfDuty.objects.filter(code=self._tod_code).first()
 
+        if self._location_code:
+            self.location = Location.objects.filter(code=self._location_code).first()
+
         self.save()
 
     def __str__(self):
-        return f"{self.description}"
+        return f"{self.location}"

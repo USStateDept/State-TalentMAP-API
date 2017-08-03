@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<locations>
+  <location>
+    <code>061980037</code>
+    <city>Los Angeles</city>
+    <state>CA</state>
+  </location>
+  <location>
+    <code>063260073</code>
+    <city>San Diego</city>
+    <state>CA</state>
+  </location>
+  <location>
+    <code>063290075</code>
+    <city>San Francisco</city>
+    <state>CA</state>
+  </location>
+  <location>
+    <code>VM3000000</code>
+    <country>VIETNAM</country>
+    <city>Hanoi</city>
+    <state> </state>
+  </location>
+</locations>
