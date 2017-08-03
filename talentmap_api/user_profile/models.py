@@ -39,14 +39,22 @@ class Sharable(models.Model):
 class SavedSearch(models.Model):
     '''
     Represents a saved search.
-
-    Filters field contains a JSON object of valid filters and their values, which
-    can be used to reconstruct the get request
     '''
     owner = models.ForeignKey(UserProfile, related_name="saved_searches")
 
     name = models.TextField(default="Saved Search", help_text="The name of the saved search")
     endpoint = models.TextField(help_text="The endpoint for this search and filter")
+
+    '''
+    Filters should be a JSON object of filters representing a search. Generally, the values
+    should be stored in a list.
+    For example, suppose our user preferred posts with post danger pay >= 20 and with grade = 05
+
+    {
+       "post__danger_pay__gte": ["20"],
+       "grade__code": ["05"]
+    }
+    '''
     filters = JSONField(default=dict, help_text="JSON object containing filters representing the saved search")
 
     date_created = models.DateTimeField(auto_now_add=True)
