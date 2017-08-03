@@ -23,6 +23,7 @@ class PositionListView(ReadOnlyModelViewSet):
     filter_class = PositionFilter
 
     def get_queryset(self):
+        print(self.request.query_params)
         queryset = Position.objects.all()
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
@@ -40,22 +41,6 @@ class PositionFavoriteListView(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
-        queryset = self.serializer_class.prefetch_model(Position, queryset)
-        return queryset
-
-
-class PositionPreferredListView(ReadOnlyModelViewSet):
-    """
-    list:
-    Return a list of all positions, filtered by user preferences.
-    """
-
-    serializer_class = PositionSerializer
-    filter_class = PositionFilter
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = Position.objects.filter(Q(**UserProfile.objects.get(user=self.request.user).position_preferences))
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 

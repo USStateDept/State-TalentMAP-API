@@ -46,7 +46,7 @@ def test_sharing_update_fixture(authorized_user):
 ])
 @pytest.mark.usefixtures("test_sharing_fixture")
 def test_payload_validation(authorized_client, authorized_user, payload, resp):
-    response = authorized_client.post("/api/v1/accounts/profile/share/", payload)
+    response = authorized_client.post("/api/v1/share/", payload)
 
     assert response.status_code == resp
 
@@ -57,7 +57,7 @@ def test_internal_share(authorized_client, authorized_user):
     user_profile = User.objects.get(email="test@state.gov").profile
     assert user_profile.received_shares.count() == 0
 
-    response = authorized_client.post("/api/v1/accounts/profile/share/", {
+    response = authorized_client.post("/api/v1/share/", {
         "mode": "internal",
         "email": "test@state.gov",
         "type": "position",
@@ -76,7 +76,7 @@ def test_update_internal_share(authorized_client, authorized_user):
     share = authorized_user.profile.received_shares.first()
     assert not share.read
 
-    response = authorized_client.patch(f"/api/v1/accounts/profile/share/1/", data=json.dumps({
+    response = authorized_client.patch(f"/api/v1/share/1/", data=json.dumps({
         "read": True
     }), content_type="application/json")
 
