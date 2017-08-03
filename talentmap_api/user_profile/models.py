@@ -11,17 +11,6 @@ class UserProfile(models.Model):
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
-    '''
-    Position preferences should be a JSON object of filters representing a user's position preferences.
-    For example, suppose our user preferred posts with post danger pay >= 20 and with grade = 05
-
-    {
-        "post__danger_pay__gte": 20,
-        "grade__code": "05"
-    }
-    '''
-    position_preferences = JSONField(default=dict, help_text="JSON object containing filters representing a user's position preferences")
-
     favorite_positions = models.ManyToManyField('position.Position', related_name='favorited_by_users', help_text="Positions which this user has designated as a favorite")
 
     def __str__(self):
@@ -42,6 +31,23 @@ class Sharable(models.Model):
     sharable_model = models.TextField(help_text="The string of the model")
 
     read = models.BooleanField(default=False, help_text="Whether this sharable has been read")
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+
+class SavedSearch(models.Model):
+    '''
+    Represents a saved search.
+
+    Filters field contains a JSON object of valid filters and their values, which
+    can be used to reconstruct the get request
+    '''
+    owner = models.ForeignKey(UserProfile, related_name="saved_searches")
+
+    name = models.TextField(default="Saved Search", help_text="The name of the saved search")
+    endpoint = models.TextField(help_text="The endpoint for this search and filter")
+    filters = JSONField(default=dict, help_text="JSON object containing filters representing the saved search")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
