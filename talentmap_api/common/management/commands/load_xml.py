@@ -6,7 +6,7 @@ import re
 from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 
 
 class Command(BaseCommand):
@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
         self.modes = {
             'languages': mode_languages,
+            'locations': mode_location,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
             'skills': mode_skills,
@@ -186,10 +187,9 @@ def mode_tour_of_duty():
 def mode_post():
     model = Post
     instance_tag = "BIDPOSTS:BIDDING_TOOL"
-    collision_field = "code"
+    collision_field = "_location_code"
     tag_map = {
-        "BIDPOSTS:DSC_CD": "code",
-        "BIDPOSTS:LOC_GVT_GEOLOC_DESC": "description",
+        "BIDPOSTS:DSC_CD": "_location_code",
         "BIDPOSTS:TOD_CODE": "_tod_code",
         "BIDPOSTS:BT_COST_OF_LIVING_ADJUST_NUM": "cost_of_living_adjustment",
         "BIDPOSTS:BT_DIFFERENTIAL_RATE_NUM": "differential_rate",
@@ -202,5 +202,23 @@ def mode_post():
     def post_load_function(new_ids, updated_ids):
         for loc in Post.objects.filter(id__in=new_ids+updated_ids):
             loc.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
+def mode_location():
+    model = Location
+    instance_tag = "location"
+    collision_field = "code"
+    tag_map = {
+        "code": "code",
+        "country": strip_extra_spaces("country"),
+        "city": strip_extra_spaces("city"),
+        "state": strip_extra_spaces("state")
+    }
+
+    def post_load_function(new_ids, updated_ids):
+        for loc in Location.objects.filter(posts__isnull=True):
+            Post.objects.create(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)

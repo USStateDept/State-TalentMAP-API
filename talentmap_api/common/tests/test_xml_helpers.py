@@ -8,7 +8,7 @@ from model_mommy import mommy
 
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position
-from talentmap_api.organization.models import Organization, TourOfDuty, Post
+from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location
 
 
 @pytest.mark.django_db(transaction=True)
@@ -148,9 +148,9 @@ def test_xml_post_loading():
                  'posts')
 
     assert Post.objects.count() == 2
-    assert Post.objects.filter(code="AF1000000").count() == 1
-    assert Post.objects.filter(code="AF1000000").first().tour_of_duty == tod_2
-    assert Post.objects.filter(code="AE1200000").first().tour_of_duty == tod_1
+    assert Post.objects.filter(_location_code="AF1000000").count() == 1
+    assert Post.objects.filter(_location_code="AF1000000").first().tour_of_duty == tod_2
+    assert Post.objects.filter(_location_code="AE1200000").first().tour_of_duty == tod_1
 
 
 @pytest.mark.django_db(transaction=True)
@@ -166,7 +166,8 @@ def test_xml_positions_loading():
     skill = mommy.make('position.Skill', code="9017")
     grade = mommy.make('position.Grade', code="05")
 
-    post = mommy.make('organization.Post', code="SL2000000")
+    location = mommy.make('organization.Location', code="SL2000000")
+    post = mommy.make('organization.Post', location=location)
 
     call_command('load_xml',
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_positions.xml'),
@@ -182,3 +183,13 @@ def test_xml_positions_loading():
     assert position.grade == grade
 
     assert position.post == post
+
+
+@pytest.mark.django_db()
+def test_xml_location_loading():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_locations.xml'),
+                 'locations')
+
+    assert Location.objects.count() == 4
+    assert Location.objects.filter(code="VM3000000").count() == 1

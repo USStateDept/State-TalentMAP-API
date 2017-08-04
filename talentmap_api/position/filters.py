@@ -50,7 +50,10 @@ class PositionFilter(filters.FilterSet):
             "bureau__long_description",
             "skill__description",
             "language_requirements__language__long_description",
-            "post__description"
+            "post__location__code",
+            "post__location__country",
+            "post__location__city",
+            "post__location__state",
         ]
     ))
 

@@ -33,6 +33,7 @@ parameterized_data = [
     ('/api/v1/organization/', 'organization.Organization', 'talentmap_api.organization.tests.orphaned_organization', True),
     ('/api/v1/post/', 'organization.Post', 'talentmap_api.organization.tests.post', True),
     ('/api/v1/tour_of_duty/', 'organization.TourOfDuty', 'talentmap_api.organization.tests.tour_of_duty', True),
+    ('/api/v1/location/', 'organization.Location', 'talentmap_api.organization.tests.location', True),
 
     # Saved Searches
     ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True)

@@ -1,8 +1,8 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
-from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
-from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
+from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter
+from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer
 
 
 class OrganizationListView(ReadOnlyModelViewSet):
@@ -20,6 +20,24 @@ class OrganizationListView(ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = Organization.objects.all()
         queryset = self.serializer_class.prefetch_model(Organization, queryset)
+        return queryset
+
+
+class LocationView(ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given post.
+
+    list:
+    Return a list of all posts.
+    """
+
+    serializer_class = LocationSerializer
+    filter_class = LocationFilter
+
+    def get_queryset(self):
+        queryset = Location.objects.all()
+        queryset = self.serializer_class.prefetch_model(Location, queryset)
         return queryset
 
 
