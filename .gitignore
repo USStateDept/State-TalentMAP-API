@@ -101,3 +101,6 @@ ENV/
 .mypy_cache/
 
 missing_coverage.sh
+
+# MacOS
+.DS_Store

@@ -3,7 +3,7 @@ import rest_framework_filters as filters
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -41,16 +41,27 @@ class TourOfDutyFilter(filters.FilterSet):
         }
 
 
+class LocationFilter(filters.FilterSet):
+    class Meta:
+        model = Location
+        fields = {
+            "code": ALL_TEXT_LOOKUPS,
+            "country": ALL_TEXT_LOOKUPS,
+            "city": ALL_TEXT_LOOKUPS,
+            "state": ALL_TEXT_LOOKUPS
+        }
+
+
 class PostFilter(filters.FilterSet):
     tour_of_duty = filters.RelatedFilter(TourOfDutyFilter, name='tour_of_duty', queryset=TourOfDuty.objects.all())
+    location = filters.RelatedFilter(LocationFilter, name='location', queryset=Location.objects.all())
 
     available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Post
         fields = {
-            "code": ALL_TEXT_LOOKUPS,
-            "description": ALL_TEXT_LOOKUPS,
+            "location": FOREIGN_KEY_LOOKUPS,
             "cost_of_living_adjustment": INTEGER_LOOKUPS,
             "differential_rate": INTEGER_LOOKUPS,
             "danger_pay": INTEGER_LOOKUPS,

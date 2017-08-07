@@ -17,6 +17,7 @@ class Command(BaseCommand):
         # These models should have update_relationships
         self.files = {
             'languages': 'language.xml',
+            'locations': 'location.xml',
             'proficiencies': 'language_proficiency.xml',
             'grades': 'grade.xml',
             'skills': 'skill.xml',
@@ -33,6 +34,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('filepath', nargs=1, type=str, help="The directory containing the XML files")
+        parser.add_argument('--delete', dest='delete', action='store_true', help='Delete collisions')
+        parser.add_argument('--update', dest='update', action='store_true', help='Update collisions')
 
     def handle(self, *args, **options):
         for mode in self.files.keys():
@@ -49,6 +52,10 @@ class Command(BaseCommand):
                     ]
                     if mode in self.skippost:
                         command_opts.append('--skippost')
+                    if options['update']:
+                        command_opts.append('--update')
+                    if options['delete']:
+                        command_opts.append('--delete')
                     call_command(*command_opts)
                 except Exception as e:
                     self.logger.info(f"Failed to load {fileinstance} ({mode}): {e}")
