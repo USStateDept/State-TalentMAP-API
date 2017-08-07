@@ -103,4 +103,4 @@ ENV/
 missing_coverage.sh
 
 # MacOS
-.DStore
+.DS_Store
