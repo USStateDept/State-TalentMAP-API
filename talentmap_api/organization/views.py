@@ -26,10 +26,10 @@ class OrganizationListView(ReadOnlyModelViewSet):
 class LocationView(ReadOnlyModelViewSet):
     """
     retrieve:
-    Return the given post.
+    Return the given location.
 
     list:
-    Return a list of all posts.
+    Return a list of all locations.
     """
 
     serializer_class = LocationSerializer
