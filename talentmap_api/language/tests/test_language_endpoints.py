@@ -34,7 +34,7 @@ def test_language_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_language_endpoints_fixture")
 def test_language_proficiency_list(client):
-    response = client.get('/api/v1/language/proficiencies/')
+    response = client.get('/api/v1/language_proficiency/')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 10
 
@@ -42,7 +42,7 @@ def test_language_proficiency_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_language_endpoints_fixture")
 def test_language_qualification_list(client):
-    response = client.get('/api/v1/language/qualifications/')
+    response = client.get('/api/v1/language_qualification/')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 1
@@ -54,7 +54,7 @@ def test_language_qualification_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_language_endpoints_fixture")
 def test_language_qualification_creation(authorized_user, authorized_client):
-    resp = authorized_client.put('/api/v1/language/qualifications/', data=json.dumps({
+    resp = authorized_client.put('/api/v1/language_qualification/', data=json.dumps({
         "language": 1,
         "written_proficiency": 1,
         "spoken_proficiency": 1

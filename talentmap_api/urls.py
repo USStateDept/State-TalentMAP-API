@@ -21,10 +21,27 @@ from rest_framework_expiring_authtoken import views as auth_views
 
 urlpatterns = [
     url(r'^$', get_swagger_view(title='TalentMAP API')),
-    url(r'^api/v1/language/', include('talentmap_api.language.urls')),
-    url(r'^api/v1/position/', include('talentmap_api.position.urls')),
-    url(r'^api/v1/organization/', include('talentmap_api.organization.urls')),
-    url(r'^api/v1/accounts/profile/', include('talentmap_api.user_profile.urls')),
+
+    # Position and position detail related resources
+    url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
+    url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
+    url(r'^api/v1/grade/', include('talentmap_api.position.urls.grade')),
+
+    # Language and language related resources
+    url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
+    url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
+    url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
+
+    # Organization and post related resources
+    url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
+    url(r'^api/v1/post/', include('talentmap_api.organization.urls.post')),
+    url(r'^api/v1/tour_of_duty/', include('talentmap_api.organization.urls.tour_of_duty')),
+    url(r'^api/v1/location/', include('talentmap_api.organization.urls.location')),
+
+    # Profile and account related resources
+    url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
+    url(r'^api/v1/share/', include('talentmap_api.user_profile.urls.share')),
+    url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
