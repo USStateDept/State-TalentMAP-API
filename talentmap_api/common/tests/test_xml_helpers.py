@@ -135,7 +135,8 @@ def test_xml_regional_organizations_loading():
 
     assert Organization.objects.count() == 4
     assert Organization.objects.filter(code="010101").count() == 1
-    assert Organization.objects.filter(code="010000").first().is_regional
+    for org in Organization.objects.all():
+        assert org.is_regional
 
 
 @pytest.mark.django_db()
