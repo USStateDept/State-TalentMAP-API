@@ -124,8 +124,19 @@ def test_xml_organizations_loading():
 
     assert Organization.objects.count() == 4
     assert Organization.objects.filter(code="010101").count() == 1
-    assert Organization.objects.filter(code="010000").first().is_regional
     assert Organization.objects.filter(code="010000").first().is_bureau
+
+
+@pytest.mark.django_db()
+def test_xml_regional_organizations_loading():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_organizations.xml'),
+                 'regional_organizations')
+
+    assert Organization.objects.count() == 4
+    assert Organization.objects.filter(code="010101").count() == 1
+    for org in Organization.objects.all():
+        assert org.is_regional
 
 
 @pytest.mark.django_db()
