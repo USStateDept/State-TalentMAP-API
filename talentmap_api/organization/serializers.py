@@ -41,6 +41,7 @@ class LocationSerializer(PrefetchedSerializer):
 
 
 class PostSerializer(PrefetchedSerializer):
+    code = serializers.CharField(source="_location_code", read_only=True)
     location = serializers.StringRelatedField()
     tour_of_duty = serializers.StringRelatedField()
 

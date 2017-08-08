@@ -40,9 +40,7 @@ class Organization(models.Model):
                 self.is_bureau = True
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
-            if self._parent_organization_code == "000000":
-                self.is_regional = True
-            elif org.count() != 1:
+            if org.count() != 1:
                 logging.getLogger('console').warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
             else:
                 self.parent_organization = org.first()

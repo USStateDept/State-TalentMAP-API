@@ -34,7 +34,7 @@ urlpatterns = [
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
-    url(r'^api/v1/post/', include('talentmap_api.organization.urls.post')),
+    url(r'^api/v1/orgpost/', include('talentmap_api.organization.urls.post')),
     url(r'^api/v1/tour_of_duty/', include('talentmap_api.organization.urls.tour_of_duty')),
     url(r'^api/v1/location/', include('talentmap_api.organization.urls.location')),
 

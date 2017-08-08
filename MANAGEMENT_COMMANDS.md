@@ -10,4 +10,4 @@ The following management commands are available. More detailed help can be found
 
 * `update_relationships` - Updates all relationships for models which have foreign keys. (This is useful if there was a partial data load)
 
-* `create_user <USERNAME> <EMAIL> <PASSWORD>` - Creates a user
+* `create_user <USERNAME> <EMAIL> <PASSWORD> <FIRST_NAME> <LAST_NAME>` - Creates a user
