@@ -6,7 +6,7 @@ import re
 from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 
 
 class Command(BaseCommand):
@@ -18,10 +18,12 @@ class Command(BaseCommand):
 
         self.modes = {
             'languages': mode_languages,
+            'locations': mode_location,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
             'skills': mode_skills,
             'organizations': mode_organizations,
+            'regional_organizations': mode_regional_organization,
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
             'posts': mode_post
@@ -125,6 +127,18 @@ def mode_organizations():
     return (model, instance_tag, tag_map, collision_field, post_load_function)
 
 
+def mode_regional_organization():
+    model, instance_tag, tag_map, collision_field, post_load_function = mode_organizations()
+
+    def post_load_function(new_ids, updated_ids):
+        new_orgs = Organization.objects.filter(id__in=new_ids+updated_ids)
+        new_orgs.update(is_regional=True)
+        for org in new_orgs:
+            org.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
 def mode_positions():
     model = Position
     instance_tag = "POSITIONS:POSITION"
@@ -138,7 +152,7 @@ def mode_positions():
         "POSITIONS:POS_BUREAU_CODE": "_bureau_code",
         "POSITIONS:POS_SKILL_CODE": "_skill_code",
         "POSITIONS:POS_STAFF_PTRN_SKILL_CODE": "_staff_ptrn_skill_code",
-        "POSITIONS:POS_OVERSEAS_IND": parse_boolean("is_overseas"),
+        "POSITIONS:POS_OVERSEAS_IND": parse_boolean("is_overseas", ['O']),
         "POSITIONS:POS_PAY_PLAN_CODE": "_pay_plan_code",
         "POSITIONS:POS_STATUS_CODE": "_status_code",
         "POSITIONS:POS_SERVICE_TYPE_CODE": "_service_type_code",
@@ -186,10 +200,9 @@ def mode_tour_of_duty():
 def mode_post():
     model = Post
     instance_tag = "BIDPOSTS:BIDDING_TOOL"
-    collision_field = "code"
+    collision_field = "_location_code"
     tag_map = {
-        "BIDPOSTS:DSC_CD": "code",
-        "BIDPOSTS:LOC_GVT_GEOLOC_DESC": "description",
+        "BIDPOSTS:DSC_CD": "_location_code",
         "BIDPOSTS:TOD_CODE": "_tod_code",
         "BIDPOSTS:BT_COST_OF_LIVING_ADJUST_NUM": "cost_of_living_adjustment",
         "BIDPOSTS:BT_DIFFERENTIAL_RATE_NUM": "differential_rate",
@@ -202,5 +215,23 @@ def mode_post():
     def post_load_function(new_ids, updated_ids):
         for loc in Post.objects.filter(id__in=new_ids+updated_ids):
             loc.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
+def mode_location():
+    model = Location
+    instance_tag = "location"
+    collision_field = "code"
+    tag_map = {
+        "code": "code",
+        "country": strip_extra_spaces("country"),
+        "city": strip_extra_spaces("city"),
+        "state": strip_extra_spaces("state")
+    }
+
+    def post_load_function(new_ids, updated_ids):
+        for loc in Location.objects.filter(posts__isnull=True):
+            Post.objects.create(location=loc, _location_code=loc.code)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
