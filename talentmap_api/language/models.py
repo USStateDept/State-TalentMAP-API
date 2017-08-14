@@ -20,6 +20,7 @@ class Language(models.Model):
 
     class Meta:
         managed = True
+        ordering = ["code"]
 
 
 class Proficiency(models.Model):
@@ -47,6 +48,7 @@ class Proficiency(models.Model):
 
     class Meta:
         managed = True
+        ordering = ["code"]
 
 
 class Qualification(models.Model):
@@ -90,4 +92,5 @@ class Qualification(models.Model):
 
     class Meta:
         managed = True
+        ordering = ["language__code"]
         unique_together = (('language', 'written_proficiency', 'spoken_proficiency'))

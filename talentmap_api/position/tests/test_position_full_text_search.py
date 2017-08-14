@@ -41,4 +41,4 @@ def test_available_filtering(client, term, expected_count):
     response = client.get(f'/api/v1/position/?q={term}')
     print(response.data)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == expected_count
+    assert len(response.data["results"]) == expected_count
