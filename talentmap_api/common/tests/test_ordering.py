@@ -23,13 +23,22 @@ def test_regular_ordering(client):
     response = client.get('/api/v1/position/?ordering=position_number')
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.data[0]["position_number"] == "1234"
+    assert response.data["results"][0]["position_number"] == "1234"
 
     response = client.get('/api/v1/position/?ordering=-position_number')
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.data[0]["position_number"] == "5678"
+    assert response.data["results"][0]["position_number"] == "5678"
+
+
+@pytest.mark.django_db()
+@pytest.mark.usefixtures("test_ordering_position_fixture")
+def test_bad_field_ordering(client):
+    response = client.get('/api/v1/position/?ordering=banana_rama')
+    assert response.status_code == status.HTTP_200_OK
+
+    assert response.data["results"][0]["position_number"] == "1234"
 
 
 @pytest.mark.django_db()
@@ -38,10 +47,10 @@ def test_nested_ordering(client):
     response = client.get('/api/v1/position/?ordering=post__has_service_needs_differential')
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.data[0]["position_number"] == "5678"
+    assert response.data["results"][0]["position_number"] == "5678"
 
     response = client.get('/api/v1/position/?ordering=-post__has_service_needs_differential')
 
     assert response.status_code == status.HTTP_200_OK
 
-    assert response.data[0]["position_number"] == "1234"
+    assert response.data["results"][0]["position_number"] == "1234"

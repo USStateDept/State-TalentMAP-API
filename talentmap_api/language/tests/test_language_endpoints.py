@@ -28,7 +28,7 @@ def test_language_list(client):
     response = client.get('/api/v1/language/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 10
+    assert len(response.data["results"]) == 10
 
 
 @pytest.mark.django_db()
@@ -36,7 +36,7 @@ def test_language_list(client):
 def test_language_proficiency_list(client):
     response = client.get('/api/v1/language_proficiency/')
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 10
+    assert len(response.data["results"]) == 10
 
 
 @pytest.mark.django_db()
@@ -45,10 +45,10 @@ def test_language_qualification_list(client):
     response = client.get('/api/v1/language_qualification/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]["language"] == "German (DE)"
-    assert response.data[0]["spoken_proficiency"] == "3+"
-    assert response.data[0]["written_proficiency"] == "3+"
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["language"] == "German (DE)"
+    assert response.data["results"][0]["spoken_proficiency"] == "3+"
+    assert response.data["results"][0]["written_proficiency"] == "3+"
 
 
 @pytest.mark.django_db()

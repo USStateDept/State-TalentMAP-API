@@ -57,8 +57,8 @@ def test_endpoints_list(authorized_client, authorized_user, endpoint, model, rec
     response = authorized_client.get(endpoint)
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == apps.get_model(model).objects.count()
-    assert len(response.data) == number
+    assert len(response.data["results"]) == apps.get_model(model).objects.count()
+    assert len(response.data["results"]) == number
 
 
 @pytest.mark.django_db(transaction=True)

@@ -25,7 +25,7 @@ def test_organization_list(client):
     response = client.get('/api/v1/organization/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == Organization.objects.count()
+    assert len(response.data["results"]) == Organization.objects.count()
 
 
 @pytest.mark.django_db()
@@ -34,8 +34,8 @@ def test_organization_list_clear_parent_names(client):
     response = client.get('/api/v1/organization/?is_bureau=false')
 
     assert response.status_code == status.HTTP_200_OK
-    print(response.data)
-    for item in response.data:
+    print(response.data["results"])
+    for item in response.data["results"]:
         assert (item["bureau_organization"] == "Bureau of Cheese Imports ()" or
                 item["bureau_organization"] == "cheese" or
                 item["parent_organization"] == "Bureau of Cheese Imports ()" or
@@ -48,5 +48,5 @@ def test_organization_filters(client):
     response = client.get('/api/v1/organization/?is_bureau=true')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]["long_description"] == "Bureau of Cheese Imports"
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["long_description"] == "Bureau of Cheese Imports"
