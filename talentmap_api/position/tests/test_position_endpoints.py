@@ -147,7 +147,7 @@ def test_skill_filtering(client):
     ("/api/v1/skill/", False, 8),
 ])
 def test_available_filtering(client, endpoint, available, expected_count):
-    response = client.get(f'{endpoint}?available={available}')
+    response = client.get(f'{endpoint}?is_available={available}')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == expected_count
@@ -156,12 +156,12 @@ def test_available_filtering(client, endpoint, available, expected_count):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_domestic_filtering(client):
-    response_1 = client.get('/api/v1/position/?domestic=true')
+    response_1 = client.get('/api/v1/position/?is_domestic=true')
     response_2 = client.get('/api/v1/position/?is_overseas=false')
 
     assert response_1.data == response_2.data
 
-    response_1 = client.get('/api/v1/position/?domestic=false')
+    response_1 = client.get('/api/v1/position/?is_domestic=false')
     response_2 = client.get('/api/v1/position/?is_overseas=true')
 
     assert response_1.data == response_2.data

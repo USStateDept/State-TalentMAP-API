@@ -11,7 +11,7 @@ class LanguageFilter(filters.FilterSet):
     # Convenience filter of "name" which will perform a contains lookup on the description
     name = filters.CharFilter(name="long_description", lookup_expr="contains")
 
-    available = filters.BooleanFilter(name="qualifications__positions", method=negate_boolean_filter("isnull"))
+    is_available = filters.BooleanFilter(name="qualifications__positions", method=negate_boolean_filter("isnull"))
 
     class Meta:
         model = Language
@@ -26,7 +26,7 @@ class ProficiencyFilter(filters.FilterSet):
     at_least = filters.CharFilter(name="code", method="filter_at_least")
     at_most = filters.CharFilter(name="code", method="filter_at_most")
 
-    available = filters.BooleanFilter(name="written_qualifications", method=multi_field_filter(fields=["written_qualifications", "spoken_qualifications"], lookup_expr="isnull", exclude=True))
+    is_available = filters.BooleanFilter(name="written_qualifications", method=multi_field_filter(fields=["written_qualifications", "spoken_qualifications"], lookup_expr="isnull", exclude=True))
 
     def filter_at_most(self, queryset, name, value):
         '''
@@ -63,7 +63,7 @@ class QualificationFilter(filters.FilterSet):
     written_proficiency = filters.RelatedFilter(ProficiencyFilter, name='written_proficiency', queryset=Proficiency.objects.all())
     spoken_proficiency = filters.RelatedFilter(ProficiencyFilter, name='spoken_proficiency', queryset=Proficiency.objects.all())
 
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Qualification
