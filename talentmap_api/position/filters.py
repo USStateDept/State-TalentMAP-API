@@ -12,7 +12,7 @@ from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DAT
 
 
 class GradeFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Grade
@@ -22,7 +22,7 @@ class GradeFilter(filters.FilterSet):
 
 
 class SkillFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Skill
@@ -40,7 +40,7 @@ class PositionFilter(filters.FilterSet):
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
 
-    domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
+    is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
