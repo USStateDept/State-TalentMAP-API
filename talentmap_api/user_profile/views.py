@@ -89,7 +89,6 @@ class ShareView(GenericViewSet,
 
     Post method accepts an object with at minimum the following parameters:
     * type - the type of object to be shared (position)
-    * mode - the mode of sharing (internal, email)
     * id - the id of the object to be shared
     * email - the email to send the share to
 
@@ -99,7 +98,6 @@ class ShareView(GenericViewSet,
     This method is mainly used to update the read status of a share
     '''
 
-    AVAILABLE_MODES = ["email", "internal"]
     AVAILABLE_TYPES = {
         "position": "position.Position"
     }
@@ -118,10 +116,10 @@ class ShareView(GenericViewSet,
 
         if valid:
             response = None
-            if request.data.get("mode") == "email":
-                response = self.email_share(user, request.data.get("email"), request.data.get("type"), request.data.get("id"))
-            elif request.data.get("mode") == "internal":
+            if "state.gov" in request.data.get("email"):
                 response = self.internal_share(user, request.data.get("email"), request.data.get("type"), request.data.get("id"))
+            else:
+                response = self.email_share(user, request.data.get("email"), request.data.get("type"), request.data.get("id"))
             return response
         else:
             return Response({"message": error}, status=status.HTTP_400_BAD_REQUEST)
@@ -132,11 +130,6 @@ class ShareView(GenericViewSet,
         If the request fails validation, it will return (False, String) where the second item of the tuple is
         a string explanation of the validation error.
         '''
-        if "mode" not in request.data:
-            return (False, "POSTs to this endpoint require the 'mode' parameter")
-        elif request.data.get("mode") not in self.AVAILABLE_MODES:
-            return (False, f"Mode must be one of the following: {','.join(self.AVAILABLE_MODES)}")
-
         if "type" not in request.data:
             return (False, "POSTs to this endpoint require the 'type' parameter")
         elif request.data.get("type") not in self.AVAILABLE_TYPES.keys():
@@ -172,7 +165,7 @@ class ShareView(GenericViewSet,
         # TODO: Implement actual e-mail sending here when avaiable e-mail servers are clarified
 
         # Return a 202 ACCEPTED with a copy of the email body
-        return Response({"email": email_body}, status=status.HTTP_202_ACCEPTED)
+        return Response({"message": f"Position shared externally via email at {email}", "email_body": email_body}, status=status.HTTP_202_ACCEPTED)
 
     def internal_share(self, user, email, type, id):
         sharing_user = user
@@ -199,7 +192,7 @@ class ShareView(GenericViewSet,
                                 sharable_id=id,
                                 sharable_model=self.AVAILABLE_TYPES[type])
 
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response({"message": f"Position shared internally to user with email {email}"}, status=status.HTTP_202_ACCEPTED)
 
     def get_email_formatter(self, type):
         formatter = None
