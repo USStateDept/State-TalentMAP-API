@@ -35,6 +35,10 @@ class Sharable(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        managed = True
+        ordering = ["date_created"]
+
 
 class SavedSearch(models.Model):
     '''
@@ -59,6 +63,10 @@ class SavedSearch(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        managed = True
+        ordering = ["date_created"]
 
 
 # Signal listeners

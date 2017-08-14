@@ -50,6 +50,10 @@ class Organization(models.Model):
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"
 
+    class Meta:
+        managed = True
+        ordering = ["code"]
+
 
 class TourOfDuty(models.Model):
     '''
@@ -63,6 +67,10 @@ class TourOfDuty(models.Model):
 
     def __str__(self):
         return f"{self.long_description}"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
 
 
 class Location(models.Model):
@@ -78,6 +86,10 @@ class Location(models.Model):
 
     def __str__(self):
         return ", ".join([x for x in [self.city, self.state, self.country] if x])
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
 
 
 class Post(models.Model):
@@ -112,3 +124,7 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.location}"
+
+    class Meta:
+        managed = True
+        ordering = ["_location_code"]

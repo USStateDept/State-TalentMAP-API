@@ -98,6 +98,10 @@ class Position(models.Model):
 
         self.save()
 
+    class Meta:
+        managed = True
+        ordering = ["position_number"]
+
 
 class Grade(models.Model):
     '''
@@ -108,6 +112,10 @@ class Grade(models.Model):
 
     def __str__(self):
         return f"{self.code}"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
 
 
 class Skill(models.Model):
@@ -120,3 +128,7 @@ class Skill(models.Model):
 
     def __str__(self):
         return f"{self.description} ({self.code})"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
