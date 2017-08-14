@@ -89,7 +89,6 @@ class ShareView(GenericViewSet,
 
     Post method accepts an object with at minimum the following parameters:
     * type - the type of object to be shared (position)
-    * mode - the mode of sharing (internal, email)
     * id - the id of the object to be shared
     * email - the email to send the share to
 
