@@ -178,7 +178,7 @@ def test_xml_positions_loading():
     grade = mommy.make('position.Grade', code="05")
 
     location = mommy.make('organization.Location', code="SL2000000")
-    post = mommy.make('organization.Post', location=location)
+    post = mommy.make('organization.Post', location=location, _location_code=location.code)
 
     call_command('load_xml',
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_positions.xml'),
