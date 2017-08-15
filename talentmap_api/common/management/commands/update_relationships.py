@@ -16,8 +16,8 @@ class Command(BaseCommand):
         # These models should have update_relationships
         self.models = [
             Organization,
+            Position,
             Post,
-            Position
         ]
 
     def handle(self, *args, **options):

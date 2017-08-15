@@ -18,7 +18,6 @@ class Command(BaseCommand):
 
         self.modes = {
             'languages': mode_languages,
-            'locations': mode_location,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
             'skills': mode_skills,
@@ -26,7 +25,8 @@ class Command(BaseCommand):
             'regional_organizations': mode_regional_organization,
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
-            'posts': mode_post
+            'posts': mode_post,
+            'locations': mode_location,
         }
 
     def add_arguments(self, parser):
@@ -231,7 +231,8 @@ def mode_location():
     }
 
     def post_load_function(new_ids, updated_ids):
-        for loc in Location.objects.filter(posts__isnull=True):
-            Post.objects.create(location=loc, _location_code=loc.code)
+        # Connect new locations to applicable posts
+        for loc in Location.objects.filter(id__in=new_ids+updated_ids):
+            Post.objects.filter(_location_code=loc.code).update(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
