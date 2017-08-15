@@ -94,7 +94,10 @@ class Position(models.Model):
 
         # Update location
         if self._location_code:
-            self.post = Post.objects.filter(location__code=self._location_code).first()
+            self.post = Post.objects.filter(_location_code=self._location_code).first()
+            # No post exists with specified location code, so create it
+            if not self.post:
+                self.post = Post.objects.create(_location_code=self._location_code)
 
         self.save()
 
