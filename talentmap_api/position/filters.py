@@ -1,6 +1,6 @@
 import rest_framework_filters as filters
 
-from talentmap_api.position.models import Position, Grade, Skill
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -32,8 +32,25 @@ class SkillFilter(filters.FilterSet):
         }
 
 
+class CapsuleDescriptionFilter(filters.FilterSet):
+    q = filters.CharFilter(name="content", method=full_text_search(
+        fields=[
+            "content"
+        ]
+    ))
+
+    class Meta:
+        model = CapsuleDescription
+        fields = {
+            "content": ALL_TEXT_LOOKUPS,
+            "date_created": DATE_LOOKUPS,
+            "date_updated": DATE_LOOKUPS
+        }
+
+
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
     organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
@@ -54,6 +71,7 @@ class PositionFilter(filters.FilterSet):
             "post__location__country",
             "post__location__city",
             "post__location__state",
+            "description__content"
         ]
     ))
 

@@ -11,6 +11,7 @@ class Position(models.Model):
     '''
 
     position_number = models.TextField(null=True, help_text='The position number')
+    description = models.OneToOneField('position.CapsuleDescription', related_name='position', null=True, help_text="A plain text description of the position")
     title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
@@ -99,11 +100,33 @@ class Position(models.Model):
             if not self.post:
                 self.post = Post.objects.create(_location_code=self._location_code)
 
+        # Update description
+        if self._seq_num:
+            self.description = CapsuleDescription.objects.filter(_pos_seq_num=self._seq_num).first()
+
         self.save()
 
     class Meta:
         managed = True
         ordering = ["position_number"]
+
+
+class CapsuleDescription(models.Model):
+    '''
+    Represents a capsule description, describing the associated object in plain English
+    '''
+
+    content = models.TextField(null=True)
+
+    last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    _pos_seq_num = models.TextField(null=True)
+
+    class Meta:
+        managed = True
+        ordering = ["date_updated"]
 
 
 class Grade(models.Model):

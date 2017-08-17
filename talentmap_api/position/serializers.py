@@ -2,9 +2,17 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
 
-from talentmap_api.position.models import Position, Grade, Skill
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
+
+
+class CapsuleDescriptionSerializer(PrefetchedSerializer):
+    last_editing_user = serializers.StringRelatedField()
+
+    class Meta:
+        model = CapsuleDescription
+        fields = "__all__"
 
 
 class PositionSerializer(PrefetchedSerializer):
@@ -50,6 +58,13 @@ class PositionSerializer(PrefetchedSerializer):
                 "field": "post",
                 "kwargs": {
                     "many": False,
+                    "read_only": True
+                }
+            },
+            "description": {
+                "class": CapsuleDescriptionSerializer,
+                "field": "description",
+                "kwargs": {
                     "read_only": True
                 }
             }
