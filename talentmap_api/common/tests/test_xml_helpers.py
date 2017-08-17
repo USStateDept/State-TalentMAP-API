@@ -7,7 +7,7 @@ from django.core.management import call_command
 from model_mommy import mommy
 
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade, Skill, Position
+from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location
 
 
@@ -204,3 +204,19 @@ def test_xml_location_loading():
 
     assert Location.objects.count() == 4
     assert Location.objects.filter(code="VM3000000").count() == 1
+
+
+@pytest.mark.django_db()
+def test_xml_capsule_description_loading():
+    mommy.make("position.Position", _seq_num=1)
+    mommy.make("position.Position", _seq_num=2)
+
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_capsule_description.xml'),
+                 'capsule_descriptions')
+
+    call_command('update_relationships')
+
+    assert CapsuleDescription.objects.count() == 2
+    assert Position.objects.get(_seq_num=1).description._pos_seq_num == '1'
+    assert Position.objects.get(_seq_num=2).description._pos_seq_num == '2'

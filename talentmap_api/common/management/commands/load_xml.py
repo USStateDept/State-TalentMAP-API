@@ -5,7 +5,7 @@ import re
 
 from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade, Skill, Position
+from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 
 
@@ -27,6 +27,7 @@ class Command(BaseCommand):
             'tours_of_duty': mode_tour_of_duty,
             'posts': mode_post,
             'locations': mode_location,
+            'capsule_descriptions': mode_capsule_description,
         }
 
     def add_arguments(self, parser):
@@ -236,3 +237,15 @@ def mode_location():
             Post.objects.filter(_location_code=loc.code).update(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
+def mode_capsule_description():
+    model = CapsuleDescription
+    instance_tag = "position"
+    collision_field = "_pos_seq_num"
+    tag_map = {
+        "POS_SEQ_NUM": "_pos_seq_num",
+        "capsuleDescription": "content",
+    }
+
+    return (model, instance_tag, tag_map, collision_field, None)

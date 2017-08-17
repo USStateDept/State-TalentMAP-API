@@ -51,7 +51,8 @@ class XMLloader():
         updated_instances = []
 
         # Parse the XML tree
-        xml_tree = ET.parse(xml_filepath)
+        parser = ET._etree.XMLParser(recover=True)
+        xml_tree = ET.parse(xml_filepath, parser)
 
         # Get the root node
         root = xml_tree.getroot()
