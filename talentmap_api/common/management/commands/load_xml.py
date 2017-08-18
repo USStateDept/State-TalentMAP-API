@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, canonize_country
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
@@ -226,7 +226,7 @@ def mode_location():
     collision_field = "code"
     tag_map = {
         "code": "code",
-        "country": strip_extra_spaces("country"),
+        "country": canonize_country("country"),
         "city": strip_extra_spaces("city"),
         "state": strip_extra_spaces("state")
     }
