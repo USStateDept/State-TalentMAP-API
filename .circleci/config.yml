@@ -39,7 +39,7 @@ jobs:
           command: |
             TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
             IMAGE_NAME="talentmap/${CIRCLE_PROJECT_REPONAME}:${TAG}"
-            LOWERCASE_IMAGE_NAME=$(echo "$REPO_NAME" | awk '{print tolower($0)}')
+            LOWERCASE_IMAGE_NAME=$(echo "$IMAGE_NAME" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker build -t $LOWERCASE_IMAGE_NAME .
             docker push $LOWERCASE_IMAGE_NAME
