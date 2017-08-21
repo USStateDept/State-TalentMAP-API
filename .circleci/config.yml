@@ -38,6 +38,7 @@ jobs:
           name: Docker Build
           command: |
             TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker build -t talentmap/$CIRCLE_PROJECT_REPONAME:$TAG .
             docker push talentmap/$CIRCLE_PROJECT_REPONAME:$TAG
@@ -98,6 +99,7 @@ jobs:
           name: Replace placeholders in Compose file
           command: |
             TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             sed -i "s#@@REPO_NAME@@#${CIRCLE_PROJECT_REPONAME}#g" $COMPOSE_FILE_NAME
             sed -i "s#@@LABEL@@#${TAG}#g" $COMPOSE_FILE_NAME
       - run:
@@ -139,6 +141,7 @@ jobs:
           name:
           command: |
             TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker pull talentmap/$CIRCLE_PROJECT_REPONAME:$TAG
             docker tag talentmap/$CIRCLE_PROJECT_REPONAME:$TAG talentmap/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
