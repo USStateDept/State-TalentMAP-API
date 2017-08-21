@@ -116,7 +116,7 @@ class ShareView(GenericViewSet,
 
         if valid:
             response = None
-            if "state.gov" in request.data.get("email"):
+            if "@state.gov" in request.data.get("email"):
                 response = self.internal_share(user, request.data.get("email"), request.data.get("type"), request.data.get("id"))
             else:
                 response = self.email_share(user, request.data.get("email"), request.data.get("type"), request.data.get("id"))
