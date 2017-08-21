@@ -148,7 +148,7 @@ jobs:
             LOWERCASE_BRANCH_NAME=$(echo "$CIRCLE_BRANCH" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
-            docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$CIRCLE_PROJECT_REPONAME:$LOWERCASE_BRANCH_NAME
+            docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
             docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
 workflows:
   version: 2
