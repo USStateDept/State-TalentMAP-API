@@ -8,5 +8,6 @@ RUN apt-get update && apt-get install -y postgresql-client
 RUN mkdir /app
 WORKDIR /app
 
-ADD requirements.txt /app/
+ADD . /app/
+RUN chmod +x wait-for-postgres.sh
 RUN pip install -r requirements.txt
