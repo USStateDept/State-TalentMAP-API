@@ -19,6 +19,7 @@ class Command(BaseCommand):
             'languages': 'language.xml',
             'locations': 'location.xml',
             'proficiencies': 'language_proficiency.xml',
+            'capsule_descriptions': 'capsule_descriptions.xml',
             'grades': 'grade.xml',
             'skills': 'skill.xml',
             'organizations': 'organization.xml',

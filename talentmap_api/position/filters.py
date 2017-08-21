@@ -1,6 +1,6 @@
 import rest_framework_filters as filters
 
-from talentmap_api.position.models import Position, Grade, Skill
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -12,7 +12,7 @@ from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DAT
 
 
 class GradeFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Grade
@@ -22,7 +22,7 @@ class GradeFilter(filters.FilterSet):
 
 
 class SkillFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Skill
@@ -32,15 +32,32 @@ class SkillFilter(filters.FilterSet):
         }
 
 
+class CapsuleDescriptionFilter(filters.FilterSet):
+    q = filters.CharFilter(name="content", method=full_text_search(
+        fields=[
+            "content"
+        ]
+    ))
+
+    class Meta:
+        model = CapsuleDescription
+        fields = {
+            "content": ALL_TEXT_LOOKUPS,
+            "date_created": DATE_LOOKUPS,
+            "date_updated": DATE_LOOKUPS
+        }
+
+
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
     organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
 
-    domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
+    is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
@@ -54,6 +71,7 @@ class PositionFilter(filters.FilterSet):
             "post__location__country",
             "post__location__city",
             "post__location__state",
+            "description__content"
         ]
     ))
 
