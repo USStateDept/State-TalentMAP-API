@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<positions>
+  <position>
+    <POS_SEQ_NUM>1</POS_SEQ_NUM>
+    <capsuleDescription>Description for num 1</capsuleDescription>
+  </position>
+  <position>
+    <POS_SEQ_NUM>2</POS_SEQ_NUM>
+    <capsuleDescription>Description for number 2</capsuleDescription>
+  </position>
+</positions>

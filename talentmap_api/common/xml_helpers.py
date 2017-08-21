@@ -7,6 +7,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 
 import defusedxml.lxml as ET
+import difflib
 import logging
 import re
 
@@ -51,7 +52,8 @@ class XMLloader():
         updated_instances = []
 
         # Parse the XML tree
-        xml_tree = ET.parse(xml_filepath)
+        parser = ET._etree.XMLParser(recover=True)
+        xml_tree = ET.parse(xml_filepath, parser)
 
         # Get the root node
         root = xml_tree.getroot()
@@ -135,4 +137,119 @@ def parse_boolean(field, true_values_override=None):
         if item.text in true_values:
             value = True
         setattr(instance, field, value)
+    return process_function
+
+
+def canonize_country(field):
+    '''
+    Ensures all location country tags have the same formatting. This is a temporary solution
+    until a full location list can be obtained
+    '''
+    def process_function(instance, item):
+        canon = {
+            "afghanistan": "Afghanistan",
+            "albania": "Albania",
+            "algeria": "Algeria",
+            "angola": "Angola",
+            "argentina": "Argentina",
+            "australia": "Australia",
+            "austria": "Austria",
+            "azerbaijan": "Azerbaijan",
+            "belgium": "Belgium",
+            "botswana": "Botswana",
+            "brazil": "Brazil",
+            "burkina faso": "Burkina Faso",
+            "burundi": "Burundi",
+            "cambodia": "Cambodia",
+            "cameroon": "Cameroon",
+            "chad": "Chad",
+            "china": "China",
+            "colombia": "Colombia",
+            "congo": "Congo",
+            "congo, democratic republic": "Congo, Democratic Republic",
+            "costa rica": "Costa Rica",
+            "cote d'ivoire": "Cote D'Ivoire",
+            "croatia": "Croatia",
+            "cyprus": "Cyprus",
+            "denmark": "Denmark",
+            "djibouti": "Djibouti",
+            "ecuador": "Ecuador",
+            "egypt": "Egypt",
+            "el salvador": "El Salvador",
+            "eritrea": "Eritrea",
+            "ethiopia": "Ethiopia",
+            "france": "France",
+            "gabon": "Gabon",
+            "germany": "Germany",
+            "guatemala": "Guatemala",
+            "guinea": "Guinea",
+            "haiti": "Haiti",
+            "honduras": "Honduras",
+            "india": "India",
+            "indonesia": "Indonesia",
+            "iraq": "Iraq",
+            "italy": "Italy",
+            "jordan": "Jordan",
+            "kenya": "Kenya",
+            "korea, republic of": "Korea, Republic Of",
+            "lebanon": "Lebanon",
+            "lesotho": "Lesotho",
+            "liberia": "Liberia",
+            "lithuania": "Lithuania",
+            "macedonia": "Macedonia",
+            "madagascar": "Madagascar",
+            "malawi": "Malawi",
+            "mali": "Mali",
+            "mauritania": "Mauritania",
+            "mexico": "Mexico",
+            "micronesia, federated states o": "Micronesia, Federated States Of",
+            "mongolia": "Mongolia",
+            "montenegro": "Montenegro",
+            "mozambique": "Mozambique",
+            "netherlands": "Netherlands",
+            "netherlands antilles": "Netherlands Antilles",
+            "nicaragua": "Nicaragua",
+            "nigeria": "Nigeria",
+            "norway": "Norway",
+            "pakistan": "Pakistan",
+            "panama": "Panama",
+            "papua new guinea": "Papua New Guinea",
+            "paraguay": "Paraguay",
+            "peru": "Peru",
+            "portugal": "Portugal",
+            "russia": "Russia",
+            "saudi arabia": "Saudi Arabia",
+            "serbia and montenegro": "Serbia And Montenegro",
+            "sierra leone": "Sierra Leone",
+            "singapore": "Singapore",
+            "south sudan": "South Sudan",
+            "sudan": "Sudan",
+            "switzerland": "Switzerland",
+            "tajikistan": "Tajikistan",
+            "tanzania, united republic of": "Tanzania, United Republic Of",
+            "thailand": "Thailand",
+            "trinidad and tobago": "Trinidad And Tobago",
+            "tunisia": "Tunisia",
+            "turkey": "Turkey",
+            "turkmenistan": "Turkmenistan",
+            "uganda": "Uganda",
+            "ukraine": "Ukraine",
+            "united arab emirates": "United Arab Emirates",
+            "venezuela": "Venezuela",
+            "vietnam": "Vietnam",
+            "zimbabwe": "Zimbabwe",
+        }
+
+        # The only time a location's country is blank is if it is domestic
+        country = "United States of America"
+
+        if item.text:
+            candidates = difflib.get_close_matches(item.text.lower(), canon.keys())
+            if len(candidates) > 1:
+                logging.getLogger('console').warn(f"While canonizing country {item.text} got {len(candidates)} canidates: {'; '.join(candidates)}")
+            country = canon[candidates[0]]
+
+        logging.getLogger('console').info(f"Canonizing: {item.text} -> {country}")
+        setattr(instance, field, country)
+
     return process_function

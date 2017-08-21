@@ -4,6 +4,10 @@ from django.contrib.postgres.search import SearchVector
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
+from rest_framework import filters
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models.fields.related import ForeignObjectRel, OneToOneRel
+
 # Common filters for string-type objects
 DATETIME_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range', 'year',
                     'month', 'day', 'hour', 'minute', 'second']
@@ -21,6 +25,39 @@ class DisabledHTMLFilterBackend(DjangoFilterBackend):
     # This is not covered by tests as it exists solely on the browsable API
     def to_html(self, request, queryset, view):  # pragma: no cover
         return ""
+
+
+class RelatedOrderingFilter(filters.OrderingFilter):
+    """
+    Django rest framework does not natively support ordering by a nested object's
+    data, to allow this, we override "is_valid_field" to verify that the ordering
+    parameter is a valid nested field
+
+    DRF issue https://github.com/tomchristie/django-rest-framework/issues/1005
+    """
+
+    related_field_types = ["OneToOneField", "ManyToManyField", "ForeignKey"]
+
+    def is_valid_field(self, model, field):
+        # Split with maximum splits of 1, so if passed xx__yy__zz, we get [xx, yy__zz]
+        components = field.split(LOOKUP_SEP, 1)
+        try:
+            field = model._meta.get_field(components[0])
+
+            # Reverse lookup
+            if isinstance(field, ForeignObjectRel):
+                return self.is_valid_field(field.model, components[1])
+
+            if field.get_internal_type() in self.related_field_types and len(components) > 1:
+                return self.is_valid_field(field.related_model, components[1])
+
+            return True
+        except FieldDoesNotExist:
+            return False
+
+    def remove_invalid_fields(self, queryset, fields, ordering, view):
+        return [term for term in fields
+                if self.is_valid_field(queryset.model, term.lstrip('-'))]
 
 
 def negate_boolean_filter(lookup_expr):
