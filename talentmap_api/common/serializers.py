@@ -85,7 +85,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                 child_kwargs[pair[1]] = child_overrides
 
     @classmethod
-    def prefetch_model(cls, model, queryset, prefix=""):
+    def prefetch_model(cls, model, queryset, prefix="", visited=None):
         '''
         This method sets up prefetch and selected related statements when applicable
         for foreign key relationships.
@@ -95,10 +95,18 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         all sub-fields
         '''
         related_field_types = ["OneToOneField", "ManyToManyField", "ForeignKey"]
+
+        # Don't prefetch already prefetched items
+        if not visited:
+            visited = []
+        elif model in visited:
+            return queryset
+        visited.append(model)
+
         for field in model._meta.get_fields():
             if field.get_internal_type() in related_field_types and not hasattr(field, 'related_name'):
                 queryset = queryset.prefetch_related(f"{prefix}{field.name}")
                 if field.related_model != model:
-                    queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}")
+                    queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}", visited=visited)
 
         return queryset

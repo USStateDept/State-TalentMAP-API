@@ -3,9 +3,9 @@ from django.core.management.base import BaseCommand, CommandError
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, canonize_country
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade, Skill, Position
+from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 
 
@@ -18,7 +18,6 @@ class Command(BaseCommand):
 
         self.modes = {
             'languages': mode_languages,
-            'locations': mode_location,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
             'skills': mode_skills,
@@ -26,7 +25,9 @@ class Command(BaseCommand):
             'regional_organizations': mode_regional_organization,
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
-            'posts': mode_post
+            'posts': mode_post,
+            'locations': mode_location,
+            'capsule_descriptions': mode_capsule_description,
         }
 
     def add_arguments(self, parser):
@@ -225,13 +226,26 @@ def mode_location():
     collision_field = "code"
     tag_map = {
         "code": "code",
-        "country": strip_extra_spaces("country"),
+        "country": canonize_country("country"),
         "city": strip_extra_spaces("city"),
         "state": strip_extra_spaces("state")
     }
 
     def post_load_function(new_ids, updated_ids):
-        for loc in Location.objects.filter(posts__isnull=True):
-            Post.objects.create(location=loc, _location_code=loc.code)
+        # Connect new locations to applicable posts
+        for loc in Location.objects.filter(id__in=new_ids+updated_ids):
+            Post.objects.filter(_location_code=loc.code).update(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
+
+
+def mode_capsule_description():
+    model = CapsuleDescription
+    instance_tag = "position"
+    collision_field = "_pos_seq_num"
+    tag_map = {
+        "POS_SEQ_NUM": "_pos_seq_num",
+        "capsuleDescription": "content",
+    }
+
+    return (model, instance_tag, tag_map, collision_field, None)

@@ -13,7 +13,7 @@ class OrganizationFilter(filters.FilterSet):
     parent_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
 
     # Name here must be a valid field, but it is ignored when overriden by the method parameter
-    available = filters.BooleanFilter(name="bureau_positions", method=multi_field_filter(fields=["bureau_positions", "organization_positions"], lookup_expr="isnull", exclude=True))
+    is_available = filters.BooleanFilter(name="bureau_positions", method=multi_field_filter(fields=["bureau_positions", "organization_positions"], lookup_expr="isnull", exclude=True))
 
     class Meta:
         model = Organization
@@ -29,7 +29,7 @@ class OrganizationFilter(filters.FilterSet):
 
 
 class TourOfDutyFilter(filters.FilterSet):
-    available = filters.BooleanFilter(name="posts__positions", method=negate_boolean_filter("isnull"))
+    is_available = filters.BooleanFilter(name="posts__positions", method=negate_boolean_filter("isnull"))
 
     class Meta:
         model = TourOfDuty
@@ -56,7 +56,7 @@ class PostFilter(filters.FilterSet):
     tour_of_duty = filters.RelatedFilter(TourOfDutyFilter, name='tour_of_duty', queryset=TourOfDuty.objects.all())
     location = filters.RelatedFilter(LocationFilter, name='location', queryset=Location.objects.all())
 
-    available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
     class Meta:
         model = Post

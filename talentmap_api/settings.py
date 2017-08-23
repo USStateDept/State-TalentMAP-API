@@ -104,9 +104,10 @@ TEMPLATES = [
 
 # Rest framework settings
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'talentmap_api.common.pagination.ControllablePageNumberPagination',
     'DEFAULT_FILTER_BACKENDS': (
         'talentmap_api.common.filters.DisabledHTMLFilterBackend',
-        'rest_framework.filters.OrderingFilter'
+        'talentmap_api.common.filters.RelatedOrderingFilter'
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_expiring_authtoken.authentication.ExpiringTokenAuthentication',
