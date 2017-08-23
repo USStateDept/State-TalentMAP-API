@@ -1,2 +1,2 @@
 [run]
-omit = *apps.py, *wsgi.py, manage.py, settings.py
+omit = *apps.py, *wsgi.py, manage.py, settings.py, */venv/*
