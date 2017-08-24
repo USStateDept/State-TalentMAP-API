@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
     url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
     url(r'^api/v1/grade/', include('talentmap_api.position.urls.grade')),
+    url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),

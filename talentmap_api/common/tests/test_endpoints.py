@@ -23,6 +23,7 @@ parameterized_data = [
     ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
     ('/api/v1/grade/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
+    ('/api/v1/capsule_description/', 'position.CapsuleDescription', None, True),
 
     # Language Endpoints
     ('/api/v1/language/', 'language.Language', 'talentmap_api.language.tests.language', True),
