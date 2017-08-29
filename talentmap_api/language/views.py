@@ -2,14 +2,15 @@ from rest_framework import mixins
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from talentmap_api.common.mixins import ActionDependentSerializerMixin
+from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.language.models import Language, Proficiency, Qualification
 from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer
 from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter
 
 
-class LanguageListView(ReadOnlyModelViewSet):
+class LanguageListView(FieldLimitableSerializerMixin,
+                       ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given language.
@@ -25,7 +26,8 @@ class LanguageListView(ReadOnlyModelViewSet):
         return Language.objects.all()
 
 
-class LanguageProficiencyListView(ReadOnlyModelViewSet):
+class LanguageProficiencyListView(FieldLimitableSerializerMixin,
+                                  ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given proficiency.
@@ -41,7 +43,8 @@ class LanguageProficiencyListView(ReadOnlyModelViewSet):
         return Proficiency.objects.all()
 
 
-class LanguageQualificationListView(mixins.RetrieveModelMixin,
+class LanguageQualificationListView(FieldLimitableSerializerMixin,
+                                    mixins.RetrieveModelMixin,
                                     mixins.ListModelMixin,
                                     mixins.CreateModelMixin,
                                     ActionDependentSerializerMixin,

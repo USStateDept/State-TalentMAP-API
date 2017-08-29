@@ -1,11 +1,14 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter
 from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer
 
 
-class OrganizationListView(ReadOnlyModelViewSet):
+class OrganizationListView(FieldLimitableSerializerMixin,
+                           ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given organization.
@@ -23,7 +26,8 @@ class OrganizationListView(ReadOnlyModelViewSet):
         return queryset
 
 
-class LocationView(ReadOnlyModelViewSet):
+class LocationView(FieldLimitableSerializerMixin,
+                   ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given location.
@@ -41,7 +45,8 @@ class LocationView(ReadOnlyModelViewSet):
         return queryset
 
 
-class PostListView(ReadOnlyModelViewSet):
+class PostListView(FieldLimitableSerializerMixin,
+                   ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given post.
@@ -59,7 +64,8 @@ class PostListView(ReadOnlyModelViewSet):
         return queryset
 
 
-class TourOfDutyListView(ReadOnlyModelViewSet):
+class TourOfDutyListView(FieldLimitableSerializerMixin,
+                         ReadOnlyModelViewSet):
     """
     retrieve:
     Return the given tour of duty.

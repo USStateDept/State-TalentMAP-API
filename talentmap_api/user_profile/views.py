@@ -9,7 +9,7 @@ from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 from django.apps import apps
 
-from talentmap_api.common.mixins import ActionDependentSerializerMixin
+from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
@@ -21,7 +21,8 @@ from talentmap_api.position.models import Position
 from talentmap_api.position.serializers import PositionSerializer
 
 
-class UserProfileView(mixins.RetrieveModelMixin,
+class UserProfileView(FieldLimitableSerializerMixin,
+                      mixins.RetrieveModelMixin,
                       mixins.UpdateModelMixin,
                       ActionDependentSerializerMixin,
                       GenericViewSet):
@@ -46,7 +47,8 @@ class UserProfileView(mixins.RetrieveModelMixin,
         return queryset.first()
 
 
-class SavedSearchView(GenericViewSet,
+class SavedSearchView(FieldLimitableSerializerMixin,
+                      GenericViewSet,
                       mixins.CreateModelMixin,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
@@ -81,7 +83,8 @@ class SavedSearchView(GenericViewSet,
         return queryset
 
 
-class ShareView(GenericViewSet,
+class ShareView(FieldLimitableSerializerMixin,
+                GenericViewSet,
                 mixins.UpdateModelMixin):
     '''
     post:
