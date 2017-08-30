@@ -64,6 +64,7 @@ def test_internal_share(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_202_ACCEPTED
     user_profile.refresh_from_db()
     assert user_profile.received_shares.count() == 1
+    assert user_profile.notifications.count() == 1
 
 
 @pytest.mark.django_db(transaction=True)
