@@ -44,6 +44,19 @@ def test_saved_search_create_bad_endpoint(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db()
+def test_saved_search_create_unfilterable_endpoint(authorized_client, authorized_user):
+    # Test a bad endpoint
+    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
+        {
+            "name": "Banana search",
+            "endpoint": "/api/v1/notification/"
+        }
+    ), content_type='application/json')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db()
 def test_saved_search_create_bad_filters(authorized_client, authorized_user):
     # Test a valid endpoint with bad filters
     response = authorized_client.post('/api/v1/searches/', data=json.dumps(

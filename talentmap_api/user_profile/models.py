@@ -80,7 +80,7 @@ def create_profile(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Sharable)
-def email_notification(sender, instance, created, **kwargs):
+def post_sharable_save(sender, instance, created, **kwargs):
     '''
     This listener e-mails the receiving user to notify them of their share.
     '''
