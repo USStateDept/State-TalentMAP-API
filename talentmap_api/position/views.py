@@ -27,7 +27,6 @@ class PositionListView(FieldLimitableSerializerMixin,
     filter_class = PositionFilter
 
     def get_queryset(self):
-        print(self.request.query_params)
         queryset = Position.objects.all()
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
