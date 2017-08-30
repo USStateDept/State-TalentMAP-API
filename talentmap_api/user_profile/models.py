@@ -71,8 +71,18 @@ class SavedSearch(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
 
     def update_count(self):
-        self.count = get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters).count()
-        self.save()
+        count = get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters).count()
+        if self.count != count:
+            # Create a notification for this saved search's owner if the amount has increased
+            diff = count - self.count
+            if diff > 0:
+                Notification.objects.create(
+                    owner=self.owner,
+                    message=f"Saved search {self.name} has {diff} new results available"
+                )
+
+            self.count = count
+            self.save()
 
     @staticmethod
     def update_counts_for_endpoint(endpoint=None):
@@ -109,10 +119,9 @@ def create_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=SavedSearch)
 def post_saved_search_save(sender, instance, created, **kwargs):
     '''
-    This listener ensures newly created saved searches update their counts
+    This listener ensures newly created or edited saved searches update their counts
     '''
-    if created:
-        instance.update_count()
+    instance.update_count()
 
 
 @receiver(post_save, sender=Sharable)

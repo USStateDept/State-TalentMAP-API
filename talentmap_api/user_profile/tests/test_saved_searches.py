@@ -5,6 +5,7 @@ from model_mommy import mommy
 from rest_framework import status
 
 from talentmap_api.user_profile.models import SavedSearch
+from talentmap_api.messaging.models import Notification
 
 
 @pytest.fixture()
@@ -184,6 +185,7 @@ def test_saved_search_counts(authorized_client, authorized_user):
     oms_contains.refresh_from_db()
     oms_exact.refresh_from_db()
 
+    assert Notification.objects.filter(owner=authorized_user.profile).count() == 2
     assert oms_contains.count == 10
     assert oms_exact.count == 5
 
@@ -193,5 +195,6 @@ def test_saved_search_counts(authorized_client, authorized_user):
     oms_contains.refresh_from_db()
     oms_exact.refresh_from_db()
 
+    assert Notification.objects.filter(owner=authorized_user.profile).count() == 4
     assert oms_contains.count == 15
     assert oms_exact.count == 10
