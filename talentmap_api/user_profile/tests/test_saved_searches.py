@@ -154,3 +154,44 @@ def test_saved_search_delete(authorized_client, authorized_user, test_saved_sear
     response = authorized_client.delete(f'/api/v1/searches/{test_saved_search_fixture.id}/')
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db(transaction=True)
+def test_saved_search_counts(authorized_client, authorized_user):
+    oms_contains = mommy.make('user_profile.SavedSearch',
+                              name="Test search",
+                              owner=authorized_user.profile,
+                              endpoint='/api/v1/position/',
+                              filters={
+                                "title__contains": "OMS",
+                              })
+
+    oms_exact = mommy.make('user_profile.SavedSearch',
+                           name="Test search",
+                           owner=authorized_user.profile,
+                           endpoint='/api/v1/position/',
+                           filters={
+                             "title": "OMS",
+                           })
+
+    mommy.make('position.Position', title="OMS", _quantity=5)
+    mommy.make('position.Position', title="OMS banana", _quantity=5)
+
+    assert oms_contains.count == 0
+    assert oms_exact.count == 0
+
+    SavedSearch.update_counts_for_endpoint("/api/v1/position/")
+    oms_contains.refresh_from_db()
+    oms_exact.refresh_from_db()
+
+    assert oms_contains.count == 10
+    assert oms_exact.count == 5
+
+    mommy.make('position.Position', title="OMS", _quantity=5)
+
+    SavedSearch.update_counts_for_endpoint()
+    oms_contains.refresh_from_db()
+    oms_exact.refresh_from_db()
+
+    assert oms_contains.count == 15
+    assert oms_exact.count == 10

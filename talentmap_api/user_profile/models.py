@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from django.contrib.postgres.fields import JSONField
 
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view
+
 from talentmap_api.messaging.models import Notification
 
 
@@ -63,8 +65,31 @@ class SavedSearch(models.Model):
     '''
     filters = JSONField(default=dict, help_text="JSON object containing filters representing the saved search")
 
+    count = models.IntegerField(default=0, help_text="Current count of search results for this search")
+
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    def update_count(self):
+        self.count = get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters).count()
+        self.save()
+
+    @staticmethod
+    def update_counts_for_endpoint(endpoint=None):
+        '''
+        Update all saved searches counts whose endpoint matches the specified endpoint.
+        If the endpoint is omitted, updates all saved search counts.
+
+        Args:
+            - endpoint (string) - Endpoint to updated saved searches for
+        '''
+
+        queryset = SavedSearch.objects.all()
+        if endpoint:
+            queryset = SavedSearch.objects.filter(endpoint=endpoint)
+
+        for search in queryset:
+            search.update_count()
 
     class Meta:
         managed = True
@@ -79,6 +104,15 @@ def create_profile(sender, instance, created, **kwargs):
     '''
     if created:
         UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=SavedSearch)
+def post_saved_search_save(sender, instance, created, **kwargs):
+    '''
+    This listener ensures newly created saved searches update their counts
+    '''
+    if created:
+        instance.update_count()
 
 
 @receiver(post_save, sender=Sharable)

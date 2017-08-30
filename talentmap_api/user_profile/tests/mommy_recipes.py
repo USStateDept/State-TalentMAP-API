@@ -6,4 +6,5 @@ from talentmap_api.user_profile.models import UserProfile, SavedSearch
 
 
 def owned_saved_search():
-    return mommy.make(SavedSearch, owner=UserProfile.objects.last())
+    # This must have a valid endpoint
+    return mommy.make(SavedSearch, owner=UserProfile.objects.last(), endpoint='/api/v1/position/')
