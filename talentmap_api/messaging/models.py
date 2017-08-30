@@ -7,7 +7,7 @@ class Notification(models.Model):
     '''
 
     message = models.TextField(null=False, help_text="The message for the notification")
-    owner = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, null=False, help_text="The owner of the notification")
+    owner = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, null=False, related_name="notifications", help_text="The owner of the notification")
 
     read = models.BooleanField(default=False, help_text="Whether this notification has been read")
 

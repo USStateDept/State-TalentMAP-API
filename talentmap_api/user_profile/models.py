@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from django.contrib.postgres.fields import JSONField
 
+from talentmap_api.messaging.models import Notification
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -85,5 +87,9 @@ def post_sharable_save(sender, instance, created, **kwargs):
     This listener e-mails the receiving user to notify them of their share.
     '''
     if created:
+        # Create a new notification for the receiving user
+        Notification.objects.create(owner=instance.receiving_user,
+                                    message=f"{instance.receiving_user} has shared a {instance.sharable_model} with you")
+
         # TODO: Add e-mail here when e-mail implementation is determined
         pass
