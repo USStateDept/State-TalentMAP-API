@@ -132,7 +132,7 @@ def post_sharable_save(sender, instance, created, **kwargs):
     if created:
         # Create a new notification for the receiving user
         Notification.objects.create(owner=instance.receiving_user,
-                                    message=f"{instance.receiving_user} has shared a {instance.sharable_model} with you")
+                                    message=f"{instance.sharing_user} has shared a {instance.sharable_model.split('.')[-1]} with you")
 
         # TODO: Add e-mail here when e-mail implementation is determined
         pass
