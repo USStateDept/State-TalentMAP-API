@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view
+from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
 
@@ -82,7 +83,11 @@ class SavedSearch(models.Model):
                 )
 
             self.count = count
+
+            # Do not trigger signals for this save
+            self._disable_signals = True
             self.save()
+            self._disable_signals = False
 
     @staticmethod
     def update_counts_for_endpoint(endpoint=None):
@@ -117,6 +122,7 @@ def create_profile(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=SavedSearch)
+@respect_instance_signalling()
 def post_saved_search_save(sender, instance, created, **kwargs):
     '''
     This listener ensures newly created or edited saved searches update their counts
