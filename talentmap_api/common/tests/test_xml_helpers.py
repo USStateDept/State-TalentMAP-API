@@ -167,9 +167,9 @@ def test_xml_post_loading():
 @pytest.mark.django_db(transaction=True)
 def test_xml_positions_loading():
     # Make the objects that this position will be linking to
-    lang_2 = mommy.make('language.Language', code="DE")
-    prof_1 = mommy.make('language.Proficiency', code="2")
-    prof_2 = mommy.make('language.Proficiency', code="2+")
+    mommy.make('language.Language', code="DE")
+    mommy.make('language.Proficiency', code="2")
+    mommy.make('language.Proficiency', code="2+")
 
     org = mommy.make('organization.Organization', code="2345")
     bureau = mommy.make('organization.Organization', code="15")

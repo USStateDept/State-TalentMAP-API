@@ -1,6 +1,5 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework import mixins
-from django.db.models import Q
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 

@@ -1,7 +1,6 @@
 import pytest
 
 from model_mommy import mommy
-from rest_framework import status
 
 from talentmap_api.language.models import Qualification
 

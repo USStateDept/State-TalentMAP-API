@@ -15,7 +15,7 @@ def test_saved_search_fixture(authorized_user):
                       owner=authorized_user.profile,
                       endpoint='/api/v1/position/',
                       filters={
-                        "position_number__startswith": ["56"],
+                          "position_number__startswith": ["56"],
                       })
 
 
@@ -164,7 +164,7 @@ def test_saved_search_counts(authorized_client, authorized_user):
                               owner=authorized_user.profile,
                               endpoint='/api/v1/position/',
                               filters={
-                                "title__contains": "OMS",
+                                  "title__contains": "OMS",
                               })
 
     oms_exact = mommy.make('user_profile.SavedSearch',
@@ -172,7 +172,7 @@ def test_saved_search_counts(authorized_client, authorized_user):
                            owner=authorized_user.profile,
                            endpoint='/api/v1/position/',
                            filters={
-                             "title": "OMS",
+                               "title": "OMS",
                            })
 
     mommy.make('position.Position', title="OMS", _quantity=5)

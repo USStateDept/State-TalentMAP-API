@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 import logging
 import re
@@ -78,8 +78,8 @@ def mode_proficiencies():
     instance_tag = "LANGUAGE_PROFICIENCY:LANGUAGE_PROFICIENCY"
     collision_field = "code"
     tag_map = {
-      "LANGUAGE_PROFICIENCY:LP_CODE": "code",
-      "LANGUAGE_PROFICIENCY:LP_DESC": "description"
+        "LANGUAGE_PROFICIENCY:LP_CODE": "code",
+        "LANGUAGE_PROFICIENCY:LP_DESC": "description"
     }
 
     return (model, instance_tag, tag_map, collision_field, None)
@@ -90,7 +90,7 @@ def mode_grades():
     instance_tag = "GRADES:GRADE"
     collision_field = "code"
     tag_map = {
-      "GRADES:GRD_GRADE_CODE": "code"
+        "GRADES:GRD_GRADE_CODE": "code"
     }
 
     return (model, instance_tag, tag_map, collision_field, None)
@@ -122,7 +122,7 @@ def mode_organizations():
 
     # Update relationships
     def post_load_function(new_ids, updated_ids):
-        for org in Organization.objects.filter(id__in=new_ids+updated_ids):
+        for org in Organization.objects.filter(id__in=new_ids + updated_ids):
             org.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
@@ -132,7 +132,7 @@ def mode_regional_organization():
     model, instance_tag, tag_map, collision_field, post_load_function = mode_organizations()
 
     def post_load_function(new_ids, updated_ids):
-        new_orgs = Organization.objects.filter(id__in=new_ids+updated_ids)
+        new_orgs = Organization.objects.filter(id__in=new_ids + updated_ids)
         new_orgs.update(is_regional=True)
         for org in new_orgs:
             org.update_relationships()
@@ -178,7 +178,7 @@ def mode_positions():
     }
 
     def post_load_function(new_ids, updated_ids):
-        for pos in Position.objects.filter(id__in=new_ids+updated_ids):
+        for pos in Position.objects.filter(id__in=new_ids + updated_ids):
             pos.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
@@ -214,7 +214,7 @@ def mode_post():
     }
 
     def post_load_function(new_ids, updated_ids):
-        for loc in Post.objects.filter(id__in=new_ids+updated_ids):
+        for loc in Post.objects.filter(id__in=new_ids + updated_ids):
             loc.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
@@ -233,7 +233,7 @@ def mode_location():
 
     def post_load_function(new_ids, updated_ids):
         # Connect new locations to applicable posts
-        for loc in Location.objects.filter(id__in=new_ids+updated_ids):
+        for loc in Location.objects.filter(id__in=new_ids + updated_ids):
             Post.objects.filter(_location_code=loc.code).update(location=loc)
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
