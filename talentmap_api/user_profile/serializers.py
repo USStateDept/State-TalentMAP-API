@@ -125,3 +125,4 @@ class SavedSearchSerializer(PrefetchedSerializer):
     class Meta:
         model = SavedSearch
         fields = "__all__"
+        read_only_fields = ("count",)
