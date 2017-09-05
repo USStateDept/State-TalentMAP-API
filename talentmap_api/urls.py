@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
     url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
     url(r'^api/v1/grade/', include('talentmap_api.position.urls.grade')),
+    url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
@@ -42,6 +43,9 @@ urlpatterns = [
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
     url(r'^api/v1/share/', include('talentmap_api.user_profile.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
+
+    # Messaging related resources
+    url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns

@@ -2,10 +2,6 @@
 This file contains helpers for loading data into the database from XML files
 '''
 
-from django.forms.models import model_to_dict
-from django.db.models.constants import LOOKUP_SEP
-from django.db.models import Q
-
 import defusedxml.lxml as ET
 import difflib
 import logging

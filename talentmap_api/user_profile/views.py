@@ -2,14 +2,13 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.apps import apps
 
-from talentmap_api.common.mixins import ActionDependentSerializerMixin
+from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
@@ -17,11 +16,9 @@ from talentmap_api.user_profile.serializers import (UserProfileSerializer,
                                                     SharableSerializer,
                                                     SavedSearchSerializer)
 
-from talentmap_api.position.models import Position
-from talentmap_api.position.serializers import PositionSerializer
 
-
-class UserProfileView(mixins.RetrieveModelMixin,
+class UserProfileView(FieldLimitableSerializerMixin,
+                      mixins.RetrieveModelMixin,
                       mixins.UpdateModelMixin,
                       ActionDependentSerializerMixin,
                       GenericViewSet):
@@ -46,7 +43,8 @@ class UserProfileView(mixins.RetrieveModelMixin,
         return queryset.first()
 
 
-class SavedSearchView(GenericViewSet,
+class SavedSearchView(FieldLimitableSerializerMixin,
+                      GenericViewSet,
                       mixins.CreateModelMixin,
                       mixins.ListModelMixin,
                       mixins.RetrieveModelMixin,
@@ -81,7 +79,8 @@ class SavedSearchView(GenericViewSet,
         return queryset
 
 
-class ShareView(GenericViewSet,
+class ShareView(FieldLimitableSerializerMixin,
+                GenericViewSet,
                 mixins.UpdateModelMixin):
     '''
     post:
@@ -168,13 +167,11 @@ class ShareView(GenericViewSet,
         return Response({"message": f"Position shared externally via email at {email}", "email_body": email_body}, status=status.HTTP_202_ACCEPTED)
 
     def internal_share(self, user, email, type, id):
-        sharing_user = user
         receiving_user = None
-        instance = None
 
         # Attempt to get the object instance we want to share
         try:
-            instance = apps.get_model(self.AVAILABLE_TYPES[type]).objects.get(id=id)
+            apps.get_model(self.AVAILABLE_TYPES[type]).objects.get(id=id)
         except ObjectDoesNotExist:
             # If it doesn't exist, respond with a 404
             return Response({"message": f"Object with id {id} does not exist"}, status=status.HTTP_404_NOT_FOUND)

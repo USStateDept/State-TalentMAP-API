@@ -8,7 +8,10 @@ from talentmap_api.organization.serializers import PostSerializer
 
 
 class CapsuleDescriptionSerializer(PrefetchedSerializer):
-    last_editing_user = serializers.StringRelatedField()
+    last_editing_user = serializers.StringRelatedField(read_only=True)
+
+    date_created = serializers.DateTimeField(read_only=True)
+    date_updated = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = CapsuleDescription

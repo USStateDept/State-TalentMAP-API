@@ -28,11 +28,19 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         # Initializer our parent serializer
         super(PrefetchedSerializer, self).__init__(*args, **kwargs)
 
+        # Check the context for overrides from query params
+        if "override_fields" in self.context:
+            override_fields += self.context.get("override_fields")
+        if "override_exclude" in self.context:
+            override_exclude += self.context.get("override_exclude")
+
+        override_fields = self.correct_include_hierarchy(override_fields)
+
         # Create our nested serializers
         if hasattr(self.Meta, "nested"):
             for name, nested in self.Meta.nested.items():
                 # Get the nested serializer's kwargs
-                kwargs = nested.get("kwargs", {})
+                kwargs = dict(nested.get("kwargs", {}))
 
                 # If our serializer field name is not the same as the source, specify it
                 if nested.get("field", False) and name != nested["field"]:
@@ -40,7 +48,6 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                     self.fields.pop(nested["field"])
 
                 self.parse_child_overrides(override_fields, override_exclude, name, nested, kwargs)
-
                 self.fields[name] = nested["class"](**kwargs)
 
         # Iterate over our fields and modify the list as necessary
@@ -54,6 +61,24 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             # If we have overridden exclusions, remove fields present in the exclusion list
             elif field in override_exclude:
                 self.fields.pop(field)
+
+    @classmethod
+    def correct_include_hierarchy(cls, override_fields):
+        '''
+        This method ensures that the list of override fields includes any items' parents
+        For example:
+            ["description__id"] would not render any data, as it is excluding the parent, "description"
+        This method fixes this issue by ensuring all parents are included
+
+        Args:
+            override_fields (list) - List of overridden fields to include
+
+        Returns:
+            list - List of overridden fields, including first level parents
+        '''
+
+        extra_fields = [x.split(LOOKUP_SEP)[0] for x in override_fields if len(x.split(LOOKUP_SEP)) > 1]
+        return override_fields + extra_fields
 
     @classmethod
     def parse_child_overrides(cls, override_fields, override_exclude, name, nested, child_kwargs):
