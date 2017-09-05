@@ -7,7 +7,7 @@ from rest_framework import status
 @pytest.fixture
 def test_field_params_fixture():
     description = mommy.make('position.CapsuleDescription')
-    position = mommy.make('position.Position', description=description)
+    mommy.make('position.Position', description=description)
 
 
 @pytest.mark.django_db()

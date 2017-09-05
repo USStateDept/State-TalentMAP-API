@@ -17,18 +17,18 @@ def test_notification_fixture(authorized_user):
 def test_notification_update(authorized_client, authorized_user):
     assert Notification.objects.count() == 1
     notification = Notification.objects.get(id=1)
-    assert not notification.read
+    assert not notification.is_read
 
     response = authorized_client.patch('/api/v1/notification/1/', data=json.dumps(
         {
-            "read": True
+            "is_read": True
         }
     ), content_type='application/json')
 
     assert response.status_code == status.HTTP_200_OK
 
     notification.refresh_from_db()
-    assert notification.read
+    assert notification.is_read
 
 
 @pytest.mark.django_db(transaction=True)

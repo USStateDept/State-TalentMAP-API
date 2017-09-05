@@ -35,7 +35,7 @@ class Sharable(models.Model):
     sharable_id = models.IntegerField(help_text="The ID of the model instance for this sharable")
     sharable_model = models.TextField(help_text="The string of the model")
 
-    read = models.BooleanField(default=False, help_text="Whether this sharable has been read")
+    is_read = models.BooleanField(default=False, help_text="Whether this sharable has been read")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
@@ -133,7 +133,7 @@ def post_saved_search_save(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Sharable)
 def post_sharable_save(sender, instance, created, **kwargs):
     '''
-    This listener e-mails the receiving user to notify them of their share.
+    This listener notifies the receiving user to notify them of their share.
     '''
     if created:
         # Create a new notification for the receiving user

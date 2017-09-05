@@ -71,7 +71,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         This method fixes this issue by ensuring all parents are included
 
         Args:
-            override_fields (list) - List of overriden fields to include
+            override_fields (list) - List of overridden fields to include
 
         Returns:
             list - List of overridden fields, including first level parents

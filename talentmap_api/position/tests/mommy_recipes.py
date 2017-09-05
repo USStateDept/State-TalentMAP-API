@@ -1,6 +1,5 @@
 from model_mommy import mommy
 from model_mommy.recipe import Recipe, seq, foreign_key
-from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.models import Position, Grade, Skill
@@ -20,7 +19,7 @@ position = Recipe(
     Position,
     grade=foreign_key('grade'),
     skill=foreign_key('skill'),
-    post=foreign_key('post')
+    post=foreign_key(post)
 )
 
 

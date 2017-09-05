@@ -9,7 +9,7 @@ class ActionDependentSerializerMixin(object):
 
 class FieldLimitableSerializerMixin(object):
     '''
-    Supports limiting the return fields via the "fields" and "fields_exclude"
+    Supports limiting the return fields via the specified include and exclude
     query parameters from a request by passing the data into the serializer via
     the serializer context. Only works with PrefetchedSerializer descendants
     '''

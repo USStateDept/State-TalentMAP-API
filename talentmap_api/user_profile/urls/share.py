@@ -1,8 +1,7 @@
-from rest_framework import routers
 from django.conf.urls import url
 
 from talentmap_api.user_profile import views
-from talentmap_api.common.urls import get_retrieve, get_list, delete_destroy, patch_update, post_create
+from talentmap_api.common.urls import patch_update
 
 urlpatterns = [
     url(r'^$', views.ShareView.as_view({'post': 'post'}), name='user_profile.Sharable-create'),

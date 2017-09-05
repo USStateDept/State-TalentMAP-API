@@ -4,7 +4,6 @@ import json
 from django.contrib.auth.models import User
 
 from model_mommy import mommy
-from model_mommy.recipe import Recipe
 from rest_framework import status
 
 
@@ -72,12 +71,12 @@ def test_internal_share(authorized_client, authorized_user):
 def test_update_internal_share(authorized_client, authorized_user):
     assert authorized_user.profile.received_shares.count() == 1
     share = authorized_user.profile.received_shares.first()
-    assert not share.read
+    assert not share.is_read
 
     response = authorized_client.patch(f"/api/v1/share/1/", data=json.dumps({
-        "read": True
+        "is_read": True
     }), content_type="application/json")
 
     assert response.status_code == status.HTTP_200_OK
     share.refresh_from_db()
-    assert share.read
+    assert share.is_read

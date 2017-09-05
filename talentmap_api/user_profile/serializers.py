@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.apps import apps
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -11,7 +10,6 @@ from talentmap_api.position.serializers import PositionSerializer
 
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
-from talentmap_api.position.models import Position
 
 
 class UserSerializer(PrefetchedSerializer):
@@ -37,7 +35,7 @@ class SharableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Sharable
-        fields = ["id", "sharing_user", "receiving_user", "content", "read"]
+        fields = ["id", "sharing_user", "receiving_user", "content", "is_read"]
 
 
 class UserProfileSerializer(PrefetchedSerializer):

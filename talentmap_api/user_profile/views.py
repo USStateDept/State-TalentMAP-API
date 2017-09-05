@@ -2,7 +2,6 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -16,9 +15,6 @@ from talentmap_api.user_profile.serializers import (UserProfileSerializer,
                                                     UserProfileWritableSerializer,
                                                     SharableSerializer,
                                                     SavedSearchSerializer)
-
-from talentmap_api.position.models import Position
-from talentmap_api.position.serializers import PositionSerializer
 
 
 class UserProfileView(FieldLimitableSerializerMixin,
@@ -171,13 +167,11 @@ class ShareView(FieldLimitableSerializerMixin,
         return Response({"message": f"Position shared externally via email at {email}", "email_body": email_body}, status=status.HTTP_202_ACCEPTED)
 
     def internal_share(self, user, email, type, id):
-        sharing_user = user
         receiving_user = None
-        instance = None
 
         # Attempt to get the object instance we want to share
         try:
-            instance = apps.get_model(self.AVAILABLE_TYPES[type]).objects.get(id=id)
+            apps.get_model(self.AVAILABLE_TYPES[type]).objects.get(id=id)
         except ObjectDoesNotExist:
             # If it doesn't exist, respond with a 404
             return Response({"message": f"Object with id {id} does not exist"}, status=status.HTTP_404_NOT_FOUND)

@@ -7,11 +7,9 @@ import pytest
 import random
 
 from model_mommy import mommy
-from model_mommy.recipe import Recipe
 from rest_framework import status
 
 from django.apps import apps
-from django.core.management import call_command
 
 from talentmap_api.position.tests.mommy_recipes import favorite_position
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search

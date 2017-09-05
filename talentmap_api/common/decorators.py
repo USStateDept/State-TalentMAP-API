@@ -3,7 +3,7 @@ from functools import wraps
 
 def respect_instance_signalling():
     '''
-    Decorator which checks for the value of an instances "_disable_signals" variable,
+    Decorator which checks for the value of an instance's "_disable_signals" variable,
     and if it is true, does not broadcast a signal for that instance. Decorates signal
     listeners
     '''

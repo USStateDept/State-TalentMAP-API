@@ -6,7 +6,7 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import ForeignObjectRel, OneToOneRel
+from django.db.models.fields.related import ForeignObjectRel
 
 # Common filters for string-type objects
 DATETIME_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range', 'year',
