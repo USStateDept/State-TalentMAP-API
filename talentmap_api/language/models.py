@@ -60,17 +60,17 @@ class Qualification(models.Model):
     '''
 
     language = models.ForeignKey('Language', on_delete=models.PROTECT, null=False, related_name='qualifications')
-    written_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='written_qualifications')
+    reading_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='reading_qualifications')
     spoken_proficiency = models.ForeignKey('Proficiency', on_delete=models.PROTECT, null=False, related_name='spoken_qualifications')
 
     @staticmethod
-    def get_or_create_by_codes(language_code, written_proficiency_code, spoken_proficiency_code):
+    def get_or_create_by_codes(language_code, reading_proficiency_code, spoken_proficiency_code):
         '''
         Gets or creates a language qualification using the language and proficiency codes.
 
         Args:
             language_code (str) - The language's code, for example "FR" for French
-            written_proficiency_code (str) - The written proficiency's code, for example "2+"
+            reading_proficiency_code (str) - The written proficiency's code, for example "2+"
             spoken_proficiency_code (str) - The spoken proficiency's code, for example "2+"
 
         Returns:
@@ -78,19 +78,19 @@ class Qualification(models.Model):
             bool: Whether the object was created or found
         '''
         language = Language.objects.filter(code=language_code)
-        written_proficiency = Proficiency.objects.filter(code=written_proficiency_code)
+        reading_proficiency = Proficiency.objects.filter(code=reading_proficiency_code)
         spoken_proficiency = Proficiency.objects.filter(code=spoken_proficiency_code)
 
-        if language.count() != 1 or written_proficiency.count() != 1 or spoken_proficiency.count() != 1:
-            logging.getLogger('console').warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {written_proficiency_code} ({written_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
+        if language.count() != 1 or reading_proficiency.count() != 1 or spoken_proficiency.count() != 1:
+            logging.getLogger('console').warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {reading_proficiency_code} ({reading_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
             return None, False
 
-        return Qualification.objects.get_or_create(language=language.first(), written_proficiency=written_proficiency.first(), spoken_proficiency=spoken_proficiency.first())
+        return Qualification.objects.get_or_create(language=language.first(), reading_proficiency=reading_proficiency.first(), spoken_proficiency=spoken_proficiency.first())
 
     def __str__(self):
-        return f"{self.language} {self.written_proficiency}/{self.spoken_proficiency}"
+        return f"{self.language} {self.reading_proficiency}/{self.spoken_proficiency}"
 
     class Meta:
         managed = True
         ordering = ["language__code"]
-        unique_together = (('language', 'written_proficiency', 'spoken_proficiency'))
+        unique_together = (('language', 'reading_proficiency', 'spoken_proficiency'))

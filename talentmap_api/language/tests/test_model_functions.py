@@ -20,12 +20,12 @@ def test_qualification_get_or_create_by_codes():
 
     assert created
     assert qual.language.code == "DE"
-    assert qual.written_proficiency.code == "3+"
+    assert qual.reading_proficiency.code == "3+"
     assert qual.spoken_proficiency.code == "3"
 
     qual, created = Qualification.get_or_create_by_codes("DE", "3+", "3")
 
     assert not created
     assert qual.language.code == "DE"
-    assert qual.written_proficiency.code == "3+"
+    assert qual.reading_proficiency.code == "3+"
     assert qual.spoken_proficiency.code == "3"

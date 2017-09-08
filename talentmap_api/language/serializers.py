@@ -21,7 +21,7 @@ class LanguageProficiencySerializer(PrefetchedSerializer):
 class LanguageQualificationSerializer(PrefetchedSerializer):
 
     language = serializers.StringRelatedField()
-    written_proficiency = serializers.StringRelatedField()
+    reading_proficiency = serializers.StringRelatedField()
     spoken_proficiency = serializers.StringRelatedField()
     representation = serializers.SerializerMethodField()
 

@@ -49,9 +49,9 @@ class Position(models.Model):
     _language_req_1_code = models.TextField(null=True)
     _language_req_2_code = models.TextField(null=True)
     _language_1_spoken_proficiency_code = models.TextField(null=True)
-    _language_1_written_proficiency_code = models.TextField(null=True)
+    _language_1_reading_proficiency_code = models.TextField(null=True)
     _language_2_spoken_proficiency_code = models.TextField(null=True)
-    _language_2_written_proficiency_code = models.TextField(null=True)
+    _language_2_reading_proficiency_code = models.TextField(null=True)
     _create_id = models.TextField(null=True)
     _update_id = models.TextField(null=True)
     _jobcode_code = models.TextField(null=True)
@@ -68,13 +68,13 @@ class Position(models.Model):
         self.language_requirements.clear()
         if self._language_1_code:
             qualification = Qualification.get_or_create_by_codes(self._language_1_code,
-                                                                 self._language_1_written_proficiency_code,
+                                                                 self._language_1_reading_proficiency_code,
                                                                  self._language_1_spoken_proficiency_code)[0]
             if qualification:
                 self.language_requirements.add(qualification)
         if self._language_2_code:
             qualification = Qualification.get_or_create_by_codes(self._language_2_code,
-                                                                 self._language_2_written_proficiency_code,
+                                                                 self._language_2_reading_proficiency_code,
                                                                  self._language_2_spoken_proficiency_code)[0]
             if qualification:
                 self.language_requirements.add(qualification)

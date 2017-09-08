@@ -15,6 +15,6 @@ proficiency = Recipe(
 qualification = Recipe(
     Qualification,
     language=foreign_key('language'),
-    written_proficiency=foreign_key('proficiency'),
+    reading_proficiency=foreign_key('proficiency'),
     spoken_proficiency=foreign_key('proficiency')
 )
