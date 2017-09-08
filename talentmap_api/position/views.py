@@ -1,4 +1,7 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework import mixins
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -46,6 +49,41 @@ class PositionFavoriteListView(FieldLimitableSerializerMixin,
         queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
+
+
+class PositionFavoriteActionView(APIView):
+    '''
+    Controls the favorite status of a position
+
+    Responses adapted from Github gist 'stars' https://developer.github.com/v3/gists/#star-a-gist
+    '''
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, pk, format=None):
+        '''
+        Indicates if the position is a favorite
+
+        Returns 204 if the position is a favorite, otherwise, 404
+        '''
+        if UserProfile.objects.get(user=self.request.user).favorite_positions.filter(id=pk).exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk, format=None):
+        '''
+        Marks the position as a favorite
+        '''
+        UserProfile.objects.get(user=self.request.user).favorite_positions.add(Position.objects.get(id=pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, pk, format=None):
+        '''
+        Removes the position from favorites
+        '''
+        UserProfile.objects.get(user=self.request.user).favorite_positions.remove(Position.objects.get(id=pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CapsuleDescriptionView(FieldLimitableSerializerMixin,

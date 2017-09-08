@@ -164,3 +164,27 @@ def test_domestic_filtering(client):
     response_2 = client.get('/api/v1/position/?is_overseas=true')
 
     assert response_1.data == response_2.data
+
+
+@pytest.mark.django_db()
+def test_favorite_action_endpoints(authorized_client, authorized_user):
+    position = mommy.make('position.Position')
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    response = authorized_client.put(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.delete(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
