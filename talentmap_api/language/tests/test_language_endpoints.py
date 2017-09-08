@@ -19,7 +19,7 @@ def test_language_endpoints_fixture():
     mommy.make_recipe('talentmap_api.language.tests.language', _quantity=8)
     mommy.make_recipe('talentmap_api.language.tests.proficiency', _quantity=9)
 
-    mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
+    mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, reading_proficiency=proficiency)
 
 
 @pytest.mark.django_db()
@@ -48,7 +48,7 @@ def test_language_qualification_list(client):
     assert len(response.data["results"]) == 1
     assert response.data["results"][0]["language"] == "German (DE)"
     assert response.data["results"][0]["spoken_proficiency"] == "3+"
-    assert response.data["results"][0]["written_proficiency"] == "3+"
+    assert response.data["results"][0]["reading_proficiency"] == "3+"
 
 
 @pytest.mark.django_db()
@@ -56,9 +56,9 @@ def test_language_qualification_list(client):
 def test_language_qualification_creation(authorized_user, authorized_client):
     resp = authorized_client.put('/api/v1/language_qualification/', data=json.dumps({
         "language": 1,
-        "written_proficiency": 1,
+        "reading_proficiency": 1,
         "spoken_proficiency": 1
     }), content_type="application/json")
 
     assert resp.status_code == status.HTTP_201_CREATED
-    assert Qualification.objects.filter(language_id=1, written_proficiency_id=1, spoken_proficiency_id=1).count() == 1
+    assert Qualification.objects.filter(language_id=1, reading_proficiency_id=1, spoken_proficiency_id=1).count() == 1

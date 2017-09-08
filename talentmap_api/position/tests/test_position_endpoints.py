@@ -14,8 +14,8 @@ def test_position_endpoints_fixture():
     mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
     proficiency = mommy.make('language.Proficiency', code="3")
     proficiency_2 = mommy.make('language.Proficiency', code="4")
-    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
-    qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, written_proficiency=proficiency_2)
+    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, reading_proficiency=proficiency)
+    qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, reading_proficiency=proficiency_2)
 
     # Create some grades
     grade = mommy.make('position.Grade', code="00")
