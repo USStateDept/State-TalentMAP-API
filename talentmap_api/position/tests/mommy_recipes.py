@@ -3,7 +3,7 @@ from model_mommy.recipe import Recipe, seq, foreign_key
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.models import Position, Grade, Skill
-from talentmap_api.organization.tests.mommy_recipes import post
+from talentmap_api.organization.tests.mommy_recipes import post, orphaned_organization
 
 grade = Recipe(
     Grade,
@@ -19,7 +19,8 @@ position = Recipe(
     Position,
     grade=foreign_key('grade'),
     skill=foreign_key('skill'),
-    post=foreign_key(post)
+    post=foreign_key(post),
+    bureau=foreign_key(orphaned_organization)
 )
 
 
@@ -28,4 +29,11 @@ def favorite_position():
     up = UserProfile.objects.last()
     up.favorite_positions.add(pos)
     up.save()
+    return pos
+
+
+def highlighted_position():
+    pos = mommy.make(Position)
+    org = mommy.make("organization.Organization")
+    org.highlighted_positions.add(pos)
     return pos
