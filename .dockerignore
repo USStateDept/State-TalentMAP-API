@@ -1,0 +1,20 @@
+.git/
+.github/
+.circleci/
+.codeclimate.yml
+.editorconfig
+.gitignore
+
+.dockerignore
+Dockerfile
+*docker-compose.yml
+
+**/*.md
+
+# dotenv
+.env
+
+# virtualenv
+.venv
+venv/
+ENV/
