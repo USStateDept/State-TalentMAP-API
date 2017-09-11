@@ -7,14 +7,13 @@ import pytest
 import random
 
 from model_mommy import mommy
-from model_mommy.recipe import Recipe
 from rest_framework import status
 
 from django.apps import apps
-from django.core.management import call_command
 
 from talentmap_api.position.tests.mommy_recipes import favorite_position
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
+from talentmap_api.messaging.tests.mommy_recipes import owned_notification
 
 parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
@@ -23,6 +22,7 @@ parameterized_data = [
     ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
     ('/api/v1/grade/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
+    ('/api/v1/capsule_description/', 'position.CapsuleDescription', None, True),
 
     # Language Endpoints
     ('/api/v1/language/', 'language.Language', 'talentmap_api.language.tests.language', True),
@@ -36,7 +36,10 @@ parameterized_data = [
     ('/api/v1/location/', 'organization.Location', 'talentmap_api.organization.tests.location', True),
 
     # Saved Searches
-    ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True)
+    ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True),
+
+    # Messaging Endpoints
+    ('/api/v1/notification/', 'messaging.Notification', owned_notification, True),
 ]
 
 

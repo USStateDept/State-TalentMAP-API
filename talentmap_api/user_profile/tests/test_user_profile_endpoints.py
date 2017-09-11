@@ -4,9 +4,6 @@ import json
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.language.models import Qualification
-from talentmap_api.position.models import Position
-
 
 @pytest.fixture()
 def test_user_profile_fixture():

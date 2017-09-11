@@ -1,8 +1,5 @@
 import pytest
 
-from model_mommy import mommy
-from model_mommy.recipe import Recipe
-
 from talentmap_api.common.serializers import PrefetchedSerializer
 
 

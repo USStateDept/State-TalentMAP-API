@@ -1,7 +1,6 @@
 import pytest
 
 from model_mommy import mommy
-from model_mommy.recipe import Recipe, seq
 from rest_framework import status
 
 from itertools import cycle
@@ -12,7 +11,7 @@ from itertools import cycle
 def test_position_endpoints_fixture():
     # Create a specific language, proficiency, and qualification
     language = mommy.make('language.Language', code="DE", long_description="German", short_description="Ger")
-    language_2 = mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
+    mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
     proficiency = mommy.make('language.Proficiency', code="3")
     proficiency_2 = mommy.make('language.Proficiency', code="4")
     qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)

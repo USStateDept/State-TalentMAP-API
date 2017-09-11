@@ -1,8 +1,5 @@
 import rest_framework_filters as filters
 
-from django.db.models import Q
-from django.db.models.constants import LOOKUP_SEP
-
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS

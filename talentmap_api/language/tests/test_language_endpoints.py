@@ -19,7 +19,7 @@ def test_language_endpoints_fixture():
     mommy.make_recipe('talentmap_api.language.tests.language', _quantity=8)
     mommy.make_recipe('talentmap_api.language.tests.proficiency', _quantity=9)
 
-    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
+    mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
 
 
 @pytest.mark.django_db()

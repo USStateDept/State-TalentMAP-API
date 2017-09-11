@@ -1,7 +1,6 @@
 import pytest
 
 from model_mommy import mommy
-from model_mommy.recipe import Recipe, seq
 from rest_framework import status
 
 

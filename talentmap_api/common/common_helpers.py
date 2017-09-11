@@ -1,5 +1,7 @@
 from django.core.urlresolvers import resolve
+from django.http import QueryDict
 from django.utils.six.moves.urllib.parse import urlparse
+from django.utils.datastructures import MultiValueDict
 
 from django.core.exceptions import FieldError
 from django.core.exceptions import ValidationError
@@ -53,3 +55,55 @@ def validate_filters_exist(filter_list, filter_class):
                 # We do NOT check for bad values (i.e. saving a search for a missing ID)
                 # because we need to allow PATCHing bad searches in that case
                 raise ValidationError(f"Filter {filter} is not valid on this endpoint")
+
+
+def get_filtered_queryset(filter_class, filters):
+    '''
+    This function accepts a filter class (some implementation of FilterSet)
+    and dict of supported filters, and returns the queryset after filtering
+
+    Args:
+        - filter_class (class) - The filterset class
+        - filters (dict) - Dictionary of valid filters for this view
+
+    Returns
+        - QuerySet (object) - The filtered queryset
+    '''
+
+    '''
+    The goal of this function is to provide the queryset as it exists on an
+    endpoint's view, after filtering has been completed. Naively, we might
+    attempt using a Q object and the filters dict to filter the queryset. This
+    would work for most cases, with the exception of declared filters such as
+    'q' or 'is_available'; any custom filters such as these would not be processable
+    and in fact would throw an error.
+
+    The solution to this, is to use the view's filter class. Essentially, we trick
+    the filter class into thinking we have passed a valid request. The steps to
+    accomplish this are the following:
+        1. Turn the filters into a MultiValueDict - this is required later for
+           the construction of our QueryDict, to prevent nested lists
+        2. Create a QueryDict of the filters - we need this to support some function
+           calls that are made internally which would error out on a normal dict
+        3. Create a fake request object, and set the QueryDict as the query_params
+        4. Get the subset filter class
+        5. Instantiate the subset filter class using query_params and the faked request
+        6. Get the queryset from the filter class
+    '''
+    new_filters = MultiValueDict()
+
+    for key, value in filters.items():
+        if isinstance(value, list):
+            new_filters.setlist(key, value)
+        else:
+            new_filters.appendlist(key, value)
+
+    query_params = QueryDict('', mutable=True)
+    query_params.update(new_filters)
+
+    # Your daily dose of python wizardry: https://docs.python.org/3/library/functions.html#type
+    fake_request = type('obj', (object,), {'query_params': query_params})
+
+    queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
+
+    return queryset
