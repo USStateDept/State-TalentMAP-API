@@ -4,6 +4,8 @@
 .codeclimate.yml
 .editorconfig
 .gitignore
+.bandit
+.coveragerc
 
 .dockerignore
 Dockerfile
