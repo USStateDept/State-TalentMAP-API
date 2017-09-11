@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y postgresql-client
 RUN mkdir /app
 WORKDIR /app
 
-COPY talenmap_api /app/talenmap_api/
+COPY talentmap_api /app/talentmap_api/
 COPY logs /app/logs/
 ADD requirements.txt wait-for-postgres.sh manage.py setup.cfg /app/
 
