@@ -8,6 +8,7 @@ from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FORE
 class OrganizationFilter(filters.FilterSet):
     bureau_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='bureau_organization', queryset=Organization.objects.all())
     parent_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
+    location = filters.RelatedFilter('talentmap_api.organization.filters.LocationFilter', name='location', queryset=Location.objects.all())
 
     # Name here must be a valid field, but it is ignored when overriden by the method parameter
     is_available = filters.BooleanFilter(name="bureau_positions", method=multi_field_filter(fields=["bureau_positions", "organization_positions"], lookup_expr="isnull", exclude=True))
@@ -20,6 +21,7 @@ class OrganizationFilter(filters.FilterSet):
             "short_description": ALL_TEXT_LOOKUPS,
             "bureau_organization": FOREIGN_KEY_LOOKUPS,
             "parent_organization": FOREIGN_KEY_LOOKUPS,
+            "location": FOREIGN_KEY_LOOKUPS,
             "is_bureau": ['exact'],
             "is_regional": ['exact']
         }
