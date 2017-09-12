@@ -35,6 +35,21 @@ class Organization(models.Model):
         '''
         Update the organization relationships, using the codes stored in the _parent fields.
         '''
+        # Array of regional codes
+        regional_codes = [
+            "110000",
+            "120000",
+            "130000",
+            "140000",
+            "146000",
+            "150000",
+            "160000"
+        ]
+        if self.code in regional_codes:
+            self.is_regional = True
+        else:
+            self.is_regional = False
+
         if self._parent_bureau_code:
             if self.code != self._parent_bureau_code:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)

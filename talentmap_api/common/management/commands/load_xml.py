@@ -22,7 +22,6 @@ class Command(BaseCommand):
             'grades': mode_grades,
             'skills': mode_skills,
             'organizations': mode_organizations,
-            'regional_organizations': mode_regional_organization,
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
             'posts': mode_post,
@@ -124,18 +123,6 @@ def mode_organizations():
     # Update relationships
     def post_load_function(new_ids, updated_ids):
         for org in Organization.objects.filter(id__in=new_ids + updated_ids):
-            org.update_relationships()
-
-    return (model, instance_tag, tag_map, collision_field, post_load_function)
-
-
-def mode_regional_organization():
-    model, instance_tag, tag_map, collision_field, post_load_function = mode_organizations()
-
-    def post_load_function(new_ids, updated_ids):
-        new_orgs = Organization.objects.filter(id__in=new_ids + updated_ids)
-        new_orgs.update(is_regional=True)
-        for org in new_orgs:
             org.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
