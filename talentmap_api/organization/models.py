@@ -22,6 +22,9 @@ class Organization(models.Model):
     parent_organization = models.ForeignKey('organization.Organization', on_delete=models.SET_NULL, null=True, related_name="organizion_children", help_text="The parent organization of this organization")
     bureau_organization = models.ForeignKey('organization.Organization', on_delete=models.SET_NULL, null=True, related_name="bureau_children", help_text="The parent Bureau for this organization")
 
+    # List of highlighted positions
+    highlighted_positions = models.ManyToManyField('position.Position', related_name='highlighted_by_org', help_text="Positions which have been designated as highlighted by this organization")
+
     # These fields are used during loading to preserve source coded data, before the FK relationships are set
     # These also preserve the data should the FK items be deleted
     _parent_organization_code = models.TextField(null=True, help_text="Organization Code of the parent Organization")

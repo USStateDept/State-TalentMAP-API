@@ -168,7 +168,7 @@ def test_domestic_filtering(client):
 
 @pytest.mark.django_db()
 def test_favorite_action_endpoints(authorized_client, authorized_user):
-    position = mommy.make('position.Position')
+    position = mommy.make_recipe('talentmap_api.position.tests.position')
     response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -186,5 +186,29 @@ def test_favorite_action_endpoints(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
     response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db()
+def test_highlight_action_endpoints(authorized_client, authorized_user):
+    position = mommy.make_recipe('talentmap_api.position.tests.position')
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.delete(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
