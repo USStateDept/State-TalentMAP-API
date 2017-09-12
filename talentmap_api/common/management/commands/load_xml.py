@@ -110,14 +110,15 @@ def mode_skills():
 
 def mode_organizations():
     model = Organization
-    instance_tag = "ORGS:ORGANIZATION"
+    instance_tag = "DATA_RECORD"
     collision_field = "code"
     tag_map = {
-        "ORGS:ORG_CODE": "code",
-        "ORGS:ORG_SHORT_DESC": "short_description",
-        "ORGS:ORG_LONG_DESC": strip_extra_spaces("long_description"),
-        "ORGS:ORG_PARENT_ORG_CODE": "_parent_organization_code",
-        "ORGS:ORG_BUREAU_ORG_CODE": "_parent_bureau_code"
+        "ORG_CODE": "code",
+        "ORG_SHORT_DESC": "short_description",
+        "ORG_LONG_DESC": strip_extra_spaces("long_description"),
+        "ORG_PARENT_ORG_CODE": "_parent_organization_code",
+        "ORG_BUREAU_ORG_CODE": "_parent_bureau_code",
+        "ORG_LOCATION_CODE": "_location_code"
     }
 
     # Update relationships

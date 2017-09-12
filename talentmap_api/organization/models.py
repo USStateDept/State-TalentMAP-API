@@ -12,6 +12,8 @@ class Organization(models.Model):
     long_description = models.TextField(null=False, help_text="Long-format description of the organization")
     short_description = models.TextField(null=False, help_text="Short-format description of the organization")
 
+    location = models.ForeignKey('organization.Location', on_delete=models.SET_NULL, null=True, related_name="organizations", help_text="The location of this organization")
+
     # An organization is a Bureau if its bureau code is the same as its code
     is_bureau = models.BooleanField(default=False, help_text="Boolean indicator if this organization is a bureau")
     # An organization is a regional organization if it's parent organization code is 000000
@@ -24,6 +26,7 @@ class Organization(models.Model):
     # These also preserve the data should the FK items be deleted
     _parent_organization_code = models.TextField(null=True, help_text="Organization Code of the parent Organization")
     _parent_bureau_code = models.TextField(null=True, help_text="Bureau Code of the parent parent Bureau")
+    _location_code = models.TextField(null=True, help_text="The location code for this organization")
 
     def update_relationships(self):
         '''
@@ -44,6 +47,13 @@ class Organization(models.Model):
                 logging.getLogger('console').warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
             else:
                 self.parent_organization = org.first()
+
+        if self._location_code:
+            loc = Location.objects.filter(code=self._location_code)
+            if loc.count() != 1:
+                logging.getLogger('console').warn(f"While setting organization location, got {loc.count()} values for location code {self._location_code}")
+            else:
+                self.location = loc.first()
 
         self.save()
 
