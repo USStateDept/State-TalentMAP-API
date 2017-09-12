@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 import logging
 
-from talentmap_api.position.models import Position
+from talentmap_api.position.models import Position, Grade
 from talentmap_api.organization.models import Organization, Post
 
 
@@ -18,6 +18,7 @@ class Command(BaseCommand):
             Organization,
             Position,
             Post,
+            Grade
         ]
 
     def handle(self, *args, **options):

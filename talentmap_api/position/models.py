@@ -133,15 +133,38 @@ class Grade(models.Model):
     '''
     The grade model represents an individual job grade
     '''
+    # All valid grade codes, and their ranked order. Using a dict instead of a list
+    # to avoid try/catch in the save override when getting ranks
+    RANK_ORDERING = {
+        "CA": 1,
+        "CM": 2,
+        "MC": 3,
+        "OC": 4,
+        "OM": 5,
+        "00": 6,
+        "01": 7,
+        "02": 8,
+        "03": 9,
+        "04": 10,
+        "05": 11,
+        "06": 12,
+        "07": 13,
+        "08": 14,
+    }
 
     code = models.TextField(db_index=True, unique=True, null=False)
+    rank = models.IntegerField(null=False, default=0)
 
     def __str__(self):
         return f"{self.code}"
 
+    def update_relationships(self):
+        self.rank = Grade.RANK_ORDERING.get(self.code, 0)
+        self.save()
+
     class Meta:
         managed = True
-        ordering = ["code"]
+        ordering = ["rank"]
 
 
 class Skill(models.Model):
