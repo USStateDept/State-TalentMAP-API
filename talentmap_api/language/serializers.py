@@ -38,3 +38,4 @@ class LanguageQualificationWritableSerializer(PrefetchedSerializer):
     class Meta:
         model = Qualification
         fields = "__all__"
+        writable_fields = ("language", "reading_proficiency", "spoken_proficiency")

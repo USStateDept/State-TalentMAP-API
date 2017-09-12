@@ -10,4 +10,4 @@ class NotificationSerializer(PrefetchedSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
-        read_only_fields = ("owner", "date_created", "date_updated", "message")
+        writable_fields = ("is_read")
