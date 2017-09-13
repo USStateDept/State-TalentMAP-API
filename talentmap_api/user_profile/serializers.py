@@ -36,6 +36,7 @@ class SharableSerializer(PrefetchedSerializer):
     class Meta:
         model = Sharable
         fields = ["id", "sharing_user", "receiving_user", "content", "is_read"]
+        writable_fields = ("is_read",)
 
 
 class UserProfileSerializer(PrefetchedSerializer):
@@ -87,6 +88,7 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
     class Meta:
         model = UserProfile
         fields = ["language_qualifications", "favorite_positions"]
+        writable_fields = ("language_qualifications", "favorite_positions",)
 
 
 class SavedSearchSerializer(PrefetchedSerializer):
@@ -125,4 +127,4 @@ class SavedSearchSerializer(PrefetchedSerializer):
     class Meta:
         model = SavedSearch
         fields = "__all__"
-        read_only_fields = ("count",)
+        writable_fields = ("name", "endpoint", "filters",)
