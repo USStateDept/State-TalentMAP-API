@@ -78,7 +78,7 @@ class GradeSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Grade
-        fields = "__all__"
+        fields = ("id", "code")
 
 
 class SkillSerializer(PrefetchedSerializer):

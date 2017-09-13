@@ -92,7 +92,11 @@ def mode_grades():
         "GRADES:GRD_GRADE_CODE": "code"
     }
 
-    return (model, instance_tag, tag_map, collision_field, None)
+    def post_load_function(new_ids, updated_ids):
+        for pos in Grade.objects.filter(id__in=new_ids + updated_ids):
+            pos.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
 
 
 def mode_skills():

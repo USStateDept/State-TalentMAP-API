@@ -104,6 +104,7 @@ def test_xml_grades_loading():
 
     assert Grade.objects.count() == 1
     assert Grade.objects.filter(code="00").count() == 1
+    assert Grade.objects.filter(code="00").first().rank == Grade.RANK_ORDERING.get("00")
 
 
 @pytest.mark.django_db()
