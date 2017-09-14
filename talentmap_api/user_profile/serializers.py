@@ -1,42 +1,20 @@
 from django.core.exceptions import ValidationError
-from django.apps import apps
 from rest_framework import serializers
-from rest_framework.reverse import reverse
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer
+from talentmap_api.messaging.serializers import SharableSerializer
 
 from django.contrib.auth.models import User
-from talentmap_api.user_profile.models import UserProfile, Sharable, SavedSearch
+from talentmap_api.user_profile.models import UserProfile, SavedSearch
 
 
 class UserSerializer(PrefetchedSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name"]
-
-
-class SharableSerializer(PrefetchedSerializer):
-    sharing_user = serializers.StringRelatedField(read_only=True)
-    receiving_user = serializers.StringRelatedField(read_only=True)
-
-    content = serializers.SerializerMethodField()
-
-    def get_content(self, obj):
-        model = apps.get_model(obj.sharable_model)
-        instance = model.objects.get(id=obj.sharable_id)
-
-        return {
-            "representation": f"{instance}",
-            "url": reverse(f'{obj.sharable_model}-detail', kwargs={"pk": obj.sharable_id}, request=self.context.get("request"))
-        }
-
-    class Meta:
-        model = Sharable
-        fields = ["id", "sharing_user", "receiving_user", "content", "is_read"]
-        writable_fields = ("is_read",)
 
 
 class UserProfileSerializer(PrefetchedSerializer):
