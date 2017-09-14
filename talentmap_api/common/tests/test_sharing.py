@@ -17,7 +17,7 @@ def test_sharing_fixture():
 def test_sharing_update_fixture(authorized_user):
     mommy.make('position.Position', id=2)
     sending_user = mommy.make('auth.User', username="test", email="test@state.gov")
-    mommy.make('user_profile.Sharable',
+    mommy.make('messaging.Sharable',
                id=1,
                sharing_user=sending_user.profile,
                receiving_user=authorized_user.profile,
@@ -77,6 +77,9 @@ def test_update_internal_share(authorized_client, authorized_user):
         "is_read": True
     }), content_type="application/json")
 
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
     share.refresh_from_db()
     assert share.is_read
+
+    response = authorized_client.get(f"/api/v1/profile/", content_type="application/json")
+    assert len(response.data["received_shares"]) == 1

@@ -41,7 +41,7 @@ urlpatterns = [
 
     # Profile and account related resources
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
-    url(r'^api/v1/share/', include('talentmap_api.user_profile.urls.share')),
+    url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
 
     # Messaging related resources
