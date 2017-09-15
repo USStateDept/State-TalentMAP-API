@@ -150,6 +150,14 @@ jobs:
             docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
             docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
             docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
+  deploy:
+    docker:
+      - *default-python-node
+    steps:
+      - run:
+          name:
+          command: |
+            aws --region us-east-1 sns publish --topic-arn $DEPLOYMENT_TOPIC_ARN --message "{\"branch\":\"${CIRCLE_BRANCH}\",\"sha1\":\"${CIRCLE_SHA1}\",\"repo\":\"${CIRCLE_PROJECT_REPONAME}\"}"
 workflows:
   version: 2
   build_and_test:
@@ -178,3 +186,6 @@ workflows:
             - pytest
             - bandit
             - zap
+      - deploy:
+          requires:
+            - push-stable
