@@ -79,7 +79,7 @@ def test_update_internal_share(authorized_client, authorized_user):
     }), content_type="application/json")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    # Attempt to patch a invalid fields
+    # Attempt to patch invalid fields
     response = authorized_client.patch(f"/api/v1/share/1/", data=json.dumps({
         "sharable_id": 2
     }), content_type="application/json")
