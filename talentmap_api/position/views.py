@@ -117,7 +117,7 @@ class PositionHighlightActionView(APIView):
         '''
         Indicates if the position is highlighted
 
-        Returns 204 if the position is a favorite, otherwise, 404
+        Returns 204 if the position is highlighted, otherwise, 404
         '''
         if Position.objects.get(id=pk).highlighted_by_org.count() > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -134,7 +134,7 @@ class PositionHighlightActionView(APIView):
 
     def delete(self, request, pk, format=None):
         '''
-        Removes the position from favorites
+        Removes the position from highlighted positions
         '''
         position = Position.objects.get(id=pk)
         position.bureau.highlighted_positions.remove(position)

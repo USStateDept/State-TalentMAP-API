@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from django.apps import apps
 
 from rest_framework.viewsets import GenericViewSet
@@ -61,16 +62,13 @@ class ShareView(FieldLimitableSerializerMixin,
 
         This method is mainly used to update the read status of a share
         '''
-        share = Sharable.objects.filter(receiving_user=self.request.user.profile, id=pk).first()
-        if not share:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+        share = get_object_or_404(Sharable, receiving_user=self.request.user.profile, id=pk)
         serializer = self.serializer_class(share, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, format=None):
         '''
