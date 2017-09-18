@@ -7,6 +7,8 @@ from talentmap_api.organization.models import Organization, Post, TourOfDuty, Lo
 class OrganizationSerializer(PrefetchedSerializer):
     bureau_organization = serializers.SerializerMethodField()
     parent_organization = serializers.SerializerMethodField()
+    highlighted_positions = serializers.StringRelatedField(many=True)
+    location = serializers.StringRelatedField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database

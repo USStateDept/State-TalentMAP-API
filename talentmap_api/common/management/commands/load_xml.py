@@ -22,7 +22,6 @@ class Command(BaseCommand):
             'grades': mode_grades,
             'skills': mode_skills,
             'organizations': mode_organizations,
-            'regional_organizations': mode_regional_organization,
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
             'posts': mode_post,
@@ -93,7 +92,11 @@ def mode_grades():
         "GRADES:GRD_GRADE_CODE": "code"
     }
 
-    return (model, instance_tag, tag_map, collision_field, None)
+    def post_load_function(new_ids, updated_ids):
+        for pos in Grade.objects.filter(id__in=new_ids + updated_ids):
+            pos.update_relationships()
+
+    return (model, instance_tag, tag_map, collision_field, post_load_function)
 
 
 def mode_skills():
@@ -110,31 +113,20 @@ def mode_skills():
 
 def mode_organizations():
     model = Organization
-    instance_tag = "ORGS:ORGANIZATION"
+    instance_tag = "DATA_RECORD"
     collision_field = "code"
     tag_map = {
-        "ORGS:ORG_CODE": "code",
-        "ORGS:ORG_SHORT_DESC": "short_description",
-        "ORGS:ORG_LONG_DESC": strip_extra_spaces("long_description"),
-        "ORGS:ORG_PARENT_ORG_CODE": "_parent_organization_code",
-        "ORGS:ORG_BUREAU_ORG_CODE": "_parent_bureau_code"
+        "ORG_CODE": "code",
+        "ORG_SHORT_DESC": "short_description",
+        "ORG_LONG_DESC": strip_extra_spaces("long_description"),
+        "ORG_PARENT_ORG_CODE": "_parent_organization_code",
+        "ORG_BUREAU_ORG_CODE": "_parent_bureau_code",
+        "ORG_LOCATION_CODE": "_location_code"
     }
 
     # Update relationships
     def post_load_function(new_ids, updated_ids):
         for org in Organization.objects.filter(id__in=new_ids + updated_ids):
-            org.update_relationships()
-
-    return (model, instance_tag, tag_map, collision_field, post_load_function)
-
-
-def mode_regional_organization():
-    model, instance_tag, tag_map, collision_field, post_load_function = mode_organizations()
-
-    def post_load_function(new_ids, updated_ids):
-        new_orgs = Organization.objects.filter(id__in=new_ids + updated_ids)
-        new_orgs.update(is_regional=True)
-        for org in new_orgs:
             org.update_relationships()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
@@ -165,9 +157,9 @@ def mode_positions():
         "POSITIONS:POS_LANG_REQ_1_CODE": "_language_req_1_code",
         "POSITIONS:POS_LANG_REQ_2_CODE": "_language_req_2_code",
         "POSITIONS:POS_SPEAK_PROFICIENCY_1_CODE": "_language_1_spoken_proficiency_code",
-        "POSITIONS:POS_READ_PROFICIENCY_1_CODE": "_language_1_written_proficiency_code",
+        "POSITIONS:POS_READ_PROFICIENCY_1_CODE": "_language_1_reading_proficiency_code",
         "POSITIONS:POS_SPEAK_PROFICIENCY_2_CODE": "_language_2_spoken_proficiency_code",
-        "POSITIONS:POS_READ_PROFICIENCY_2_CODE": "_language_2_written_proficiency_code",
+        "POSITIONS:POS_READ_PROFICIENCY_2_CODE": "_language_2_reading_proficiency_code",
         "POSITIONS:POS_CREATE_ID": "_create_id",
         "POSITIONS:POS_CREATE_DATE": "create_date",
         "POSITIONS:POS_UPDATE_ID": "_update_id",

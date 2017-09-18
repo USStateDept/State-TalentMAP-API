@@ -49,9 +49,9 @@ class Position(models.Model):
     _language_req_1_code = models.TextField(null=True)
     _language_req_2_code = models.TextField(null=True)
     _language_1_spoken_proficiency_code = models.TextField(null=True)
-    _language_1_written_proficiency_code = models.TextField(null=True)
+    _language_1_reading_proficiency_code = models.TextField(null=True)
     _language_2_spoken_proficiency_code = models.TextField(null=True)
-    _language_2_written_proficiency_code = models.TextField(null=True)
+    _language_2_reading_proficiency_code = models.TextField(null=True)
     _create_id = models.TextField(null=True)
     _update_id = models.TextField(null=True)
     _jobcode_code = models.TextField(null=True)
@@ -68,13 +68,13 @@ class Position(models.Model):
         self.language_requirements.clear()
         if self._language_1_code:
             qualification = Qualification.get_or_create_by_codes(self._language_1_code,
-                                                                 self._language_1_written_proficiency_code,
+                                                                 self._language_1_reading_proficiency_code,
                                                                  self._language_1_spoken_proficiency_code)[0]
             if qualification:
                 self.language_requirements.add(qualification)
         if self._language_2_code:
             qualification = Qualification.get_or_create_by_codes(self._language_2_code,
-                                                                 self._language_2_written_proficiency_code,
+                                                                 self._language_2_reading_proficiency_code,
                                                                  self._language_2_spoken_proficiency_code)[0]
             if qualification:
                 self.language_requirements.add(qualification)
@@ -133,15 +133,38 @@ class Grade(models.Model):
     '''
     The grade model represents an individual job grade
     '''
+    # All valid grade codes, and their ranked order. Using a dict instead of a list
+    # to avoid try/catch in the save override when getting ranks
+    RANK_ORDERING = {
+        "CA": 1,
+        "CM": 2,
+        "MC": 3,
+        "OC": 4,
+        "OM": 5,
+        "00": 6,
+        "01": 7,
+        "02": 8,
+        "03": 9,
+        "04": 10,
+        "05": 11,
+        "06": 12,
+        "07": 13,
+        "08": 14,
+    }
 
     code = models.TextField(db_index=True, unique=True, null=False)
+    rank = models.IntegerField(null=False, default=0)
 
     def __str__(self):
         return f"{self.code}"
 
+    def update_relationships(self):
+        self.rank = Grade.RANK_ORDERING.get(self.code, 0)
+        self.save()
+
     class Meta:
         managed = True
-        ordering = ["code"]
+        ordering = ["rank"]
 
 
 class Skill(models.Model):

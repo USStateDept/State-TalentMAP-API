@@ -21,7 +21,7 @@ class LanguageProficiencySerializer(PrefetchedSerializer):
 class LanguageQualificationSerializer(PrefetchedSerializer):
 
     language = serializers.StringRelatedField()
-    written_proficiency = serializers.StringRelatedField()
+    reading_proficiency = serializers.StringRelatedField()
     spoken_proficiency = serializers.StringRelatedField()
     representation = serializers.SerializerMethodField()
 
@@ -38,3 +38,4 @@ class LanguageQualificationWritableSerializer(PrefetchedSerializer):
     class Meta:
         model = Qualification
         fields = "__all__"
+        writable_fields = ("language", "reading_proficiency", "spoken_proficiency")

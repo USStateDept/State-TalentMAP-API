@@ -26,7 +26,7 @@ class ProficiencyFilter(filters.FilterSet):
     at_least = filters.CharFilter(name="code", method="filter_at_least")
     at_most = filters.CharFilter(name="code", method="filter_at_most")
 
-    is_available = filters.BooleanFilter(name="written_qualifications", method=multi_field_filter(fields=["written_qualifications", "spoken_qualifications"], lookup_expr="isnull", exclude=True))
+    is_available = filters.BooleanFilter(name="reading_qualifications", method=multi_field_filter(fields=["reading_qualifications", "spoken_qualifications"], lookup_expr="isnull", exclude=True))
 
     def filter_at_most(self, queryset, name, value):
         '''
@@ -60,7 +60,7 @@ class ProficiencyFilter(filters.FilterSet):
 
 class QualificationFilter(filters.FilterSet):
     language = filters.RelatedFilter(LanguageFilter, name='language', queryset=Language.objects.all())
-    written_proficiency = filters.RelatedFilter(ProficiencyFilter, name='written_proficiency', queryset=Proficiency.objects.all())
+    reading_proficiency = filters.RelatedFilter(ProficiencyFilter, name='reading_proficiency', queryset=Proficiency.objects.all())
     spoken_proficiency = filters.RelatedFilter(ProficiencyFilter, name='spoken_proficiency', queryset=Proficiency.objects.all())
 
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
@@ -69,6 +69,6 @@ class QualificationFilter(filters.FilterSet):
         model = Qualification
         fields = {
             "language": FOREIGN_KEY_LOOKUPS,
-            "written_proficiency": FOREIGN_KEY_LOOKUPS,
+            "reading_proficiency": FOREIGN_KEY_LOOKUPS,
             "spoken_proficiency": FOREIGN_KEY_LOOKUPS
         }
