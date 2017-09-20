@@ -23,7 +23,7 @@ class Command(BaseCommand):
             user.first_name = options['first_name'][0]
             user.last_name = options['last_name'][0]
             user.save()
-            self.logger.info(f"Successfully created {options['first_name'][0]} {options['first_name'][0]}, {options['username'][0]} ({options['email'][0]})")
+            self.logger.info(f"Successfully created {options['first_name'][0]} {options['last_name'][0]}, {options['username'][0]} ({options['email'][0]})")
             if options['set_token']:
                 token = Token.objects.create(user=user, key=options['set_token'])
                 self.logger.info(f"Set user's authentication token with key {token.key}")

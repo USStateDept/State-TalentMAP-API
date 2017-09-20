@@ -50,6 +50,10 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                 self.parse_child_overrides(override_fields, override_exclude, name, nested, kwargs)
                 self.fields[name] = nested["class"](**kwargs)
 
+        # Get our list of writable fields, if it exists
+        # Allow either list, tuple, or string to conform with similar other DRF behaviors
+        writable_fields = self.get_writable_fields()
+
         # Iterate over our fields and modify the list as necessary
         for field in list(self.fields.keys()):
             # Ignore any fields that begin with _
@@ -61,6 +65,39 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             # If we have overridden exclusions, remove fields present in the exclusion list
             elif field in override_exclude:
                 self.fields.pop(field)
+            # Deny write access to all fields unless explicitly stated
+            elif field not in writable_fields:
+                self.fields[field].read_only = True
+
+    def get_writable_fields(self):
+        writable_fields = []
+        if hasattr(self.Meta, "writable_fields"):
+            if isinstance(self.Meta.writable_fields, list):
+                writable_fields = self.Meta.writable_fields
+            elif isinstance(self.Meta.writable_fields, tuple):
+                writable_fields = list(self.Meta.writable_fields)
+            elif isinstance(self.Meta.writable_fields, str):
+                writable_fields = [self.Meta.writable_fields]
+
+        return writable_fields
+
+    def validate(self, data):
+        """
+        Object level validation, all descendants should call this via Super()
+        if it is overriden.
+
+        Validates that only fields available in writable_fields are being written
+        """
+        # Data may be stripped of invalid fields before it gets here, check
+        if len(data.keys()) == 0:
+            raise serializers.ValidationError("Invalid data")
+
+        # Get a list of writable fields
+        writable_fields = self.get_writable_fields()
+        invalid_fields = [x for x in data.keys() if x not in writable_fields]
+        if len(invalid_fields) > 0:
+            raise serializers.ValidationError(f"The following fields are not writable: {', '.join(invalid_fields)}")
+        return data
 
     @classmethod
     def correct_include_hierarchy(cls, override_fields):

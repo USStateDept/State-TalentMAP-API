@@ -16,6 +16,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
     class Meta:
         model = CapsuleDescription
         fields = "__all__"
+        writable_fields = ("content",)
 
 
 class PositionSerializer(PrefetchedSerializer):
@@ -78,7 +79,7 @@ class GradeSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Grade
-        fields = "__all__"
+        fields = ("id", "code")
 
 
 class SkillSerializer(PrefetchedSerializer):

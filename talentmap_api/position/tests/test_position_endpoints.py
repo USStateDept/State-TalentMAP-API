@@ -14,8 +14,8 @@ def test_position_endpoints_fixture():
     mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
     proficiency = mommy.make('language.Proficiency', code="3")
     proficiency_2 = mommy.make('language.Proficiency', code="4")
-    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, written_proficiency=proficiency)
-    qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, written_proficiency=proficiency_2)
+    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, reading_proficiency=proficiency)
+    qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, reading_proficiency=proficiency_2)
 
     # Create some grades
     grade = mommy.make('position.Grade', code="00")
@@ -164,3 +164,51 @@ def test_domestic_filtering(client):
     response_2 = client.get('/api/v1/position/?is_overseas=true')
 
     assert response_1.data == response_2.data
+
+
+@pytest.mark.django_db()
+def test_favorite_action_endpoints(authorized_client, authorized_user):
+    position = mommy.make_recipe('talentmap_api.position.tests.position')
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    response = authorized_client.put(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.delete(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db()
+def test_highlight_action_endpoints(authorized_client, authorized_user):
+    position = mommy.make_recipe('talentmap_api.position.tests.position')
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.delete(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND

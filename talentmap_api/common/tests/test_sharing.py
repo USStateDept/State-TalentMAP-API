@@ -17,7 +17,7 @@ def test_sharing_fixture():
 def test_sharing_update_fixture(authorized_user):
     mommy.make('position.Position', id=2)
     sending_user = mommy.make('auth.User', username="test", email="test@state.gov")
-    mommy.make('user_profile.Sharable',
+    mommy.make('messaging.Sharable',
                id=1,
                sharing_user=sending_user.profile,
                receiving_user=authorized_user.profile,
@@ -73,10 +73,26 @@ def test_update_internal_share(authorized_client, authorized_user):
     share = authorized_user.profile.received_shares.first()
     assert not share.is_read
 
+    # Attempt to patch a non-existant share
+    response = authorized_client.patch(f"/api/v1/share/1234/", data=json.dumps({
+        "is_read": True
+    }), content_type="application/json")
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    # Attempt to patch invalid fields
+    response = authorized_client.patch(f"/api/v1/share/1/", data=json.dumps({
+        "sharable_id": 2
+    }), content_type="application/json")
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
     response = authorized_client.patch(f"/api/v1/share/1/", data=json.dumps({
         "is_read": True
     }), content_type="application/json")
 
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
     share.refresh_from_db()
     assert share.is_read
+
+    response = authorized_client.get(f"/api/v1/profile/", content_type="application/json")
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["received_shares"]) == 1

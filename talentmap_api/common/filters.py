@@ -16,7 +16,7 @@ INTEGER_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range']
 BASIC_TEXT_LOOKUPS = ['exact', 'iexact', 'startswith', 'istartswith',
                       'endswith', 'iendswith']
 ALL_TEXT_LOOKUPS = BASIC_TEXT_LOOKUPS + ['contains', 'icontains', 'in', 'isnull']
-FOREIGN_KEY_LOOKUPS = ['exact', 'in']
+FOREIGN_KEY_LOOKUPS = ['exact', 'in', 'isnull']
 
 
 # This filter backend removes the form rendering which calls the database excessively
