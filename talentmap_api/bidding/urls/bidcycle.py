@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from talentmap_api.bidding import views
+from talentmap_api.bidding.views import bidcycle as views
 from talentmap_api.common.urls import get_retrieve, patch_update, post_create, get_list
 
 urlpatterns = [
