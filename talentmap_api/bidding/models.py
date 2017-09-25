@@ -1,5 +1,7 @@
 from django.db import models
 
+from djchoices import DjangoChoices, ChoiceItem
+
 
 class BidCycle(models.Model):
     '''
@@ -15,3 +17,21 @@ class BidCycle(models.Model):
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
+
+
+class Bid(models.Model):
+    '''
+    The bid object represents an individual bid, the position, user, and process status
+    '''
+
+    class Status(DjangoChoices):
+        draft = ChoiceItem("draft")
+        submitted = ChoiceItem("submitted")
+        handshake_offered = ChoiceItem("handshake offered")
+        handshake_accepted = ChoiceItem("handshake accepted")
+
+    status = models.TextField(default=Status.draft, choices=Status.choices)
+
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, help_text="The bidcycle for this bid")
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, help_text="The user owning this bid")
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, help_text="The position this bid is for")
