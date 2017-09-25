@@ -1,11 +1,10 @@
-from random import randint
-
 from django.core.management.base import BaseCommand
 
 import logging
+import random
 
 from django.contrib.auth.models import User
-from talentmap_api.position.models import Position
+from talentmap_api.position.models import Position, Skill, Grade
 from talentmap_api.user_profile.models import UserProfile
 
 
@@ -22,7 +21,10 @@ class Command(BaseCommand):
     ]
 
     def handle(self, *args, **options):
-        position_count = Position.objects.all().count()
+        skills = list(set(Position.objects.all().values_list('skill', flat=True)))
+        grades = list(set(Position.objects.all().values_list('grade', flat=True)))
+        random.shuffle(skills)
+        random.shuffle(grades)
         for data in self.USERS:
             try:
                 user = User.objects.create_user(data[0], data[1], data[2])
@@ -31,8 +33,8 @@ class Command(BaseCommand):
                 user.save()
 
                 profile = UserProfile.objects.get(user=user)
-                profile.skill_code = Position.objects.all()[randint(0, position_count - 1)].skill
-                profile.grade = Position.objects.all()[randint(0, position_count - 1)].grade
+                profile.skill_code = Skill.objects.get(id=skills.pop())
+                profile.grade = Grade.objects.get(id=grades.pop())
                 profile.save()
 
                 self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email}) with skill code {profile.skill_code} and grade {profile.grade}")
