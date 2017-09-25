@@ -13,7 +13,9 @@ def test_capsule_description_creation(authorized_client, authorized_user):
 
     response = authorized_client.post('/api/v1/capsule_description/', data=json.dumps(
         {
-            "content": "Test content"
+            "content": "Test content",
+            "point_of_contact": "banana_vendor@state.gov",
+            "website": "http://www.state.gov"
         }
     ), content_type='application/json')
 
@@ -23,13 +25,17 @@ def test_capsule_description_creation(authorized_client, authorized_user):
 
 @pytest.mark.django_db()
 def test_capsule_description_update(authorized_client, authorized_user):
-    mommy.make(CapsuleDescription, id=1, content="banana")
+    mommy.make(CapsuleDescription, id=1, content="banana", point_of_contact="banana@state.gov", website="google it")
 
     response = authorized_client.patch('/api/v1/capsule_description/1/', data=json.dumps(
         {
-            "content": "banana splits"
+            "content": "banana splits",
+            "point_of_contact": "bananas@state.gov",
+            "website": "http://www.state.gov"
         }
     ), content_type='application/json')
 
     assert response.status_code == status.HTTP_200_OK
     assert CapsuleDescription.objects.get(id=1).content == "banana splits"
+    assert CapsuleDescription.objects.get(id=1).point_of_contact == "bananas@state.gov"
+    assert CapsuleDescription.objects.get(id=1).website == "http://www.state.gov"
