@@ -35,6 +35,7 @@ class Bid(models.Model):
         submitted = ChoiceItem("submitted")
         handshake_offered = ChoiceItem("handshake offered")
         handshake_accepted = ChoiceItem("handshake accepted")
+        declined = ChoiceItem("declined")
 
     status = models.TextField(default=Status.draft, choices=Status.choices)
 
