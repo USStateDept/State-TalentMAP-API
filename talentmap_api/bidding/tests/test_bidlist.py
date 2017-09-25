@@ -6,7 +6,6 @@ from rest_framework import status
 from talentmap_api.bidding.models import BidCycle, Bid
 
 
-# Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
 def test_bidlist_fixture():
     bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", active=True)
