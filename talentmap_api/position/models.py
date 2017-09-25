@@ -117,6 +117,8 @@ class CapsuleDescription(models.Model):
     '''
 
     content = models.TextField(null=True)
+    point_of_contact = models.TextField(null=True)
+    website = models.TextField(null=True)
 
     last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
     date_created = models.DateTimeField(auto_now_add=True)
