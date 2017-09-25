@@ -16,7 +16,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
     class Meta:
         model = CapsuleDescription
         fields = "__all__"
-        writable_fields = ("content",)
+        writable_fields = ("content", "point_of_contact", "website",)
 
 
 class PositionSerializer(PrefetchedSerializer):
