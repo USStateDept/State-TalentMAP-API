@@ -168,10 +168,9 @@ workflows:
           requires:
             - docker-build
           filters:
-            tags:
-              only: /^zap.*/
             branches:
-              ignore: /.*/
+              only:
+                - /security-testing-.*/
       - push-stable:
           requires:
             - docker-build
