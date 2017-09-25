@@ -3,7 +3,7 @@ import pytest
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, Bid
 
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
@@ -16,7 +16,7 @@ def test_bidlist_fixture():
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
-def test_bidist_position_actions(authorized_client, authorized_user):
+def test_bidlist_position_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
     out_of_cycle_position = mommy.make('position.Position')
 
@@ -53,7 +53,7 @@ def test_bidist_position_actions(authorized_client, authorized_user):
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
-def test_bidist_bid_actions(authorized_client, authorized_user):
+def test_bidlist_bid_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
 
     # Put the position into the bidlist
@@ -88,3 +88,22 @@ def test_bidist_bid_actions(authorized_client, authorized_user):
     response = authorized_client.delete(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    # Add more bids to our bidlist
+    bid = Bid.objects.get(id=bid_id)
+    for i in range(15):
+        bid.id = None
+        bid.save()
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidlist_fixture")
+def test_bidlist_max_submissions(authorized_client, authorized_user):
+    mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.submitted, _quantity=10)
+
+    bid = mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.draft)
+
+    # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
+    response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
+
+    assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE

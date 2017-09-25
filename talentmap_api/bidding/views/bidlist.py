@@ -73,7 +73,12 @@ class BidListBidSubmitView(APIView):
         '''
         Submits the specified bid
         '''
-        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk)
+        # First, validate that the user has not exceeded their maximum alloted bids
+        user = UserProfile.objects.get(user=self.request.user)
+        if user.bidlist.filter(status=Bid.Status.submitted).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
+            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        bid = get_object_or_404(Bid, user=user, id=pk)
         bid.status = Bid.Status.submitted
         bid.submission_date = datetime.datetime.now()
         bid.save()

@@ -28,6 +28,8 @@ class Bid(models.Model):
     The bid object represents an individual bid, the position, user, and process status
     '''
 
+    MAXIMUM_SUBMITTED_BIDS = 10
+
     class Status(DjangoChoices):
         draft = ChoiceItem("draft")
         submitted = ChoiceItem("submitted")
