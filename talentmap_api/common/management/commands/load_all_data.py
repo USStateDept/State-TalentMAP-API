@@ -61,3 +61,5 @@ class Command(BaseCommand):
                     self.logger.info(f"Failed to load {fileinstance} ({mode}): {e}")
         self.logger.info("Now updating relationships...")
         call_command('update_relationships')
+        self.logger.info("Creating position classifications...")
+        call_command('create_classifications')

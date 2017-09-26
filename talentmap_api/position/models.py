@@ -17,6 +17,9 @@ class Position(models.Model):
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
 
+    # Positions can have any number of classifications
+    classifications = models.ManyToManyField('position.Classification', related_name='positions')
+
     grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
     skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
 
@@ -176,6 +179,23 @@ class Skill(models.Model):
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
     description = models.TextField(null=False, help_text="Text description of the job skill")
+
+    def __str__(self):
+        return f"{self.description} ({self.code})"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
+
+
+class Classification(models.Model):
+    '''
+    The position classification model represents a position's classification.
+    Maintained as a separate model to support limiting visibility.
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The classification code")
+    description = models.TextField(null=False, help_text="Text description of the classification")
 
     def __str__(self):
         return f"{self.description} ({self.code})"
