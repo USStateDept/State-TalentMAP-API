@@ -8,27 +8,40 @@ from rest_framework import mixins
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification
 from talentmap_api.position.filters import PositionFilter, GradeFilter, SkillFilter, CapsuleDescriptionFilter
-from talentmap_api.position.serializers import PositionSerializer, GradeSerializer, SkillSerializer, CapsuleDescriptionSerializer
+from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, GradeSerializer, SkillSerializer, CapsuleDescriptionSerializer, ClassificationSerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
 
 class PositionListView(FieldLimitableSerializerMixin,
-                       ReadOnlyModelViewSet):
+                       ActionDependentSerializerMixin,
+                       mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin,
+                       GenericViewSet):
     """
     retrieve:
     Return the given position.
 
     list:
     Return a list of all positions.
+
+    partial_update:
+    Update a position
     """
+
+    serializers = {
+        "default": PositionSerializer,
+        "partial_update": PositionWritableSerializer,
+    }
 
     serializer_class = PositionSerializer
     filter_class = PositionFilter
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         queryset = Position.objects.all()
@@ -216,4 +229,22 @@ class SkillListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Skill.objects.all()
         queryset = self.serializer_class.prefetch_model(Skill, queryset)
+        return queryset
+
+
+class ClassificationListView(FieldLimitableSerializerMixin,
+                             ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given classification.
+
+    list:
+    Return a list of all position classifications.
+    """
+
+    serializer_class = ClassificationSerializer
+
+    def get_queryset(self):
+        queryset = Classification.objects.all()
+        queryset = self.serializer_class.prefetch_model(Classification, queryset)
         return queryset
