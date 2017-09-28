@@ -58,6 +58,7 @@ class PositionFilter(filters.FilterSet):
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
+    is_highlighted = filters.BooleanFilter(name="highlighted_by_org", lookup_expr="isnull", exclude=True)
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
