@@ -9,6 +9,7 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
+from talentmap_api.common.common_helpers import has_permission_or_403
 
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification
 from talentmap_api.position.filters import PositionFilter, GradeFilter, SkillFilter, CapsuleDescriptionFilter
@@ -142,6 +143,9 @@ class PositionHighlightActionView(APIView):
         Marks the position as highlighted by the position's bureau
         '''
         position = Position.objects.get(id=pk)
+
+        # Check for the bureau permission on the accessing user
+        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.add(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -150,6 +154,7 @@ class PositionHighlightActionView(APIView):
         Removes the position from highlighted positions
         '''
         position = Position.objects.get(id=pk)
+        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -12,3 +12,6 @@ The following management commands are available. More detailed help can be found
 
 * `create_user <USERNAME> <EMAIL> <PASSWORD> <FIRST_NAME> <LAST_NAME>` - Creates a user
 * `create_user <USERNAME> <EMAIL> <PASSWORD> <FIRST_NAME> <LAST_NAME> --settoken <TOKEN>` - Creates a user and sets their initial authentication token to the provided value
+* `created_seeded_users` - Creates testing users based on design personas, and assigns random skills and grades from available positions
+
+* `create_classifications` - Creates all position classifications, called by load_all_data

@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 import logging
 
@@ -74,6 +76,26 @@ class Organization(models.Model):
                 self.location = loc.first()
 
         self.save()
+
+        if self.is_bureau:
+            self.create_permissions()
+
+    def create_permissions(self):
+        '''
+        Creates this organization's permission set
+        '''
+
+        # Highlight action
+        permission_codename = f"can_highlight_positions_{self.code}"
+        permission_name = f"Can highlight positions for {self.short_description} ({self.code})"
+        content_type = ContentType.objects.get_for_model(type(self))
+
+        permission = Permission.objects.get_or_create(codename=permission_codename,
+                                                      name=permission_name,
+                                                      content_type=content_type)
+
+        if permission[1]:
+            logging.getLogger('console').info(f"Created permission {permission[0]}")
 
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"
