@@ -1,10 +1,10 @@
+from django.contrib.auth.models import Permission
 from django.core.urlresolvers import resolve
 from django.http import QueryDict
 from django.utils.six.moves.urllib.parse import urlparse
 from django.utils.datastructures import MultiValueDict
 
-from django.core.exceptions import FieldError
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldError, ValidationError, PermissionDenied
 
 from django.db.models import Q
 
@@ -107,3 +107,37 @@ def get_filtered_queryset(filter_class, filters):
     queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
 
     return queryset
+
+
+def get_permission_by_name(name):
+    '''
+    Gets the permission object associated with the specified name, in app_label.codename format
+
+    Args:
+        - name (String) - The permission name, in app_label.codename format
+
+    Returns
+        - Permission (object) - The permission
+    '''
+
+    app_label, codename = name.split(".", 1)
+    try:
+        return Permission.objects.get(content_type__app_label=app_label,
+                                      codename=codename)
+    except Permission.DoesNotExist:
+        raise Exception(f"Permission {app_label}.{codename} not found.")
+
+
+def has_permission_or_403(user, permission):
+    '''
+    This function mimics the functionality of get_object_or_404, but for permissions.
+    Pass the string permission codename as 'permission', and the function will do nothing
+    if the user has that permission, or raise a PermissionDenied exception if the user lacks the permission.
+
+    Args:
+        - user (Object) - The user instance
+        - permission (String) - The permission codename string
+    '''
+
+    if not user.has_perm(permission):
+        raise PermissionDenied

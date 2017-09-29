@@ -4,6 +4,7 @@ import logging
 import random
 
 from django.contrib.auth.models import User
+from talentmap_api.common.common_helpers import get_permission_by_name
 from talentmap_api.position.models import Position, Skill, Grade
 from talentmap_api.user_profile.models import UserProfile
 
@@ -23,8 +24,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         skills = list(set(Position.objects.all().values_list('skill', flat=True)))
         grades = list(set(Position.objects.all().values_list('grade', flat=True)))
+        bureaus = list(set(Position.objects.all().values_list('bureau__code', flat=True)))
         random.shuffle(skills)
         random.shuffle(grades)
+        random.shuffle(bureaus)
         for data in self.USERS:
             try:
                 user = User.objects.create_user(data[0], data[1], data[2])
@@ -37,6 +40,9 @@ class Command(BaseCommand):
                 profile.grade = Grade.objects.get(id=grades.pop())
                 profile.save()
 
-                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email}) with skill code {profile.skill_code} and grade {profile.grade}")
+                permission = get_permission_by_name(f'organization.can_highlight_positions_{bureaus.pop()}')
+                user.user_permissions.add(permission)
+
+                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skill_code}\n\tGrade: {profile.grade}\n\tPermission: {permission}")
             except Exception as e:
                 self.logger.info(f"Could not create {data}, {e}")
