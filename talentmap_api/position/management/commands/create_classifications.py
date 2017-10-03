@@ -16,7 +16,7 @@ class Command(BaseCommand):
         self.classifications = [
             ("CN", "Critical Need"),
             ("DCM", "Deputy Chief of Mission"),
-            ("FICA", "First in Cone Assignment"),
+            ("FICA", "First In-Cone Assignment"),
             ("HDS", "Historically Difficult to Staff")
         ]
 

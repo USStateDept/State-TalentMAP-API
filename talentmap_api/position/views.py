@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.views import APIView
@@ -133,7 +134,8 @@ class PositionHighlightActionView(APIView):
 
         Returns 204 if the position is highlighted, otherwise, 404
         '''
-        if Position.objects.get(id=pk).highlighted_by_org.count() > 0:
+        position = get_object_or_404(Position, id=pk)
+        if position.highlighted_by_org.count() > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -142,7 +144,7 @@ class PositionHighlightActionView(APIView):
         '''
         Marks the position as highlighted by the position's bureau
         '''
-        position = Position.objects.get(id=pk)
+        position = get_object_or_404(Position, id=pk)
 
         # Check for the bureau permission on the accessing user
         has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
@@ -153,7 +155,7 @@ class PositionHighlightActionView(APIView):
         '''
         Removes the position from highlighted positions
         '''
-        position = Position.objects.get(id=pk)
+        position = get_object_or_404(Position, id=pk)
         has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)

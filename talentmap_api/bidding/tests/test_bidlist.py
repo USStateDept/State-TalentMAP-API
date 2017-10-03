@@ -88,12 +88,6 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    # Add more bids to our bidlist
-    bid = Bid.objects.get(id=bid_id)
-    for i in range(15):
-        bid.id = None
-        bid.save()
-
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
@@ -105,4 +99,4 @@ def test_bidlist_max_submissions(authorized_client, authorized_user):
     # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
     response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
 
-    assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
+    assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -30,12 +30,13 @@ def test_capsule_description_update(authorized_client, authorized_user):
     response = authorized_client.patch('/api/v1/capsule_description/1/', data=json.dumps(
         {
             "content": "banana splits",
-            "point_of_contact": "bananas@state.gov",
+            "point_of_contact": "bananasplit@state.gov",
             "website": "http://www.state.gov"
         }
     ), content_type='application/json')
 
     assert response.status_code == status.HTTP_200_OK
-    assert CapsuleDescription.objects.get(id=1).content == "banana splits"
-    assert CapsuleDescription.objects.get(id=1).point_of_contact == "bananas@state.gov"
-    assert CapsuleDescription.objects.get(id=1).website == "http://www.state.gov"
+    description = CapsuleDescription.objects.get(id=1)
+    assert description.content == "banana splits"
+    assert description.point_of_contact == "bananasplit@state.gov"
+    assert description.website == "http://www.state.gov"
