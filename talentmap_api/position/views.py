@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.views import APIView
@@ -8,27 +9,41 @@ from rest_framework import mixins
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
+from talentmap_api.common.common_helpers import has_permission_or_403
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification
 from talentmap_api.position.filters import PositionFilter, GradeFilter, SkillFilter, CapsuleDescriptionFilter
-from talentmap_api.position.serializers import PositionSerializer, GradeSerializer, SkillSerializer, CapsuleDescriptionSerializer
+from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, GradeSerializer, SkillSerializer, CapsuleDescriptionSerializer, ClassificationSerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
 
 class PositionListView(FieldLimitableSerializerMixin,
-                       ReadOnlyModelViewSet):
+                       ActionDependentSerializerMixin,
+                       mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin,
+                       GenericViewSet):
     """
     retrieve:
     Return the given position.
 
     list:
     Return a list of all positions.
+
+    partial_update:
+    Update a position
     """
+
+    serializers = {
+        "default": PositionSerializer,
+        "partial_update": PositionWritableSerializer,
+    }
 
     serializer_class = PositionSerializer
     filter_class = PositionFilter
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         queryset = Position.objects.all()
@@ -119,7 +134,8 @@ class PositionHighlightActionView(APIView):
 
         Returns 204 if the position is highlighted, otherwise, 404
         '''
-        if Position.objects.get(id=pk).highlighted_by_org.count() > 0:
+        position = get_object_or_404(Position, id=pk)
+        if position.highlighted_by_org.count() > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -128,7 +144,10 @@ class PositionHighlightActionView(APIView):
         '''
         Marks the position as highlighted by the position's bureau
         '''
-        position = Position.objects.get(id=pk)
+        position = get_object_or_404(Position, id=pk)
+
+        # Check for the bureau permission on the accessing user
+        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.add(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -136,7 +155,8 @@ class PositionHighlightActionView(APIView):
         '''
         Removes the position from highlighted positions
         '''
-        position = Position.objects.get(id=pk)
+        position = get_object_or_404(Position, id=pk)
+        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -216,4 +236,22 @@ class SkillListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Skill.objects.all()
         queryset = self.serializer_class.prefetch_model(Skill, queryset)
+        return queryset
+
+
+class ClassificationListView(FieldLimitableSerializerMixin,
+                             ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given classification.
+
+    list:
+    Return a list of all position classifications.
+    """
+
+    serializer_class = ClassificationSerializer
+
+    def get_queryset(self):
+        queryset = Classification.objects.all()
+        queryset = self.serializer_class.prefetch_model(Classification, queryset)
         return queryset

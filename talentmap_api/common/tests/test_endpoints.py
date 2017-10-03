@@ -17,6 +17,9 @@ from talentmap_api.messaging.tests.mommy_recipes import owned_notification
 
 parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
+    # Bidcycle Endpoints
+    ('/api/v1/bidcycle/', 'bidding.BidCycle', None, True),
+
     # Position Endpoints
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),
     ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
@@ -24,6 +27,7 @@ parameterized_data = [
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
     ('/api/v1/position/highlighted/', 'position.Position', highlighted_position, False),
     ('/api/v1/capsule_description/', 'position.CapsuleDescription', None, True),
+    ('/api/v1/position/classification/', 'position.Classification', None, True),
 
     # Language Endpoints
     ('/api/v1/language/', 'language.Language', 'talentmap_api.language.tests.language', True),
