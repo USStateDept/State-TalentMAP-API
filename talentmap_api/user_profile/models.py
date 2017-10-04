@@ -16,6 +16,10 @@ class UserProfile(models.Model):
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
+    skill_code = models.ForeignKey('position.Skill', null=True)
+
+    grade = models.ForeignKey('position.Grade', null=True)
+
     favorite_positions = models.ManyToManyField('position.Position', related_name='favorited_by_users', help_text="Positions which this user has designated as a favorite")
 
     def __str__(self):

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
 
@@ -16,7 +16,22 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
     class Meta:
         model = CapsuleDescription
         fields = "__all__"
-        writable_fields = ("content",)
+        writable_fields = ("content", "point_of_contact", "website",)
+
+
+class ClassificationSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = Classification
+        fields = "__all__"
+
+
+class PositionWritableSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = Position
+        fields = ("classifications",)
+        writable_fields = ("classifications",)
 
 
 class PositionSerializer(PrefetchedSerializer):
@@ -25,6 +40,7 @@ class PositionSerializer(PrefetchedSerializer):
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
     representation = serializers.SerializerMethodField()
+    classifications = serializers.StringRelatedField(many=True)
 
     def get_representation(self, obj):
         return str(obj)

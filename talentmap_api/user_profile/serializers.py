@@ -18,6 +18,8 @@ class UserSerializer(PrefetchedSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
+    skill_code = serializers.StringRelatedField()
+    grade = serializers.StringRelatedField()
 
     class Meta:
         model = UserProfile

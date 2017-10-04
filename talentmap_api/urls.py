@@ -28,6 +28,10 @@ urlpatterns = [
     url(r'^api/v1/grade/', include('talentmap_api.position.urls.grade')),
     url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
 
+    # Bidding endpoints
+    url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
+    url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
+
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),

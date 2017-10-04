@@ -5,6 +5,9 @@ from rest_framework import status
 
 from itertools import cycle
 
+from django.contrib.auth.models import User
+from talentmap_api.common.common_helpers import get_permission_by_name
+
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
@@ -190,12 +193,34 @@ def test_favorite_action_endpoints(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db(transaction=True)
 def test_highlight_action_endpoints(authorized_client, authorized_user):
-    position = mommy.make_recipe('talentmap_api.position.tests.position')
+    bureau = mommy.make('organization.Organization', code="123456", short_description="Test Bureau")
+    bureau.create_permissions()
+    permission = get_permission_by_name(f"organization.can_highlight_positions_{bureau.code}")
+
+    position = mommy.make_recipe('talentmap_api.position.tests.position', bureau=bureau)
+
     response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    # First, try to highlight without appropriate permissions
+    assert not authorized_user.has_perm(f"{permission.content_type.app_label}.{permission.codename}")
+    response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # Now, try to unhiglight without appropriate permissions
+    response = authorized_client.delete(f'/api/v1/position/{position.id}/highlight/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # Add the permission to our user
+    authorized_user.user_permissions.add(permission)
+    # Must re-acquire the user from the DB after adding permissions due to caching
+    authorized_user = User.objects.get(id=authorized_user.id)
+    assert authorized_user.has_perm(f"{permission.content_type.app_label}.{permission.codename}")
 
     response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
 
