@@ -4,6 +4,7 @@ chardet==3.0.4
 coreapi==2.3.1
 coreschema==0.0.4
 coverage==4.4.1
+dateutils==0.6.6
 defusedxml==0.5.0
 dj-database-url==0.4.2
 Django==1.11.3
@@ -33,6 +34,7 @@ pyflakes==1.6.0
 pytest==3.1.2
 pytest-cov==2.5.1
 pytest-django==3.1.2
+python-dateutil==2.6.1
 pytz==2017.2
 PyYAML==3.12
 requests==2.18.1
