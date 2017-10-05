@@ -3,6 +3,7 @@ from datetime import datetime
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid
 
 
@@ -43,3 +44,23 @@ class BidSerializer(PrefetchedSerializer):
     class Meta:
         model = Bid
         fields = "__all__"
+        nested = {
+            "position": {
+                "class": PositionSerializer,
+                "field": "position",
+                "kwargs": {
+                    "override_fields": [
+                        "id",
+                        "position_number",
+                        "title",
+                        "skill",
+                        "grade",
+                        "post__id",
+                        "post__location",
+                        "update_date",
+                        "create_date"
+                    ],
+                    "read_only": True
+                }
+            }
+        }
