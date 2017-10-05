@@ -65,7 +65,7 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["status"] == "draft"
-    assert response.data["results"][0]["position"] == str(in_cycle_position)
+    assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
     assert response.data["results"][0]["submission_date"] is None
 
     bid_id = response.data["results"][0]["id"]
@@ -80,7 +80,7 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["status"] == "submitted"
-    assert response.data["results"][0]["position"] == str(in_cycle_position)
+    assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
     assert response.data["results"][0]["submission_date"] is not None
 
     # Try to delete our now submitted bid
