@@ -170,6 +170,17 @@ def test_domestic_filtering(client):
 
 
 @pytest.mark.django_db()
+def test_position_assignment_list(authorized_client, authorized_user):
+    position = mommy.make("position.Position")
+    mommy.make("position.Assignment", position=position, user=authorized_user.profile, tour_of_duty=mommy.make("organization.TourOfDuty"), _quantity=5)
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/assignments/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data['results']) == 5
+
+
+@pytest.mark.django_db()
 def test_favorite_action_endpoints(authorized_client, authorized_user):
     position = mommy.make_recipe('talentmap_api.position.tests.position')
     response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
