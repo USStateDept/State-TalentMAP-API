@@ -22,6 +22,7 @@ def test_bidcycle_creation(authorized_client, authorized_user):
         {
             "name": "bidcycle",
             "cycle_start_date": "1988-01-01",
+            "cycle_deadline_date": "1988-02-02",
             "cycle_end_date": "2088-01-01"
         }
     ), content_type='application/json')
@@ -34,11 +35,39 @@ def test_bidcycle_creation(authorized_client, authorized_user):
 def test_bidcycle_creation_validation(authorized_client, authorized_user):
     assert BidCycle.objects.all().count() == 0
 
+    # Test end date < start date
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
         {
             "name": "bidcycle",
             "cycle_start_date": "1988-01-01",
+            "cycle_deadline_date": "1988-02-02",
             "cycle_end_date": "1088-01-01"
+        }
+    ), content_type='application/json')
+
+    assert BidCycle.objects.all().count() == 0
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Test deadline < start date
+    response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
+        {
+            "name": "bidcycle",
+            "cycle_start_date": "1988-01-01",
+            "cycle_deadline_date": "1088-02-02",
+            "cycle_end_date": "2088-01-01"
+        }
+    ), content_type='application/json')
+
+    assert BidCycle.objects.all().count() == 0
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Test end date < deadline
+    response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
+        {
+            "name": "bidcycle",
+            "cycle_start_date": "1988-01-01",
+            "cycle_deadline_date": "1988-03-02",
+            "cycle_end_date": "1988-02-01"
         }
     ), content_type='application/json')
 
