@@ -12,7 +12,9 @@ from talentmap_api.messaging.models import Notification
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+
+    cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
