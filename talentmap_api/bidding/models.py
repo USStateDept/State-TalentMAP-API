@@ -47,6 +47,9 @@ class Bid(models.Model):
 
     submission_date = models.DateField(null=True)
 
+    def __str__(self):
+        return f"{self.user}#{self.position.position_number}"
+
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date", "submission_date"]
