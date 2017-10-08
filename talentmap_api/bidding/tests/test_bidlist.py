@@ -136,12 +136,16 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
     response = authorized_client.delete(f'/api/v1/bidlist/{our_bid.id}/')
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert authorized_user.profile.bidlist.count() == 0
+    assert authorized_user.profile.bidlist.count() == 1
+
+    our_bid.refresh_from_db()
+    assert our_bid.status == Bid.Status.closed
+    our_bid.delete()
 
     # Re-create the bid as a submitted bid
     our_bid = mommy.make(Bid, status=Bid.Status.submitted, user=authorized_user.profile, position=position, bidcycle=bidcycle)
 
-    # We should be able to delete it since we're still before the deadline, but instead of true delete it is just closed
+    # We should be able to delete it since we're still before the deadline
     response = authorized_client.delete(f'/api/v1/bidlist/{our_bid.id}/')
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -149,7 +153,15 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 
     our_bid.refresh_from_db()
     assert our_bid.status == Bid.Status.closed
+    our_bid.delete()
 
+    # Re-create the bid as a handshake offered bid
+    our_bid = mommy.make(Bid, status=Bid.Status.handshake_offered, user=authorized_user.profile, position=position, bidcycle=bidcycle)
+
+    # We should be able to delete it since we're still before the deadline
+    response = authorized_client.delete(f'/api/v1/bidlist/{our_bid.id}/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
     our_bid.delete()
 
     # Change our deadline
@@ -179,9 +191,10 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bidlist_max_submissions(authorized_client, authorized_user):
-    mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.submitted, _quantity=10)
+    bidcycle = BidCycle.objects.get(id=1)
+    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, _quantity=10)
 
-    bid = mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.draft)
+    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft)
 
     # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
     response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
