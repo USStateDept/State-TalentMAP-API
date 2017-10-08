@@ -1,6 +1,11 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from djchoices import DjangoChoices, ChoiceItem
+
+from talentmap_api.messaging.models import Notification
+from talentmap_api.user_profile.models import UserProfile
 
 
 class BidCycle(models.Model):
@@ -48,3 +53,28 @@ class Bid(models.Model):
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date", "submission_date"]
+
+
+@receiver(pre_save, sender=Bid, dispatch_uid="notify_on_handshake")
+def notify_on_handshake(sender, instance, **kwargs):
+    # If our instance has an id, we're performing an update (and not a create)
+    if instance.id:
+        # Get our bid as it exists in the database
+        old_bid = Bid.objects.get(id=instance.id)
+        # Check if our old bid's status equals the new instance's status
+        if old_bid.status is not instance.status:
+            # Perform an action based upon the new status
+            if instance.status is Bid.Status.handshake_offered:
+                # Notify the owning user that their bid has been offered a handshake
+                Notification.objects.create(owner=instance.user,
+                                            message=f"Your bid for {instance.position} has been offered a handshake.")
+                # Notify all other bidders that this position has a handshake offered
+                # Get a list of all user profile ID's which aren't this user
+                users = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
+                for user in users:
+                    Notification.objects.create(owner=UserProfile.objects.get(id=user),
+                                                message=f"A competing bid for {instance.position} has been offered a handshake.")
+            elif instance.status is Bid.Status.declined:
+                # Notify the owning user that this bid has been declined
+                Notification.objects.create(owner=instance.user,
+                                            message=f"Your bid for {instance.position} has been declined.")

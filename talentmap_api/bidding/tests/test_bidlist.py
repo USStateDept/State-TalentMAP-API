@@ -92,11 +92,66 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bidlist_max_submissions(authorized_client, authorized_user):
-    mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.submitted, _quantity=10)
+    mommy.make(Bid, bidcycle=BidCycle.objects.get(id=1), user=authorized_user.profile, status=Bid.Status.submitted, _quantity=10)
 
-    bid = mommy.make(Bid, user=authorized_user.profile, status=Bid.Status.draft)
+    bid = mommy.make(Bid, bidcycle=BidCycle.objects.get(id=1), user=authorized_user.profile, status=Bid.Status.draft)
 
     # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
     response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db(transaction=True)
+def test_bid_declined_notification(authorized_client, authorized_user, test_bidlist_fixture):
+    assert authorized_user.profile.notifications.count() == 0
+
+    bidcycle = BidCycle.objects.get(id=1)
+    position = bidcycle.positions.first()
+    bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
+
+    bid.status = Bid.Status.declined
+    bid.save()
+
+    assert authorized_user.profile.notifications.count() == 1
+    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been declined."
+
+
+@pytest.mark.django_db(transaction=True)
+def test_bid_handshake_notification(authorized_client, authorized_user, test_bidlist_fixture):
+    assert authorized_user.profile.notifications.count() == 0
+
+    bidcycle = BidCycle.objects.get(id=1)
+    position = bidcycle.positions.first()
+
+    # Create this user's bid
+    bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
+
+    bid.status = Bid.Status.handshake_offered
+    bid.save()
+
+    assert authorized_user.profile.notifications.count() == 1
+    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been offered a handshake."
+
+
+@pytest.mark.django_db(transaction=True)
+def test_bid_other_handshake_notification(authorized_client, authorized_user, test_bidlist_fixture):
+    assert authorized_user.profile.notifications.count() == 0
+
+    bidcycle = BidCycle.objects.get(id=1)
+    position = bidcycle.positions.first()
+
+    competing_user = mommy.make('auth.User')
+    assert competing_user
+
+    # Create this user's bid
+    mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
+
+    # Create a competing bid
+    bid = mommy.make(Bid, bidcycle=bidcycle, user=competing_user.profile, position=position)
+
+    bid.status = Bid.Status.handshake_offered
+    bid.save()
+
+    assert authorized_user.profile.notifications.count() == 1
+    assert authorized_user.profile.notifications.first().message == f"A competing bid for {position} has been offered a handshake."
