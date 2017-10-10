@@ -12,6 +12,10 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 from talentmap_api.common.common_helpers import has_permission_or_403
 
+from talentmap_api.bidding.models import Bid
+from talentmap_api.bidding.serializers import BidSerializer
+from talentmap_api.bidding.filters import BidFilter
+
 from talentmap_api.position.models import Position, Classification, Assignment
 from talentmap_api.position.filters import PositionFilter, AssignmentFilter
 from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
@@ -48,6 +52,27 @@ class PositionListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Position.objects.all()
         queryset = self.serializer_class.prefetch_model(Position, queryset)
+        return queryset
+
+
+class PositionBidListView(FieldLimitableSerializerMixin,
+                          mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    list:
+    Return a list of all of the position's bids.
+    """
+
+    serializer_class = BidSerializer
+    filter_class = BidFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        # Get the position's bids
+        queryset = position.bids
+        self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
 
 

@@ -13,6 +13,7 @@ from rest_framework import status
 
 from talentmap_api.bidding.serializers import BidSerializer
 from talentmap_api.bidding.models import Bid, BidCycle
+from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
 
@@ -24,6 +25,7 @@ class BidListView(mixins.ListModelMixin,
     Lists all bids for the user's current bidlist
     '''
     serializer_class = BidSerializer
+    filter_class = BidFilter
     permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):

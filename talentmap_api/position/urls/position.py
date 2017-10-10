@@ -14,7 +14,8 @@ urlpatterns = [
     url(r'^favorites/$', views.PositionFavoriteListView.as_view(get_list), name='view-favorite-positions'),
     url(r'^(?P<pk>[0-9]+)/favorite/$', views.PositionFavoriteActionView.as_view(), name='position.Position-favorite'),
     url(r'^(?P<pk>[0-9]+)/highlight/$', views.PositionHighlightActionView.as_view(), name='position.Position-highlight'),
-    url(r'^(?P<pk>[0-9]+)/assignments/$', views.PositionAssignmentHistoryView.as_view(get_list), name='position.Position-assignment-history')
+    url(r'^(?P<pk>[0-9]+)/assignments/$', views.PositionAssignmentHistoryView.as_view(get_list), name='position.Position-assignment-history'),
+    url(r'^(?P<pk>[0-9]+)/bids/$', views.PositionBidListView.as_view(get_list), name='position.Position-bids')
 ]
 
 urlpatterns += router.urls
