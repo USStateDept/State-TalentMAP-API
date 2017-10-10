@@ -1,6 +1,5 @@
 from rest_framework import permissions
 from talentmap_api.common.common_helpers import in_group_or_403
-from django.core.exceptions import PermissionDenied
 
 
 def isDjangoGroupMember(group_name):
@@ -14,7 +13,7 @@ def isDjangoGroupMember(group_name):
             try:
                 in_group_or_403(request.user, group_name)
                 return True
-            except PermissionDenied:
+            except:
                 return False
 
     return IsDjangoGroupMember

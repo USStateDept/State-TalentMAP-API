@@ -154,7 +154,10 @@ def in_group_or_403(user, group_name):
         - user (Object) - The user instance
         - group_name (String) - The name of the permission group
     '''
-    group = get_group_by_name(group_name)
+    try:
+        group = get_group_by_name(group_name)
+    except:
+        raise PermissionDenied
     if group not in user.groups.all():
         raise PermissionDenied
 

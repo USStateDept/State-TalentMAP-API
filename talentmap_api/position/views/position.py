@@ -14,7 +14,7 @@ from talentmap_api.common.common_helpers import has_permission_or_403, in_group_
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 from talentmap_api.bidding.models import Bid
-from talentmap_api.bidding.serializers import BidSerializer
+from talentmap_api.bidding.serializers import PositionBidSerializer
 from talentmap_api.bidding.filters import BidFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
@@ -64,7 +64,7 @@ class PositionBidListView(FieldLimitableSerializerMixin,
     Return a list of all of the position's bids.
     """
 
-    serializer_class = BidSerializer
+    serializer_class = PositionBidSerializer
     filter_class = BidFilter
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 

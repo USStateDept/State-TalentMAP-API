@@ -51,6 +51,7 @@ class Bid(models.Model):
     position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
 
     submission_date = models.DateField(null=True)
+    update_date = models.DateField(auto_now=True)
 
     def __str__(self):
         return f"{self.user}#{self.position.position_number}"
