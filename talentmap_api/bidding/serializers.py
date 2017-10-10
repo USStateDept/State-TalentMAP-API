@@ -13,7 +13,7 @@ class BidCycleSerializer(PrefetchedSerializer):
         datasource = self.initial_data
 
         # Convert incoming string dates into date objects for validation
-        for date_key in ["cycle_end_date", "cycle_start_date"]:
+        for date_key in ["cycle_end_date", "cycle_deadline_date", "cycle_start_date"]:
             date = datasource.get(date_key, None)
             if date:
                 datasource[date_key] = datetime.strptime(date, '%Y-%m-%d').date()
@@ -27,13 +27,17 @@ class BidCycleSerializer(PrefetchedSerializer):
         # Validate our dates are in a chronologically sound order
         if datasource.get("cycle_end_date") < datasource.get("cycle_start_date"):
             raise serializers.ValidationError("Cycle start date must be before cycle end date")
+        if datasource.get("cycle_end_date") < datasource.get("cycle_deadline_date"):
+            raise serializers.ValidationError("Cycle deadline date must be on or before the cycle end date")
+        if datasource.get("cycle_deadline_date") < datasource.get("cycle_start_date"):
+            raise serializers.ValidationError("Cycle deadline date must be after cycle start date")
 
         return data
 
     class Meta:
         model = BidCycle
-        fields = ("id", "name", "cycle_start_date", "cycle_end_date", "active")
-        writable_fields = ("name", "cycle_start_date", "cycle_end_date", "active")
+        fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
+        writable_fields = ("name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
 
 
 class BidSerializer(PrefetchedSerializer):

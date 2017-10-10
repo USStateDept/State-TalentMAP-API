@@ -1,6 +1,7 @@
 import datetime
 
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
@@ -13,6 +14,7 @@ from rest_framework import status
 from talentmap_api.bidding.serializers import BidSerializer
 from talentmap_api.bidding.models import Bid, BidCycle
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.messaging.models import Notification
 
 
 class BidListView(mixins.ListModelMixin,
@@ -23,6 +25,45 @@ class BidListView(mixins.ListModelMixin,
     '''
     serializer_class = BidSerializer
     permission_classes = (IsAuthenticated,)
+
+    def destroy(self, request, *args, **kwargs):
+        '''
+        Closes or deletes specified bid
+
+        This endpoint will delete bids which are still in a draft status, but close any other status
+        if permitted.
+        '''
+        user = UserProfile.objects.get(user=self.request.user)
+        # Grab the bid in question
+        bid = get_object_or_404(Bid, id=kwargs.get("pk"))
+
+        # Are we the owning user?
+        is_ours = bid.user.id is user.id
+        # Are we the CDO?
+        is_direct_report = bid.user.id in user.direct_reports.values_list("id", flat=True)
+
+        if not is_ours and not is_direct_report:
+            raise PermissionDenied
+
+        # If we're the CDO, we can close it regardless of status/date restrictions
+        if is_direct_report:
+            bid.status = Bid.Status.closed
+            bid.save()
+            Notification.objects.create(owner=bid.user,
+                                        message=f"Bid {bid} has been closed by CDO {user}")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif datetime.datetime.now().date() < bid.bidcycle.cycle_deadline_date:
+            if bid.status in [Bid.Status.draft, Bid.Status.submitted]:
+                bid.status = Bid.Status.closed
+                bid.save()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                # We are either outside of the permittable date range for self-closing,
+                # or we are looking at a status that requires CDO action (i.e. handshake)
+                raise PermissionDenied
+        else:
+            # We're not CDO, and we're after the deadline
+            raise PermissionDenied
 
     def get_queryset(self):
         queryset = UserProfile.objects.get(user=self.request.user).bidlist.all()

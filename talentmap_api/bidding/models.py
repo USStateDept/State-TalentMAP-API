@@ -15,13 +15,14 @@ class BidCycle(models.Model):
 
     name = models.TextField(null=False, help_text="The name of the bid cycle")
     cycle_start_date = models.DateField(null=False, help_text="The start date for the bid cycle")
+    cycle_deadline_date = models.DateField(null=False, help_text="The deadline date for the bid cycle")
     cycle_end_date = models.DateField(null=False, help_text="The end date for the bid cycle")
     active = models.BooleanField(default=False, help_text="Whether this bidcycle is active or not")
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
 
     def __str__(self):
-        return f"{self.name} ({self.cycle_start_date} - {self.cycle_end_date})"
+        return f"{self.name}"
 
     class Meta:
         managed = True
@@ -41,6 +42,7 @@ class Bid(models.Model):
         handshake_offered = ChoiceItem("handshake offered")
         handshake_accepted = ChoiceItem("handshake accepted")
         declined = ChoiceItem("declined")
+        closed = ChoiceItem("closed")
 
     status = models.TextField(default=Status.draft, choices=Status.choices)
 
@@ -49,6 +51,9 @@ class Bid(models.Model):
     position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
 
     submission_date = models.DateField(null=True)
+
+    def __str__(self):
+        return f"{self.user}#{self.position.position_number}"
 
     class Meta:
         managed = True
