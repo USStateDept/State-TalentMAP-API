@@ -63,3 +63,5 @@ class Command(BaseCommand):
         call_command('update_relationships')
         self.logger.info("Creating position classifications...")
         call_command('create_classifications')
+        self.logger.info("Creating baseline permissions and groups...")
+        call_command('create_base_permissions')

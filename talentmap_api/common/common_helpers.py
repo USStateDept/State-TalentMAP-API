@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import resolve
 from django.http import QueryDict
 from django.utils.six.moves.urllib.parse import urlparse
@@ -126,6 +126,37 @@ def get_permission_by_name(name):
                                       codename=codename)
     except Permission.DoesNotExist:
         raise Exception(f"Permission {app_label}.{codename} not found.")
+
+
+def get_group_by_name(name):
+    '''
+    Gets the permissions group associated with the specified name
+
+    Args:
+        - name (String) - The group name
+
+    Returns
+        - Group (object) - The permission group
+    '''
+    try:
+        return Group.objects.get(name=name)
+    except Group.DoesNotExist:
+        raise Exception(f"Group {name} not found.")
+
+
+def in_group_or_403(user, group_name):
+    '''
+    This function mimics the functionality of get_object_or_404, but for permission groups.
+    The function accepts a user and group name, doing nothing if the user is present in
+    the permission group; otherwise, throws a PermissionDenied error
+
+    Args:
+        - user (Object) - The user instance
+        - group_name (String) - The name of the permission group
+    '''
+    group = get_group_by_name(group_name)
+    if group not in user.groups.all():
+        raise PermissionDenied
 
 
 def has_permission_or_403(user, permission):

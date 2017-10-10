@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 import logging
@@ -84,6 +84,14 @@ class Organization(models.Model):
         '''
         Creates this organization's permission set
         '''
+        # Create a group for AOs for this bureau
+        group_name = f"bureau_ao_{self.code}"
+        group = Group.objects.get_or_create(name=group_name)
+
+        if group[1]:
+            logging.getLogger('console').info(f"Created permission group {group_name}")
+
+        group = group[0]
 
         # Highlight action
         permission_codename = f"can_highlight_positions_{self.code}"
@@ -96,6 +104,9 @@ class Organization(models.Model):
 
         if permission[1]:
             logging.getLogger('console').info(f"Created permission {permission[0]}")
+
+        # Add the highlight permission to the AO group
+        group.permissions.add(permission[0])
 
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"

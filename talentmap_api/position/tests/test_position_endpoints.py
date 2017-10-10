@@ -171,10 +171,32 @@ def test_domestic_filtering(client):
 
 @pytest.mark.django_db()
 def test_position_assignment_list(authorized_client, authorized_user):
+    # Give the user AO permissions
+    group = mommy.make("auth.Group", name="bureau_ao")
+    group.user_set.add(authorized_user)
     position = mommy.make("position.Position")
     mommy.make("position.Assignment", position=position, user=authorized_user.profile, tour_of_duty=mommy.make("organization.TourOfDuty"), _quantity=5)
 
     response = authorized_client.get(f'/api/v1/position/{position.id}/assignments/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data['results']) == 5
+
+
+@pytest.mark.django_db()
+def test_position_bid_list(authorized_client, authorized_user):
+    # Create a bureau for the position
+    bureau = mommy.make('organization.Organization', code='12345')
+    position = mommy.make('position.Position', bureau=bureau)
+    mommy.make('bidding.Bid', user=authorized_user.profile, position=position, _quantity=5)
+
+    # Create valid permissions to view this position's bids
+    group = mommy.make('auth.Group', name='bureau_ao')
+    group.user_set.add(authorized_user)
+    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group.user_set.add(authorized_user)
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/bids/')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data['results']) == 5

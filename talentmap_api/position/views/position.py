@@ -10,7 +10,8 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
-from talentmap_api.common.common_helpers import has_permission_or_403
+from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
+from talentmap_api.common.permissions import isDjangoGroupMember
 
 from talentmap_api.bidding.models import Bid
 from talentmap_api.bidding.serializers import BidSerializer
@@ -65,11 +66,12 @@ class PositionBidListView(FieldLimitableSerializerMixin,
 
     serializer_class = BidSerializer
     filter_class = BidFilter
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 
     def get_queryset(self):
         # Get the position based on the PK from the url
         position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        in_group_or_403(self.request.user, f"bureau_ao_{position.bureau.code}")
         # Get the position's bids
         queryset = position.bids
         self.serializer_class.prefetch_model(Bid, queryset)
@@ -85,7 +87,7 @@ class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
     '''
 
     serializer_class = AssignmentSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
     filter_class = AssignmentFilter
 
     def get_queryset(self):
