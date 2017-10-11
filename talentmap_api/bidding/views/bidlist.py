@@ -11,8 +11,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.bidding.serializers import BidSerializer
+from talentmap_api.common.common_helpers import in_group_or_403
+from talentmap_api.common.permissions import isDjangoGroupMember
+
+from talentmap_api.bidding.serializers import BidSerializer, BidWritableSerializer
 from talentmap_api.bidding.models import Bid, BidCycle
+from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
 
@@ -24,6 +28,7 @@ class BidListView(mixins.ListModelMixin,
     Lists all bids for the user's current bidlist
     '''
     serializer_class = BidSerializer
+    filter_class = BidFilter
     permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):
@@ -69,6 +74,21 @@ class BidListView(mixins.ListModelMixin,
         queryset = UserProfile.objects.get(user=self.request.user).bidlist.all()
         queryset = self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
+
+
+class BidUpdateView(mixins.UpdateModelMixin,
+                    GenericViewSet):
+    '''
+    partial_update:
+    Update the specified bid
+    '''
+    serializer_class = BidWritableSerializer
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+
+    def get_object(self):
+        bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"))
+        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+        return bid
 
 
 class BidListPositionActionView(APIView):

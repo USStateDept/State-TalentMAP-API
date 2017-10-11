@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import json
 from dateutil.relativedelta import relativedelta
 
 from model_mommy import mommy
@@ -89,6 +90,39 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
     response = authorized_client.delete(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidlist_fixture")
+def test_bidlist_patch_bid(authorized_client, authorized_user):
+    bidcycle = BidCycle.objects.get(id=1)
+    bureau = mommy.make('organization.Organization', code='12345')
+
+    in_bureau_position = mommy.make('position.Position', bureau=bureau)
+    out_of_bureau_position = mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
+
+    in_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=in_bureau_position, bidcycle=bidcycle)
+    out_of_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=out_of_bureau_position, bidcycle=bidcycle)
+
+    # Give our user appropriate permissions
+    group = mommy.make('auth.Group', name='bureau_ao')
+    group.user_set.add(authorized_user)
+    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group.user_set.add(authorized_user)
+
+    # Patch an in-bureau bid
+    response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
+        "status": "handshake offered"
+    }), content_type="application/json")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    # Patch an out-of-bureau bid
+    response = authorized_client.patch(f'/api/v1/bidlist/bid/{out_of_bureau_bid.id}/', data=json.dumps({
+        "status": "handshake_offered"
+    }), content_type="application/json")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db(transaction=True)
