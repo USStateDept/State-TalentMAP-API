@@ -8,7 +8,7 @@ from model_mommy import mommy
 
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
-from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location
+from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 
 
 @pytest.mark.django_db(transaction=True)
@@ -199,13 +199,33 @@ def test_xml_positions_loading():
 
 
 @pytest.mark.django_db()
+def test_xml_country_loading():
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_countries.xml'),
+                 'countries')
+
+    assert Country.objects.count() == 9
+    country = Country.objects.get(code="ABW")
+    assert not country.is_country
+    assert country.is_current
+    assert country.short_code == "AW"
+    assert country.name == "Aruba"
+    assert country.short_name == "Aruba"
+
+
+@pytest.mark.django_db()
 def test_xml_location_loading():
     call_command('load_xml',
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_locations.xml'),
                  'locations')
 
+    mommy.make('organization.Country', id=1, code="USA")
+    mommy.make('organization.Country', id=2, short_code="VM")
+
+    call_command('update_relationships')
     assert Location.objects.count() == 4
-    assert Location.objects.filter(code="VM3000000").count() == 1
+    assert Location.objects.filter(code="VM3000000").first().country.id == 2
+    assert Location.objects.filter(code="063260073").first().country.id == 1
 
 
 @pytest.mark.django_db()

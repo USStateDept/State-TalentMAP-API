@@ -1,6 +1,6 @@
 import rest_framework_filters as filters
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -40,14 +40,30 @@ class TourOfDutyFilter(filters.FilterSet):
         }
 
 
+class CountryFilter(filters.FilterSet):
+
+    class Meta:
+        model = Country
+        fields = {
+            "code": ALL_TEXT_LOOKUPS,
+            "short_code": ALL_TEXT_LOOKUPS,
+            "name": ALL_TEXT_LOOKUPS,
+            "short_name": ALL_TEXT_LOOKUPS,
+            "is_country": ['exact'],
+            "is_current": ['exact']
+        }
+
+
 class LocationFilter(filters.FilterSet):
+    country = filters.RelatedFilter(CountryFilter, name='country', queryset=Country.objects.all())
+
     class Meta:
         model = Location
         fields = {
             "code": ALL_TEXT_LOOKUPS,
-            "country": ALL_TEXT_LOOKUPS,
             "city": ALL_TEXT_LOOKUPS,
-            "state": ALL_TEXT_LOOKUPS
+            "state": ALL_TEXT_LOOKUPS,
+            "country": FOREIGN_KEY_LOOKUPS
         }
 
 

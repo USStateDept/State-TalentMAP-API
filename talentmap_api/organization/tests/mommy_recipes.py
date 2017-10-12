@@ -1,6 +1,6 @@
 from model_mommy.recipe import Recipe, seq, foreign_key
 
-from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location
+from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 
 # Organization with no parents
 orphaned_organization = Recipe(
@@ -21,4 +21,9 @@ location = Recipe(
 post = Recipe(
     Post,
     tour_of_duty=foreign_key('tour_of_duty')
+)
+
+country = Recipe(
+    Country,
+    code=seq('country_code')
 )

@@ -69,7 +69,8 @@ class PositionFilter(filters.FilterSet):
             "skill__description",
             "language_requirements__language__long_description",
             "post__location__code",
-            "post__location__country",
+            "post__location__country__name",
+            "post__location__country__code",
             "post__location__city",
             "post__location__state",
             "description__content"
