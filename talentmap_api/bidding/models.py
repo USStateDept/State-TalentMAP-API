@@ -29,6 +29,25 @@ class BidCycle(models.Model):
         ordering = ["cycle_start_date"]
 
 
+class StatusSurvey(models.Model):
+    '''
+    The status survey model represents eligiblity status self-identification information
+    on a per-bidcycle basis
+    '''
+
+    user = models.ForeignKey("user_profile.UserProfile", on_delete=models.CASCADE, related_name="status_surveys")
+    bidcycle = models.ForeignKey(BidCycle, related_name="status_surveys")
+
+    is_differential_bidder = models.BooleanField(default=False)
+    is_fairshare = models.BooleanField(default=False)
+    is_six_eight = models.BooleanField(default=False)
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle"]
+        unique_together = (("user", "bidcycle"),)
+
+
 class Bid(models.Model):
     '''
     The bid object represents an individual bid, the position, user, and process status
