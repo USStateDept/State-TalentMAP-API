@@ -134,6 +134,29 @@ class TourOfDuty(models.Model):
         ordering = ["code"]
 
 
+class Country(models.Model):
+    '''
+    Represents a country
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique country code")
+    short_code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique 2-character country code")
+
+    name = models.TextField(help_text="The name of the region")
+    short_name = models.TextField(null=True, help_text="The short name of the region")
+
+    is_current = models.BooleanField(default=True, help_text="Boolean indicator if this country is current")
+    is_country = models.BooleanField(default=False, help_text="Boolean indicator if this region is a country")
+    is_territory = models.BooleanField(default=False, help_text="Boolean indicator if this region is a territory")
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
+
+
 class Location(models.Model):
     '''
     Represents a geographic location
@@ -143,10 +166,22 @@ class Location(models.Model):
 
     city = models.TextField(default="", blank=True)
     state = models.TextField(default="", blank=True)
-    country = models.TextField(default="", blank=True)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
+
+    def update_relationships(self):
+        country = Country.objects.filter(short_code=self.code[:2]).first()
+        # If we don't have a matching country for the location code, but the code we tried is
+        # a digit, then we are in the USA
+        if not country and self.code[:2].isdigit():
+            country = Country.objects.filter(code="USA").first()
+        else:
+            logging.getLogger('console').info(f"Could not find country for code {self.code}")
+
+        self.country = country
+        self.save()
 
     def __str__(self):
-        return ", ".join([x for x in [self.city, self.state, self.country] if x])
+        return ", ".join([x for x in [self.city, self.state] if x])
 
     class Meta:
         managed = True
