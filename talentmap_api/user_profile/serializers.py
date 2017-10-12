@@ -20,6 +20,8 @@ class UserSerializer(PrefetchedSerializer):
 class UserProfileSerializer(PrefetchedSerializer):
     skill_code = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
+    primary_nationality = serializers.StringRelatedField()
+    secondary_nationality = serializers.StringRelatedField()
 
     class Meta:
         model = UserProfile
@@ -67,8 +69,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions"]
-        writable_fields = ("language_qualifications", "favorite_positions",)
+        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality"]
+        writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):

@@ -33,6 +33,7 @@ class OrganizationSerializer(PrefetchedSerializer):
 
 class LocationSerializer(PrefetchedSerializer):
     representation = serializers.SerializerMethodField()
+    country = serializers.StringRelatedField()
 
     def get_representation(self, obj):
         return str(obj)
