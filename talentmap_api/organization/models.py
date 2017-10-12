@@ -171,21 +171,19 @@ class Location(models.Model):
 
     def update_relationships(self):
         # First check if we can find a country match using the 2-letter code
-        country = Country.objects.filter(short_code=self.code[:2])
-        # More than or less than one match
-        if country.count() != 1:
-            # Search by name
-            country = Country.objects.filter(name__iexact=self._country).first()
-        else:
-            # We have a match by code
-            country = country.first()
+        country = Country.objects.filter(name__iexact=self._country).first()
         # If we don't have a matching country for the location code, but the code we tried is
         # a digit, then we are in the USA
         if not country:
             if self.code[:2].isdigit():
                 country = Country.objects.filter(code="USA").first()
             else:
-                logging.getLogger('console').info(f"Could not find country for {self._country}")
+                # Try matching by code, but only if there is a single match
+                code_matches = Country.objects.filter(short_code=self.code[:2])
+                if code_matches.count() == 1:
+                    country = code_matches.first()
+                else:
+                    logging.getLogger('console').info(f"Could not find country for {self._country}")
 
         self.country = country
         self.save()
