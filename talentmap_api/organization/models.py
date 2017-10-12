@@ -140,14 +140,13 @@ class Country(models.Model):
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique country code")
-    short_code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique 2-character country code")
+    short_code = models.TextField(db_index=True, null=False, help_text="The unique 2-character country code")
 
     name = models.TextField(help_text="The name of the region")
     short_name = models.TextField(null=True, help_text="The short name of the region")
 
     is_current = models.BooleanField(default=True, help_text="Boolean indicator if this country is current")
     is_country = models.BooleanField(default=False, help_text="Boolean indicator if this region is a country")
-    is_territory = models.BooleanField(default=False, help_text="Boolean indicator if this region is a territory")
 
     def __str__(self):
         return f"{self.name}"
@@ -168,14 +167,25 @@ class Location(models.Model):
     state = models.TextField(default="", blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
 
+    _country = models.TextField(null=True)
+
     def update_relationships(self):
-        country = Country.objects.filter(short_code=self.code[:2]).first()
+        # First check if we can find a country match using the 2-letter code
+        country = Country.objects.filter(short_code=self.code[:2])
+        # More than or less than one match
+        if country.count() != 1:
+            # Search by name
+            country = Country.objects.filter(name__iexact=self._country).first()
+        else:
+            # We have a match by code
+            country = country.first()
         # If we don't have a matching country for the location code, but the code we tried is
         # a digit, then we are in the USA
-        if not country and self.code[:2].isdigit():
-            country = Country.objects.filter(code="USA").first()
-        else:
-            logging.getLogger('console').info(f"Could not find country for code {self.code}")
+        if not country:
+            if self.code[:2].isdigit():
+                country = Country.objects.filter(code="USA").first()
+            else:
+                logging.getLogger('console').info(f"Could not find country for {self._country}")
 
         self.country = country
         self.save()

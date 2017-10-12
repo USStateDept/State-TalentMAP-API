@@ -236,7 +236,8 @@ def mode_location():
     tag_map = {
         "code": "code",
         "city": strip_extra_spaces("city"),
-        "state": strip_extra_spaces("state")
+        "state": strip_extra_spaces("state"),
+        "country": "_country"
     }
 
     def post_load_function(new_ids, updated_ids):
