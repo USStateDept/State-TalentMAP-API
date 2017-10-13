@@ -1,7 +1,10 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import mixins
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
+from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.language.models import Language, Proficiency, Qualification, Waiver
@@ -26,6 +29,27 @@ class LanguageListView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         return Language.objects.all()
+
+
+class LanguageWaiverHistoryView(FieldLimitableSerializerMixin,
+                                GenericViewSet,
+                                mixins.ListModelMixin):
+    '''
+    list:
+    Lists all of the language's waivers
+    '''
+
+    serializer_class = WaiverSerializer
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+    filter_class = WaiverFilter
+
+    def get_queryset(self):
+        # Get the language based on the PK from the url
+        language = get_object_or_404(Language, pk=self.request.parser_context.get("kwargs").get("pk"))
+        # Get the position's assignments
+        queryset = language.waivers.all()
+        self.serializer_class.prefetch_model(Waiver, queryset)
+        return queryset
 
 
 class LanguageProficiencyListView(FieldLimitableSerializerMixin,
