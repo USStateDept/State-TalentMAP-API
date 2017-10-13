@@ -1,12 +1,14 @@
 from rest_framework import mixins
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
-from talentmap_api.language.models import Language, Proficiency, Qualification
-from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer
-from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter
+from talentmap_api.language.models import Language, Proficiency, Qualification, Waiver
+from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer, WaiverSerializer
+from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter, WaiverFilter
+
+from talentmap_api.user_profile.models import UserProfile
 
 
 class LanguageListView(FieldLimitableSerializerMixin,
@@ -72,4 +74,32 @@ class LanguageQualificationListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Qualification.objects.all()
         queryset = self.serializer_class.prefetch_model(Qualification, queryset)
+        return queryset
+
+
+class WaiverView(mixins.ListModelMixin,
+                 mixins.RetrieveModelMixin,
+                 mixins.UpdateModelMixin,
+                 mixins.CreateModelMixin,
+                 GenericViewSet):
+    '''
+    list:
+    Lists all of the user's waivers
+    retrieve:
+    Returns the specified waiver
+    partial_update:
+    Update the specified waiver
+    create:
+    Create a new waiver request
+    '''
+    serializer_class = WaiverSerializer
+    filter_class = WaiverFilter
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        serializer.save(user=UserProfile.objects.get(user=self.request.user))
+
+    def get_queryset(self):
+        queryset = UserProfile.objects.get(user=self.request.user).language_waivers.all()
+        queryset = self.serializer_class.prefetch_model(Waiver, queryset)
         return queryset

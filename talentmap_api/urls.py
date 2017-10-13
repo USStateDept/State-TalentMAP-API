@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
     url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
+    url(r'^api/v1/language_waiver/', include('talentmap_api.language.urls.waiver')),
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
