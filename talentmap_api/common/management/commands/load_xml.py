@@ -218,12 +218,11 @@ def mode_country():
     instance_tag = "DATA_RECORD"
     collision_field = "code"
     tag_map = {
-        "CNTRY_CODE": "code",
-        "CNTRY_DESC": "name",
-        "CNTRY_SHORT_DESC": "short_name",
-        "CNTRY_2CHAR_CNTRY_CODE": "short_code",
-        "CNTRY_CURRENT_IND": parse_boolean("is_current"),
-        "CNTRY_TERRITORY_IND": parse_boolean("is_country", ["C"]),
+        "COUNTRY_CODE": "code",
+        "FULL_NAME": "name",
+        "SHORT_NAME": "short_name",
+        "COUNTRY_CODE_2": "short_code",
+        "LOCATION_PREFIX": "location_prefix"
     }
 
     return (model, instance_tag, tag_map, collision_field, None)
