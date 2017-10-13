@@ -47,10 +47,9 @@ class CountryFilter(filters.FilterSet):
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "short_code": ALL_TEXT_LOOKUPS,
+            "location_prefix": ALL_TEXT_LOOKUPS,
             "name": ALL_TEXT_LOOKUPS,
             "short_name": ALL_TEXT_LOOKUPS,
-            "is_country": ['exact'],
-            "is_current": ['exact']
         }
 
 

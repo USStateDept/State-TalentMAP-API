@@ -140,16 +140,14 @@ class Country(models.Model):
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique country code")
-    short_code = models.TextField(db_index=True, null=False, help_text="The unique 2-character country code")
+    short_code = models.TextField(db_index=True, null=False, help_text="The 2-character country code")
+    location_prefix = models.TextField(db_index=True, null=False, help_text="The unique 2-character location prefix")
 
     name = models.TextField(help_text="The name of the region")
     short_name = models.TextField(null=True, help_text="The short name of the region")
 
-    is_current = models.BooleanField(default=True, help_text="Boolean indicator if this country is current")
-    is_country = models.BooleanField(default=False, help_text="Boolean indicator if this region is a country")
-
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.short_name}"
 
     class Meta:
         managed = True
@@ -170,26 +168,29 @@ class Location(models.Model):
     _country = models.TextField(null=True)
 
     def update_relationships(self):
-        # First check if we can find a country match using the 2-letter code
-        country = Country.objects.filter(name__iexact=self._country).first()
-        # If we don't have a matching country for the location code, but the code we tried is
-        # a digit, then we are in the USA
-        if not country:
-            if self.code[:2].isdigit():
-                country = Country.objects.filter(code="USA").first()
-            else:
-                # Try matching by code, but only if there is a single match
-                code_matches = Country.objects.filter(short_code=self.code[:2])
-                if code_matches.count() == 1:
-                    country = code_matches.first()
+        # Search for country based on location prefix
+        country = Country.objects.filter(location_prefix=self.code[:2])
+        if country.count() != 1:
+            # Try matching by name
+            country = Country.objects.filter(name__iexact=self._country).first()
+            if not country:
+                # If we still don't have a match, check if the first 2 of the country location code are digits
+                if self.code[:2].isdigit():
+                    # We're domestic
+                    country = Country.objects.filter(code="USA").first()
                 else:
                     logging.getLogger('console').info(f"Could not find country for {self._country}")
+        else:
+            country = country.first()
 
         self.country = country
         self.save()
 
     def __str__(self):
-        return ", ".join([x for x in [self.city, self.state] if x])
+        string = ", ".join([x for x in [self.city, self.state] if x])
+        if self.country:
+            string += f", {self.country.short_name}"
+        return string
 
     class Meta:
         managed = True

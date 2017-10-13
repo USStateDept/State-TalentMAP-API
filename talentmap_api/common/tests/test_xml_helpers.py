@@ -204,13 +204,12 @@ def test_xml_country_loading():
                  os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_countries.xml'),
                  'countries')
 
-    assert Country.objects.count() == 9
-    country = Country.objects.get(code="ABW")
-    assert not country.is_country
-    assert country.is_current
-    assert country.short_code == "AW"
-    assert country.name == "Aruba"
-    assert country.short_name == "Aruba"
+    assert Country.objects.count() == 5
+    country = Country.objects.get(code="AND")
+    assert country.short_code == "AD"
+    assert country.location_prefix == "AN"
+    assert country.name == "Principality of Andorra"
+    assert country.short_name == "Andorra"
 
 
 @pytest.mark.django_db()
@@ -220,7 +219,7 @@ def test_xml_location_loading():
                  'locations')
 
     mommy.make('organization.Country', id=1, code="USA")
-    mommy.make('organization.Country', id=2, short_code="VM")
+    mommy.make('organization.Country', id=2, location_prefix="VM")
 
     call_command('update_relationships')
     assert Location.objects.count() == 4
