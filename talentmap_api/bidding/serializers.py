@@ -5,7 +5,7 @@ from rest_framework import serializers
 from talentmap_api.user_profile.serializers import UserProfileSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey
 
 
 class BidCycleSerializer(PrefetchedSerializer):
@@ -39,6 +39,14 @@ class BidCycleSerializer(PrefetchedSerializer):
         model = BidCycle
         fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
         writable_fields = ("name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
+
+
+class SurveySerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = StatusSurvey
+        fields = "__all__"
+        writable_fields = ("bidcycle", "is_differential_bidder", "is_fairshare", "is_six_eight")
 
 
 class BidSerializer(PrefetchedSerializer):
