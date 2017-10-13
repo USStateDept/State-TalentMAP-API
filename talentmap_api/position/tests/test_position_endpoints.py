@@ -184,6 +184,20 @@ def test_position_assignment_list(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db()
+def test_position_waiver_list(authorized_client, authorized_user):
+    # Give the user AO permissions
+    group = mommy.make("auth.Group", name="bureau_ao")
+    group.user_set.add(authorized_user)
+    position = mommy.make("position.Position")
+    mommy.make("language.Waiver", position=position, user=authorized_user.profile, _quantity=5)
+
+    response = authorized_client.get(f'/api/v1/position/{position.id}/language_waivers/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data['results']) == 5
+
+
+@pytest.mark.django_db()
 def test_position_bid_list(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
