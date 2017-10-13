@@ -8,7 +8,7 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.language.models import Language, Proficiency, Qualification, Waiver
-from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer, WaiverSerializer
+from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer, WaiverSerializer, WaiverWritableSerializer
 from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter, WaiverFilter
 
 from talentmap_api.user_profile.models import UserProfile
@@ -105,6 +105,7 @@ class WaiverView(mixins.ListModelMixin,
                  mixins.RetrieveModelMixin,
                  mixins.UpdateModelMixin,
                  mixins.CreateModelMixin,
+                 ActionDependentSerializerMixin,
                  GenericViewSet):
     '''
     list:
@@ -116,6 +117,11 @@ class WaiverView(mixins.ListModelMixin,
     create:
     Create a new waiver request
     '''
+    serializers = {
+        "default": WaiverSerializer,
+        "create": WaiverWritableSerializer
+    }
+
     serializer_class = WaiverSerializer
     filter_class = WaiverFilter
     permission_classes = (IsAuthenticated,)

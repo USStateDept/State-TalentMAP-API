@@ -19,6 +19,18 @@ class LanguageProficiencySerializer(PrefetchedSerializer):
 
 
 class WaiverSerializer(PrefetchedSerializer):
+    position = serializers.StringRelatedField()
+    bidcycle = serializers.StringRelatedField()
+    language = serializers.StringRelatedField()
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Waiver
+        fields = "__all__"
+        writable_fields = ("position", "bidcycle", "language", "type")
+
+
+class WaiverWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Waiver
