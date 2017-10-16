@@ -141,10 +141,10 @@ class Country(models.Model):
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique country code")
     short_code = models.TextField(db_index=True, null=False, help_text="The 2-character country code")
-    location_prefix = models.TextField(db_index=True, null=False, help_text="The unique 2-character location prefix")
+    location_prefix = models.TextField(db_index=True, null=False, help_text="The 2-character location prefix")
 
-    name = models.TextField(help_text="The name of the region")
-    short_name = models.TextField(null=True, help_text="The short name of the region")
+    name = models.TextField(help_text="The name of the country")
+    short_name = models.TextField(null=True, help_text="The short name of the country")
 
     def __str__(self):
         return f"{self.short_name}"

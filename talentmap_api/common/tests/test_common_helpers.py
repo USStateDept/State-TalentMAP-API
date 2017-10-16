@@ -14,7 +14,7 @@ from talentmap_api.position.models import Position
 @pytest.mark.django_db()
 def test_get_permission_by_name():
     # Try to get a permission without it existing
-    with pytest.raises(Exception, message="Permission position.text_permission not found."):
+    with pytest.raises(Exception, match="Permission position.test_permission not found."):
         get_permission_by_name("position.test_permission")
 
     # Create a permission
