@@ -15,3 +15,4 @@ The following management commands are available. More detailed help can be found
 * `created_seeded_users` - Creates testing users based on design personas, and assigns random skills and grades from available positions
 
 * `create_classifications` - Creates all position classifications, called by load_all_data
+* `create_base_permissions` - Creates app-wide baseline permissions and groups

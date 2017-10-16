@@ -2,9 +2,14 @@ import rest_framework_filters as filters
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 
-from talentmap_api.language.models import Qualification, Proficiency, Language
+from talentmap_api.position.models import Position
+from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.filters import BidCycleFilter
+
+
+from talentmap_api.language.models import Qualification, Proficiency, Language, Waiver
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS, DATE_LOOKUPS
 
 
 class LanguageFilter(filters.FilterSet):
@@ -71,4 +76,23 @@ class QualificationFilter(filters.FilterSet):
             "language": FOREIGN_KEY_LOOKUPS,
             "reading_proficiency": FOREIGN_KEY_LOOKUPS,
             "spoken_proficiency": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class WaiverFilter(filters.FilterSet):
+    language = filters.RelatedFilter(LanguageFilter, name='language', queryset=Language.objects.all())
+    bidcycle = filters.RelatedFilter(BidCycleFilter, name='bidcycle', queryset=BidCycle.objects.all())
+    position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
+
+    class Meta:
+        model = Waiver
+        fields = {
+            "user": FOREIGN_KEY_LOOKUPS,
+            "language": FOREIGN_KEY_LOOKUPS,
+            "bidcycle": FOREIGN_KEY_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "type": ALL_TEXT_LOOKUPS,
+            "status": ALL_TEXT_LOOKUPS,
+            "request_date": DATE_LOOKUPS,
+            "decision_date": DATE_LOOKUPS
         }

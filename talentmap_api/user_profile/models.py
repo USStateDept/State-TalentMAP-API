@@ -12,7 +12,9 @@ from talentmap_api.messaging.models import Notification
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+
+    cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
@@ -21,6 +23,9 @@ class UserProfile(models.Model):
     grade = models.ForeignKey('position.Grade', null=True)
 
     favorite_positions = models.ManyToManyField('position.Position', related_name='favorited_by_users', help_text="Positions which this user has designated as a favorite")
+
+    primary_nationality = models.ForeignKey('organization.Country', null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
+    secondary_nationality = models.ForeignKey('organization.Country', null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
 
     def __str__(self):
         return f"{self.user.username}"

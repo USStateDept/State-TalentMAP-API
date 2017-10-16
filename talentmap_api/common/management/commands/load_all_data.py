@@ -16,6 +16,7 @@ class Command(BaseCommand):
         # These models should have update_relationships
         self.files = {
             'languages': 'language.xml',
+            'countries': 'countries.xml',
             'locations': 'location.xml',
             'proficiencies': 'language_proficiency.xml',
             'capsule_descriptions': 'capsule_descriptions.xml',
@@ -63,3 +64,5 @@ class Command(BaseCommand):
         call_command('update_relationships')
         self.logger.info("Creating position classifications...")
         call_command('create_classifications')
+        self.logger.info("Creating baseline permissions and groups...")
+        call_command('create_base_permissions')

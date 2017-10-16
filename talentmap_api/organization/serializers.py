@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 
 
 class OrganizationSerializer(PrefetchedSerializer):
@@ -31,8 +31,16 @@ class OrganizationSerializer(PrefetchedSerializer):
         fields = "__all__"
 
 
+class CountrySerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = Country
+        fields = "__all__"
+
+
 class LocationSerializer(PrefetchedSerializer):
     representation = serializers.SerializerMethodField()
+    country = serializers.StringRelatedField()
 
     def get_representation(self, obj):
         return str(obj)

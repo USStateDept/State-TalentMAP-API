@@ -10,11 +10,20 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
-from talentmap_api.common.common_helpers import has_permission_or_403
+from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
+from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification
-from talentmap_api.position.filters import PositionFilter, GradeFilter, SkillFilter, CapsuleDescriptionFilter
-from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, GradeSerializer, SkillSerializer, CapsuleDescriptionSerializer, ClassificationSerializer
+from talentmap_api.bidding.models import Bid
+from talentmap_api.bidding.serializers import PositionBidSerializer
+from talentmap_api.bidding.filters import BidFilter
+
+from talentmap_api.language.models import Waiver
+from talentmap_api.language.serializers import WaiverSerializer
+from talentmap_api.language.filters import WaiverFilter
+
+from talentmap_api.position.models import Position, Classification, Assignment
+from talentmap_api.position.filters import PositionFilter, AssignmentFilter
+from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
@@ -48,6 +57,70 @@ class PositionListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Position.objects.all()
         queryset = self.serializer_class.prefetch_model(Position, queryset)
+        return queryset
+
+
+class PositionBidListView(FieldLimitableSerializerMixin,
+                          mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    list:
+    Return a list of all of the position's bids.
+    """
+
+    serializer_class = PositionBidSerializer
+    filter_class = BidFilter
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        in_group_or_403(self.request.user, f"bureau_ao_{position.bureau.code}")
+        # Get the position's bids
+        queryset = position.bids
+        self.serializer_class.prefetch_model(Bid, queryset)
+        return queryset
+
+
+class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
+                                    GenericViewSet,
+                                    mixins.ListModelMixin):
+    '''
+    list:
+    Lists all of the position's assignments
+    '''
+
+    serializer_class = AssignmentSerializer
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+    filter_class = AssignmentFilter
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        # Get the position's assignments
+        queryset = position.assignments
+        self.serializer_class.prefetch_model(Assignment, queryset)
+        return queryset
+
+
+class PositionWaiverHistoryView(FieldLimitableSerializerMixin,
+                                GenericViewSet,
+                                mixins.ListModelMixin):
+    '''
+    list:
+    Lists all of the position's waivers
+    '''
+
+    serializer_class = WaiverSerializer
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+    filter_class = WaiverFilter
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        # Get the position's assignments
+        queryset = position.language_waivers.all()
+        self.serializer_class.prefetch_model(Waiver, queryset)
         return queryset
 
 
@@ -159,84 +232,6 @@ class PositionHighlightActionView(APIView):
         has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CapsuleDescriptionView(FieldLimitableSerializerMixin,
-                             GenericViewSet,
-                             mixins.CreateModelMixin,
-                             mixins.ListModelMixin,
-                             mixins.RetrieveModelMixin,
-                             mixins.UpdateModelMixin,
-                             mixins.DestroyModelMixin):
-    '''
-    create:
-    Creates a new capsule description
-
-    partial_update:
-    Edits a saved capsule description
-
-    retrieve:
-    Retrieves a specific capsule description
-
-    list:
-    Lists all capsule descriptions
-
-    destroy:
-    Deletes a specified capsule description
-    '''
-
-    serializer_class = CapsuleDescriptionSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_class = CapsuleDescriptionFilter
-
-    def perform_create(self, serializer):
-        serializer.save(last_editing_user=self.request.user.profile)
-
-    def perform_update(self, serializer):
-        serializer.save(last_editing_user=self.request.user.profile)
-
-    def get_queryset(self):
-        queryset = CapsuleDescription.objects.all()
-        self.serializer_class.prefetch_model(CapsuleDescription, queryset)
-        return queryset
-
-
-class GradeListView(FieldLimitableSerializerMixin,
-                    ReadOnlyModelViewSet):
-    """
-    retrieve:
-    Return the given grade.
-
-    list:
-    Return a list of all grades.
-    """
-
-    serializer_class = GradeSerializer
-    filter_class = GradeFilter
-
-    def get_queryset(self):
-        queryset = Grade.objects.all()
-        queryset = self.serializer_class.prefetch_model(Grade, queryset)
-        return queryset
-
-
-class SkillListView(FieldLimitableSerializerMixin,
-                    ReadOnlyModelViewSet):
-    """
-    retrieve:
-    Return the given skill.
-
-    list:
-    Return a list of all skills.
-    """
-
-    serializer_class = SkillSerializer
-    filter_class = SkillFilter
-
-    def get_queryset(self):
-        queryset = Skill.objects.all()
-        queryset = self.serializer_class.prefetch_model(Skill, queryset)
-        return queryset
 
 
 class ClassificationListView(FieldLimitableSerializerMixin,

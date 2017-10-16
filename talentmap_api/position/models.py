@@ -1,4 +1,8 @@
 from django.db import models
+from djchoices import DjangoChoices, ChoiceItem
+
+import datetime
+from dateutil.relativedelta import relativedelta
 
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
@@ -203,3 +207,50 @@ class Classification(models.Model):
     class Meta:
         managed = True
         ordering = ["code"]
+
+
+class Assignment(models.Model):
+    '''
+    The assignment model represents a current or past assignment, linking together
+    users, positions, tours of duty, and other assignment related data
+    '''
+
+    class Status(DjangoChoices):
+        pending = ChoiceItem("pending")
+        assigned = ChoiceItem("assigned")
+        active = ChoiceItem("active")
+        completed = ChoiceItem("completed")
+        curtailed = ChoiceItem("curtailed")
+
+    class CurtailmentReason(DjangoChoices):
+        medical = ChoiceItem("medical")
+        clearance = ChoiceItem("clearance")
+        service_need = ChoiceItem("service_need")
+        compassionate = ChoiceItem("compassionate")
+        other = ChoiceItem("other")
+
+    status = models.TextField(default=Status.pending, choices=Status.choices)
+    curtailment_reason = models.TextField(null=True, choices=CurtailmentReason.choices)
+
+    user = models.ForeignKey('user_profile.UserProfile', related_name='assignments')
+    position = models.ForeignKey('position.Position', related_name='assignments')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
+
+    create_date = models.DateField(auto_now_add=True, help_text='The date the assignment was created')
+    start_date = models.DateField(null=True, help_text='The date the assignment started')
+    estimated_end_date = models.DateField(null=True, help_text='The estimated end date based upon tour of duty')
+    end_date = models.DateField(null=True, help_text='The date this position was completed or curtailed')
+    update_date = models.DateField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Set the estimate end date to the date in the future based on tour of duty months
+        if self.start_date and self.tour_of_duty:
+            self.estimated_end_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date() + relativedelta(months=self.tour_of_duty.months)
+        super(Assignment, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"({self.status}) {self.user} at {self.position}"
+
+    class Meta:
+        managed = True
+        ordering = ["update_date"]

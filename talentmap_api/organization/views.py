@@ -2,9 +2,9 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
-from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter
-from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
+from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter, CountryFilter
+from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer, CountrySerializer
 
 
 class OrganizationListView(FieldLimitableSerializerMixin,
@@ -42,6 +42,25 @@ class LocationView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Location.objects.all()
         queryset = self.serializer_class.prefetch_model(Location, queryset)
+        return queryset
+
+
+class CountryView(FieldLimitableSerializerMixin,
+                  ReadOnlyModelViewSet):
+    """
+    retrieve:
+    Return the given country.
+
+    list:
+    Return a list of all countries.
+    """
+
+    serializer_class = CountrySerializer
+    filter_class = CountryFilter
+
+    def get_queryset(self):
+        queryset = Country.objects.all()
+        queryset = self.serializer_class.prefetch_model(Country, queryset)
         return queryset
 
 
