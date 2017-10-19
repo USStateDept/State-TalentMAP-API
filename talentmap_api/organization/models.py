@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 import logging
@@ -84,6 +84,14 @@ class Organization(models.Model):
         '''
         Creates this organization's permission set
         '''
+        # Create a group for AOs for this bureau
+        group_name = f"bureau_ao_{self.code}"
+        group = Group.objects.get_or_create(name=group_name)
+
+        if group[1]:
+            logging.getLogger('console').info(f"Created permission group {group_name}")
+
+        group = group[0]
 
         # Highlight action
         permission_codename = f"can_highlight_positions_{self.code}"
@@ -96,6 +104,9 @@ class Organization(models.Model):
 
         if permission[1]:
             logging.getLogger('console').info(f"Created permission {permission[0]}")
+
+        # Add the highlight permission to the AO group
+        group.permissions.add(permission[0])
 
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"
@@ -123,6 +134,26 @@ class TourOfDuty(models.Model):
         ordering = ["code"]
 
 
+class Country(models.Model):
+    '''
+    Represents a country
+    '''
+
+    code = models.TextField(db_index=True, unique=True, null=False, help_text="The unique country code")
+    short_code = models.TextField(db_index=True, null=False, help_text="The 2-character country code")
+    location_prefix = models.TextField(db_index=True, null=False, help_text="The 2-character location prefix")
+
+    name = models.TextField(help_text="The name of the country")
+    short_name = models.TextField(null=True, help_text="The short name of the country")
+
+    def __str__(self):
+        return f"{self.short_name}"
+
+    class Meta:
+        managed = True
+        ordering = ["code"]
+
+
 class Location(models.Model):
     '''
     Represents a geographic location
@@ -132,10 +163,34 @@ class Location(models.Model):
 
     city = models.TextField(default="", blank=True)
     state = models.TextField(default="", blank=True)
-    country = models.TextField(default="", blank=True)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
+
+    _country = models.TextField(null=True)
+
+    def update_relationships(self):
+        # Search for country based on location prefix
+        country = Country.objects.filter(location_prefix=self.code[:2])
+        if country.count() != 1:
+            # Try matching by name
+            country = Country.objects.filter(name__iexact=self._country).first()
+            if not country:
+                # If we still don't have a match, check if the first 2 of the country location code are digits
+                if self.code[:2].isdigit():
+                    # We're domestic
+                    country = Country.objects.filter(code="USA").first()
+                else:
+                    logging.getLogger('console').info(f"Could not find country for {self._country}")
+        else:
+            country = country.first()
+
+        self.country = country
+        self.save()
 
     def __str__(self):
-        return ", ".join([x for x in [self.city, self.state, self.country] if x])
+        string = ", ".join([x for x in [self.city, self.state] if x])
+        if self.country:
+            string += f", {self.country.short_name}"
+        return string
 
     class Meta:
         managed = True

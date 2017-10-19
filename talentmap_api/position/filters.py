@@ -1,12 +1,12 @@
 import rest_framework_filters as filters
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
 
-from talentmap_api.organization.filters import OrganizationFilter, PostFilter
-from talentmap_api.organization.models import Organization, Post
+from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
+from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -69,7 +69,8 @@ class PositionFilter(filters.FilterSet):
             "skill__description",
             "language_requirements__language__long_description",
             "post__location__code",
-            "post__location__country",
+            "post__location__country__name",
+            "post__location__country__code",
             "post__location__city",
             "post__location__state",
             "description__content"
@@ -90,4 +91,23 @@ class PositionFilter(filters.FilterSet):
             "post": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS
+        }
+
+
+class AssignmentFilter(filters.FilterSet):
+    position = filters.RelatedFilter(PositionFilter, name='position', queryset=Position.objects.all())
+    tour_of_duty = filters.RelatedFilter(TourOfDutyFilter, name='position', queryset=TourOfDuty.objects.all())
+
+    class Meta:
+        model = Assignment
+        fields = {
+            "status": ALL_TEXT_LOOKUPS,
+            "curtailment_reason": ALL_TEXT_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "create_date": DATE_LOOKUPS,
+            "start_date": DATE_LOOKUPS,
+            "estimated_end_date": DATE_LOOKUPS,
+            "end_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS,
         }

@@ -11,7 +11,7 @@ from rest_framework import status
 
 from django.apps import apps
 
-from talentmap_api.position.tests.mommy_recipes import favorite_position, highlighted_position
+from talentmap_api.position.tests.mommy_recipes import favorite_position, highlighted_position, assignment_for_user
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
 from talentmap_api.messaging.tests.mommy_recipes import owned_notification
 
@@ -39,9 +39,13 @@ parameterized_data = [
     ('/api/v1/orgpost/', 'organization.Post', 'talentmap_api.organization.tests.post', True),
     ('/api/v1/tour_of_duty/', 'organization.TourOfDuty', 'talentmap_api.organization.tests.tour_of_duty', True),
     ('/api/v1/location/', 'organization.Location', 'talentmap_api.organization.tests.location', True),
+    ('/api/v1/country/', 'organization.Country', 'talentmap_api.organization.tests.country', True),
 
     # Saved Searches
     ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True),
+
+    # User profile endpoints
+    ('/api/v1/profile/assignments/', 'position.Assignment', assignment_for_user, False),
 
     # Messaging Endpoints
     ('/api/v1/notification/', 'messaging.Notification', owned_notification, True),

@@ -31,17 +31,20 @@ urlpatterns = [
     # Bidding endpoints
     url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
+    url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
     url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
+    url(r'^api/v1/language_waiver/', include('talentmap_api.language.urls.waiver')),
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
     url(r'^api/v1/orgpost/', include('talentmap_api.organization.urls.post')),
     url(r'^api/v1/tour_of_duty/', include('talentmap_api.organization.urls.tour_of_duty')),
     url(r'^api/v1/location/', include('talentmap_api.organization.urls.location')),
+    url(r'^api/v1/country/', include('talentmap_api.organization.urls.country')),
 
     # Profile and account related resources
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),

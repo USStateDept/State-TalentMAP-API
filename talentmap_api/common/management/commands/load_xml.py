@@ -3,10 +3,10 @@ from django.core.management.base import BaseCommand
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, canonize_country
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 
 
 class Command(BaseCommand):
@@ -25,6 +25,7 @@ class Command(BaseCommand):
             'positions': mode_positions,
             'tours_of_duty': mode_tour_of_duty,
             'posts': mode_post,
+            'countries': mode_country,
             'locations': mode_location,
             'capsule_descriptions': mode_capsule_description,
         }
@@ -212,15 +213,30 @@ def mode_post():
     return (model, instance_tag, tag_map, collision_field, post_load_function)
 
 
+def mode_country():
+    model = Country
+    instance_tag = "DATA_RECORD"
+    collision_field = "code"
+    tag_map = {
+        "COUNTRY_CODE": "code",
+        "FULL_NAME": "name",
+        "SHORT_NAME": "short_name",
+        "COUNTRY_CODE_2": "short_code",
+        "LOCATION_PREFIX": "location_prefix"
+    }
+
+    return (model, instance_tag, tag_map, collision_field, None)
+
+
 def mode_location():
     model = Location
     instance_tag = "location"
     collision_field = "code"
     tag_map = {
         "code": "code",
-        "country": canonize_country("country"),
         "city": strip_extra_spaces("city"),
-        "state": strip_extra_spaces("state")
+        "state": strip_extra_spaces("state"),
+        "country": "_country"
     }
 
     def post_load_function(new_ids, updated_ids):
