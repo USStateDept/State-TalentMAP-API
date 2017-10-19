@@ -50,18 +50,10 @@ class PositionSerializer(PrefetchedSerializer):
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
     representation = serializers.SerializerMethodField()
-    current_assignment = serializers.SerializerMethodField()
     classifications = serializers.StringRelatedField(many=True)
 
     def get_representation(self, obj):
         return str(obj)
-
-    def get_current_assignment(self, obj):
-        return AssignmentSerializer(obj.current_assignment, override_fields=[
-            "user",
-            "status",
-            "estimated_end_date"
-        ]).data
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -103,6 +95,20 @@ class PositionSerializer(PrefetchedSerializer):
                 "class": CapsuleDescriptionSerializer,
                 "field": "description",
                 "kwargs": {
+                    "read_only": True
+                }
+            },
+            "current_assignment": {
+                "class": AssignmentSerializer,
+                "field": "current_assignment",
+                "kwargs": {
+                    "override_fields": [
+                        "user",
+                        "status",
+                        "start_date",
+                        "tour_of_duty",
+                        "estimated_end_date"
+                    ],
                     "read_only": True
                 }
             }
