@@ -1,9 +1,13 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+
+from talentmap_api.common.common_helpers import has_permission_or_403
 
 from talentmap_api.position.models import CapsuleDescription
 from talentmap_api.position.filters import CapsuleDescriptionFilter
@@ -12,15 +16,10 @@ from talentmap_api.position.serializers import CapsuleDescriptionSerializer
 
 class CapsuleDescriptionView(FieldLimitableSerializerMixin,
                              GenericViewSet,
-                             mixins.CreateModelMixin,
                              mixins.ListModelMixin,
                              mixins.RetrieveModelMixin,
-                             mixins.UpdateModelMixin,
-                             mixins.DestroyModelMixin):
+                             mixins.UpdateModelMixin):
     '''
-    create:
-    Creates a new capsule description
-
     partial_update:
     Edits a saved capsule description
 
@@ -29,19 +28,15 @@ class CapsuleDescriptionView(FieldLimitableSerializerMixin,
 
     list:
     Lists all capsule descriptions
-
-    destroy:
-    Deletes a specified capsule description
     '''
 
     serializer_class = CapsuleDescriptionSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = CapsuleDescriptionFilter
 
-    def perform_create(self, serializer):
-        serializer.save(last_editing_user=self.request.user.profile)
-
     def perform_update(self, serializer):
+        description = get_object_or_404(CapsuleDescription, pk=self.request.parser_context.get("kwargs").get("pk"))
+        has_permission_or_403(self.request.user, f"position.can_edit_post_capsule_descriptions_{description.position.post.id}")
         serializer.save(last_editing_user=self.request.user.profile)
 
     def get_queryset(self):

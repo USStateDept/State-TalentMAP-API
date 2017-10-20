@@ -10,8 +10,18 @@ from talentmap_api.organization.serializers import PostSerializer
 class CapsuleDescriptionSerializer(PrefetchedSerializer):
     last_editing_user = serializers.StringRelatedField(read_only=True)
 
+    # This is a dynamic flag used by the front end to simplify checking if the current user has permissions
+    is_editable_by_user = serializers.SerializerMethodField()
+
     date_created = serializers.DateTimeField(read_only=True)
     date_updated = serializers.DateTimeField(read_only=True)
+
+    def get_is_editable_by_user(self, obj):
+        try:
+            return self.context.get("request").user.has_perm(f"position.can_edit_post_capsule_descriptions_{obj.position.post.id}")
+        except AttributeError:
+            # The position doesn't have a post, or otherwise
+            return False
 
     class Meta:
         model = CapsuleDescription

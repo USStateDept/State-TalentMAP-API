@@ -30,9 +30,9 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
         # Check the context for overrides from query params
         if "override_fields" in self.context:
-            override_fields += self.context.get("override_fields")
+            override_fields += self.context.pop("override_fields")
         if "override_exclude" in self.context:
-            override_exclude += self.context.get("override_exclude")
+            override_exclude += self.context.pop("override_exclude")
 
         override_fields = self.correct_include_hierarchy(override_fields)
 
@@ -48,6 +48,10 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                     self.fields.pop(nested["field"])
 
                 self.parse_child_overrides(override_fields, override_exclude, name, nested, kwargs)
+
+                # Inherit our current context
+                kwargs["context"] = self.context
+
                 self.fields[name] = nested["class"](**kwargs)
 
         # Get our list of writable fields, if it exists
