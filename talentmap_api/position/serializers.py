@@ -97,6 +97,20 @@ class PositionSerializer(PrefetchedSerializer):
                 "kwargs": {
                     "read_only": True
                 }
+            },
+            "current_assignment": {
+                "class": AssignmentSerializer,
+                "field": "current_assignment",
+                "kwargs": {
+                    "override_fields": [
+                        "user",
+                        "status",
+                        "start_date",
+                        "tour_of_duty",
+                        "estimated_end_date"
+                    ],
+                    "read_only": True
+                }
             }
         }
 
