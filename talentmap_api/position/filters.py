@@ -1,3 +1,8 @@
+import datetime
+from dateutil.relativedelta import relativedelta
+
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models import Q
 import rest_framework_filters as filters
 
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
@@ -56,6 +61,7 @@ class PositionFilter(filters.FilterSet):
     organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
+    current_assignment = filters.RelatedFilter('talentmap_api.position.filters.AssignmentFilter', name='current_assignment', queryset=Assignment.objects.all())
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
     is_highlighted = filters.BooleanFilter(name="highlighted_by_org", lookup_expr="isnull", exclude=True)
@@ -77,6 +83,19 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
+    vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
+
+    def filter_vacancy_in_years(self, queryset, name, value):
+        '''
+        Returns a queryset of all positions with a vacancy in the specified number of years
+        '''
+        start = datetime.datetime.now().date()
+        end = start + relativedelta(years=value)
+        q_obj = {}
+        q_obj[LOOKUP_SEP.join([name, "gt"])] = start
+        q_obj[LOOKUP_SEP.join([name, "lte"])] = end
+        return queryset.filter(Q(**q_obj))
+
     class Meta:
         model = Position
         fields = {
@@ -88,6 +107,7 @@ class PositionFilter(filters.FilterSet):
             "skill": FOREIGN_KEY_LOOKUPS,
             "organization": FOREIGN_KEY_LOOKUPS,
             "bureau": FOREIGN_KEY_LOOKUPS,
+            "current_assignment": FOREIGN_KEY_LOOKUPS,
             "post": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS

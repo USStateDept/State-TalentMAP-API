@@ -1,5 +1,7 @@
 from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -23,6 +25,7 @@ class Position(models.Model):
 
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
+    current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
 
     grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
     skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
@@ -254,3 +257,17 @@ class Assignment(models.Model):
     class Meta:
         managed = True
         ordering = ["update_date"]
+
+
+# Signal listeners
+@receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
+def assignment_post_save(sender, instance, created, **kwargs):
+    '''
+    This listener updates an assignment's position with its new current assignment
+    '''
+    position = instance.position
+    if position.assignments.count() > 0:
+        position.current_assignment = position.assignments.latest("start_date")
+    else:
+        position.current_assignment = None
+    position.save()

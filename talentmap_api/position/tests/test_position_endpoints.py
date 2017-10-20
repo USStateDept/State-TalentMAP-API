@@ -1,4 +1,5 @@
 import pytest
+import datetime
 
 from model_mommy import mommy
 from rest_framework import status
@@ -284,3 +285,29 @@ def test_highlight_action_endpoints(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db(transaction=True)
+def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
+    one_year_tod = mommy.make('organization.TourOfDuty', months=12)
+    two_year_tod = mommy.make('organization.TourOfDuty', months=24)
+    three_year_tod = mommy.make('organization.TourOfDuty', months=36)
+
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=one_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=two_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=three_year_tod, user=authorized_user.profile)
+
+    response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    response = authorized_client.get('/api/v1/position/?vacancy_in_years=2')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 2
+
+    response = authorized_client.get('/api/v1/position/?vacancy_in_years=3')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 3
