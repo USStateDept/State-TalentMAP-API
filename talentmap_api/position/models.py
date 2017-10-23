@@ -121,6 +121,32 @@ class Position(models.Model):
         ordering = ["position_number"]
 
 
+class PositionBidStatistics(models.Model):
+    '''
+    Stores the bid statistics on a per-cycle basis for a position
+    '''
+
+    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="position_bid_statistics")
+    position = models.ForeignKey("position.Position", related_name="bid_statistics")
+
+    total_bids = models.IntegerField(default=0)
+    in_grade = models.IntegerField(default=0)
+    at_skill = models.IntegerField(default=0)
+    in_grade_at_skill = models.IntegerField(default=0)
+
+    def update_statistics(self):
+        bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
+        self.total_bids = bidcycle_bids.count()
+        self.in_grade = bidcycle_bids.filter(user__grade=self.position.grade).count()
+        self.at_skill = bidcycle_bids.filter(user__skill_code=self.position.skill).count()
+        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skill_code=self.position.skill).count()
+        self.save()
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
+
+
 class CapsuleDescription(models.Model):
     '''
     Represents a capsule description, describing the associated object in plain English

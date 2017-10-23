@@ -1,9 +1,10 @@
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 
 from djchoices import DjangoChoices, ChoiceItem
 
+from talentmap_api.position.models import PositionBidStatistics
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
@@ -80,6 +81,17 @@ class Bid(models.Model):
         ordering = ["bidcycle__cycle_start_date", "submission_date"]
 
 
+@receiver(m2m_changed, sender=BidCycle.positions.through, dispatch_uid="bidcycle_m2m_changed")
+def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "pre_add":
+        # Create a new statistics item when a position is placed in the bid cycle
+        for position_id in pk_set:
+            PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
+    elif action == "pre_remove":
+        # Delete statistics items when removed from the bidcycle
+        PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+
+
 @receiver(pre_save, sender=Bid, dispatch_uid="notify_on_handshake")
 def notify_on_handshake(sender, instance, **kwargs):
     # If our instance has an id, we're performing an update (and not a create)
@@ -103,3 +115,17 @@ def notify_on_handshake(sender, instance, **kwargs):
                 # Notify the owning user that this bid has been declined
                 Notification.objects.create(owner=instance.user,
                                             message=f"Your bid for {instance.position} has been declined.")
+
+
+@receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
+def save_update_bid_statistics(sender, instance, **kwargs):
+    # Get the position associated with this bid and update the statistics
+    for statistics in instance.position.bid_statistics.filter(bidcycle=instance.bidcycle):
+        statistics.update_statistics()
+
+
+@receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
+def delete_update_bid_statistics(sender, instance, **kwargs):
+    # Get the position associated with this bid and update the statistics
+    for statistics in instance.position.bid_statistics.filter(bidcycle=instance.bidcycle):
+        statistics.update_statistics()

@@ -16,3 +16,4 @@ The following management commands are available. More detailed help can be found
 
 * `create_classifications` - Creates all position classifications, called by load_all_data
 * `create_base_permissions` - Creates app-wide baseline permissions and groups
+* `create_demo_environment` - Creates all seeded users and a bidcycle with all positions
