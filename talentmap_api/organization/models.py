@@ -225,7 +225,37 @@ class Post(models.Model):
         if self._location_code:
             self.location = Location.objects.filter(code=self._location_code).first()
 
+        self.create_permissions()
+
         self.save()
+
+    def create_permissions(self):
+        '''
+        Creates this post's permission set
+        '''
+        # Create a group for all editor members of a post
+        group_name = f"post_editors_{self.id}"
+        group = Group.objects.get_or_create(name=group_name)
+
+        if group[1]:
+            logging.getLogger('console').info(f"Created permission group {group_name}")
+
+        group = group[0]
+
+        # Edit post capsule description action
+        permission_codename = f"can_edit_post_capsule_descriptions_{self.id}"
+        permission_name = f"Can edit capsule descriptions for post {self.location} ({self.id})"
+        content_type = ContentType.objects.get(app_label="position", model="capsuledescription")
+
+        permission = Permission.objects.get_or_create(codename=permission_codename,
+                                                      name=permission_name,
+                                                      content_type=content_type)
+
+        if permission[1]:
+            logging.getLogger('console').info(f"Created permission {permission[0]}")
+
+        # Add the capsule edit permission to the post editors group
+        group.permissions.add(permission[0])
 
     def __str__(self):
         return f"{self.location}"

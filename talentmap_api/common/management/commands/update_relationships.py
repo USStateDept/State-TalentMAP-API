@@ -17,9 +17,9 @@ class Command(BaseCommand):
         self.models = [
             Organization,
             Position,
+            Location,
             Post,
-            Grade,
-            Location
+            Grade
         ]
 
     def handle(self, *args, **options):
