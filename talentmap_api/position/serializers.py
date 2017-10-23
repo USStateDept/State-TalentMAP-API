@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification, Assignment
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification, Assignment, PositionBidStatistics
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
 
@@ -54,6 +54,14 @@ class PositionWritableSerializer(PrefetchedSerializer):
         writable_fields = ("classifications",)
 
 
+class PositionBidStatisticsSerializer(PrefetchedSerializer):
+    # bidcycle = serializers.StringRelatedField()
+
+    class Meta:
+        model = PositionBidStatistics
+        exclude = ("position",)
+
+
 class PositionSerializer(PrefetchedSerializer):
     grade = serializers.StringRelatedField()
     skill = serializers.StringRelatedField()
@@ -85,6 +93,14 @@ class PositionSerializer(PrefetchedSerializer):
         model = Position
         fields = "__all__"
         nested = {
+            "bid_statistics": {
+                "class": PositionBidStatisticsSerializer,
+                "field": "bid_statistics",
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
             "languages": {
                 "class": LanguageQualificationSerializer,
                 "field": "language_requirements",
