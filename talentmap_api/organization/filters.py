@@ -1,7 +1,7 @@
 import rest_framework_filters as filters
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
-from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
+from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
@@ -42,6 +42,17 @@ class TourOfDutyFilter(filters.FilterSet):
 
 class CountryFilter(filters.FilterSet):
 
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="position_number", method=full_text_search(
+        fields=[
+            "code",
+            "short_code",
+            "location_prefix",
+            "name",
+            "short_name"
+        ]
+    ))
+
     class Meta:
         model = Country
         fields = {
@@ -71,6 +82,18 @@ class PostFilter(filters.FilterSet):
     location = filters.RelatedFilter(LocationFilter, name='location', queryset=Location.objects.all())
 
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="position_number", method=full_text_search(
+        fields=[
+            "rest_relaxation_point",
+            "location__code",
+            "location__country__name",
+            "location__country__code",
+            "location__city",
+            "location__state",
+        ]
+    ))
 
     class Meta:
         model = Post
