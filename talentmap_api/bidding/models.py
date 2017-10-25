@@ -61,6 +61,8 @@ class Bid(models.Model):
         submitted = ChoiceItem("submitted")
         handshake_offered = ChoiceItem("handshake offered")
         handshake_accepted = ChoiceItem("handshake accepted")
+        in_panel = ChoiceItem("in panel")
+        approved = ChoiceItem("approved")
         declined = ChoiceItem("declined")
         closed = ChoiceItem("closed")
 
@@ -75,6 +77,15 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"{self.user}#{self.position.position_number}"
+
+    def generate_status_messages(self):
+        return {
+            "handshake_offered_owner": f"Your bid for {self.position} has been offered a handshake.",
+            "handshake_offered_other": f"A competing bid for {self.position} has been offered a handshake.",
+            "in_panel_owner": f"Your bid for {self.position} is under panel review.",
+            "approved_owner": f"Your bid for {self.position} has been approved by panel.",
+            "declined_owner": f"Your bid for {self.position} has been declined."
+        }
 
     class Meta:
         managed = True
@@ -92,8 +103,10 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
         PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
 
-@receiver(pre_save, sender=Bid, dispatch_uid="notify_on_handshake")
-def notify_on_handshake(sender, instance, **kwargs):
+@receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")
+def bid_status_changed(sender, instance, **kwargs):
+    notification_bodies = instance.generate_status_messages()
+
     # If our instance has an id, we're performing an update (and not a create)
     if instance.id:
         # Get our bid as it exists in the database
@@ -104,17 +117,27 @@ def notify_on_handshake(sender, instance, **kwargs):
             if instance.status is Bid.Status.handshake_offered:
                 # Notify the owning user that their bid has been offered a handshake
                 Notification.objects.create(owner=instance.user,
-                                            message=f"Your bid for {instance.position} has been offered a handshake.")
+                                            message=notification_bodies["handshake_offered_owner"])
                 # Notify all other bidders that this position has a handshake offered
                 # Get a list of all user profile ID's which aren't this user
                 users = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
                 for user in users:
                     Notification.objects.create(owner=UserProfile.objects.get(id=user),
-                                                message=f"A competing bid for {instance.position} has been offered a handshake.")
+                                                message=notification_bodies["handshake_offered_other"])
             elif instance.status is Bid.Status.declined:
                 # Notify the owning user that this bid has been declined
                 Notification.objects.create(owner=instance.user,
-                                            message=f"Your bid for {instance.position} has been declined.")
+                                            message=notification_bodies["declined_owner"])
+
+            elif instance.status is Bid.Status.in_panel:
+                # Notify the owning user that this bid is now under panel review
+                Notification.objects.create(owner=instance.user,
+                                            message=notification_bodies["in_panel_owner"])
+
+            elif instance.status is Bid.Status.approved:
+                # Notify the owning user that this bid has been accepted
+                Notification.objects.create(owner=instance.user,
+                                            message=notification_bodies["approved_owner"])
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")

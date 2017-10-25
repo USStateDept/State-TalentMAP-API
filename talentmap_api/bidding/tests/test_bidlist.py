@@ -251,8 +251,16 @@ def test_bid_declined_notification(authorized_client, authorized_user, test_bidl
     assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been declined."
 
 
+@pytest.mark.parametrize("status,message_key,owner", [
+    (Bid.Status.handshake_offered, "handshake_offered_owner", True),
+    (Bid.Status.handshake_offered, "handshake_offered_other", False),
+    (Bid.Status.declined, "declined_owner", True),
+    (Bid.Status.in_panel, "in_panel_owner", True),
+    (Bid.Status.approved, "approved_owner", True),
+
+])
 @pytest.mark.django_db(transaction=True)
-def test_bid_handshake_notification(authorized_client, authorized_user, test_bidlist_fixture):
+def test_bid_notifications(status, message_key, owner, authorized_client, authorized_user, test_bidlist_fixture):
     assert authorized_user.profile.notifications.count() == 0
 
     bidcycle = BidCycle.objects.get(id=1)
@@ -261,31 +269,12 @@ def test_bid_handshake_notification(authorized_client, authorized_user, test_bid
     # Create this user's bid
     bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
 
-    bid.status = Bid.Status.handshake_offered
+    if not owner:
+        # Create a competing bid
+        bid = mommy.make(Bid, bidcycle=bidcycle, user=mommy.make('auth.User').profile, position=position)
+
+    bid.status = status
     bid.save()
 
     assert authorized_user.profile.notifications.count() == 1
-    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been offered a handshake."
-
-
-@pytest.mark.django_db(transaction=True)
-def test_bid_other_handshake_notification(authorized_client, authorized_user, test_bidlist_fixture):
-    assert authorized_user.profile.notifications.count() == 0
-
-    bidcycle = BidCycle.objects.get(id=1)
-    position = bidcycle.positions.first()
-
-    competing_user = mommy.make('auth.User')
-    assert competing_user
-
-    # Create this user's bid
-    mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
-
-    # Create a competing bid
-    bid = mommy.make(Bid, bidcycle=bidcycle, user=competing_user.profile, position=position)
-
-    bid.status = Bid.Status.handshake_offered
-    bid.save()
-
-    assert authorized_user.profile.notifications.count() == 1
-    assert authorized_user.profile.notifications.first().message == f"A competing bid for {position} has been offered a handshake."
+    assert authorized_user.profile.notifications.first().message == bid.generate_status_messages()[message_key]
