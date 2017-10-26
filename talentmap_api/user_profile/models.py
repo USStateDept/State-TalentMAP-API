@@ -57,8 +57,11 @@ class SavedSearch(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    def get_queryset(self):
+        return get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters)
+
     def update_count(self):
-        count = get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters).count()
+        count = self.get_queryset().count()
         if self.count != count:
             # Create a notification for this saved search's owner if the amount has increased
             diff = count - self.count

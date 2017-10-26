@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.position.serializers import PositionSerializer
@@ -13,6 +14,7 @@ from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers import BidCycleSerializer
+from talentmap_api.user_profile.models import SavedSearch
 
 
 class BidCycleListPositionView(mixins.ListModelMixin,
@@ -38,7 +40,7 @@ class BidCyclePositionActionView(APIView):
 
         Returns 204 if the position is in the cycle, otherwise, 404
         '''
-        if BidCycle.objects.get(id=pk).positions.filter(id=pos_id).count() > 0:
+        if get_object_or_404(BidCycle, id=pk).positions.filter(id=pos_id).count() > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -47,15 +49,28 @@ class BidCyclePositionActionView(APIView):
         '''
         Adds a position to the bid cycle
         '''
-        BidCycle.objects.get(id=pk).positions.add(Position.objects.get(id=pos_id))
+        get_object_or_404(BidCycle, id=pk).positions.add(get_object_or_404(Position, id=pos_id))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, pos_id, format=None):
         '''
         Removes the position from the bid cycle
         '''
-        position = Position.objects.get(id=pos_id)
-        BidCycle.objects.get(id=pk).positions.remove(position)
+        position = get_object_or_404(Position, id=pos_id)
+        get_object_or_404(BidCycle, id=pk).positions.remove(position)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BidCycleBatchPositionActionView(APIView):
+    def put(self, request, pk, saved_search_id, format=None):
+        '''
+        Adds a batch of positions to the specified bidcycle using a saved search
+        '''
+        search = get_object_or_404(SavedSearch, id=saved_search_id)
+        queryset = search.get_queryset()
+        if not isinstance(queryset.first(), Position):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        get_object_or_404(BidCycle, id=pk).positions.add(*list(queryset))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
