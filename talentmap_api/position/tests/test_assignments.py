@@ -1,5 +1,5 @@
 import pytest
-import datetime
+from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
 
 from talentmap_api.position.models import Position, Assignment
@@ -35,4 +35,6 @@ def test_assignment_estimated_end_date(authorized_client, authorized_user, test_
     assignment.save()
     assignment.refresh_from_db()
 
-    assert assignment.estimated_end_date == datetime.datetime.strptime('1992-02-01', '%Y-%m-%d').date()
+    expected_estimated_end_date = assignment.start_date + relativedelta(months=12)
+
+    assert assignment.estimated_end_date == expected_estimated_end_date
