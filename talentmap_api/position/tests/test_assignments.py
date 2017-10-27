@@ -20,8 +20,9 @@ def test_assignment_fixture():
 def test_assignment_estimated_end_date(authorized_client, authorized_user, test_assignment_fixture):
     # Get our required foreign key data
     user = UserProfile.objects.get(user=authorized_user)
+
     position = Position.objects.first()
-    tour_of_duty = TourOfDuty.objects.first()
+    tour_of_duty = TourOfDuty.objects.filter(months=12).first()
 
     # Create an assignment
     assignment = Assignment.objects.create(user=user, position=position, tour_of_duty=tour_of_duty)
