@@ -46,6 +46,10 @@ urlpatterns = [
     url(r'^api/v1/location/', include('talentmap_api.organization.urls.location')),
     url(r'^api/v1/country/', include('talentmap_api.organization.urls.country')),
 
+    # Permission resources
+    url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
+    url(r'^api/v1/permission/group/', include('talentmap_api.permission.urls.group')),
+
     # Profile and account related resources
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
     url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),

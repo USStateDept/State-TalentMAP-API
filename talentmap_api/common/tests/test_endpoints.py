@@ -41,6 +41,9 @@ parameterized_data = [
     ('/api/v1/location/', 'organization.Location', 'talentmap_api.organization.tests.location', True),
     ('/api/v1/country/', 'organization.Country', 'talentmap_api.organization.tests.country', True),
 
+    # Permission Endpoints
+    ('/api/v1/permission/group/', 'auth.Group', None, True),
+
     # Saved Searches
     ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True),
 
