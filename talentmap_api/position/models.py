@@ -274,7 +274,11 @@ class Assignment(models.Model):
     def save(self, *args, **kwargs):
         # Set the estimate end date to the date in the future based on tour of duty months
         if self.start_date and self.tour_of_duty:
-            self.estimated_end_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date() + relativedelta(months=self.tour_of_duty.months)
+            start_date = self.start_date
+            # Ensure we are always dealing with a date object and not a string
+            if isinstance(self.start_date, str):
+                start_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date()
+            self.estimated_end_date = start_date + relativedelta(months=self.tour_of_duty.months)
         super(Assignment, self).save(*args, **kwargs)
 
     def __str__(self):

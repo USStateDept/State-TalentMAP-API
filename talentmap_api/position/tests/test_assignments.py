@@ -1,6 +1,5 @@
 import pytest
 from dateutil.relativedelta import relativedelta
-from freezegun import freeze_time
 
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
@@ -15,13 +14,13 @@ def test_assignment_fixture():
     mommy.make_recipe('talentmap_api.position.tests.position')
 
 
-@freeze_time("1991-02-01")
 @pytest.mark.django_db(transaction=True)
 def test_assignment_estimated_end_date(authorized_client, authorized_user, test_assignment_fixture):
     # Get our required foreign key data
     user = UserProfile.objects.get(user=authorized_user)
+
     position = Position.objects.first()
-    tour_of_duty = TourOfDuty.objects.first()
+    tour_of_duty = TourOfDuty.objects.filter(months=12).first()
 
     # Create an assignment
     assignment = Assignment.objects.create(user=user, position=position, tour_of_duty=tour_of_duty)
