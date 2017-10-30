@@ -13,7 +13,7 @@ def test_user_permission_endpoint(authorized_client, authorized_user):
     group.user_set.add(authorized_user)
 
     response = authorized_client.get(f'/api/v1/permission/user/')
-    print(response.data)
+
     assert response.status_code == status.HTTP_200_OK
     assert response.data["groups"] == [group.name]
     assert response.data["permissions"] == list(authorized_user.get_all_permissions())
@@ -55,7 +55,7 @@ def test_group_action_endpoints(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/permission/group/{group.id}/user/{new_user.profile.id}/')
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
-    # Remove the user to the group
+    # Remove the user from the group
     response = authorized_client.delete(f'/api/v1/permission/group/{group.id}/user/{new_user.profile.id}/')
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

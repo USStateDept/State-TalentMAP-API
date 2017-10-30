@@ -18,7 +18,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
     def get_is_editable_by_user(self, obj):
         try:
-            return self.context.get("request").user.has_perm(f"position.can_edit_post_capsule_descriptions_{obj.position.post.id}")
+            return self.context.get("request").user.has_perm(f"position.{self.post.permission_edit_post_caspsule_description_codename}")
         except AttributeError:
             # The position doesn't have a post, or otherwise
             return False
@@ -55,6 +55,7 @@ class PositionWritableSerializer(PrefetchedSerializer):
 
 
 class PositionBidStatisticsSerializer(PrefetchedSerializer):
+    # We'll want to serialize this as text once the representation tech debt story is complete
     # bidcycle = serializers.StringRelatedField()
 
     class Meta:

@@ -203,7 +203,9 @@ def test_position_bid_list(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
     position = mommy.make('position.Position', bureau=bureau)
-    mommy.make('bidding.Bid', user=authorized_user.profile, position=position, _quantity=5)
+    bidcycle = mommy.make('bidding.BidCycle')
+    bidcycle.positions.add(position)
+    mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle, _quantity=5)
 
     # Create valid permissions to view this position's bids
     group = mommy.make('auth.Group', name='bureau_ao')

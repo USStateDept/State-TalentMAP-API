@@ -86,27 +86,25 @@ class Organization(models.Model):
         '''
         # Create a group for AOs for this bureau
         group_name = f"bureau_ao_{self.code}"
-        group = Group.objects.get_or_create(name=group_name)
+        group, created = Group.objects.get_or_create(name=group_name)
 
-        if group[1]:
+        if created:
             logging.getLogger('console').info(f"Created permission group {group_name}")
-
-        group = group[0]
 
         # Highlight action
         permission_codename = f"can_highlight_positions_{self.code}"
         permission_name = f"Can highlight positions for {self.short_description} ({self.code})"
         content_type = ContentType.objects.get_for_model(type(self))
 
-        permission = Permission.objects.get_or_create(codename=permission_codename,
-                                                      name=permission_name,
-                                                      content_type=content_type)
+        permission, created = Permission.objects.get_or_create(codename=permission_codename,
+                                                               name=permission_name,
+                                                               content_type=content_type)
 
-        if permission[1]:
-            logging.getLogger('console').info(f"Created permission {permission[0]}")
+        if created:
+            logging.getLogger('console').info(f"Created permission {permission}")
 
         # Add the highlight permission to the AO group
-        group.permissions.add(permission[0])
+        group.permissions.add(permission)
 
     def __str__(self):
         return f"{self.long_description} ({self.short_description})"
@@ -229,33 +227,35 @@ class Post(models.Model):
 
         self.save()
 
+    @property
+    def permission_edit_post_caspsule_description_codename(self):
+        return f"can_edit_post_capsule_description_{self.id}"
+
     def create_permissions(self):
         '''
         Creates this post's permission set
         '''
         # Create a group for all editor members of a post
         group_name = f"post_editors_{self.id}"
-        group = Group.objects.get_or_create(name=group_name)
+        group, created = Group.objects.get_or_create(name=group_name)
 
-        if group[1]:
+        if created:
             logging.getLogger('console').info(f"Created permission group {group_name}")
 
-        group = group[0]
-
         # Edit post capsule description action
-        permission_codename = f"can_edit_post_capsule_descriptions_{self.id}"
+        permission_codename = self.permission_edit_post_caspsule_description_codename
         permission_name = f"Can edit capsule descriptions for post {self.location} ({self.id})"
         content_type = ContentType.objects.get(app_label="position", model="capsuledescription")
 
-        permission = Permission.objects.get_or_create(codename=permission_codename,
-                                                      name=permission_name,
-                                                      content_type=content_type)
+        permission, created = Permission.objects.get_or_create(codename=permission_codename,
+                                                               name=permission_name,
+                                                               content_type=content_type)
 
-        if permission[1]:
-            logging.getLogger('console').info(f"Created permission {permission[0]}")
+        if created:
+            logging.getLogger('console').info(f"Created permission {permission}")
 
         # Add the capsule edit permission to the post editors group
-        group.permissions.add(permission[0])
+        group.permissions.add(permission)
 
     def __str__(self):
         return f"{self.location}"

@@ -145,6 +145,7 @@ class PositionBidStatistics(models.Model):
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date"]
+        unique_together = (("bidcycle", "position",),)
 
 
 class CapsuleDescription(models.Model):

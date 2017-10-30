@@ -14,7 +14,8 @@ from rest_framework import status
 @pytest.mark.django_db()
 def test_capsule_description_update(authorized_client, authorized_user):
     description = mommy.make(CapsuleDescription, id=1, content="banana", point_of_contact="banana@state.gov", website="google it")
-    mommy.make("position.Position", post=mommy.make("organization.Post", id=1), description=description)
+    post = mommy.make("organization.Post", id=1)
+    mommy.make("position.Position", post=post, description=description)
 
     description.position.post.create_permissions()
 
@@ -34,7 +35,7 @@ def test_capsule_description_update(authorized_client, authorized_user):
 
     # Re-get the user from the DB as permissions get cached
     authorized_user = User.objects.get(id=authorized_user.id)
-    assert authorized_user.has_perm("position.can_edit_post_capsule_descriptions_1")
+    assert authorized_user.has_perm(f"position.{post.permission_edit_post_caspsule_description_codename}")
 
     response = authorized_client.patch('/api/v1/capsule_description/1/', data=json.dumps(
         {

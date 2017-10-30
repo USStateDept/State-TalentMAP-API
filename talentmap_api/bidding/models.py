@@ -143,12 +143,10 @@ def bid_status_changed(sender, instance, **kwargs):
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
 def save_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    for statistics in instance.position.bid_statistics.filter(bidcycle=instance.bidcycle):
-        statistics.update_statistics()
+    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
 
 
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    for statistics in instance.position.bid_statistics.filter(bidcycle=instance.bidcycle):
-        statistics.update_statistics()
+    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
