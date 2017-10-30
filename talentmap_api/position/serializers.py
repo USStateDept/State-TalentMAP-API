@@ -18,7 +18,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
     def get_is_editable_by_user(self, obj):
         try:
-            return self.context.get("request").user.has_perm(f"position.{self.post.permission_edit_post_caspsule_description_codename}")
+            return self.context.get("request").user.has_perm(f"position.{self.post.permission_edit_post_capsule_description_codename}")
         except AttributeError:
             # The position doesn't have a post, or otherwise
             return False

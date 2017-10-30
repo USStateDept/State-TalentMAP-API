@@ -228,7 +228,7 @@ class Post(models.Model):
         self.save()
 
     @property
-    def permission_edit_post_caspsule_description_codename(self):
+    def permission_edit_post_capsule_description_codename(self):
         return f"can_edit_post_capsule_description_{self.id}"
 
     def create_permissions(self):
@@ -243,7 +243,7 @@ class Post(models.Model):
             logging.getLogger('console').info(f"Created permission group {group_name}")
 
         # Edit post capsule description action
-        permission_codename = self.permission_edit_post_caspsule_description_codename
+        permission_codename = self.permission_edit_post_capsule_description_codename
         permission_name = f"Can edit capsule descriptions for post {self.location} ({self.id})"
         content_type = ContentType.objects.get(app_label="position", model="capsuledescription")
 

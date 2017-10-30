@@ -35,7 +35,7 @@ def test_capsule_description_update(authorized_client, authorized_user):
 
     # Re-get the user from the DB as permissions get cached
     authorized_user = User.objects.get(id=authorized_user.id)
-    assert authorized_user.has_perm(f"position.{post.permission_edit_post_caspsule_description_codename}")
+    assert authorized_user.has_perm(f"position.{post.permission_edit_post_capsule_description_codename}")
 
     response = authorized_client.patch('/api/v1/capsule_description/1/', data=json.dumps(
         {

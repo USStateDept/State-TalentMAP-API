@@ -36,7 +36,7 @@ class CapsuleDescriptionView(FieldLimitableSerializerMixin,
 
     def perform_update(self, serializer):
         description = get_object_or_404(CapsuleDescription, pk=self.request.parser_context.get("kwargs").get("pk"))
-        has_permission_or_403(self.request.user, f"position.{description.position.post.permission_edit_post_caspsule_description_codename}")
+        has_permission_or_403(self.request.user, f"position.{description.position.post.permission_edit_post_capsule_description_codename}")
         serializer.save(last_editing_user=self.request.user.profile)
 
     def get_queryset(self):
