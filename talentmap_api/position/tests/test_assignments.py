@@ -1,5 +1,5 @@
 import pytest
-import datetime
+from dateutil.relativedelta import relativedelta
 
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
@@ -15,12 +15,12 @@ def test_assignment_fixture():
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_assignment_fixture")
-def test_assignment_estimated_end_date(authorized_client, authorized_user):
+def test_assignment_estimated_end_date(authorized_client, authorized_user, test_assignment_fixture):
     # Get our required foreign key data
     user = UserProfile.objects.get(user=authorized_user)
+
     position = Position.objects.first()
-    tour_of_duty = TourOfDuty.objects.first()
+    tour_of_duty = TourOfDuty.objects.filter(months=12).first()
 
     # Create an assignment
     assignment = Assignment.objects.create(user=user, position=position, tour_of_duty=tour_of_duty)
@@ -34,4 +34,6 @@ def test_assignment_estimated_end_date(authorized_client, authorized_user):
     assignment.save()
     assignment.refresh_from_db()
 
-    assert assignment.estimated_end_date == datetime.datetime.strptime('1992-02-01', '%Y-%m-%d').date()
+    expected_estimated_end_date = assignment.start_date + relativedelta(months=12)
+
+    assert assignment.estimated_end_date == expected_estimated_end_date

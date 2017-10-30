@@ -1,17 +1,42 @@
 import pytest
 import json
 
+from model_mommy.recipe import seq
 from model_mommy import mommy
 from rest_framework import status
 
 from talentmap_api.bidding.models import BidCycle
+from talentmap_api.user_profile.models import SavedSearch
 
 
 @pytest.fixture
-def test_bidcycle_fixture():
+def test_bidcycle_fixture(authorized_user):
     bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01")
     for i in range(5):
-        bidcycle.positions.add(mommy.make('position.Position'))
+        bidcycle.positions.add(mommy.make('position.Position', position_number=seq("2")))
+
+    # Create 5 "in search" positions
+    mommy.make('position.Position', position_number=seq("56"), _quantity=5)
+    mommy.make('position.Position', position_number=seq("1"), _quantity=2)
+
+    mommy.make('user_profile.SavedSearch',
+               id=1,
+               name="Test search",
+               owner=authorized_user.profile,
+               endpoint='/api/v1/position/',
+               filters={
+                   "position_number__startswith": ["56"],
+               })
+
+    # A non-position search
+    mommy.make('user_profile.SavedSearch',
+               id=2,
+               name="Test search",
+               owner=authorized_user.profile,
+               endpoint='/api/v1/orgpost/',
+               filters={
+                   "differential_rate__gt": ["0"],
+               })
 
 
 @pytest.mark.django_db(transaction=True)
@@ -155,3 +180,29 @@ def test_bidcycle_actions(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/bidcycle/1/position/{position.id}/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidcycle_fixture")
+def test_bidcycle_batch_actions(authorized_client, authorized_user):
+    mommy.make(BidCycle, id=2, name="Bidcycle 2", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01")
+    # Try to add a saved search batch that isn't positions
+    response = authorized_client.put(f'/api/v1/bidcycle/2/position/batch/2/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Add the position batch to the bidcycle
+    response = authorized_client.put(f'/api/v1/bidcycle/2/position/batch/1/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    # Check that we've added the positions
+    response = authorized_client.get('/api/v1/bidcycle/2/positions/')
+
+    assert response.status_code == status.HTTP_200_OK
+
+    savedsearch = SavedSearch.objects.get(id=1)
+    savedsearch.update_count()
+    savedsearch.refresh_from_db()
+
+    assert len(response.data["results"]) == savedsearch.count

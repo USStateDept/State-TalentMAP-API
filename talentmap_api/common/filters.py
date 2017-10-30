@@ -128,5 +128,11 @@ def full_text_search(fields):
         final_vector += vector
 
     def filter_method(queryset, name, value):
-        return queryset.annotate(search=final_vector).filter(search=value).distinct()
+        # Create our q dict for the contains operation - FTS prefix matching is finnicky via django
+        # may want to consider hopping over to something like django-haystack to clean this up in the future
+        q_obj = Q(**{"search": value})
+        for q in [Q(**{f"{x}__icontains": value}) for x in fields]:
+            q_obj = q_obj | q
+
+        return queryset.annotate(search=final_vector).filter(q_obj).distinct()
     return filter_method

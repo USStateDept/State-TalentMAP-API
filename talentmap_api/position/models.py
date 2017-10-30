@@ -1,5 +1,7 @@
 from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -23,6 +25,7 @@ class Position(models.Model):
 
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
+    current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
 
     grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
     skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
@@ -116,6 +119,33 @@ class Position(models.Model):
     class Meta:
         managed = True
         ordering = ["position_number"]
+
+
+class PositionBidStatistics(models.Model):
+    '''
+    Stores the bid statistics on a per-cycle basis for a position
+    '''
+
+    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="position_bid_statistics")
+    position = models.ForeignKey("position.Position", related_name="bid_statistics")
+
+    total_bids = models.IntegerField(default=0)
+    in_grade = models.IntegerField(default=0)
+    at_skill = models.IntegerField(default=0)
+    in_grade_at_skill = models.IntegerField(default=0)
+
+    def update_statistics(self):
+        bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
+        self.total_bids = bidcycle_bids.count()
+        self.in_grade = bidcycle_bids.filter(user__grade=self.position.grade).count()
+        self.at_skill = bidcycle_bids.filter(user__skill_code=self.position.skill).count()
+        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skill_code=self.position.skill).count()
+        self.save()
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
+        unique_together = (("bidcycle", "position",),)
 
 
 class CapsuleDescription(models.Model):
@@ -245,7 +275,11 @@ class Assignment(models.Model):
     def save(self, *args, **kwargs):
         # Set the estimate end date to the date in the future based on tour of duty months
         if self.start_date and self.tour_of_duty:
-            self.estimated_end_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date() + relativedelta(months=self.tour_of_duty.months)
+            start_date = self.start_date
+            # Ensure we are always dealing with a date object and not a string
+            if isinstance(self.start_date, str):
+                start_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date()
+            self.estimated_end_date = start_date + relativedelta(months=self.tour_of_duty.months)
         super(Assignment, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -254,3 +288,17 @@ class Assignment(models.Model):
     class Meta:
         managed = True
         ordering = ["update_date"]
+
+
+# Signal listeners
+@receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
+def assignment_post_save(sender, instance, created, **kwargs):
+    '''
+    This listener updates an assignment's position with its new current assignment
+    '''
+    position = instance.position
+    if position.assignments.count() > 0:
+        position.current_assignment = position.assignments.latest("start_date")
+    else:
+        position.current_assignment = None
+    position.save()

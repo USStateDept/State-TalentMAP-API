@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'talentmap_api.messaging',
     'talentmap_api.user_profile',
     'talentmap_api.bidding',
+    'talentmap_api.permission'
 ]
 
 MIDDLEWARE = [
