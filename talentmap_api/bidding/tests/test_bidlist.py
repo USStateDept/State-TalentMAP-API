@@ -101,6 +101,9 @@ def test_bidlist_patch_bid(authorized_client, authorized_user):
     in_bureau_position = mommy.make('position.Position', bureau=bureau)
     out_of_bureau_position = mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
 
+    bidcycle.positions.add(in_bureau_position)
+    bidcycle.positions.add(out_of_bureau_position)
+
     in_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=in_bureau_position, bidcycle=bidcycle)
     out_of_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=out_of_bureau_position, bidcycle=bidcycle)
 
@@ -226,9 +229,11 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 @pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bidlist_max_submissions(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
-    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, _quantity=10)
+    position = mommy.make('position.Position')
+    bidcycle.positions.add(position)
+    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, position=position, _quantity=10)
 
-    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft)
+    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft, position=position)
 
     # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
     response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
