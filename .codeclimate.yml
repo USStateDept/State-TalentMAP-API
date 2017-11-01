@@ -8,7 +8,8 @@ engines:
     checks:
       E501:
         enabled: false
-
+  shellcheck:
+    enabled: true
 ratings:
   paths:
   - "**.py"
