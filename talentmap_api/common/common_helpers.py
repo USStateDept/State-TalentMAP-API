@@ -1,3 +1,5 @@
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import resolve
 from django.http import QueryDict
@@ -175,3 +177,19 @@ def has_permission_or_403(user, permission):
 
     if not user.has_perm(permission):
         raise PermissionDenied
+
+
+def month_diff(start_date, end_date):
+    '''
+    This function calculates the difference between two dates in months.
+
+    Args:
+        - start_date (Date Object) - The start date
+        - end_date (Date Object) - The end date
+
+    Returns
+        - Integer - The number of months between the dates
+    '''
+
+    r = relativedelta(end_date, start_date)
+    return r.months + 12 * r.years
