@@ -1,7 +1,7 @@
 import rest_framework_filters as filters
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
-from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
+from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
@@ -16,6 +16,7 @@ class OrganizationFilter(filters.FilterSet):
     class Meta:
         model = Organization
         fields = {
+            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
@@ -33,6 +34,7 @@ class TourOfDutyFilter(filters.FilterSet):
     class Meta:
         model = TourOfDuty
         fields = {
+            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
@@ -42,9 +44,21 @@ class TourOfDutyFilter(filters.FilterSet):
 
 class CountryFilter(filters.FilterSet):
 
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="position_number", method=full_text_search(
+        fields=[
+            "code",
+            "short_code",
+            "location_prefix",
+            "name",
+            "short_name"
+        ]
+    ))
+
     class Meta:
         model = Country
         fields = {
+            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "short_code": ALL_TEXT_LOOKUPS,
             "location_prefix": ALL_TEXT_LOOKUPS,
@@ -59,6 +73,7 @@ class LocationFilter(filters.FilterSet):
     class Meta:
         model = Location
         fields = {
+            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "city": ALL_TEXT_LOOKUPS,
             "state": ALL_TEXT_LOOKUPS,
@@ -72,9 +87,22 @@ class PostFilter(filters.FilterSet):
 
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
 
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="position_number", method=full_text_search(
+        fields=[
+            "rest_relaxation_point",
+            "location__code",
+            "location__country__name",
+            "location__country__code",
+            "location__city",
+            "location__state",
+        ]
+    ))
+
     class Meta:
         model = Post
         fields = {
+            "id": INTEGER_LOOKUPS,
             "location": FOREIGN_KEY_LOOKUPS,
             "cost_of_living_adjustment": INTEGER_LOOKUPS,
             "differential_rate": INTEGER_LOOKUPS,
