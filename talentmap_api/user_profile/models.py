@@ -13,6 +13,8 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    date_of_birth = models.DateField(null=True)
+    phone_number = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
 
