@@ -52,6 +52,35 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    # Create a bid on the in_cycle_position
+    bid = mommy.make("bidding.Bid", user=mommy.make('auth.User').profile, bidcycle=BidCycle.objects.first(), position=in_cycle_position, status=Bid.Status.handshake_offered)
+
+    # Try to make a bid on a position with a handshake
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    bid.status = Bid.Status.handshake_accepted
+    bid.save()
+
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    bid.status = Bid.Status.in_panel
+    bid.save()
+
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    bid.status = Bid.Status.approved
+    bid.save()
+
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
