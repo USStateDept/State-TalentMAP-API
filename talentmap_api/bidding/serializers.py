@@ -42,6 +42,13 @@ class BidCycleSerializer(PrefetchedSerializer):
 
 
 class SurveySerializer(PrefetchedSerializer):
+    calculated_values = serializers.SerializerMethodField()
+
+    def get_calculated_values(self, obj):
+        calculated_values = {}
+        calculated_values['is_fairshare'] = obj.user.is_fairshare
+
+        return calculated_values
 
     class Meta:
         model = StatusSurvey
