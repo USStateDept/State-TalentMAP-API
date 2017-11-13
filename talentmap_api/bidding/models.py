@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from djchoices import DjangoChoices, ChoiceItem
 
-from talentmap_api.position.models import PositionBidStatistics
+import talentmap_api.position.models
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
@@ -97,10 +97,10 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
     if action == "pre_add":
         # Create a new statistics item when a position is placed in the bid cycle
         for position_id in pk_set:
-            PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
+            talentmap_api.position.models.PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
     elif action == "pre_remove":
         # Delete statistics items when removed from the bidcycle
-        PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+        talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")

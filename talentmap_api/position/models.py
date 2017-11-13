@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -6,6 +7,7 @@ from django.dispatch import receiver
 import datetime
 from dateutil.relativedelta import relativedelta
 
+import talentmap_api.bidding.models
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
 
@@ -69,6 +71,38 @@ class Position(models.Model):
 
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
+
+    def can_accept_new_bids(self, bidcycle):
+        '''
+        Evaluates if this position can accept new bids for the given bidcycle
+
+        Args:
+            - bidcycle (Object) - The Bidcycle object to evaluate if this position can accept a bid
+
+        Returns:
+            - Boolean - True if the position can accept new bids for the cycle, otherwise False
+        '''
+        if not bidcycle.active:
+            # We must be looking at an active bidcycle
+            return False
+        if not bidcycle.positions.filter(id=self.id).exists():
+            # We must be in the bidcycle's position list
+            return False
+
+        # We must not have a status of a handshake; or any status further in the process
+        status_choices = talentmap_api.bidding.models.Bid.Status
+        qualified_statuses = [status_choices.handshake_offered, status_choices.handshake_accepted, status_choices.in_panel, status_choices.approved]
+
+        q_obj = Q()
+        # Here we construct a Q object looking for statuses matching any of the qualified statuses
+        for status in qualified_statuses:
+            q_obj = q_obj | Q(status=status)
+
+        # Filter this positions bid by bidcycle and our Q object
+        if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
+            return False
+
+        return True
 
     def update_relationships(self):
         '''

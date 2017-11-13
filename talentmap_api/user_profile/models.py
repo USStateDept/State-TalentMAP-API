@@ -1,3 +1,4 @@
+from django.db.models import F, Sum, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -5,7 +6,7 @@ from django.contrib.auth.models import User
 
 from django.contrib.postgres.fields import JSONField
 
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
@@ -13,6 +14,8 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    date_of_birth = models.DateField(null=True)
+    phone_number = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
 
@@ -29,6 +32,42 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
+
+    @property
+    def is_fairshare(self):
+        '''
+        Determines if this user is classified as a Fair Share bidder. The rules to calculate this have some
+        exceptions, but at this moment only the baseline logic is implemented in the system.
+        '''
+        # An employee is considered a "Fair Share" bidder if the following states are FALSE
+        #  - Served at least 20 months at a post with combined differential (diff + danger pay) of >=20
+        #  - Served at least 10 months at a post with 1 year standard TOD
+
+        # Get the user's assignment history
+        assignments = self.assignments.all()  # This gives us a copy of the queryset we can tinker with
+
+        # Annotate our assignments with the pertinent data
+        assignments = assignments.annotate(combined_differential=Sum(F('position__post__differential_rate') + F('position__post__danger_pay')),
+                                           standard_tod_months=F('position__post__tour_of_duty__months'))
+
+        # Create our cases
+        case_1 = Q(combined_differential__gte=20)
+        case_2 = Q(standard_tod_months=12)
+
+        # Filter our assignments to only those matching these cases
+        case_1_assignments = assignments.filter(case_1)
+        case_2_assignments = assignments.filter(case_2)
+
+        # Calculate the number of months spent in each of these cases
+        case_1_lengths = [month_diff(a.start_date, a.end_date) for a in case_1_assignments if a.end_date]
+        case_2_lengths = [month_diff(a.start_date, a.end_date) for a in case_2_assignments if a.end_date]
+
+        # Sum our values
+        case_1 = sum(case_1_lengths) >= 20
+        case_2 = sum(case_2_lengths) >= 10
+
+        # Return false if either are true
+        return not (case_1 or case_2)
 
 
 class SavedSearch(models.Model):

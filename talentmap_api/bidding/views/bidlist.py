@@ -110,6 +110,10 @@ class BidListPositionActionView(APIView):
         bidcycle = BidCycle.objects.filter(active=True).latest("cycle_start_date")
         position = get_object_or_404(bidcycle.positions.all(), id=pk)
 
+        # Position must not already have a handshake or greater bid status
+        if not position.can_accept_new_bids(bidcycle):
+            return Response("Cannot bid on a position that already has a qualifying bid", status=status.HTTP_400_BAD_REQUEST)
+
         # For now, we use whatever the latest active bidcycle is
         bid = Bid.objects.get_or_create(bidcycle=bidcycle,
                                         user=UserProfile.objects.get(user=self.request.user),
