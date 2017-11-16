@@ -3,7 +3,7 @@ import rest_framework_filters as filters
 from django.contrib.auth.models import Group, Permission
 
 from talentmap_api.common.filters import full_text_search
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS
 
 
 class PermissionFilter(filters.FilterSet):
@@ -18,7 +18,6 @@ class PermissionFilter(filters.FilterSet):
     class Meta:
         model = Permission
         fields = {
-            "id": INTEGER_LOOKUPS,
             "name": ALL_TEXT_LOOKUPS,
             "codename": ALL_TEXT_LOOKUPS
         }
@@ -38,7 +37,5 @@ class GroupFilter(filters.FilterSet):
     class Meta:
         model = Group
         fields = {
-            "id": INTEGER_LOOKUPS,
             "name": ALL_TEXT_LOOKUPS,
-            "permissions": FOREIGN_KEY_LOOKUPS
         }

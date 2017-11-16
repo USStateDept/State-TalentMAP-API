@@ -9,7 +9,7 @@ from talentmap_api.bidding.filters import BidCycleFilter
 
 from talentmap_api.language.models import Qualification, Proficiency, Language, Waiver
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class LanguageFilter(filters.FilterSet):
@@ -21,7 +21,6 @@ class LanguageFilter(filters.FilterSet):
     class Meta:
         model = Language
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS
@@ -59,7 +58,6 @@ class ProficiencyFilter(filters.FilterSet):
     class Meta:
         model = Proficiency
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "description": ALL_TEXT_LOOKUPS
         }
@@ -74,12 +72,7 @@ class QualificationFilter(filters.FilterSet):
 
     class Meta:
         model = Qualification
-        fields = {
-            "id": INTEGER_LOOKUPS,
-            "language": FOREIGN_KEY_LOOKUPS,
-            "reading_proficiency": FOREIGN_KEY_LOOKUPS,
-            "spoken_proficiency": FOREIGN_KEY_LOOKUPS
-        }
+        fields = {}
 
 
 class WaiverFilter(filters.FilterSet):
@@ -90,11 +83,6 @@ class WaiverFilter(filters.FilterSet):
     class Meta:
         model = Waiver
         fields = {
-            "id": INTEGER_LOOKUPS,
-            "user": FOREIGN_KEY_LOOKUPS,
-            "language": FOREIGN_KEY_LOOKUPS,
-            "bidcycle": FOREIGN_KEY_LOOKUPS,
-            "position": FOREIGN_KEY_LOOKUPS,
             "type": ALL_TEXT_LOOKUPS,
             "status": ALL_TEXT_LOOKUPS,
             "request_date": DATE_LOOKUPS,

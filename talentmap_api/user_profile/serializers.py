@@ -20,6 +20,7 @@ class UserSerializer(PrefetchedSerializer):
 class UserProfileSerializer(PrefetchedSerializer):
     skill_code = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
+    cdo = serializers.StringRelatedField()
     primary_nationality = serializers.StringRelatedField()
     secondary_nationality = serializers.StringRelatedField()
 
