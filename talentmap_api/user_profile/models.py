@@ -78,6 +78,10 @@ class UserProfile(models.Model):
         # Return false if either are true
         return not (case_1 or case_2)
 
+    class Meta:
+        managed = True
+        ordering = ['user__last_name']
+
 
 class SavedSearch(models.Model):
     '''
