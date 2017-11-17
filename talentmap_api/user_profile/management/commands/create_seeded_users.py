@@ -14,12 +14,15 @@ class Command(BaseCommand):
     help = 'Creates a set of users for testing purposes and seeds their skill codes and grades'
     logger = logging.getLogger('console')
 
+    # username, email, password, firstname, lastname, is_ao, is_cdo
     USERS = [
-        ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False),
-        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False),
-        ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False),
-        ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False),
-        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", True)
+        ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False),
+        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False),
+        ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False),
+        ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False),
+        ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False),
+        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", True, False),
+        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True)
     ]
 
     def handle(self, *args, **options):
@@ -52,6 +55,9 @@ class Command(BaseCommand):
 
                     group = get_group_by_name(f"bureau_ao_{position.bureau.code}")
                     group.user_set.add(user)
+
+                if data[6]:
+                    UserProfile.objects.exclude(id=profile.id).update(cdo=profile)
 
                 self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skill_code}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}\n\tAssignment: {assignment}")
             except Exception as e:

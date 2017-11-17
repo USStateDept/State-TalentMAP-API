@@ -5,11 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.position.models import Assignment
-from talentmap_api.user_profile.models import UserProfile, SavedSearch
+from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.serializers import AssignmentSerializer
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
-                                                    UserProfileWritableSerializer,
-                                                    SavedSearchSerializer)
+                                                    UserProfileWritableSerializer)
 
 from talentmap_api.position.filters import AssignmentFilter
 
@@ -55,40 +54,4 @@ class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Assignment.objects.filter(user=self.request.user.profile)
         self.serializer_class.prefetch_model(Assignment, queryset)
-        return queryset
-
-
-class SavedSearchView(FieldLimitableSerializerMixin,
-                      GenericViewSet,
-                      mixins.CreateModelMixin,
-                      mixins.ListModelMixin,
-                      mixins.RetrieveModelMixin,
-                      mixins.UpdateModelMixin,
-                      mixins.DestroyModelMixin):
-    '''
-    create:
-    Creates a new saved share
-
-    partial_update:
-    Edits a saved share
-
-    retrieve:
-    Retrieves a specific saved share
-
-    list:
-    Lists all of the user's saved shares
-
-    destroy:
-    Deletes a specified saved search
-    '''
-
-    serializer_class = SavedSearchSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user.profile)
-
-    def get_queryset(self):
-        queryset = SavedSearch.objects.filter(owner=self.request.user.profile)
-        self.serializer_class.prefetch_model(SavedSearch, queryset)
         return queryset

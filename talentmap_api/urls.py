@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
     url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
+    url(r'^api/v1/client/', include('talentmap_api.user_profile.urls.client')),
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
