@@ -5,6 +5,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 import rest_framework_filters as filters
 
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
 
 from talentmap_api.language.filters import QualificationFilter
@@ -86,7 +87,17 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
+    is_available_in_current_bidcycle = filters.BooleanFilter(name="bid_cycles", method="filter_available_in_current_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
+
+    def filter_available_in_current_bidcycle(self, queryset, name, value):
+        '''
+        Returns a queryset of all positions who are in the latest active bidcycle and do not have any
+        bids with handshake or above status
+        '''
+        # Get latest active bidcycle
+        bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
+        return bidcycle.annotated_positions.filter(accepting_bids=value)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''

@@ -1,3 +1,4 @@
+from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
 from django.dispatch import receiver
@@ -24,6 +25,21 @@ class BidCycle(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+    @property
+    def annotated_positions(self):
+        '''
+        Returns a queryset of all positions, annotated with whether it is accepting bids or not
+        '''
+        bids = self.bids.exclude(Bid.get_unavailable_status_filter()).values_list('position_id', flat=True)
+        case = Case(When(id__in=bids,
+                         then=Value(False)),
+                    default=Value(True),
+                    output_field=BooleanField())
+
+        positions = self.positions.annotate(accepting_bids=case)
+
+        return positions
 
     class Meta:
         managed = True
@@ -77,6 +93,21 @@ class Bid(models.Model):
 
     def __str__(self):
         return f"{self.user}#{self.position.position_number}"
+
+    @staticmethod
+    def get_unavailable_status_filter():
+        '''
+        Returns a Q object which will return bids which are unavailable for bids (i.e. at or further than handshake status)
+        '''
+        # We must not have a status of a handshake; or any status further in the process
+        qualified_statuses = [Bid.Status.handshake_offered, Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
+
+        q_obj = Q()
+        # Here we construct a Q object looking for statuses matching any of the qualified statuses
+        for status in qualified_statuses:
+            q_obj = q_obj | Q(status=status)
+
+        return q_obj
 
     def generate_status_messages(self):
         return {

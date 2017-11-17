@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Q
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -89,16 +88,8 @@ class Position(models.Model):
             # We must be in the bidcycle's position list
             return False
 
-        # We must not have a status of a handshake; or any status further in the process
-        status_choices = talentmap_api.bidding.models.Bid.Status
-        qualified_statuses = [status_choices.handshake_offered, status_choices.handshake_accepted, status_choices.in_panel, status_choices.approved]
-
-        q_obj = Q()
-        # Here we construct a Q object looking for statuses matching any of the qualified statuses
-        for status in qualified_statuses:
-            q_obj = q_obj | Q(status=status)
-
         # Filter this positions bid by bidcycle and our Q object
+        q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
         if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
             return False
 
