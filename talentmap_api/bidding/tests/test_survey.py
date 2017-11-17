@@ -49,3 +49,16 @@ def test_survey_list_retrieve(authorized_client, authorized_user):
     response = authorized_client.get('/api/v1/survey/1/')
 
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db()
+def test_survey_list_cdo(authorized_client, authorized_user):
+    user = mommy.make('auth.User', username="client")
+    user.profile.cdo = authorized_user.profile
+    user.profile.save()
+
+    mommy.make("bidding.StatusSurvey", user=user.profile, id=1)
+    response = authorized_client.get(f'/api/v1/client/{user.profile.id}/survey/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["results"][0]["user"] == user.profile.id

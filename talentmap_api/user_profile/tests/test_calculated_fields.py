@@ -35,3 +35,16 @@ def test_fairshare_twelve_month_tod_case():
 
     assert not user_1.is_fairshare
     assert user_2.is_fairshare
+
+
+@pytest.mark.django_db()
+def test_cdo_flag():
+    user_1 = mommy.make('auth.User').profile
+    user_2 = mommy.make('auth.User').profile
+
+    user_2.cdo = user_1
+    user_2.save()
+    user_2.refresh_from_db()
+
+    assert user_1.is_cdo
+    assert not user_2.is_cdo

@@ -34,6 +34,15 @@ class UserProfile(models.Model):
         return f"{self.user.username}"
 
     @property
+    def is_cdo(self):
+        '''
+        Represents if the user is a CDO (Career development officer) or not. If the user's direct_report
+        reverse relationship has any members, they are a CDO
+        '''
+
+        return self.direct_reports.count() != 0
+
+    @property
     def is_fairshare(self):
         '''
         Determines if this user is classified as a Fair Share bidder. The rules to calculate this have some
@@ -68,6 +77,10 @@ class UserProfile(models.Model):
 
         # Return false if either are true
         return not (case_1 or case_2)
+
+    class Meta:
+        managed = True
+        ordering = ['user__last_name']
 
 
 class SavedSearch(models.Model):

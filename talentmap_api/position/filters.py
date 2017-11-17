@@ -14,7 +14,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -23,7 +23,6 @@ class GradeFilter(filters.FilterSet):
     class Meta:
         model = Grade
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS
         }
 
@@ -34,7 +33,6 @@ class SkillFilter(filters.FilterSet):
     class Meta:
         model = Skill
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "description": ALL_TEXT_LOOKUPS
         }
@@ -50,7 +48,6 @@ class CapsuleDescriptionFilter(filters.FilterSet):
     class Meta:
         model = CapsuleDescription
         fields = {
-            "id": INTEGER_LOOKUPS,
             "content": ALL_TEXT_LOOKUPS,
             "date_created": DATE_LOOKUPS,
             "date_updated": DATE_LOOKUPS
@@ -113,17 +110,9 @@ class PositionFilter(filters.FilterSet):
     class Meta:
         model = Position
         fields = {
-            "id": INTEGER_LOOKUPS,
             "position_number": ALL_TEXT_LOOKUPS,
             "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
-            "languages": FOREIGN_KEY_LOOKUPS,
-            "grade": FOREIGN_KEY_LOOKUPS,
-            "skill": FOREIGN_KEY_LOOKUPS,
-            "organization": FOREIGN_KEY_LOOKUPS,
-            "bureau": FOREIGN_KEY_LOOKUPS,
-            "current_assignment": FOREIGN_KEY_LOOKUPS,
-            "post": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS
         }
@@ -136,11 +125,8 @@ class AssignmentFilter(filters.FilterSet):
     class Meta:
         model = Assignment
         fields = {
-            "id": INTEGER_LOOKUPS,
             "status": ALL_TEXT_LOOKUPS,
             "curtailment_reason": ALL_TEXT_LOOKUPS,
-            "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "start_date": DATE_LOOKUPS,
             "estimated_end_date": DATE_LOOKUPS,
