@@ -11,7 +11,7 @@ from talentmap_api.user_profile.models import SavedSearch
 
 @pytest.fixture
 def test_bidcycle_fixture(authorized_user):
-    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01")
+    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01", active=True)
     for i in range(5):
         bidcycle.positions.add(mommy.make('position.Position', position_number=seq("2")))
 
@@ -206,3 +206,21 @@ def test_bidcycle_batch_actions(authorized_client, authorized_user):
     savedsearch.refresh_from_db()
 
     assert len(response.data["results"]) == savedsearch.count
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidcycle_fixture")
+def test_bidcycle_current_cycle_available_filter(authorized_client, authorized_user):
+    # Add a handshake bid
+    bidcycle = BidCycle.objects.first()
+    mommy.make('bidding.Bid', bidcycle=bidcycle, status="handshake_offered", position=bidcycle.positions.first(), user=authorized_user.profile)
+
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=true')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 4
+
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=false')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
