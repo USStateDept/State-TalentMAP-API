@@ -99,9 +99,9 @@ class SavedSearch(models.Model):
     def get_queryset(self):
         return get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters)
 
-    def update_count(self):
+    def update_count(self, created=False):
         count = self.get_queryset().count()
-        if self.count != count:
+        if self.count != count and not created:
             # Create a notification for this saved search's owner if the amount has increased
             diff = count - self.count
             if diff > 0:
@@ -155,4 +155,4 @@ def post_saved_search_save(sender, instance, created, **kwargs):
     '''
     This listener ensures newly created or edited saved searches update their counts
     '''
-    instance.update_count()
+    instance.update_count(created)
