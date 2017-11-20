@@ -52,37 +52,37 @@ class PermissionGroupControls(APIView):
 
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 
-    def get(self, request, pk, user_id, format=None):
+    def get(self, request, format=None, **url_arguments):
         '''
         Indicates if the specified user is in the specified group
 
         Returns 204 if the user is a member, otherwise, 404
         '''
-        group = get_object_or_404(Group, id=pk)
-        profile = get_object_or_404(UserProfile, id=user_id)
+        group = get_object_or_404(Group, id=url_arguments.get("pk"))
+        profile = get_object_or_404(UserProfile, id=url_arguments.get("user_id"))
 
         if group.user_set.filter(profile=profile).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, pk, user_id, format=None):
+    def put(self, request, format=None, **url_arguments):
         '''
         Adds the specified user to the specified group
         '''
-        group = get_object_or_404(Group, id=pk)
-        profile = get_object_or_404(UserProfile, id=user_id)
+        group = get_object_or_404(Group, id=url_arguments.get("pk"))
+        profile = get_object_or_404(UserProfile, id=url_arguments.get("user_id"))
 
         group.user_set.add(profile.user)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request, pk, user_id, format=None):
+    def delete(self, request, format=None, **url_arguments):
         '''
         Removes the specified user from the specified group
         '''
-        group = get_object_or_404(Group, id=pk)
-        profile = get_object_or_404(UserProfile, id=user_id)
+        group = get_object_or_404(Group, id=url_arguments.get("pk"))
+        profile = get_object_or_404(UserProfile, id=url_arguments.get("user_id"))
 
         group.user_set.remove(profile.user)
 
