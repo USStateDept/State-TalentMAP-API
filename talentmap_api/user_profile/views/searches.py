@@ -40,4 +40,4 @@ class SavedSearchView(FieldLimitableSerializerMixin,
         serializer.save(owner=self.request.user.profile)
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(SavedSearch, owner=self.request.user.profile)
+        return get_prefetched_filtered_queryset(SavedSearch, self.serializer_class, owner=self.request.user.profile)

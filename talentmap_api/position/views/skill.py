@@ -22,4 +22,4 @@ class SkillListView(FieldLimitableSerializerMixin,
     filter_class = SkillFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Skill)
+        return get_prefetched_filtered_queryset(Skill, self.serializer_class)

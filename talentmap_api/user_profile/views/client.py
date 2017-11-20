@@ -34,7 +34,7 @@ class CdoClientView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(UserProfile, cdo=self.request.user.profile)
+        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, cdo=self.request.user.profile)
 
 
 class CdoClientSurveyView(FieldLimitableSerializerMixin,

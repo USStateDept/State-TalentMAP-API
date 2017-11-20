@@ -41,7 +41,7 @@ class PermissionGroupView(mixins.ListModelMixin,
     filter_class = GroupFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Group).order_by("id")
+        return get_prefetched_filtered_queryset(Group, self.serializer_class).order_by("id")
 
 
 class PermissionGroupControls(APIView):

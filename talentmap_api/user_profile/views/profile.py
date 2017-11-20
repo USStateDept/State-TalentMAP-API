@@ -35,7 +35,7 @@ class UserProfileView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        return get_prefetched_filtered_queryset(UserProfile, user=self.request.user).first()
+        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, user=self.request.user).first()
 
 
 class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
@@ -51,4 +51,4 @@ class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
     filter_class = AssignmentFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Assignment, user=self.request.user.profile)
+        return get_prefetched_filtered_queryset(Assignment, self.serializer_class, user=self.request.user.profile)

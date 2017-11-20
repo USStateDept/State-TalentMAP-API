@@ -22,7 +22,7 @@ class OrganizationListView(FieldLimitableSerializerMixin,
     filter_class = OrganizationFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Organization)
+        return get_prefetched_filtered_queryset(Organization, self.serializer_class)
 
 
 class LocationView(FieldLimitableSerializerMixin,
@@ -39,7 +39,7 @@ class LocationView(FieldLimitableSerializerMixin,
     filter_class = LocationFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Location)
+        return get_prefetched_filtered_queryset(Location, self.serializer_class)
 
 
 class CountryView(FieldLimitableSerializerMixin,
@@ -56,7 +56,7 @@ class CountryView(FieldLimitableSerializerMixin,
     filter_class = CountryFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Country)
+        return get_prefetched_filtered_queryset(Country, self.serializer_class)
 
 
 class PostListView(FieldLimitableSerializerMixin,
@@ -73,7 +73,7 @@ class PostListView(FieldLimitableSerializerMixin,
     filter_class = PostFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Post)
+        return get_prefetched_filtered_queryset(Post, self.serializer_class)
 
 
 class TourOfDutyListView(FieldLimitableSerializerMixin,
@@ -90,4 +90,4 @@ class TourOfDutyListView(FieldLimitableSerializerMixin,
     filter_class = TourOfDutyFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(TourOfDuty)
+        return get_prefetched_filtered_queryset(TourOfDuty, self.serializer_class)

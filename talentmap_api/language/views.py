@@ -29,7 +29,7 @@ class LanguageListView(FieldLimitableSerializerMixin,
     filter_class = LanguageFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Language)
+        return get_prefetched_filtered_queryset(Language, self.serializer_class)
 
 
 class LanguageWaiverHistoryView(FieldLimitableSerializerMixin,
@@ -67,7 +67,7 @@ class LanguageProficiencyListView(FieldLimitableSerializerMixin,
     filter_class = ProficiencyFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Proficiency)
+        return get_prefetched_filtered_queryset(Proficiency, self.serializer_class)
 
 
 class LanguageQualificationListView(FieldLimitableSerializerMixin,
@@ -97,7 +97,7 @@ class LanguageQualificationListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Qualification)
+        return get_prefetched_filtered_queryset(Qualification, self.serializer_class)
 
 
 class WaiverView(mixins.ListModelMixin,

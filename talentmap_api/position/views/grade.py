@@ -22,4 +22,4 @@ class GradeListView(FieldLimitableSerializerMixin,
     filter_class = GradeFilter
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(Grade)
+        return get_prefetched_filtered_queryset(Grade, self.serializer_class)
