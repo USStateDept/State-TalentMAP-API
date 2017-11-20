@@ -4,6 +4,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.bidding.serializers import SurveySerializer
@@ -33,9 +34,7 @@ class CdoClientView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = UserProfile.objects.filter(cdo=self.request.user.profile)
-        self.serializer_class.prefetch_model(UserProfile, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(UserProfile, cdo=self.request.user.profile)
 
 
 class CdoClientSurveyView(FieldLimitableSerializerMixin,

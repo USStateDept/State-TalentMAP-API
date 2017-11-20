@@ -7,6 +7,10 @@ checks:
 languages:
   Python: true
 engines:
+  duplication:
+    enabled: true
+    exclude_paths:
+      - "**/urls/"  # Django url files are necessarily often similar to others
   pep8:
     enabled: true
     checks:

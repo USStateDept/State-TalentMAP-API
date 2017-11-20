@@ -7,6 +7,7 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import get_object_or_404
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 from django.contrib.auth.models import Group
@@ -40,9 +41,7 @@ class PermissionGroupView(mixins.ListModelMixin,
     filter_class = GroupFilter
 
     def get_queryset(self):
-        queryset = Group.objects.all().order_by("id")
-        queryset = self.serializer_class.prefetch_model(Group, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Group).order_by("id")
 
 
 class PermissionGroupControls(APIView):

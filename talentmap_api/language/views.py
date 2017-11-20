@@ -4,6 +4,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
@@ -28,7 +29,7 @@ class LanguageListView(FieldLimitableSerializerMixin,
     filter_class = LanguageFilter
 
     def get_queryset(self):
-        return Language.objects.all()
+        return get_prefetched_filtered_queryset(Language)
 
 
 class LanguageWaiverHistoryView(FieldLimitableSerializerMixin,
@@ -66,7 +67,7 @@ class LanguageProficiencyListView(FieldLimitableSerializerMixin,
     filter_class = ProficiencyFilter
 
     def get_queryset(self):
-        return Proficiency.objects.all()
+        return get_prefetched_filtered_queryset(Proficiency)
 
 
 class LanguageQualificationListView(FieldLimitableSerializerMixin,
@@ -96,9 +97,7 @@ class LanguageQualificationListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = Qualification.objects.all()
-        queryset = self.serializer_class.prefetch_model(Qualification, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Qualification)
 
 
 class WaiverView(mixins.ListModelMixin,

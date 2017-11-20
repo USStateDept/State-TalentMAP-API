@@ -1,5 +1,6 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.position.models import Skill
@@ -21,6 +22,4 @@ class SkillListView(FieldLimitableSerializerMixin,
     filter_class = SkillFilter
 
     def get_queryset(self):
-        queryset = Skill.objects.all()
-        queryset = self.serializer_class.prefetch_model(Skill, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Skill)

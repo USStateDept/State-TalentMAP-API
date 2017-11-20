@@ -1,5 +1,6 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.position.models import Grade
@@ -21,6 +22,4 @@ class GradeListView(FieldLimitableSerializerMixin,
     filter_class = GradeFilter
 
     def get_queryset(self):
-        queryset = Grade.objects.all()
-        queryset = self.serializer_class.prefetch_model(Grade, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Grade)

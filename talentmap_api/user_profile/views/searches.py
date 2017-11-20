@@ -2,6 +2,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import SavedSearch
@@ -39,6 +40,4 @@ class SavedSearchView(FieldLimitableSerializerMixin,
         serializer.save(owner=self.request.user.profile)
 
     def get_queryset(self):
-        queryset = SavedSearch.objects.filter(owner=self.request.user.profile)
-        self.serializer_class.prefetch_model(SavedSearch, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(SavedSearch, owner=self.request.user.profile)
