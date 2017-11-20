@@ -69,10 +69,7 @@ class PermissionGroupControls(APIView):
         '''
         Adds the specified user to the specified group
         '''
-        group = get_object_or_404(Group, id=url_arguments.get("pk"))
-        profile = get_object_or_404(UserProfile, id=url_arguments.get("user_id"))
-
-        group.user_set.add(profile.user)
+        get_object_or_404(Group, id=url_arguments.get("pk")).user_set.add(url_arguments.get("user_id"))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -80,9 +77,6 @@ class PermissionGroupControls(APIView):
         '''
         Removes the specified user from the specified group
         '''
-        group = get_object_or_404(Group, id=url_arguments.get("pk"))
-        profile = get_object_or_404(UserProfile, id=url_arguments.get("user_id"))
-
-        group.user_set.remove(profile.user)
+        get_object_or_404(Group, id=url_arguments.get("pk")).user_set.remove(url_arguments.get("user_id"))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
