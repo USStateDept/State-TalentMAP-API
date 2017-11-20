@@ -1,8 +1,20 @@
 ---
+version: 2
+checks:
+  method-complexity:
+    config:
+      threshold: 7  # The default value for this is 5, we up it to 7 because validators require a bit more complexity
 languages:
   Python: true
-#exclude_paths:
 engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        python:
+          mass_threshold: 64  # The default here is 32, which is a bit too small given the required duplication of view methods
+    exclude_paths:
+      - "**/urls/"  # Django url files are necessarily often similar to others
   pep8:
     enabled: true
     checks:
@@ -15,3 +27,5 @@ ratings:
 
 exclude_paths:
   - "*/site-packages/*"
+  - "**/tests/"
+  - "**/migrations/"

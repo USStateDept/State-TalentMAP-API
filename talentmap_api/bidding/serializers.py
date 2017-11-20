@@ -26,11 +26,15 @@ class BidCycleSerializer(PrefetchedSerializer):
             datasource = instance_data
 
         # Validate our dates are in a chronologically sound order
-        if datasource.get("cycle_end_date") < datasource.get("cycle_start_date"):
+        start_date = datasource.get("cycle_start_date")
+        end_date = datasource.get("cycle_end_date")
+        deadline_date = datasource.get("cycle_deadline_date")
+
+        if end_date < start_date:
             raise serializers.ValidationError("Cycle start date must be before cycle end date")
-        if datasource.get("cycle_end_date") < datasource.get("cycle_deadline_date"):
+        if end_date < deadline_date:
             raise serializers.ValidationError("Cycle deadline date must be on or before the cycle end date")
-        if datasource.get("cycle_deadline_date") < datasource.get("cycle_start_date"):
+        if deadline_date < start_date:
             raise serializers.ValidationError("Cycle deadline date must be after cycle start date")
 
         return data

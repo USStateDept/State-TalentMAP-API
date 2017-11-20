@@ -2,6 +2,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
 from talentmap_api.position.models import Assignment
@@ -34,9 +35,7 @@ class UserProfileView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        queryset = UserProfile.objects.filter(user=self.request.user)
-        self.serializer_class.prefetch_model(UserProfile, queryset)
-        return queryset.first()
+        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, user=self.request.user).first()
 
 
 class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
@@ -52,6 +51,4 @@ class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
     filter_class = AssignmentFilter
 
     def get_queryset(self):
-        queryset = Assignment.objects.filter(user=self.request.user.profile)
-        self.serializer_class.prefetch_model(Assignment, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Assignment, self.serializer_class, user=self.request.user.profile)

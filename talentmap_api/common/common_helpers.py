@@ -24,6 +24,24 @@ def resolve_path_to_view(request_path):
     return view
 
 
+def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
+    '''
+    Gets the model's default queryset, filters by the specified arguments, then
+    prefetches the model using the specified serializer class and returns the queryset
+
+    Args:
+        - model (Class) - The model for the queryset
+        - serializer_class (Class) - The serializer class that supports prefetching
+        - *args, **kwargs - Supports filtering of the queryset
+
+    Returns:
+        - queryset - The filtered, prefetched queryset
+    '''
+    queryset = model.objects.filter(*args, **kwargs)
+    queryset = serializer_class.prefetch_model(model, queryset)
+    return queryset
+
+
 def validate_filters_exist(filter_list, filter_class):
     for filter in filter_list.keys():
         '''
