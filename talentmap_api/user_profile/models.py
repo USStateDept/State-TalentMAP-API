@@ -48,7 +48,7 @@ class UserProfile(models.Model):
         Determines if this user is classified as a Fair Share bidder. The rules to calculate this have some
         exceptions, but at this moment only the baseline logic is implemented in the system.
         '''
-        # An employee is considered a "Fair Share" bidder if the following states are FALSE
+        # An employee is considered a "Fair Share" bidder if either of the following states are TRUE
         #  - Served at least 20 months at a post with combined differential (diff + danger pay) of >=20
         #  - Served at least 10 months at a post with 1 year standard TOD
 
@@ -75,8 +75,8 @@ class UserProfile(models.Model):
         case_1 = sum(case_1_lengths) >= 20
         case_2 = sum(case_2_lengths) >= 10
 
-        # Return false if either are true
-        return not (case_1 or case_2)
+        # Return true if either are true
+        return (case_1 or case_2)
 
     class Meta:
         managed = True
