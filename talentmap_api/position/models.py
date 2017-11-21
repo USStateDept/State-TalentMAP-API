@@ -24,6 +24,9 @@ class Position(models.Model):
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
 
+    # Positions most often share their tour of duty with the post, but sometimes vary
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
+
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
     current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
@@ -33,7 +36,7 @@ class Position(models.Model):
 
     organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
     bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
-    post = models.ForeignKey('organization.post', related_name='positions', null=True, help_text='The position post')
+    post = models.ForeignKey('organization.Post', related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
 
