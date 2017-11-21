@@ -1,3 +1,4 @@
+from django.db.models import OuterRef, Subquery
 from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save
@@ -322,11 +323,10 @@ class Assignment(models.Model):
 @receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
 def assignment_post_save(sender, instance, created, **kwargs):
     '''
-    This listener updates an assignment's position with its new current assignment
+    This listener updates an all positions current assignments when any assignment is updated
     '''
-    position = instance.position
-    if position.assignments.count() > 0:
-        position.current_assignment = position.assignments.latest("start_date")
-    else:
-        position.current_assignment = None
-    position.save()
+    latest_assignment = Assignment.objects.filter(position=OuterRef('pk')).order_by('-start_date')
+    latest_assignment = Subquery(latest_assignment.values('id')[:1])
+
+    # Update all positions
+    Position.objects.update(current_assignment_id=latest_assignment)
