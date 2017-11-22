@@ -61,12 +61,19 @@ class ClientSerializer(PrefetchedSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
+    current_assignment = serializers.SerializerMethodField()
     skill_code = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
     cdo = serializers.StringRelatedField()
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = serializers.StringRelatedField()
     secondary_nationality = serializers.StringRelatedField()
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
 
     class Meta:
         model = UserProfile

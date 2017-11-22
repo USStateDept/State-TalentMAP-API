@@ -17,6 +17,20 @@ def test_bidlist_fixture():
 
 
 @pytest.mark.django_db(transaction=True)
+def test_can_accept_new_bids_function(authorized_client, authorized_user, test_bidlist_fixture):
+    active_cycle = BidCycle.objects.first()
+    nonactive_cycle = mommy.make(BidCycle, active=False)
+
+    in_cycle_position = active_cycle.positions.first()
+    out_of_cycle_position = mommy.make('position.Position')
+
+    assert in_cycle_position.can_accept_new_bids(active_cycle)
+    assert not out_of_cycle_position.can_accept_new_bids(active_cycle)
+
+    assert not in_cycle_position.can_accept_new_bids(nonactive_cycle)
+
+
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bidlist_position_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()

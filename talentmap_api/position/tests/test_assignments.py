@@ -15,6 +15,22 @@ def test_assignment_fixture():
 
 
 @pytest.mark.django_db(transaction=True)
+def test_assignment_position_update(authorized_client, authorized_user):
+    position = mommy.make_recipe('talentmap_api.position.tests.position')
+    position_2 = mommy.make_recipe('talentmap_api.position.tests.position')
+
+    # Create an Assignment
+    assignment = Assignment.objects.create(position=position, user=authorized_user.profile, tour_of_duty=mommy.make('organization.TourOfDuty'))
+    position.refresh_from_db()
+    assert position.current_assignment == assignment
+
+    assignment.position = position_2
+    assignment.save()
+    position.refresh_from_db()
+    assert position.current_assignment is None
+
+
+@pytest.mark.django_db(transaction=True)
 def test_assignment_estimated_end_date(authorized_client, authorized_user, test_assignment_fixture):
     # Get our required foreign key data
     user = UserProfile.objects.get(user=authorized_user)
