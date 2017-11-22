@@ -12,7 +12,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.organization.filters import CountryFilter
 from talentmap_api.organization.models import Country
 
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
 
 
 class UserFilter(filters.FilterSet):
@@ -41,3 +41,19 @@ class UserProfileFilter(filters.FilterSet):
             "date_of_birth": DATE_LOOKUPS,
             "phone_number": ALL_TEXT_LOOKUPS,
         }
+
+
+class ClientFilter(UserProfileFilter):
+    # Full text search across multiple fields
+    q = filters.CharFilter(name="user", method=full_text_search(
+        fields=[
+            "user__first_name",
+            "user__last_name",
+            "user__username",
+            "skill_code__code",
+            "skill_code__description",
+            "language_qualifications__language__short_description",
+            "primary_nationality__name",
+            "secondary_nationality__name"
+        ]
+    ))

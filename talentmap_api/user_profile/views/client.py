@@ -12,7 +12,7 @@ from talentmap_api.bidding.filters import StatusSurveyFilter
 from talentmap_api.bidding.models import StatusSurvey
 
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.user_profile.filters import UserProfileFilter
+from talentmap_api.user_profile.filters import ClientFilter
 from talentmap_api.user_profile.serializers import ClientSerializer
 
 
@@ -30,7 +30,7 @@ class CdoClientView(FieldLimitableSerializerMixin,
     """
 
     serializer_class = ClientSerializer
-    filter_class = UserProfileFilter
+    filter_class = ClientFilter
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
