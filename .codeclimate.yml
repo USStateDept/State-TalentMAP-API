@@ -4,8 +4,6 @@ checks:
   method-complexity:
     config:
       threshold: 7  # The default value for this is 5, we up it to 7 because validators require a bit more complexity
-languages:
-  Python: true
 engines:
   duplication:
     enabled: true
