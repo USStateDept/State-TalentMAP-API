@@ -6,7 +6,7 @@ import datetime
 from django.contrib.auth.models import User
 from talentmap_api.common.common_helpers import get_group_by_name
 from talentmap_api.position.models import Position, Assignment
-from talentmap_api.organization.models import TourOfDuty
+from talentmap_api.organization.models import TourOfDuty, Country
 from talentmap_api.user_profile.models import UserProfile
 
 
@@ -41,6 +41,9 @@ class Command(BaseCommand):
                 profile = UserProfile.objects.get(user=user)
                 profile.skill_code = position.skill
                 profile.grade = position.grade
+                profile.primary_nationality = Country.objects.get(code="USA")
+                profile.date_of_birth = "1975-01-01"
+                profile.phone_number = "555-555-5555"
                 profile.save()
 
                 assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=datetime.datetime.now().date().strftime('%Y-%m-%d'), status="active")

@@ -16,8 +16,8 @@ def test_fairshare_differential_case():
     mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01", end_date="1992-09-01")
     mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01", end_date="1992-04-01")
 
-    assert not user_1.is_fairshare
-    assert user_2.is_fairshare
+    assert user_1.is_fairshare
+    assert not user_2.is_fairshare
 
 
 @pytest.mark.django_db()
@@ -33,8 +33,8 @@ def test_fairshare_twelve_month_tod_case():
     mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01", end_date="1991-11-01")
     mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01", end_date="1991-06-01")
 
-    assert not user_1.is_fairshare
-    assert user_2.is_fairshare
+    assert user_1.is_fairshare
+    assert not user_2.is_fairshare
 
 
 @pytest.mark.django_db()

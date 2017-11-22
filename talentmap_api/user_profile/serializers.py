@@ -17,6 +17,49 @@ class UserSerializer(PrefetchedSerializer):
         fields = ["username", "email", "first_name", "last_name"]
 
 
+class UserProfileShortSerializer(PrefetchedSerializer):
+    is_cdo = serializers.ReadOnlyField()
+    username = serializers.CharField(source="user.username")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
+
+    class Meta:
+        model = UserProfile
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo"]
+
+
+class ClientSerializer(PrefetchedSerializer):
+    skill_code = serializers.StringRelatedField()
+    grade = serializers.StringRelatedField()
+    is_cdo = serializers.ReadOnlyField()
+    primary_nationality = serializers.StringRelatedField()
+    secondary_nationality = serializers.StringRelatedField()
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
+        nested = {
+            "user": {
+                "class": UserSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "language_qualifications": {
+                "class": LanguageQualificationSerializer,
+                "kwargs": {
+                    "override_fields": [
+                        "id",
+                        "representation"
+                    ],
+                    "many": True,
+                    "read_only": True,
+                }
+            }
+        }
+
+
 class UserProfileSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
     skill_code = serializers.StringRelatedField()
@@ -38,6 +81,12 @@ class UserProfileSerializer(PrefetchedSerializer):
         nested = {
             "user": {
                 "class": UserSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "cdo": {
+                "class": UserProfileShortSerializer,
                 "kwargs": {
                     "read_only": True
                 }
