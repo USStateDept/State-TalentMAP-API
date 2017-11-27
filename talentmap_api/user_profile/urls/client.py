@@ -5,6 +5,7 @@ from talentmap_api.common.urls import get_list, get_retrieve
 
 urlpatterns = [
     url(r'^$', views.CdoClientView.as_view(get_list), name='user_profile.UserProfile-client-list'),
+    url(r'^statistics/$', views.CdoClientStatisticsView.as_view(), name='user_profile.UserProfile-client-statistics'),
     url(r'^(?P<pk>[0-9]+)/$', views.CdoClientView.as_view(get_retrieve), name='user_profile.UserProfile-client-detail'),
     url(r'^(?P<pk>[0-9]+)/survey/$', views.CdoClientSurveyView.as_view(get_list), name='bidding.StatusSurvey-client-list'),
 ]

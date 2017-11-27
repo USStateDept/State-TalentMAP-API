@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 import rest_framework_filters as filters
 
+from talentmap_api.bidding.models import Bid
 from talentmap_api.position.models import Grade, Skill
 from talentmap_api.position.filters import GradeFilter, SkillFilter
 
@@ -44,6 +45,31 @@ class UserProfileFilter(filters.FilterSet):
 
 
 class ClientFilter(UserProfileFilter):
+    is_bidding = filters.BooleanFilter(name="bidlist", method="filter_is_bidding")
+    is_in_panel = filters.BooleanFilter(name="bidlist", method="filter_is_in_panel")
+    is_on_post = filters.BooleanFilter(name="bidlist", method="filter_is_on_post")
+
+    def filter_is_bidding(self, queryset, name, value):
+        value = bool(value)
+        if value:
+            return queryset.exclude(bidlist=None)
+        else:
+            return queryset.filter(bidlist=None)
+
+    def filter_is_in_panel(self, queryset, name, value):
+        value = bool(value)
+        if value:
+            return queryset.filter(bidlist__status=Bid.Status.in_panel)
+        else:
+            return queryset.exclude(bidlist__status=Bid.Status.in_panel)
+
+    def filter_is_on_post(self, queryset, name, value):
+        value = bool(value)
+        if value:
+            return queryset.exclude(assignments__current_for_position=None)
+        else:
+            return queryset.filter(assignments__current_for_position=None)
+
     # Full text search across multiple fields
     q = filters.CharFilter(name="user", method=full_text_search(
         fields=[

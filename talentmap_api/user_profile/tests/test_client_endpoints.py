@@ -15,6 +15,80 @@ def test_clients_fixture():
 
 
 @pytest.mark.django_db(transaction=True)
+def test_client_statistics(authorized_client, authorized_user, test_clients_fixture):
+    response = authorized_client.get('/api/v1/client/statistics/')
+    clients = list(authorized_user.profile.direct_reports.all())
+
+    # Everything should be empty except for "all_clients"
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["all_clients"] == 10
+    assert response.data["bidding_clients"] == 0
+    assert response.data["in_panel_clients"] == 0
+    assert response.data["on_post_clients"] == 0
+
+    # Give a user an assignment
+    mommy.make('position.Assignment', user=clients[0])
+
+    response = authorized_client.get('/api/v1/client/statistics/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["all_clients"] == 10
+    assert response.data["bidding_clients"] == 0
+    assert response.data["in_panel_clients"] == 0
+    assert response.data["on_post_clients"] == 1
+
+    # Give users some bids
+    position = mommy.make('position.Position')
+    bidcycle = mommy.make('bidding.Bidcycle')
+    bidcycle.positions.add(position)
+    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[1], status="submitted")
+
+    response = authorized_client.get('/api/v1/client/statistics/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["all_clients"] == 10
+    assert response.data["bidding_clients"] == 1
+    assert response.data["in_panel_clients"] == 0
+    assert response.data["on_post_clients"] == 1
+
+    # Give users some bids
+    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in panel")
+
+    response = authorized_client.get('/api/v1/client/statistics/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["all_clients"] == 10
+    assert response.data["bidding_clients"] == 2
+    assert response.data["in_panel_clients"] == 1
+    assert response.data["on_post_clients"] == 1
+
+    # Test our filters
+    response = authorized_client.get('/api/v1/client/?is_bidding=true')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 2
+
+    response = authorized_client.get('/api/v1/client/?is_bidding=false')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 8
+
+    response = authorized_client.get('/api/v1/client/?is_in_panel=true')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    response = authorized_client.get('/api/v1/client/?is_in_panel=false')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 9
+
+    response = authorized_client.get('/api/v1/client/?is_on_post=true')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    response = authorized_client.get('/api/v1/client/?is_on_post=false')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 9
+
+
+@pytest.mark.django_db(transaction=True)
 def test_client_list(authorized_client, authorized_user, test_clients_fixture):
     response = authorized_client.get('/api/v1/client/')
 
