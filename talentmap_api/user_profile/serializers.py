@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
+from talentmap_api.bidding.models import Bid
+
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.language.serializers import LanguageQualificationSerializer
@@ -30,15 +32,32 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 
 class ClientSerializer(PrefetchedSerializer):
+    current_assignment = serializers.SerializerMethodField()
     skill_code = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = serializers.StringRelatedField()
     secondary_nationality = serializers.StringRelatedField()
+    bid_information = serializers.SerializerMethodField()
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
+
+    def get_bid_information(self, obj):
+        '''
+        Creates a nested dictionary of all of the user's bid status counts in active bidcycles
+        '''
+        bids = obj.bidlist.filter(bidcycle__active=True).all()
+
+        # Go through every bid status and return the status string + count
+        return {x[1]: bids.filter(status=x).count() for x in Bid.Status.choices}
 
     class Meta:
         model = UserProfile
-        fields = "__all__"
+        fields = ["id", "current_assignment", "skill_code", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_information", "user", "language_qualifications"]
         nested = {
             "user": {
                 "class": UserSerializer,
