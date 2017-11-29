@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
 
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
@@ -15,6 +17,7 @@ from talentmap_api.messaging.models import Notification
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     date_of_birth = models.DateField(null=True)
+    mandatory_retirement_date = models.DateField(null=True)
     phone_number = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
@@ -32,6 +35,12 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
+
+    def save(self, *args, **kwargs):
+        # Set the retirement date to the user's birthdate + 65 years
+        if self.date_of_birth:
+            self.mandatory_retirement_date = self.date_of_birth + relativedelta(years=65)
+        super(UserProfile, self).save(*args, **kwargs)
 
     @property
     def is_cdo(self):
