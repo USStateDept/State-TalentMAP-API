@@ -5,7 +5,7 @@ from model_mommy.recipe import seq
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, Bid
 from talentmap_api.user_profile.models import SavedSearch
 
 
@@ -213,7 +213,7 @@ def test_bidcycle_batch_actions(authorized_client, authorized_user):
 def test_bidcycle_current_cycle_available_filter(authorized_client, authorized_user):
     # Add a handshake bid
     bidcycle = BidCycle.objects.first()
-    mommy.make('bidding.Bid', bidcycle=bidcycle, status="handshake_offered", position=bidcycle.positions.first(), user=authorized_user.profile)
+    mommy.make('bidding.Bid', bidcycle=bidcycle, status=Bid.Status.handshake_offered, position=bidcycle.positions.first(), user=authorized_user.profile)
 
     response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=true')
 
