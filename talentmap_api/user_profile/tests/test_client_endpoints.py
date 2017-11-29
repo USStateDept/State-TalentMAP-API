@@ -119,6 +119,9 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
     for item in status_counts:
         mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status=item[1][0], _quantity=item[0])
 
+    # Delete a random bid
+    Bid.objects.all().order_by('?').first().delete()
+
     response = authorized_client.get(f'/api/v1/client/{client.id}/')
 
     assert response.status_code == status.HTTP_200_OK
