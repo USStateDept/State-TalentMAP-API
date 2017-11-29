@@ -155,8 +155,8 @@ class PositionBidStatistics(models.Model):
     Stores the bid statistics on a per-cycle basis for a position
     '''
 
-    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="position_bid_statistics")
-    position = models.ForeignKey("position.Position", related_name="bid_statistics")
+    bidcycle = models.ForeignKey("bidding.BidCycle", on_delete=models.CASCADE, related_name="position_bid_statistics")
+    position = models.ForeignKey("position.Position", on_delete=models.CASCADE, related_name="bid_statistics")
 
     total_bids = models.IntegerField(default=0)
     in_grade = models.IntegerField(default=0)

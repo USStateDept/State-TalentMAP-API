@@ -5,7 +5,7 @@ from rest_framework import serializers
 from talentmap_api.user_profile.serializers import UserProfileSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
 
 
 class BidCycleSerializer(PrefetchedSerializer):
@@ -88,6 +88,15 @@ class BidSerializer(PrefetchedSerializer):
                 }
             }
         }
+
+
+class UserBidStatisticsSerializer(PrefetchedSerializer):
+    bidcycle = serializers.StringRelatedField()
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = UserBidStatistics
+        fields = "__all__"
 
 
 class PositionBidSerializer(PrefetchedSerializer):
