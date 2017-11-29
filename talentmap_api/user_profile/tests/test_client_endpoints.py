@@ -52,7 +52,7 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["on_post_clients"] == 1
 
     # Give users some bids
-    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in panel")
+    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in_panel")
 
     response = authorized_client.get('/api/v1/client/statistics/')
 

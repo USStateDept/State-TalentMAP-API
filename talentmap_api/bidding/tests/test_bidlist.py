@@ -158,7 +158,7 @@ def test_bidlist_patch_bid(authorized_client, authorized_user):
 
     # Patch an in-bureau bid
     response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
-        "status": "handshake offered"
+        "status": "handshake_offered"
     }), content_type="application/json")
 
     assert response.status_code == status.HTTP_200_OK
@@ -261,6 +261,7 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 
     # We should be able to delete (i.e., close) it because we are the CDO
     response = authorized_client.delete(f'/api/v1/bidlist/{report_bid.id}/')
+    report_bid.refresh_from_db()
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert report.profile.bidlist.count() == 1

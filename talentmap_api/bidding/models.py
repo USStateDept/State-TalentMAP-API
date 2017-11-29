@@ -31,7 +31,7 @@ class BidCycle(models.Model):
         '''
         Returns a queryset of all positions, annotated with whether it is accepting bids or not
         '''
-        bids = self.bids.exclude(Bid.get_unavailable_status_filter()).values_list('position_id', flat=True)
+        bids = self.bids.filter(Bid.get_unavailable_status_filter()).values_list('position_id', flat=True)
         case = Case(When(id__in=bids,
                          then=Value(False)),
                     default=Value(True),
@@ -103,9 +103,9 @@ class Bid(models.Model):
     class Status(DjangoChoices):
         draft = ChoiceItem("draft")
         submitted = ChoiceItem("submitted")
-        handshake_offered = ChoiceItem("handshake offered")
-        handshake_accepted = ChoiceItem("handshake accepted")
-        in_panel = ChoiceItem("in panel")
+        handshake_offered = ChoiceItem("handshake_offered", "handshake_offered")
+        handshake_accepted = ChoiceItem("handshake_accepted", "handshake_accepted")
+        in_panel = ChoiceItem("in_panel", "in_panel")
         approved = ChoiceItem("approved")
         declined = ChoiceItem("declined")
         closed = ChoiceItem("closed")
@@ -120,7 +120,7 @@ class Bid(models.Model):
     update_date = models.DateField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}#{self.position.position_number}"
+        return f"{self.user}#{self.position.position_number} ({self.status})"
 
     @staticmethod
     def get_approval_statuses():

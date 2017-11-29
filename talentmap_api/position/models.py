@@ -284,7 +284,7 @@ class Assignment(models.Model):
     class CurtailmentReason(DjangoChoices):
         medical = ChoiceItem("medical")
         clearance = ChoiceItem("clearance")
-        service_need = ChoiceItem("service_need")
+        service_need = ChoiceItem("service_need", "service_need")
         compassionate = ChoiceItem("compassionate")
         other = ChoiceItem("other")
 
