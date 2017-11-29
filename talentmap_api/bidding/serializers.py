@@ -98,36 +98,6 @@ class UserBidStatisticsSerializer(PrefetchedSerializer):
         fields = "__all__"
 
 
-class PositionBidSerializer(PrefetchedSerializer):
-    bidcycle = serializers.StringRelatedField()
-    user = serializers.StringRelatedField()
-    position = serializers.StringRelatedField()
-
-    class Meta:
-        model = Bid
-        fields = "__all__"
-        nested = {
-            "position": {
-                "class": PositionSerializer,
-                "field": "position",
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "position_number",
-                        "title",
-                        "skill",
-                        "grade",
-                        "post__id",
-                        "post__location",
-                        "update_date",
-                        "create_date"
-                    ],
-                    "read_only": True
-                }
-            }
-        }
-
-
 class BidWritableSerializer(PrefetchedSerializer):
 
     class Meta:

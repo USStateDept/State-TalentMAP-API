@@ -117,7 +117,7 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
     status_counts = list(zip(range(1, len(statuses) + 1), statuses))
 
     for item in status_counts:
-        mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status=item[1], _quantity=item[0])
+        mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status=item[1][0], _quantity=item[0])
 
     response = authorized_client.get(f'/api/v1/client/{client.id}/')
 
@@ -125,4 +125,5 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
 
     expected_counts = {x[1][1]: x[0] for x in status_counts}
 
-    assert response.data["bid_information"] == expected_counts
+    for bid_status, count in expected_counts.items():
+        assert response.data["bid_statistics"][0].get(bid_status) == count
