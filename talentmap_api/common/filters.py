@@ -51,9 +51,6 @@ class RelatedOrderingFilter(filters.OrderingFilter):
             return False
 
     def remove_invalid_fields(self, queryset, fields, ordering, view):
-        # for term in fields:
-        #     print(term)
-        #     print(self.is_valid_field(queryset.model, term.lstrip('-')))
         return [term for term in fields
                 if self.is_valid_field(queryset.model, term.lstrip('-'))]
 
