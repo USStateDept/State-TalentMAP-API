@@ -2,7 +2,6 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from talentmap_api.user_profile.serializers import UserProfileSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
@@ -108,17 +107,6 @@ class PositionBidSerializer(PrefetchedSerializer):
         model = Bid
         fields = "__all__"
         nested = {
-            "user": {
-                "class": UserProfileSerializer,
-                "field": "user",
-                "kwargs": {
-                    "override_fields": [
-                        "user",
-                        "skill_code",
-                        "grade"
-                    ]
-                }
-            },
             "position": {
                 "class": PositionSerializer,
                 "field": "position",

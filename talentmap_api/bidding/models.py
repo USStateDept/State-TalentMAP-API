@@ -83,7 +83,7 @@ class UserBidStatistics(models.Model):
 
     def update_statistics(self):
         for status in Bid.Status.choices:
-            setattr(self, status[0], self.user.bidlist.filter(bidcycle=self.bidcycle, status=status).count())
+            setattr(self, status[0], Bid.objects.filter(user=self.user, bidcycle=self.bidcycle, status=status[0]).count())
 
         self.save()
 
@@ -212,7 +212,8 @@ def save_update_bid_statistics(sender, instance, **kwargs):
     instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
 
     # Update the user's bid statistics
-    UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle).update_statistics()
+    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics.update_statistics()
 
 
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
@@ -221,4 +222,5 @@ def delete_update_bid_statistics(sender, instance, **kwargs):
     instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
 
     # Update the user's bid statistics
-    UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle).update_statistics()
+    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics.update_statistics()

@@ -1,7 +1,7 @@
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS
 
 
 class BidCycleFilter(filters.FilterSet):
@@ -22,6 +22,23 @@ class BidFilter(filters.FilterSet):
         fields = {
             "status": ALL_TEXT_LOOKUPS,
             "submission_date": DATE_LOOKUPS,
+        }
+
+
+class UserBidStatisticsFilter(filters.FilterSet):
+    bidcycle = filters.RelatedFilter(BidCycleFilter, name='bidcycle', queryset=BidCycle.objects.all())
+
+    class Meta:
+        model = UserBidStatistics
+        fields = {
+            "draft": INTEGER_LOOKUPS,
+            "submitted": INTEGER_LOOKUPS,
+            "handshake_offered": INTEGER_LOOKUPS,
+            "handshake_accepted": INTEGER_LOOKUPS,
+            "in_panel": INTEGER_LOOKUPS,
+            "approved": INTEGER_LOOKUPS,
+            "declined": INTEGER_LOOKUPS,
+            "closed": INTEGER_LOOKUPS,
         }
 
 

@@ -46,7 +46,7 @@ class ClientSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "skill_code", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_information", "user", "language_qualifications"]
+        fields = ["id", "current_assignment", "skill_code", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications"]
         nested = {
             "user": {
                 "class": UserSerializer,
