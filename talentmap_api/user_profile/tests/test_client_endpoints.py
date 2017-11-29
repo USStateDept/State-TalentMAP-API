@@ -119,14 +119,16 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
     for item in status_counts:
         mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status=item[1][0], _quantity=item[0])
 
+    expected_counts = {x[1][1]: x[0] for x in status_counts}
+
     # Delete a random bid
-    Bid.objects.all().order_by('?').first().delete()
+    random_bid = Bid.objects.all().order_by('?').first()
+    expected_counts[random_bid.status] = expected_counts[random_bid.status] - 1
+    random_bid.delete()
 
     response = authorized_client.get(f'/api/v1/client/{client.id}/')
 
     assert response.status_code == status.HTTP_200_OK
-
-    expected_counts = {x[1][1]: x[0] for x in status_counts}
 
     for bid_status, count in expected_counts.items():
         assert response.data["bid_statistics"][0].get(bid_status) == count
