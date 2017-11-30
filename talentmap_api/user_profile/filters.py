@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import Bid
+from talentmap_api.bidding.models import Bid, UserBidStatistics
+from talentmap_api.bidding.filters import UserBidStatisticsFilter
+
 from talentmap_api.position.models import Grade, Skill
 from talentmap_api.position.filters import GradeFilter, SkillFilter
 
@@ -45,6 +47,8 @@ class UserProfileFilter(filters.FilterSet):
 
 
 class ClientFilter(UserProfileFilter):
+    bid_statistics = filters.RelatedFilter(UserBidStatisticsFilter, name="bid_statistics", queryset=UserBidStatistics.objects.all())
+
     is_bidding = filters.BooleanFilter(name="bidlist", method="filter_is_bidding")
     is_in_panel = filters.BooleanFilter(name="bidlist", method="filter_is_in_panel")
     is_on_post = filters.BooleanFilter(name="bidlist", method="filter_is_on_post")

@@ -65,6 +65,34 @@ class StatusSurvey(models.Model):
         unique_together = (("user", "bidcycle"),)
 
 
+class UserBidStatistics(models.Model):
+    '''
+    Stores bid statistics for any particular bidcycle for each user
+    '''
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name='user_bid_statistics')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name='bid_statistics')
+
+    draft = models.IntegerField(default=0)
+    submitted = models.IntegerField(default=0)
+    handshake_offered = models.IntegerField(default=0)
+    handshake_accepted = models.IntegerField(default=0)
+    in_panel = models.IntegerField(default=0)
+    approved = models.IntegerField(default=0)
+    declined = models.IntegerField(default=0)
+    closed = models.IntegerField(default=0)
+
+    def update_statistics(self):
+        for status in Bid.Status.choices:
+            setattr(self, status[0], Bid.objects.filter(user=self.user, bidcycle=self.bidcycle, status=status[0]).count())
+
+        self.save()
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
+        unique_together = (("bidcycle", "user",),)
+
+
 class Bid(models.Model):
     '''
     The bid object represents an individual bid, the position, user, and process status
@@ -95,12 +123,19 @@ class Bid(models.Model):
         return f"{self.user}#{self.position.position_number} ({self.status})"
 
     @staticmethod
+    def get_approval_statuses():
+        '''
+        Returns an array of statuses that denote some approval of the bid (handshake->approved)
+        '''
+        return [Bid.Status.handshake_offered, Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
+
+    @staticmethod
     def get_unavailable_status_filter():
         '''
         Returns a Q object which will return bids which are unavailable for bids (i.e. at or further than handshake status)
         '''
         # We must not have a status of a handshake; or any status further in the process
-        qualified_statuses = [Bid.Status.handshake_offered, Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
+        qualified_statuses = Bid.get_approval_statuses()
 
         q_obj = Q()
         # Here we construct a Q object looking for statuses matching any of the qualified statuses
@@ -176,8 +211,16 @@ def save_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
     instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
 
+    # Update the user's bid statistics
+    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics.update_statistics()
+
 
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
     instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
+
+    # Update the user's bid statistics
+    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics.update_statistics()

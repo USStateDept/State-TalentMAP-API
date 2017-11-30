@@ -6,7 +6,6 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import ForeignObjectRel
 
 # Common filters for string-type objects
 DATETIME_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range', 'year',
@@ -43,10 +42,6 @@ class RelatedOrderingFilter(filters.OrderingFilter):
         components = field.split(LOOKUP_SEP, 1)
         try:
             field = model._meta.get_field(components[0])
-
-            # Reverse lookup
-            if isinstance(field, ForeignObjectRel):
-                return self.is_valid_field(field.model, components[1])
 
             if field.get_internal_type() in self.related_field_types and len(components) > 1:
                 return self.is_valid_field(field.related_model, components[1])
