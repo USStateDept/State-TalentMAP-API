@@ -50,7 +50,7 @@ def test_saved_search_create_unfilterable_endpoint(authorized_client, authorized
     response = authorized_client.post('/api/v1/searches/', data=json.dumps(
         {
             "name": "Banana search",
-            "endpoint": "/api/v1/notification/"
+            "endpoint": "/api/v1/affff/"
         }
     ), content_type='application/json')
 

@@ -129,6 +129,7 @@ class SavedSearch(models.Model):
             if diff > 0:
                 Notification.objects.create(
                     owner=self.owner,
+                    tags=['saved_search'],
                     message=f"Saved search {self.name} has {diff} new results available"
                 )
 
