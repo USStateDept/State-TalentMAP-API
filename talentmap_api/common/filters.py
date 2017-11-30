@@ -16,6 +16,7 @@ BASIC_TEXT_LOOKUPS = ['exact', 'iexact', 'startswith', 'istartswith',
                       'endswith', 'iendswith']
 ALL_TEXT_LOOKUPS = BASIC_TEXT_LOOKUPS + ['contains', 'icontains', 'in', 'isnull']
 FOREIGN_KEY_LOOKUPS = ['exact', 'in', 'isnull']
+ARRAY_LOOKUPS = ['contains', 'contained_by', 'len', 'overlap']
 
 
 # This filter backend removes the form rendering which calls the database excessively
@@ -130,4 +131,27 @@ def full_text_search(fields):
             q_obj = q_obj | q
 
         return queryset.annotate(search=final_vector).filter(q_obj).distinct()
+    return filter_method
+
+
+def array_field_filter(lookup_expr, exclude=False):
+    '''
+    Curries a function suitable for use as a filter's method to support Postgres ArrayFields.
+
+    Args:
+        lookup_expr - The lookup expression this method should support
+        exclude - Whether this lookup should include or exclude the values
+
+    Returns:
+        callable: A function suitable for use as a filter's method override
+    '''
+
+    def filter_method(queryset, name, value):
+        lookup = LOOKUP_SEP.join([name, lookup_expr])
+        q_obj = Q(**{lookup: value.split(',')})
+        if exclude:
+            return queryset.exclude(q_obj)
+        else:
+            return queryset.filter(q_obj)
+
     return filter_method

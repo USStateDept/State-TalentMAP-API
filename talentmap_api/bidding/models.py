@@ -183,26 +183,31 @@ def bid_status_changed(sender, instance, **kwargs):
             if instance.status is Bid.Status.handshake_offered:
                 # Notify the owning user that their bid has been offered a handshake
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["handshake_offered_owner"])
                 # Notify all other bidders that this position has a handshake offered
                 # Get a list of all user profile ID's which aren't this user
                 users = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
                 for user in users:
                     Notification.objects.create(owner=UserProfile.objects.get(id=user),
+                                                tags=['bidding'],
                                                 message=notification_bodies["handshake_offered_other"])
             elif instance.status is Bid.Status.declined:
                 # Notify the owning user that this bid has been declined
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["declined_owner"])
 
             elif instance.status is Bid.Status.in_panel:
                 # Notify the owning user that this bid is now under panel review
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["in_panel_owner"])
 
             elif instance.status is Bid.Status.approved:
                 # Notify the owning user that this bid has been accepted
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["approved_owner"])
 
 

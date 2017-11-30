@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.postgres.fields import ArrayField
 
 
 class Notification(models.Model):
@@ -10,6 +11,7 @@ class Notification(models.Model):
 
     message = models.TextField(null=False, help_text="The message for the notification")
     owner = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, null=False, related_name="notifications", help_text="The owner of the notification")
+    tags = ArrayField(models.CharField(max_length=20), default=list, help_text="This notification's tags")
 
     is_read = models.BooleanField(default=False, help_text="Whether this notification has been read")
 
@@ -52,6 +54,7 @@ def post_sharable_save(sender, instance, created, **kwargs):
     if created:
         # Create a new notification for the receiving user
         Notification.objects.create(owner=instance.receiving_user,
+                                    tags=['share'],
                                     message=f"{instance.sharing_user} has shared a {instance.sharable_model.split('.')[-1]} with you")
 
         # TODO: Add e-mail here when e-mail implementation is determined
