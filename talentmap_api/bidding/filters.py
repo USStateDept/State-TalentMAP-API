@@ -1,7 +1,7 @@
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class BidCycleFilter(filters.FilterSet):
@@ -39,6 +39,7 @@ class UserBidStatisticsFilter(filters.FilterSet):
             "approved": INTEGER_LOOKUPS,
             "declined": INTEGER_LOOKUPS,
             "closed": INTEGER_LOOKUPS,
+            "bidcycle": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -50,5 +51,6 @@ class StatusSurveyFilter(filters.FilterSet):
         fields = {
             "is_differential_bidder": ["exact"],
             "is_fairshare": ["exact"],
-            "is_six_eight": ["exact"]
+            "is_six_eight": ["exact"],
+            "bidcycle": FOREIGN_KEY_LOOKUPS
         }
