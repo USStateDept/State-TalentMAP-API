@@ -15,7 +15,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.organization.filters import CountryFilter
 from talentmap_api.organization.models import Country
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class UserFilter(filters.FilterSet):
@@ -43,6 +43,13 @@ class UserProfileFilter(filters.FilterSet):
         fields = {
             "date_of_birth": DATE_LOOKUPS,
             "phone_number": ALL_TEXT_LOOKUPS,
+            "user": FOREIGN_KEY_LOOKUPS,
+            "cdo": FOREIGN_KEY_LOOKUPS,
+            "grade": FOREIGN_KEY_LOOKUPS,
+            "skill_code": FOREIGN_KEY_LOOKUPS,
+            "language_qualifications": FOREIGN_KEY_LOOKUPS,
+            "primary_nationality": FOREIGN_KEY_LOOKUPS,
+            "secondary_nationality": FOREIGN_KEY_LOOKUPS
         }
 
 
