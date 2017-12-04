@@ -135,7 +135,7 @@ def full_text_search(fields):
         # We don't use .distinct() here because it is not respected if filtered afterwards, and, distinct will
         # sort the queryset which is un-needed at this stage of filtering.
 
-        # User queryset.all() to acquire a duplicate of the queryset
+        # Use queryset.all() to acquire a duplicate of the queryset
         id_list = queryset.all().annotate(search=final_vector).filter(q_obj).values_list('id', flat=True)
         return queryset.filter(id__in=id_list)
     return filter_method
