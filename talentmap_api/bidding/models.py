@@ -212,20 +212,12 @@ def bid_status_changed(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
-def save_update_bid_statistics(sender, instance, **kwargs):
-    # Get the position associated with this bid and update the statistics
-    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
-
-    # Update the user's bid statistics
-    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
-    statistics.update_statistics()
-
-
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
+    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(bidcycle=instance.bidcycle, position=instance.position)
+    statistics.update_statistics()
 
     # Update the user's bid statistics
-    statistics, created = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics, _ = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
     statistics.update_statistics()
