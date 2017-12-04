@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import F, Sum, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -39,7 +41,10 @@ class UserProfile(models.Model):
     def save(self, *args, **kwargs):
         # Set the retirement date to the user's birthdate + 65 years
         if self.date_of_birth:
-            self.mandatory_retirement_date = self.date_of_birth + relativedelta(years=65)
+            date_of_birth = self.date_of_birth
+            if isinstance(date_of_birth, str):
+                date_of_birth = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date()
+            self.mandatory_retirement_date = date_of_birth + relativedelta(years=65)
         super(UserProfile, self).save(*args, **kwargs)
 
     @property
