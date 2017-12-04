@@ -130,7 +130,14 @@ def full_text_search(fields):
         for q in [Q(**{f"{x}__icontains": value}) for x in fields]:
             q_obj = q_obj | q
 
-        return queryset.annotate(search=final_vector).filter(q_obj).distinct()
+        # We need to ensure we only get distinct items - since FTS spans multiple columns this could cause duplication
+        # To accomplish this we grab the id's of matching FTS search and return a queryset filtered to those IDs
+        # We don't use .distinct() here because it is not respected if filtered afterwards, and, distinct will
+        # sort the queryset which is un-needed at this stage of filtering.
+
+        # User queryset.all() to acquire a duplicate of the queryset
+        id_list = queryset.all().annotate(search=final_vector).filter(q_obj).values_list('id', flat=True)
+        return queryset.filter(id__in=id_list)
     return filter_method
 
 
