@@ -2,10 +2,9 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from talentmap_api.user_profile.serializers import UserProfileSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
 
 
 class BidCycleSerializer(PrefetchedSerializer):
@@ -26,11 +25,15 @@ class BidCycleSerializer(PrefetchedSerializer):
             datasource = instance_data
 
         # Validate our dates are in a chronologically sound order
-        if datasource.get("cycle_end_date") < datasource.get("cycle_start_date"):
+        start_date = datasource.get("cycle_start_date")
+        end_date = datasource.get("cycle_end_date")
+        deadline_date = datasource.get("cycle_deadline_date")
+
+        if end_date < start_date:
             raise serializers.ValidationError("Cycle start date must be before cycle end date")
-        if datasource.get("cycle_end_date") < datasource.get("cycle_deadline_date"):
+        if end_date < deadline_date:
             raise serializers.ValidationError("Cycle deadline date must be on or before the cycle end date")
-        if datasource.get("cycle_deadline_date") < datasource.get("cycle_start_date"):
+        if deadline_date < start_date:
             raise serializers.ValidationError("Cycle deadline date must be after cycle start date")
 
         return data
@@ -42,6 +45,13 @@ class BidCycleSerializer(PrefetchedSerializer):
 
 
 class SurveySerializer(PrefetchedSerializer):
+    calculated_values = serializers.SerializerMethodField()
+
+    def get_calculated_values(self, obj):
+        calculated_values = {}
+        calculated_values['is_fairshare'] = obj.user.is_fairshare
+
+        return calculated_values
 
     class Meta:
         model = StatusSurvey
@@ -79,45 +89,13 @@ class BidSerializer(PrefetchedSerializer):
         }
 
 
-class PositionBidSerializer(PrefetchedSerializer):
+class UserBidStatisticsSerializer(PrefetchedSerializer):
     bidcycle = serializers.StringRelatedField()
     user = serializers.StringRelatedField()
-    position = serializers.StringRelatedField()
 
     class Meta:
-        model = Bid
+        model = UserBidStatistics
         fields = "__all__"
-        nested = {
-            "user": {
-                "class": UserProfileSerializer,
-                "field": "user",
-                "kwargs": {
-                    "override_fields": [
-                        "user",
-                        "skill_code",
-                        "grade"
-                    ]
-                }
-            },
-            "position": {
-                "class": PositionSerializer,
-                "field": "position",
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "position_number",
-                        "title",
-                        "skill",
-                        "grade",
-                        "post__id",
-                        "post__location",
-                        "update_date",
-                        "create_date"
-                    ],
-                    "read_only": True
-                }
-            }
-        }
 
 
 class BidWritableSerializer(PrefetchedSerializer):

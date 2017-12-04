@@ -5,6 +5,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 import rest_framework_filters as filters
 
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
 
 from talentmap_api.language.filters import QualificationFilter
@@ -13,7 +14,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -22,7 +23,6 @@ class GradeFilter(filters.FilterSet):
     class Meta:
         model = Grade
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS
         }
 
@@ -33,7 +33,6 @@ class SkillFilter(filters.FilterSet):
     class Meta:
         model = Skill
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "description": ALL_TEXT_LOOKUPS
         }
@@ -49,7 +48,6 @@ class CapsuleDescriptionFilter(filters.FilterSet):
     class Meta:
         model = CapsuleDescription
         fields = {
-            "id": INTEGER_LOOKUPS,
             "content": ALL_TEXT_LOOKUPS,
             "date_created": DATE_LOOKUPS,
             "date_updated": DATE_LOOKUPS
@@ -86,7 +84,17 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
+    is_available_in_current_bidcycle = filters.BooleanFilter(name="bid_cycles", method="filter_available_in_current_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
+
+    def filter_available_in_current_bidcycle(self, queryset, name, value):
+        '''
+        Returns a queryset of all positions who are in the latest active bidcycle and do not have any
+        bids with handshake or above status
+        '''
+        # Get latest active bidcycle
+        bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
+        return bidcycle.annotated_positions.filter(accepting_bids=value)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''
@@ -102,19 +110,19 @@ class PositionFilter(filters.FilterSet):
     class Meta:
         model = Position
         fields = {
-            "id": INTEGER_LOOKUPS,
             "position_number": ALL_TEXT_LOOKUPS,
             "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
-            "languages": FOREIGN_KEY_LOOKUPS,
-            "grade": FOREIGN_KEY_LOOKUPS,
-            "skill": FOREIGN_KEY_LOOKUPS,
+            "create_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS,
+            "post": FOREIGN_KEY_LOOKUPS,
             "organization": FOREIGN_KEY_LOOKUPS,
             "bureau": FOREIGN_KEY_LOOKUPS,
-            "current_assignment": FOREIGN_KEY_LOOKUPS,
-            "post": FOREIGN_KEY_LOOKUPS,
-            "create_date": DATE_LOOKUPS,
-            "update_date": DATE_LOOKUPS
+            "skill": FOREIGN_KEY_LOOKUPS,
+            "grade": FOREIGN_KEY_LOOKUPS,
+            "description": FOREIGN_KEY_LOOKUPS,
+            "languages": FOREIGN_KEY_LOOKUPS,
+            "current_assignment": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -125,14 +133,13 @@ class AssignmentFilter(filters.FilterSet):
     class Meta:
         model = Assignment
         fields = {
-            "id": INTEGER_LOOKUPS,
             "status": ALL_TEXT_LOOKUPS,
             "curtailment_reason": ALL_TEXT_LOOKUPS,
-            "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "start_date": DATE_LOOKUPS,
             "estimated_end_date": DATE_LOOKUPS,
             "end_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS
         }

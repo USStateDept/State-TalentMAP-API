@@ -17,6 +17,20 @@ def test_bidlist_fixture():
 
 
 @pytest.mark.django_db(transaction=True)
+def test_can_accept_new_bids_function(authorized_client, authorized_user, test_bidlist_fixture):
+    active_cycle = BidCycle.objects.first()
+    nonactive_cycle = mommy.make(BidCycle, active=False)
+
+    in_cycle_position = active_cycle.positions.first()
+    out_of_cycle_position = mommy.make('position.Position')
+
+    assert in_cycle_position.can_accept_new_bids(active_cycle)
+    assert not out_of_cycle_position.can_accept_new_bids(active_cycle)
+
+    assert not in_cycle_position.can_accept_new_bids(nonactive_cycle)
+
+
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bidlist_position_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
@@ -144,7 +158,7 @@ def test_bidlist_patch_bid(authorized_client, authorized_user):
 
     # Patch an in-bureau bid
     response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
-        "status": "handshake offered"
+        "status": "handshake_offered"
     }), content_type="application/json")
 
     assert response.status_code == status.HTTP_200_OK
@@ -247,6 +261,7 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 
     # We should be able to delete (i.e., close) it because we are the CDO
     response = authorized_client.delete(f'/api/v1/bidlist/{report_bid.id}/')
+    report_bid.refresh_from_db()
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert report.profile.bidlist.count() == 1

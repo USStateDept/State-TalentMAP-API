@@ -6,7 +6,6 @@ from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import ForeignObjectRel
 
 # Common filters for string-type objects
 DATETIME_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range', 'year',
@@ -17,6 +16,7 @@ BASIC_TEXT_LOOKUPS = ['exact', 'iexact', 'startswith', 'istartswith',
                       'endswith', 'iendswith']
 ALL_TEXT_LOOKUPS = BASIC_TEXT_LOOKUPS + ['contains', 'icontains', 'in', 'isnull']
 FOREIGN_KEY_LOOKUPS = ['exact', 'in', 'isnull']
+ARRAY_LOOKUPS = ['contains', 'contained_by', 'len', 'overlap']
 
 
 # This filter backend removes the form rendering which calls the database excessively
@@ -43,10 +43,6 @@ class RelatedOrderingFilter(filters.OrderingFilter):
         components = field.split(LOOKUP_SEP, 1)
         try:
             field = model._meta.get_field(components[0])
-
-            # Reverse lookup
-            if isinstance(field, ForeignObjectRel):
-                return self.is_valid_field(field.model, components[1])
 
             if field.get_internal_type() in self.related_field_types and len(components) > 1:
                 return self.is_valid_field(field.related_model, components[1])
@@ -134,5 +130,35 @@ def full_text_search(fields):
         for q in [Q(**{f"{x}__icontains": value}) for x in fields]:
             q_obj = q_obj | q
 
-        return queryset.annotate(search=final_vector).filter(q_obj).distinct()
+        # We need to ensure we only get distinct items - since FTS spans multiple columns this could cause duplication
+        # To accomplish this we grab the id's of matching FTS search and return a queryset filtered to those IDs
+        # We don't use .distinct() here because it is not respected if filtered afterwards, and, distinct will
+        # sort the queryset which is un-needed at this stage of filtering.
+
+        # Use queryset.all() to acquire a duplicate of the queryset
+        id_list = queryset.all().annotate(search=final_vector).filter(q_obj).values_list('id', flat=True)
+        return queryset.filter(id__in=id_list)
+    return filter_method
+
+
+def array_field_filter(lookup_expr, exclude=False):
+    '''
+    Curries a function suitable for use as a filter's method to support Postgres ArrayFields.
+
+    Args:
+        lookup_expr - The lookup expression this method should support
+        exclude - Whether this lookup should include or exclude the values
+
+    Returns:
+        callable: A function suitable for use as a filter's method override
+    '''
+
+    def filter_method(queryset, name, value):
+        lookup = LOOKUP_SEP.join([name, lookup_expr])
+        q_obj = Q(**{lookup: value.split(',')})
+        if exclude:
+            return queryset.exclude(q_obj)
+        else:
+            return queryset.filter(q_obj)
+
     return filter_method

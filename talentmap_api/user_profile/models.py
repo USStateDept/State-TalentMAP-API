@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
 
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
@@ -15,6 +17,7 @@ from talentmap_api.messaging.models import Notification
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     date_of_birth = models.DateField(null=True)
+    mandatory_retirement_date = models.DateField(null=True)
     phone_number = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
@@ -33,13 +36,28 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}"
 
+    def save(self, *args, **kwargs):
+        # Set the retirement date to the user's birthdate + 65 years
+        if self.date_of_birth:
+            self.mandatory_retirement_date = self.date_of_birth + relativedelta(years=65)
+        super(UserProfile, self).save(*args, **kwargs)
+
+    @property
+    def is_cdo(self):
+        '''
+        Represents if the user is a CDO (Career development officer) or not. If the user's direct_report
+        reverse relationship has any members, they are a CDO
+        '''
+
+        return self.direct_reports.count() != 0
+
     @property
     def is_fairshare(self):
         '''
         Determines if this user is classified as a Fair Share bidder. The rules to calculate this have some
         exceptions, but at this moment only the baseline logic is implemented in the system.
         '''
-        # An employee is considered a "Fair Share" bidder if the following states are FALSE
+        # An employee is considered a "Fair Share" bidder if either of the following states are TRUE
         #  - Served at least 20 months at a post with combined differential (diff + danger pay) of >=20
         #  - Served at least 10 months at a post with 1 year standard TOD
 
@@ -66,8 +84,12 @@ class UserProfile(models.Model):
         case_1 = sum(case_1_lengths) >= 20
         case_2 = sum(case_2_lengths) >= 10
 
-        # Return false if either are true
-        return not (case_1 or case_2)
+        # Return true if either are true
+        return (case_1 or case_2)
+
+    class Meta:
+        managed = True
+        ordering = ['user__last_name']
 
 
 class SavedSearch(models.Model):
@@ -99,14 +121,15 @@ class SavedSearch(models.Model):
     def get_queryset(self):
         return get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters)
 
-    def update_count(self):
+    def update_count(self, created=False):
         count = self.get_queryset().count()
-        if self.count != count:
+        if self.count != count and not created:
             # Create a notification for this saved search's owner if the amount has increased
             diff = count - self.count
             if diff > 0:
                 Notification.objects.create(
                     owner=self.owner,
+                    tags=['saved_search'],
                     message=f"Saved search {self.name} has {diff} new results available"
                 )
 
@@ -155,4 +178,4 @@ def post_saved_search_save(sender, instance, created, **kwargs):
     '''
     This listener ensures newly created or edited saved searches update their counts
     '''
-    instance.update_count()
+    instance.update_count(created)

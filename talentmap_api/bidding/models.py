@@ -1,3 +1,4 @@
+from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
 from django.dispatch import receiver
@@ -25,6 +26,21 @@ class BidCycle(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    @property
+    def annotated_positions(self):
+        '''
+        Returns a queryset of all positions, annotated with whether it is accepting bids or not
+        '''
+        bids = self.bids.filter(Bid.get_unavailable_status_filter()).values_list('position_id', flat=True)
+        case = Case(When(id__in=bids,
+                         then=Value(False)),
+                    default=Value(True),
+                    output_field=BooleanField())
+
+        positions = self.positions.annotate(accepting_bids=case)
+
+        return positions
+
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
@@ -49,6 +65,34 @@ class StatusSurvey(models.Model):
         unique_together = (("user", "bidcycle"),)
 
 
+class UserBidStatistics(models.Model):
+    '''
+    Stores bid statistics for any particular bidcycle for each user
+    '''
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name='user_bid_statistics')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name='bid_statistics')
+
+    draft = models.IntegerField(default=0)
+    submitted = models.IntegerField(default=0)
+    handshake_offered = models.IntegerField(default=0)
+    handshake_accepted = models.IntegerField(default=0)
+    in_panel = models.IntegerField(default=0)
+    approved = models.IntegerField(default=0)
+    declined = models.IntegerField(default=0)
+    closed = models.IntegerField(default=0)
+
+    def update_statistics(self):
+        for status_code, _ in Bid.Status.choices:
+            setattr(self, status_code, Bid.objects.filter(user=self.user, bidcycle=self.bidcycle, status=status_code).count())
+
+        self.save()
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
+        unique_together = (("bidcycle", "user",),)
+
+
 class Bid(models.Model):
     '''
     The bid object represents an individual bid, the position, user, and process status
@@ -59,9 +103,9 @@ class Bid(models.Model):
     class Status(DjangoChoices):
         draft = ChoiceItem("draft")
         submitted = ChoiceItem("submitted")
-        handshake_offered = ChoiceItem("handshake offered")
-        handshake_accepted = ChoiceItem("handshake accepted")
-        in_panel = ChoiceItem("in panel")
+        handshake_offered = ChoiceItem("handshake_offered", "handshake_offered")
+        handshake_accepted = ChoiceItem("handshake_accepted", "handshake_accepted")
+        in_panel = ChoiceItem("in_panel", "in_panel")
         approved = ChoiceItem("approved")
         declined = ChoiceItem("declined")
         closed = ChoiceItem("closed")
@@ -76,7 +120,29 @@ class Bid(models.Model):
     update_date = models.DateField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}#{self.position.position_number}"
+        return f"{self.user}#{self.position.position_number} ({self.status})"
+
+    @staticmethod
+    def get_approval_statuses():
+        '''
+        Returns an array of statuses that denote some approval of the bid (handshake->approved)
+        '''
+        return [Bid.Status.handshake_offered, Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
+
+    @staticmethod
+    def get_unavailable_status_filter():
+        '''
+        Returns a Q object which will return bids which are unavailable for bids (i.e. at or further than handshake status)
+        '''
+        # We must not have a status of a handshake; or any status further in the process
+        qualified_statuses = Bid.get_approval_statuses()
+
+        q_obj = Q()
+        # Here we construct a Q object looking for statuses matching any of the qualified statuses
+        for status in qualified_statuses:
+            q_obj = q_obj | Q(status=status)
+
+        return q_obj
 
     def generate_status_messages(self):
         return {
@@ -117,36 +183,41 @@ def bid_status_changed(sender, instance, **kwargs):
             if instance.status is Bid.Status.handshake_offered:
                 # Notify the owning user that their bid has been offered a handshake
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["handshake_offered_owner"])
                 # Notify all other bidders that this position has a handshake offered
                 # Get a list of all user profile ID's which aren't this user
                 users = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
                 for user in users:
                     Notification.objects.create(owner=UserProfile.objects.get(id=user),
+                                                tags=['bidding'],
                                                 message=notification_bodies["handshake_offered_other"])
             elif instance.status is Bid.Status.declined:
                 # Notify the owning user that this bid has been declined
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["declined_owner"])
 
             elif instance.status is Bid.Status.in_panel:
                 # Notify the owning user that this bid is now under panel review
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["in_panel_owner"])
 
             elif instance.status is Bid.Status.approved:
                 # Notify the owning user that this bid has been accepted
                 Notification.objects.create(owner=instance.user,
+                                            tags=['bidding'],
                                             message=notification_bodies["approved_owner"])
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
-def save_update_bid_statistics(sender, instance, **kwargs):
-    # Get the position associated with this bid and update the statistics
-    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
-
-
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    instance.position.bid_statistics.get(bidcycle=instance.bidcycle).update_statistics()
+    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(bidcycle=instance.bidcycle, position=instance.position)
+    statistics.update_statistics()
+
+    # Update the user's bid statistics
+    statistics, _ = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
+    statistics.update_statistics()

@@ -1,5 +1,5 @@
+from django.db.models import OuterRef, Subquery
 from django.db import models
-from django.db.models import Q
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -25,6 +25,9 @@ class Position(models.Model):
     # Positions can have any number of language requirements
     language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
 
+    # Positions most often share their tour of duty with the post, but sometimes vary
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
+
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
     current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
@@ -34,7 +37,7 @@ class Position(models.Model):
 
     organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
     bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
-    post = models.ForeignKey('organization.post', related_name='positions', null=True, help_text='The position post')
+    post = models.ForeignKey('organization.Post', related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
 
@@ -89,16 +92,8 @@ class Position(models.Model):
             # We must be in the bidcycle's position list
             return False
 
-        # We must not have a status of a handshake; or any status further in the process
-        status_choices = talentmap_api.bidding.models.Bid.Status
-        qualified_statuses = [status_choices.handshake_offered, status_choices.handshake_accepted, status_choices.in_panel, status_choices.approved]
-
-        q_obj = Q()
-        # Here we construct a Q object looking for statuses matching any of the qualified statuses
-        for status in qualified_statuses:
-            q_obj = q_obj | Q(status=status)
-
         # Filter this positions bid by bidcycle and our Q object
+        q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
         if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
             return False
 
@@ -160,8 +155,8 @@ class PositionBidStatistics(models.Model):
     Stores the bid statistics on a per-cycle basis for a position
     '''
 
-    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="position_bid_statistics")
-    position = models.ForeignKey("position.Position", related_name="bid_statistics")
+    bidcycle = models.ForeignKey("bidding.BidCycle", on_delete=models.CASCADE, related_name="position_bid_statistics")
+    position = models.ForeignKey("position.Position", on_delete=models.CASCADE, related_name="bid_statistics")
 
     total_bids = models.IntegerField(default=0)
     in_grade = models.IntegerField(default=0)
@@ -289,7 +284,7 @@ class Assignment(models.Model):
     class CurtailmentReason(DjangoChoices):
         medical = ChoiceItem("medical")
         clearance = ChoiceItem("clearance")
-        service_need = ChoiceItem("service_need")
+        service_need = ChoiceItem("service_need", "service_need")
         compassionate = ChoiceItem("compassionate")
         other = ChoiceItem("other")
 
@@ -328,11 +323,10 @@ class Assignment(models.Model):
 @receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
 def assignment_post_save(sender, instance, created, **kwargs):
     '''
-    This listener updates an assignment's position with its new current assignment
+    This listener updates all positions' current assignments when any assignment is updated
     '''
-    position = instance.position
-    if position.assignments.count() > 0:
-        position.current_assignment = position.assignments.latest("start_date")
-    else:
-        position.current_assignment = None
-    position.save()
+    latest_assignment = Assignment.objects.filter(position=OuterRef('pk')).order_by('-start_date')
+    latest_assignment = Subquery(latest_assignment.values('id')[:1])
+
+    # Update all positions
+    Position.objects.update(current_assignment_id=latest_assignment)

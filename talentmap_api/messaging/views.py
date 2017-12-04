@@ -14,6 +14,7 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification, Sharable
+from talentmap_api.messaging.filters import NotificationFilter
 from talentmap_api.messaging.serializers import NotificationSerializer, SharableSerializer
 
 
@@ -38,6 +39,7 @@ class NotificationView(FieldLimitableSerializerMixin,
     '''
 
     serializer_class = NotificationSerializer
+    filter_class = NotificationFilter
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):

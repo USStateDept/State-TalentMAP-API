@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from talentmap_api.user_profile import views
+from talentmap_api.user_profile.views import searches as views
 from talentmap_api.common.urls import get_retrieve, get_list, delete_destroy, patch_update, post_create
 
 urlpatterns = [

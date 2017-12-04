@@ -16,15 +16,14 @@ class OrganizationFilter(filters.FilterSet):
     class Meta:
         model = Organization
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
+            "is_bureau": ['exact'],
+            "is_regional": ['exact'],
             "bureau_organization": FOREIGN_KEY_LOOKUPS,
             "parent_organization": FOREIGN_KEY_LOOKUPS,
-            "location": FOREIGN_KEY_LOOKUPS,
-            "is_bureau": ['exact'],
-            "is_regional": ['exact']
+            "location": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -34,7 +33,6 @@ class TourOfDutyFilter(filters.FilterSet):
     class Meta:
         model = TourOfDuty
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
@@ -58,7 +56,6 @@ class CountryFilter(filters.FilterSet):
     class Meta:
         model = Country
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "short_code": ALL_TEXT_LOOKUPS,
             "location_prefix": ALL_TEXT_LOOKUPS,
@@ -73,7 +70,6 @@ class LocationFilter(filters.FilterSet):
     class Meta:
         model = Location
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
             "city": ALL_TEXT_LOOKUPS,
             "state": ALL_TEXT_LOOKUPS,
@@ -102,13 +98,12 @@ class PostFilter(filters.FilterSet):
     class Meta:
         model = Post
         fields = {
-            "id": INTEGER_LOOKUPS,
-            "location": FOREIGN_KEY_LOOKUPS,
             "cost_of_living_adjustment": INTEGER_LOOKUPS,
             "differential_rate": INTEGER_LOOKUPS,
             "danger_pay": INTEGER_LOOKUPS,
             "rest_relaxation_point": ALL_TEXT_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "has_consumable_allowance": ["exact"],
-            "has_service_needs_differential": ["exact"]
+            "has_service_needs_differential": ["exact"],
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "location": FOREIGN_KEY_LOOKUPS
         }

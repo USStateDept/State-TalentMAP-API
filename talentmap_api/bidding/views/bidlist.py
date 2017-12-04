@@ -55,6 +55,7 @@ class BidListView(mixins.ListModelMixin,
             bid.status = Bid.Status.closed
             bid.save()
             Notification.objects.create(owner=bid.user,
+                                        tags=['bidding'],
                                         message=f"Bid {bid} has been closed by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
         elif datetime.datetime.now().date() < bid.bidcycle.cycle_deadline_date:

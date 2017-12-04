@@ -1,5 +1,6 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
@@ -21,9 +22,7 @@ class OrganizationListView(FieldLimitableSerializerMixin,
     filter_class = OrganizationFilter
 
     def get_queryset(self):
-        queryset = Organization.objects.all()
-        queryset = self.serializer_class.prefetch_model(Organization, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Organization, self.serializer_class)
 
 
 class LocationView(FieldLimitableSerializerMixin,
@@ -40,9 +39,7 @@ class LocationView(FieldLimitableSerializerMixin,
     filter_class = LocationFilter
 
     def get_queryset(self):
-        queryset = Location.objects.all()
-        queryset = self.serializer_class.prefetch_model(Location, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Location, self.serializer_class)
 
 
 class CountryView(FieldLimitableSerializerMixin,
@@ -59,9 +56,7 @@ class CountryView(FieldLimitableSerializerMixin,
     filter_class = CountryFilter
 
     def get_queryset(self):
-        queryset = Country.objects.all()
-        queryset = self.serializer_class.prefetch_model(Country, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Country, self.serializer_class)
 
 
 class PostListView(FieldLimitableSerializerMixin,
@@ -78,9 +73,7 @@ class PostListView(FieldLimitableSerializerMixin,
     filter_class = PostFilter
 
     def get_queryset(self):
-        queryset = Post.objects.all()
-        queryset = self.serializer_class.prefetch_model(Post, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(Post, self.serializer_class)
 
 
 class TourOfDutyListView(FieldLimitableSerializerMixin,
@@ -97,6 +90,4 @@ class TourOfDutyListView(FieldLimitableSerializerMixin,
     filter_class = TourOfDutyFilter
 
     def get_queryset(self):
-        queryset = TourOfDuty.objects.all()
-        queryset = self.serializer_class.prefetch_model(TourOfDuty, queryset)
-        return queryset
+        return get_prefetched_filtered_queryset(TourOfDuty, self.serializer_class)
