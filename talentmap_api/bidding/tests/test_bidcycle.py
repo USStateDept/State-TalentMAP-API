@@ -6,6 +6,7 @@ from model_mommy import mommy
 from rest_framework import status
 
 from talentmap_api.bidding.models import BidCycle, Bid
+from talentmap_api.position.models import PositionBidStatistics
 from talentmap_api.user_profile.models import SavedSearch
 
 
@@ -206,6 +207,8 @@ def test_bidcycle_batch_actions(authorized_client, authorized_user):
     savedsearch.refresh_from_db()
 
     assert len(response.data["results"]) == savedsearch.count
+    # Ensure we've created statistics objects for all of the positions
+    assert PositionBidStatistics.objects.filter(bidcycle_id=2).count() == savedsearch.count
 
 
 @pytest.mark.django_db(transaction=True)
