@@ -323,7 +323,7 @@ class Assignment(models.Model):
 @receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
 def assignment_post_save(sender, instance, created, **kwargs):
     '''
-    This listener updates an all positions current assignments when any assignment is updated
+    This listener updates all positions' current assignments when any assignment is updated
     '''
     latest_assignment = Assignment.objects.filter(position=OuterRef('pk')).order_by('-start_date')
     latest_assignment = Subquery(latest_assignment.values('id')[:1])

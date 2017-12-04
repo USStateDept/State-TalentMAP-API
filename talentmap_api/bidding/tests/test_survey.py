@@ -62,3 +62,4 @@ def test_survey_list_cdo(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["user"] == user.profile.id
+    assert "calculated_values" in response.data["results"][0]

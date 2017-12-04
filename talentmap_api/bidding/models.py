@@ -82,8 +82,8 @@ class UserBidStatistics(models.Model):
     closed = models.IntegerField(default=0)
 
     def update_statistics(self):
-        for status in Bid.Status.choices:
-            setattr(self, status[0], Bid.objects.filter(user=self.user, bidcycle=self.bidcycle, status=status[0]).count())
+        for status_code, _ in Bid.Status.choices:
+            setattr(self, status_code, Bid.objects.filter(user=self.user, bidcycle=self.bidcycle, status=status_code).count())
 
         self.save()
 
