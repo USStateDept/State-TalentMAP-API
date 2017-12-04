@@ -2,7 +2,7 @@ import rest_framework_filters as filters
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class OrganizationFilter(filters.FilterSet):
@@ -20,7 +20,10 @@ class OrganizationFilter(filters.FilterSet):
             "long_description": ALL_TEXT_LOOKUPS,
             "short_description": ALL_TEXT_LOOKUPS,
             "is_bureau": ['exact'],
-            "is_regional": ['exact']
+            "is_regional": ['exact'],
+            "bureau_organization": FOREIGN_KEY_LOOKUPS,
+            "parent_organization": FOREIGN_KEY_LOOKUPS,
+            "location": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -70,6 +73,7 @@ class LocationFilter(filters.FilterSet):
             "code": ALL_TEXT_LOOKUPS,
             "city": ALL_TEXT_LOOKUPS,
             "state": ALL_TEXT_LOOKUPS,
+            "country": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -99,5 +103,7 @@ class PostFilter(filters.FilterSet):
             "danger_pay": INTEGER_LOOKUPS,
             "rest_relaxation_point": ALL_TEXT_LOOKUPS,
             "has_consumable_allowance": ["exact"],
-            "has_service_needs_differential": ["exact"]
+            "has_service_needs_differential": ["exact"],
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "location": FOREIGN_KEY_LOOKUPS
         }

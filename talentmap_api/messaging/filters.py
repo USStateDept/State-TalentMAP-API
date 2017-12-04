@@ -5,7 +5,7 @@ from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import UserProfileFilter
 
-from talentmap_api.common.filters import array_field_filter, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import array_field_filter, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class NotificationFilter(filters.FilterSet):
@@ -20,5 +20,6 @@ class NotificationFilter(filters.FilterSet):
             "message": ALL_TEXT_LOOKUPS,
             "is_read": ['exact'],
             "date_created": DATE_LOOKUPS,
-            "date_updated": DATE_LOOKUPS
+            "date_updated": DATE_LOOKUPS,
+            "owner": FOREIGN_KEY_LOOKUPS
         }

@@ -14,7 +14,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -114,7 +114,15 @@ class PositionFilter(filters.FilterSet):
             "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
             "create_date": DATE_LOOKUPS,
-            "update_date": DATE_LOOKUPS
+            "update_date": DATE_LOOKUPS,
+            "post": FOREIGN_KEY_LOOKUPS,
+            "organization": FOREIGN_KEY_LOOKUPS,
+            "bureau": FOREIGN_KEY_LOOKUPS,
+            "skill": FOREIGN_KEY_LOOKUPS,
+            "grade": FOREIGN_KEY_LOOKUPS,
+            "description": FOREIGN_KEY_LOOKUPS,
+            "languages": FOREIGN_KEY_LOOKUPS,
+            "current_assignment": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -132,4 +140,6 @@ class AssignmentFilter(filters.FilterSet):
             "estimated_end_date": DATE_LOOKUPS,
             "end_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS
         }
