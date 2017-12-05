@@ -1,6 +1,16 @@
 from rest_framework import serializers
 from django.db.models.constants import LOOKUP_SEP
 
+from talentmap_api.common.models import StaticRepresentationModel
+
+
+class StaticRepresentationField(serializers.RelatedField):
+    def to_representation(self, value):
+        if isinstance(value, StaticRepresentationModel):
+            return value.string_representation
+        else:
+            return str(value)
+
 
 class PrefetchedSerializer(serializers.ModelSerializer):
     '''
@@ -151,7 +161,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
                 child_kwargs[pair[1]] = child_overrides
 
     @classmethod
-    def prefetch_model(cls, model, queryset, prefix="", visited=None):
+    def prefetch_model(cls, model, queryset, prefix="", parent_method=None, visited=None):
         '''
         This method sets up prefetch and selected related statements when applicable
         for foreign key relationships.
@@ -160,7 +170,8 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         field type, and (2) not a reverse lookup, it pre-fetches that field, and
         all sub-fields
         '''
-        related_field_types = ["OneToOneField", "ManyToManyField", "ForeignKey"]
+        select_related_field_types = ["OneToOneField", "ForeignKey"]
+        prefetch_field_types = ["ManyToManyField"]
 
         # Don't prefetch already prefetched items
         if not visited:
@@ -169,10 +180,41 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             return queryset
         visited.append(model)
 
-        for field in model._meta.get_fields():
-            if field.get_internal_type() in related_field_types and not hasattr(field, 'related_name'):
-                queryset = queryset.prefetch_related(f"{prefix}{field.name}")
-                if field.related_model != model:
-                    queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}", visited=visited)
+        # Only prefetch serialized fields
+        serialized_field_names = cls().fields.keys()
+        fields = [x for x in model._meta.get_fields() if x.name in serialized_field_names]
+
+        for field in fields:
+            internal_type = field.get_internal_type()
+            method = None
+            # If this attribute is present, we are fetching a reverse-lookup, and need to use prefetch_related
+            if hasattr(field, 'related_name'):
+                method = "prefetch_related"
+            # If we're a forward-lookup, we need to check the related field types
+            # For OneToOne and ForeignKey, use select_related
+            elif internal_type in select_related_field_types:
+                method = "select_related"
+            # Use prefetch_related for "many" relationships
+            elif internal_type in prefetch_field_types:
+                method = "prefetch_related"
+            # Otherwise, we're just a base field and can skip
+            else:
+                continue
+
+            # If we're a n-level nesting (n>1) we need to prefetch_related if at some point
+            # in the relationship chain we prefetch related
+            if parent_method == "prefetch_related":
+                method = parent_method
+
+            # Call the appropriate prefetch method
+            queryset = getattr(queryset, method)(f"{prefix}{field.name}")
+            # If we have a related model to step into, do so
+            if field.related_model != model:
+                # If our serializer has a meta class (it should if it is a PrefetchedSerializer)
+                if hasattr(cls.Meta, "nested"):
+                    nested_serializer_class = cls.Meta.nested.get(field.name, None)
+                    # If we have a nested serializer class, use it to prefetch the next level of fields
+                    if nested_serializer_class:
+                        queryset = nested_serializer_class.get("class").prefetch_model(field.related_model, queryset, parent_method=method, prefix=f"{prefix}{field.name}{LOOKUP_SEP}", visited=visited)
 
         return queryset

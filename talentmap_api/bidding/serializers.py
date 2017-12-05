@@ -2,7 +2,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
 
@@ -60,9 +60,9 @@ class SurveySerializer(PrefetchedSerializer):
 
 
 class BidSerializer(PrefetchedSerializer):
-    bidcycle = serializers.StringRelatedField()
-    user = serializers.StringRelatedField()
-    position = serializers.StringRelatedField()
+    bidcycle = StaticRepresentationField(read_only=True)
+    user = StaticRepresentationField(read_only=True)
+    position = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Bid
@@ -90,8 +90,8 @@ class BidSerializer(PrefetchedSerializer):
 
 
 class UserBidStatisticsSerializer(PrefetchedSerializer):
-    bidcycle = serializers.StringRelatedField()
-    user = serializers.StringRelatedField()
+    bidcycle = StaticRepresentationField(read_only=True)
+    user = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = UserBidStatistics

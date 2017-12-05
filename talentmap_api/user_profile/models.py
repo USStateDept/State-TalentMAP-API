@@ -10,13 +10,14 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.postgres.fields import JSONField
 
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
 
 
-class UserProfile(models.Model):
+class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     date_of_birth = models.DateField(null=True)
     mandatory_retirement_date = models.DateField(null=True)
@@ -97,7 +98,7 @@ class UserProfile(models.Model):
         ordering = ['user__last_name']
 
 
-class SavedSearch(models.Model):
+class SavedSearch(StaticRepresentationModel):
     '''
     Represents a saved search.
     '''

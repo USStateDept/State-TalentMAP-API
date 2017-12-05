@@ -1,8 +1,6 @@
-from rest_framework import serializers
-
 from django.contrib.auth.models import Group, Permission
 
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
 
 class PermissionSerializer(PrefetchedSerializer):
@@ -22,7 +20,7 @@ class PermissionGroupSerializer(PrefetchedSerializer):
 
 class PermissionGroupMembersSerializer(PrefetchedSerializer):
     permissions = PermissionSerializer(many=True)
-    user_set = serializers.StringRelatedField(many=True)
+    user_set = StaticRepresentationField(read_only=True, many=True)
 
     class Meta:
         model = Group

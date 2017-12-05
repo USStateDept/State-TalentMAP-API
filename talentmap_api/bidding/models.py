@@ -6,11 +6,12 @@ from django.dispatch import receiver
 from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
 
-class BidCycle(models.Model):
+class BidCycle(StaticRepresentationModel):
     '''
     The bid cycle model represents an individual bidding cycle
     '''
@@ -46,7 +47,7 @@ class BidCycle(models.Model):
         ordering = ["cycle_start_date"]
 
 
-class StatusSurvey(models.Model):
+class StatusSurvey(StaticRepresentationModel):
     '''
     The status survey model represents eligiblity status self-identification information
     on a per-bidcycle basis
@@ -65,7 +66,7 @@ class StatusSurvey(models.Model):
         unique_together = (("user", "bidcycle"),)
 
 
-class UserBidStatistics(models.Model):
+class UserBidStatistics(StaticRepresentationModel):
     '''
     Stores bid statistics for any particular bidcycle for each user
     '''
@@ -93,7 +94,7 @@ class UserBidStatistics(models.Model):
         unique_together = (("bidcycle", "user",),)
 
 
-class Bid(models.Model):
+class Bid(StaticRepresentationModel):
     '''
     The bid object represents an individual bid, the position, user, and process status
     '''

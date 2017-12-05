@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models import Q
+from django.db.models import Q, Subquery
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
@@ -55,7 +55,7 @@ class CapsuleDescriptionFilter(filters.FilterSet):
 
 
 class PositionFilter(filters.FilterSet):
-    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -74,7 +74,7 @@ class PositionFilter(filters.FilterSet):
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
-            "language_requirements__language__long_description",
+            "languages__language__long_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
@@ -94,7 +94,8 @@ class PositionFilter(filters.FilterSet):
         '''
         # Get latest active bidcycle
         bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
-        return bidcycle.annotated_positions.filter(accepting_bids=value)
+        accepting_bids_query = Subquery(bidcycle.annotated_positions.filter(accepting_bids=value).values_list('id', flat=True))
+        return queryset.filter(id__in=accepting_bids_query)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''

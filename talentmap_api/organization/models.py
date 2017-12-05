@@ -4,8 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 
 import logging
 
+from talentmap_api.common.models import StaticRepresentationModel
 
-class Organization(models.Model):
+
+class Organization(StaticRepresentationModel):
     '''
     The organization model represents a DoS organization, such as bureaus
     '''
@@ -114,7 +116,7 @@ class Organization(models.Model):
         ordering = ["code"]
 
 
-class TourOfDuty(models.Model):
+class TourOfDuty(StaticRepresentationModel):
     '''
     Represents a tour of duty
     '''
@@ -132,7 +134,7 @@ class TourOfDuty(models.Model):
         ordering = ["code"]
 
 
-class Country(models.Model):
+class Country(StaticRepresentationModel):
     '''
     Represents a country
     '''
@@ -152,7 +154,7 @@ class Country(models.Model):
         ordering = ["code"]
 
 
-class Location(models.Model):
+class Location(StaticRepresentationModel):
     '''
     Represents a geographic location
     '''
@@ -195,7 +197,7 @@ class Location(models.Model):
         ordering = ["code"]
 
 
-class Post(models.Model):
+class Post(StaticRepresentationModel):
     '''
     Represents a post and its related fields
     '''

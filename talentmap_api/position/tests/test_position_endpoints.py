@@ -32,8 +32,8 @@ def test_position_endpoints_fixture():
     mommy.make_recipe('talentmap_api.position.tests.skill', _quantity=8)
 
     # Create a position with the specific qualification
-    mommy.make('position.Position', language_requirements=[qualification], grade=grade, skill=skill)
-    mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
+    mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill)
+    mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2)
 
     is_overseas = [True, False]
     # Create some junk positions to add numbers

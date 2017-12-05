@@ -8,11 +8,12 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 import talentmap_api.bidding.models
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
 
 
-class Position(models.Model):
+class Position(StaticRepresentationModel):
     '''
     The position model represents a job by combining different requirements, as
     well as geographic location
@@ -23,7 +24,7 @@ class Position(models.Model):
     title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
-    language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
+    languages = models.ManyToManyField('language.Qualification', related_name='positions')
 
     # Positions most often share their tour of duty with the post, but sometimes vary
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
@@ -104,19 +105,19 @@ class Position(models.Model):
         Update the position relationships
         '''
         # Update language requirements
-        self.language_requirements.clear()
+        self.languages.clear()
         if self._language_1_code:
             qualification = Qualification.get_or_create_by_codes(self._language_1_code,
                                                                  self._language_1_reading_proficiency_code,
                                                                  self._language_1_spoken_proficiency_code)[0]
             if qualification:
-                self.language_requirements.add(qualification)
+                self.languages.add(qualification)
         if self._language_2_code:
             qualification = Qualification.get_or_create_by_codes(self._language_2_code,
                                                                  self._language_2_reading_proficiency_code,
                                                                  self._language_2_spoken_proficiency_code)[0]
             if qualification:
-                self.language_requirements.add(qualification)
+                self.languages.add(qualification)
 
         # Update grade
         if self._grade_code:
@@ -150,7 +151,7 @@ class Position(models.Model):
         ordering = ["position_number"]
 
 
-class PositionBidStatistics(models.Model):
+class PositionBidStatistics(StaticRepresentationModel):
     '''
     Stores the bid statistics on a per-cycle basis for a position
     '''
@@ -177,7 +178,7 @@ class PositionBidStatistics(models.Model):
         unique_together = (("bidcycle", "position",),)
 
 
-class CapsuleDescription(models.Model):
+class CapsuleDescription(StaticRepresentationModel):
     '''
     Represents a capsule description, describing the associated object in plain English
     '''
@@ -197,7 +198,7 @@ class CapsuleDescription(models.Model):
         ordering = ["date_updated"]
 
 
-class Grade(models.Model):
+class Grade(StaticRepresentationModel):
     '''
     The grade model represents an individual job grade
     '''
@@ -235,7 +236,7 @@ class Grade(models.Model):
         ordering = ["rank"]
 
 
-class Skill(models.Model):
+class Skill(StaticRepresentationModel):
     '''
     The skill model represents an individual job skill
     '''
@@ -251,7 +252,7 @@ class Skill(models.Model):
         ordering = ["code"]
 
 
-class Classification(models.Model):
+class Classification(StaticRepresentationModel):
     '''
     The position classification model represents a position's classification.
     Maintained as a separate model to support limiting visibility.
@@ -268,7 +269,7 @@ class Classification(models.Model):
         ordering = ["code"]
 
 
-class Assignment(models.Model):
+class Assignment(StaticRepresentationModel):
     '''
     The assignment model represents a current or past assignment, linking together
     users, positions, tours of duty, and other assignment related data
