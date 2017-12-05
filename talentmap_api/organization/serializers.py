@@ -5,8 +5,8 @@ from talentmap_api.organization.models import Organization, Post, TourOfDuty, Lo
 
 
 class OrganizationSerializer(PrefetchedSerializer):
-    bureau_organization = StaticRepresentationField(read_only=True)
-    parent_organization = StaticRepresentationField(read_only=True)
+    bureau_organization = serializers.SerializerMethodField()
+    parent_organization = serializers.SerializerMethodField()
     highlighted_positions = StaticRepresentationField(read_only=True, many=True)
     location = StaticRepresentationField(read_only=True)
 
@@ -14,7 +14,7 @@ class OrganizationSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_bureau_organization(self, obj):
         if obj.bureau_organization:
-            return str(obj.bureau_organization)
+            return obj.bureau_organization.string_representation
         else:
             return obj._parent_bureau_code
 
@@ -22,7 +22,7 @@ class OrganizationSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_parent_organization(self, obj):
         if obj.parent_organization:
-            return str(obj.parent_organization)
+            return obj.parent_organization.string_representation
         else:
             return obj._parent_organization_code
 

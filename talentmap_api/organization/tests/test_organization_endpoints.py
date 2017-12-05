@@ -33,7 +33,7 @@ def test_organization_list_clear_parent_names(client):
     response = client.get('/api/v1/organization/?is_bureau=false')
 
     assert response.status_code == status.HTTP_200_OK
-    print(response.data["results"])
+
     for item in response.data["results"]:
         assert (item["bureau_organization"] == "Bureau of Cheese Imports ()" or
                 item["bureau_organization"] == "cheese" or

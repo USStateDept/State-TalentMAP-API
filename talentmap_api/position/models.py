@@ -24,7 +24,7 @@ class Position(StaticRepresentationModel):
     title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
-    language_requirements = models.ManyToManyField('language.Qualification', related_name='positions')
+    languages = models.ManyToManyField('language.Qualification', related_name='positions')
 
     # Positions most often share their tour of duty with the post, but sometimes vary
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
@@ -105,19 +105,19 @@ class Position(StaticRepresentationModel):
         Update the position relationships
         '''
         # Update language requirements
-        self.language_requirements.clear()
+        self.languages.clear()
         if self._language_1_code:
             qualification = Qualification.get_or_create_by_codes(self._language_1_code,
                                                                  self._language_1_reading_proficiency_code,
                                                                  self._language_1_spoken_proficiency_code)[0]
             if qualification:
-                self.language_requirements.add(qualification)
+                self.languages.add(qualification)
         if self._language_2_code:
             qualification = Qualification.get_or_create_by_codes(self._language_2_code,
                                                                  self._language_2_reading_proficiency_code,
                                                                  self._language_2_spoken_proficiency_code)[0]
             if qualification:
-                self.language_requirements.add(qualification)
+                self.languages.add(qualification)
 
         # Update grade
         if self._grade_code:

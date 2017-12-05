@@ -91,7 +91,6 @@ class PositionSerializer(PrefetchedSerializer):
         nested = {
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
-                "field": "bid_statistics",
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -99,7 +98,6 @@ class PositionSerializer(PrefetchedSerializer):
             },
             "languages": {
                 "class": LanguageQualificationSerializer,
-                "field": "language_requirements",
                 "kwargs": {
                     "many": True,
                     "read_only": True

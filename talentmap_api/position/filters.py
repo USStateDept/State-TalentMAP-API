@@ -55,7 +55,7 @@ class CapsuleDescriptionFilter(filters.FilterSet):
 
 
 class PositionFilter(filters.FilterSet):
-    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -74,7 +74,7 @@ class PositionFilter(filters.FilterSet):
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
-            "language_requirements__language__long_description",
+            "languages__language__long_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
