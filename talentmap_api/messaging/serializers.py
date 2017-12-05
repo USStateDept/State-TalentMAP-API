@@ -2,12 +2,12 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from django.apps import apps
 
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.messaging.models import Notification, Sharable
 
 
 class NotificationSerializer(PrefetchedSerializer):
-    owner = serializers.StringRelatedField(read_only=True)
+    owner = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Notification
@@ -16,8 +16,8 @@ class NotificationSerializer(PrefetchedSerializer):
 
 
 class SharableSerializer(PrefetchedSerializer):
-    sharing_user = serializers.StringRelatedField(read_only=True)
-    receiving_user = serializers.StringRelatedField(read_only=True)
+    sharing_user = StaticRepresentationField(read_only=True)
+    receiving_user = StaticRepresentationField(read_only=True)
 
     content = serializers.SerializerMethodField()
 

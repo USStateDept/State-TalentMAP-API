@@ -1,6 +1,16 @@
 from rest_framework import serializers
 from django.db.models.constants import LOOKUP_SEP
 
+from talentmap_api.common.models import StaticRepresentationModel
+
+
+class StaticRepresentationField(serializers.RelatedField):
+    def to_representation(self, value):
+        if isinstance(value, StaticRepresentationModel):
+            return value.string_representation
+        else:
+            return str(value)
+
 
 class PrefetchedSerializer(serializers.ModelSerializer):
     '''

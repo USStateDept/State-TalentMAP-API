@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 
 
 class OrganizationSerializer(PrefetchedSerializer):
-    bureau_organization = serializers.SerializerMethodField()
-    parent_organization = serializers.SerializerMethodField()
-    highlighted_positions = serializers.StringRelatedField(many=True)
-    location = serializers.StringRelatedField()
+    bureau_organization = StaticRepresentationField(read_only=True)
+    parent_organization = StaticRepresentationField(read_only=True)
+    highlighted_positions = StaticRepresentationField(read_only=True, many=True)
+    location = StaticRepresentationField(read_only=True)
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -39,11 +39,7 @@ class CountrySerializer(PrefetchedSerializer):
 
 
 class LocationSerializer(PrefetchedSerializer):
-    representation = serializers.SerializerMethodField()
-    country = serializers.StringRelatedField()
-
-    def get_representation(self, obj):
-        return str(obj)
+    country = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Location
@@ -52,8 +48,8 @@ class LocationSerializer(PrefetchedSerializer):
 
 class PostSerializer(PrefetchedSerializer):
     code = serializers.CharField(source="_location_code", read_only=True)
-    location = serializers.StringRelatedField()
-    tour_of_duty = serializers.StringRelatedField()
+    location = StaticRepresentationField(read_only=True)
+    tour_of_duty = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Post

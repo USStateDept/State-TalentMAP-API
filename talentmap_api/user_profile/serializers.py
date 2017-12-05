@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist
 from talentmap_api.bidding.serializers import UserBidStatisticsSerializer
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
@@ -32,11 +32,11 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 class ClientSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
+    skill_code = StaticRepresentationField(read_only=True)
+    grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
-    primary_nationality = serializers.StringRelatedField()
-    secondary_nationality = serializers.StringRelatedField()
+    primary_nationality = StaticRepresentationField(read_only=True)
+    secondary_nationality = StaticRepresentationField(read_only=True)
 
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
@@ -77,12 +77,12 @@ class ClientSerializer(PrefetchedSerializer):
 
 class UserProfileSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
-    cdo = serializers.StringRelatedField()
+    skill_code = StaticRepresentationField(read_only=True)
+    grade = StaticRepresentationField(read_only=True)
+    cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
-    primary_nationality = serializers.StringRelatedField()
-    secondary_nationality = serializers.StringRelatedField()
+    primary_nationality = StaticRepresentationField(read_only=True)
+    secondary_nationality = StaticRepresentationField(read_only=True)
 
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
