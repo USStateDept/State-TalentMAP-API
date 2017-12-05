@@ -8,11 +8,12 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 import talentmap_api.bidding.models
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
 
 
-class Position(models.Model):
+class Position(StaticRepresentationModel):
     '''
     The position model represents a job by combining different requirements, as
     well as geographic location
@@ -150,7 +151,7 @@ class Position(models.Model):
         ordering = ["position_number"]
 
 
-class PositionBidStatistics(models.Model):
+class PositionBidStatistics(StaticRepresentationModel):
     '''
     Stores the bid statistics on a per-cycle basis for a position
     '''
@@ -177,7 +178,7 @@ class PositionBidStatistics(models.Model):
         unique_together = (("bidcycle", "position",),)
 
 
-class CapsuleDescription(models.Model):
+class CapsuleDescription(StaticRepresentationModel):
     '''
     Represents a capsule description, describing the associated object in plain English
     '''
@@ -197,7 +198,7 @@ class CapsuleDescription(models.Model):
         ordering = ["date_updated"]
 
 
-class Grade(models.Model):
+class Grade(StaticRepresentationModel):
     '''
     The grade model represents an individual job grade
     '''
@@ -235,7 +236,7 @@ class Grade(models.Model):
         ordering = ["rank"]
 
 
-class Skill(models.Model):
+class Skill(StaticRepresentationModel):
     '''
     The skill model represents an individual job skill
     '''
@@ -251,7 +252,7 @@ class Skill(models.Model):
         ordering = ["code"]
 
 
-class Classification(models.Model):
+class Classification(StaticRepresentationModel):
     '''
     The position classification model represents a position's classification.
     Maintained as a separate model to support limiting visibility.
@@ -268,7 +269,7 @@ class Classification(models.Model):
         ordering = ["code"]
 
 
-class Assignment(models.Model):
+class Assignment(StaticRepresentationModel):
     '''
     The assignment model represents a current or past assignment, linking together
     users, positions, tours of duty, and other assignment related data

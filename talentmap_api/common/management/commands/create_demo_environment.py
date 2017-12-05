@@ -3,8 +3,9 @@ from django.core.management import call_command
 
 import logging
 import datetime
+import itertools
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, Bid
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
 from talentmap_api.user_profile.models import UserProfile
@@ -40,3 +41,22 @@ class Command(BaseCommand):
                 tour_of_duty = TourOfDuty.objects.get(id=1)
             Assignment.objects.create(user=profile, position=position, start_date=datetime.datetime.now().date(), tour_of_duty=tour_of_duty, status="active")
         self.logger.info("Created.")
+
+        self.logger.info(f"Seeding bids for all users...")
+        # Remove any existing bids
+        Bid.objects.all().delete()
+
+        # Create 5 bids for each user
+        positions = list(bc.positions.order_by('?'))
+        for user in list(UserProfile.objects.all()):
+            for _ in range(0, 5):
+                Bid.objects.create(position=positions.pop(), bidcycle=bc, user=user)
+        self.logger.info(f"Seeded bids, randomly altering statuses...")
+        # Assign random bids statuses
+        statuses = itertools.cycle([Bid.Status.submitted, Bid.Status.handshake_offered])
+        for bid in list(Bid.objects.exclude(user__user__username__in=["admin", "doej", "guest"]).order_by('?')[:10]):
+            bid.status = next(statuses)
+            self.logger.info(f"Setting status: {bid}")
+            bid.save()
+
+        self.logger.info("Done initializing bids")
