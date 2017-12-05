@@ -160,7 +160,8 @@ class PrefetchedSerializer(serializers.ModelSerializer):
         field type, and (2) not a reverse lookup, it pre-fetches that field, and
         all sub-fields
         '''
-        related_field_types = ["OneToOneField", "ManyToManyField", "ForeignKey"]
+        select_related_field_types = ["OneToOneField", "ForeignKey"]
+        prefetch_field_types = ["ManyToManyField"]
 
         # Don't prefetch already prefetched items
         if not visited:
@@ -169,10 +170,27 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             return queryset
         visited.append(model)
 
-        for field in model._meta.get_fields():
-            if field.get_internal_type() in related_field_types and not hasattr(field, 'related_name'):
-                queryset = queryset.prefetch_related(f"{prefix}{field.name}")
-                if field.related_model != model:
-                    queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}", visited=visited)
+        # Only prefetch serialized fields
+        serialized_field_names = cls().fields.keys()
+        fields = [x for x in model._meta.get_fields() if x.name in serialized_field_names]
+
+        for field in fields:
+            internal_type = field.get_internal_type()
+            method = None
+            # Don't prefetch backwards through a reverse lookup
+            if hasattr(field, 'related_name'):
+                continue
+            # Use select related for "not-many" relationships
+            if internal_type in select_related_field_types:
+                method = "select_related"
+            # Use prefetch related for "many" relationships
+            elif internal_type in prefetch_field_types:
+                method = "prefetch_related"
+            else:
+                continue
+
+            queryset = getattr(queryset, method)(f"{prefix}{field.name}")
+            if field.related_model != model:
+                queryset = cls.prefetch_model(field.related_model, queryset, prefix=f"{prefix}{field.name}{LOOKUP_SEP}", visited=visited)
 
         return queryset

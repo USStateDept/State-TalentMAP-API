@@ -2,7 +2,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models import Q
+from django.db.models import Q, Subquery
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
@@ -94,7 +94,8 @@ class PositionFilter(filters.FilterSet):
         '''
         # Get latest active bidcycle
         bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
-        return bidcycle.annotated_positions.filter(accepting_bids=value)
+        accepting_bids_query = Subquery(bidcycle.annotated_positions.filter(accepting_bids=value).values_list('id', flat=True))
+        return queryset.filter(id__in=accepting_bids_query)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''
