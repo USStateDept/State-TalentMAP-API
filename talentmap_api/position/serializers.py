@@ -25,7 +25,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
     class Meta:
         model = CapsuleDescription
-        exclude = ("string_representation",)
+        fields = "__all__"
         writable_fields = ("content", "point_of_contact", "website",)
 
 
@@ -59,7 +59,7 @@ class PositionBidStatisticsSerializer(PrefetchedSerializer):
 
     class Meta:
         model = PositionBidStatistics
-        exclude = ("position", "string_representation")
+        exclude = ("position",)
 
 
 class PositionSerializer(PrefetchedSerializer):
@@ -73,7 +73,7 @@ class PositionSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_bureau(self, obj):
         if obj.bureau:
-            return obj.bureau.string_representation
+            return obj.bureau._string_representation
         else:
             return obj._bureau_code
 
@@ -81,7 +81,7 @@ class PositionSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_organization(self, obj):
         if obj.organization:
-            return obj.organization.string_representation
+            return obj.organization._string_representation
         else:
             return obj._org_code
 
