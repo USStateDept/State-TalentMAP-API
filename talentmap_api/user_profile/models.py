@@ -37,7 +37,7 @@ class UserProfile(StaticRepresentationModel):
     secondary_nationality = models.ForeignKey('organization.Country', null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.user.first_name} {self.user.last_name}"
 
     def save(self, *args, **kwargs):
         # Set the retirement date to the user's birthdate + 65 years
