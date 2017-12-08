@@ -7,7 +7,7 @@ from talentmap_api.common.models import StaticRepresentationModel
 class StaticRepresentationField(serializers.RelatedField):
     def to_representation(self, value):
         if isinstance(value, StaticRepresentationModel):
-            return value.string_representation
+            return value._string_representation
         else:
             return str(value)
 

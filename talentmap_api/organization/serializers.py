@@ -14,7 +14,7 @@ class OrganizationSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_bureau_organization(self, obj):
         if obj.bureau_organization:
-            return obj.bureau_organization.string_representation
+            return obj.bureau_organization._string_representation
         else:
             return obj._parent_bureau_code
 
@@ -22,7 +22,7 @@ class OrganizationSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_parent_organization(self, obj):
         if obj.parent_organization:
-            return obj.parent_organization.string_representation
+            return obj.parent_organization._string_representation
         else:
             return obj._parent_organization_code
 
