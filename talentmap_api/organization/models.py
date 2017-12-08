@@ -109,7 +109,7 @@ class Organization(StaticRepresentationModel):
         group.permissions.add(permission)
 
     def __str__(self):
-        return f"{self.long_description} ({self.short_description})"
+        return f"({self.short_description}) {self.long_description}"
 
     class Meta:
         managed = True

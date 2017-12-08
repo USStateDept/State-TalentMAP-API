@@ -35,9 +35,9 @@ def test_organization_list_clear_parent_names(client):
     assert response.status_code == status.HTTP_200_OK
 
     for item in response.data["results"]:
-        assert (item["bureau_organization"] == "Bureau of Cheese Imports ()" or
+        assert (item["bureau_organization"] == "() Bureau of Cheese Imports" or
                 item["bureau_organization"] == "cheese" or
-                item["parent_organization"] == "Bureau of Cheese Imports ()" or
+                item["parent_organization"] == "() Bureau of Cheese Imports" or
                 item["parent_organization"] == "cheese")
 
 
