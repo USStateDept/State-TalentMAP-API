@@ -32,7 +32,7 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 class ClientSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = StaticRepresentationField(read_only=True)
+    skill_code = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
@@ -77,7 +77,7 @@ class ClientSerializer(PrefetchedSerializer):
 
 class UserProfileSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = StaticRepresentationField(read_only=True)
+    skill_code = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()

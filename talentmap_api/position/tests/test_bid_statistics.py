@@ -1,6 +1,6 @@
 import pytest
 
-from talentmap_api.position.models import Position
+from talentmap_api.position.models import Position, Skill
 from talentmap_api.bidding.models import Bid, BidCycle
 
 from model_mommy import mommy
@@ -24,12 +24,12 @@ def test_bid_statistics(authorized_client, authorized_user):
     in_grade.save()
 
     at_skill = mommy.make("auth.User").profile
-    at_skill.skill_code_id = 1
+    at_skill.skill_code.add(Skill.objects.get(id=1))
     at_skill.save()
 
     in_grade_at_skill = mommy.make("auth.User").profile
     in_grade_at_skill.grade_id = 1
-    in_grade_at_skill.skill_code_id = 1
+    in_grade_at_skill.skill_code.add(Skill.objects.get(id=1))
     in_grade_at_skill.save()
 
     assert Position.objects.count() == 1
