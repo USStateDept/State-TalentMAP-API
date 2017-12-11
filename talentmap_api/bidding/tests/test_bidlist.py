@@ -285,21 +285,6 @@ def test_bidlist_max_submissions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-@pytest.mark.django_db(transaction=True)
-def test_bid_declined_notification(authorized_client, authorized_user, test_bidlist_fixture):
-    assert authorized_user.profile.notifications.count() == 0
-
-    bidcycle = BidCycle.objects.get(id=1)
-    position = bidcycle.positions.first()
-    bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
-
-    bid.status = Bid.Status.declined
-    bid.save()
-
-    assert authorized_user.profile.notifications.count() == 1
-    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been declined."
-
-
 @pytest.mark.parametrize("status,message_key,owner", [
     (Bid.Status.handshake_offered, "handshake_offered_owner", True),
     (Bid.Status.handshake_offered, "handshake_offered_other", False),
