@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
+    url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),

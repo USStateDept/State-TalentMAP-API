@@ -179,6 +179,10 @@ class Waiver(StaticRepresentationModel):
         requested = ChoiceItem("requested")
         denied = ChoiceItem("denied")
 
+    category = models.TextField(choices=Category.choices)
+    type = models.TextField(default=Type.full, choices=Type.choices)
+    status = models.TextField(default=Status.requested, choices=Status.choices)
+
     bid = models.ForeignKey(Bid, related_name='waivers')
     position = models.ForeignKey('position.Position', related_name='waivers')
     user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
@@ -187,6 +191,9 @@ class Waiver(StaticRepresentationModel):
 
     create_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.type} {self.category} for {self.user} at {self.position}, {self.status}"
 
     class Meta:
         managed = True
