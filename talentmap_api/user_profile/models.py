@@ -27,7 +27,7 @@ class UserProfile(StaticRepresentationModel):
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
-    skill_code = models.ForeignKey('position.Skill', null=True)
+    skill_code = models.ManyToManyField('position.Skill')
 
     grade = models.ForeignKey('position.Grade', null=True)
 
