@@ -62,17 +62,3 @@ def test_language_qualification_creation(authorized_user, authorized_client):
 
     assert resp.status_code == status.HTTP_201_CREATED
     assert Qualification.objects.filter(language_id=1, reading_proficiency_id=1, spoken_proficiency_id=1).count() == 1
-
-
-@pytest.mark.django_db()
-def test_language_waiver_list(authorized_client, authorized_user):
-    # Give the user AO permissions
-    group = mommy.make("auth.Group", name="bureau_ao")
-    group.user_set.add(authorized_user)
-    language = mommy.make("language.Language")
-    mommy.make("language.Waiver", language=language, user=authorized_user.profile, _quantity=5)
-
-    response = authorized_client.get(f'/api/v1/language/{language.id}/waivers/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data['results']) == 5

@@ -159,6 +159,40 @@ class Bid(StaticRepresentationModel):
         ordering = ["bidcycle__cycle_start_date", "submission_date"]
 
 
+class Waiver(StaticRepresentationModel):
+    '''
+    The waiver model represents an individual waiver for a particular facet of a bid's requirements
+    '''
+
+    class Category(DjangoChoices):
+        retirement = ChoiceItem('retirement')
+        language = ChoiceItem('language')
+        six_eight = ChoiceItem('six_eight', 'six_eight')
+        fairshare = ChoiceItem('fairshare')
+
+    class Type(DjangoChoices):
+        partial = ChoiceItem("partial")
+        full = ChoiceItem("full")
+
+    class Status(DjangoChoices):
+        approved = ChoiceItem("approved")
+        requested = ChoiceItem("requested")
+        denied = ChoiceItem("denied")
+
+    bid = models.ForeignKey(Bid, related_name='waivers')
+    position = models.ForeignKey('position.Position', related_name='waivers')
+    user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
+
+    description = models.TextField(null=True, help_text="Description of the waiver request")
+
+    create_date = models.DateField(auto_now_add=True)
+    update_date = models.DateField(auto_now=True)
+
+    class Meta:
+        managed = True
+        ordering = ["update_date"]
+
+
 @receiver(m2m_changed, sender=BidCycle.positions.through, dispatch_uid="bidcycle_m2m_changed")
 def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, **kwargs):
     if action == "pre_add":
