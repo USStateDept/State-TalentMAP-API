@@ -63,6 +63,7 @@ class BidSerializer(PrefetchedSerializer):
     bidcycle = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
+    waivers = StaticRepresentationField(read_only=True, many=True)
 
     class Meta:
         model = Bid
