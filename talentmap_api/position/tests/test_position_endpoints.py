@@ -276,6 +276,45 @@ def test_highlight_action_endpoints(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_position_waiver_actions(authorized_client, authorized_user):
+    # Create a bureau for the position
+    bureau = mommy.make('organization.Organization', code='12345')
+    position = mommy.make('position.Position', bureau=bureau)
+    bidcycle = mommy.make('bidding.BidCycle')
+    bidcycle.positions.add(position)
+    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle)
+    waiver = mommy.make('bidding.Waiver', user=authorized_user.profile, position=position, bid=bid)
+
+    # Create valid permissions to view this position's waivers
+    group = mommy.make('auth.Group', name='bureau_ao')
+    group.user_set.add(authorized_user)
+    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group.user_set.add(authorized_user)
+
+    assert waiver.status == waiver.Status.requested
+
+    # Pull a list of all the waivers
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    # Approve the waiver
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/{waiver.id}/approve/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    waiver.refresh_from_db()
+    assert waiver.status == waiver.Status.approved
+
+    # Deny it the waiver
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/{waiver.id}/deny/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    waiver.refresh_from_db()
+    assert waiver.status == waiver.Status.denied
+
+
+@pytest.mark.django_db(transaction=True)
 def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
     one_year_tod = mommy.make('organization.TourOfDuty', months=12)
     two_year_tod = mommy.make('organization.TourOfDuty', months=24)

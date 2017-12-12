@@ -156,6 +156,11 @@ def test_bidlist_patch_bid(authorized_client, authorized_user):
     group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
     group.user_set.add(authorized_user)
 
+    # Get a list of all bids on the bureau's position
+    response = authorized_client.get(f'/api/v1/position/{in_bureau_position.id}/bids/')
+
+    assert response.status_code == status.HTTP_200_OK
+
     # Patch an in-bureau bid
     response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
         "status": "handshake_offered"

@@ -129,14 +129,3 @@ class WaiverClientSerializer(PrefetchedSerializer):
         model = Waiver
         fields = "__all__"
         writable_fields = ("bid", "position", "type", "category", "description")
-
-
-class WaiverBureauSerializer(PrefetchedSerializer):
-    '''
-    For bureau/AO editing of a waiver status
-    '''
-
-    class Meta:
-        model = Waiver
-        fields = "__all__"
-        writable_fields = ("status")
