@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
                 position = Position.objects.get(id=positions.pop())
                 profile = UserProfile.objects.get(user=user)
-                profile.skill_code = position.skill
+                profile.skill_code.add(position.skill)
                 profile.grade = position.grade
                 profile.primary_nationality = Country.objects.get(code="USA")
                 profile.date_of_birth = "1975-01-01"
