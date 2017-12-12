@@ -132,3 +132,35 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
 
     for bid_status, count in expected_counts.items():
         assert response.data["bid_statistics"][0].get(bid_status) == count
+
+
+@pytest.mark.django_db(transaction=True)
+def test_client_bid_list(authorized_client, authorized_user, test_clients_fixture):
+    client = authorized_user.profile.direct_reports.first()
+
+    position = mommy.make('position.Position')
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    bidcycle.positions.add(position)
+
+    mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status="draft", _quantity=10)
+
+    response = authorized_client.get(f'/api/v1/client/{client.id}/bids/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 10
+
+
+@pytest.mark.django_db(transaction=True)
+def test_client_waiver_list(authorized_client, authorized_user, test_clients_fixture):
+    client = authorized_user.profile.direct_reports.first()
+
+    position = mommy.make('position.Position')
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    bidcycle.positions.add(position)
+    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status="draft")
+    mommy.make('bidding.Waiver', bid=bid, position=position, user=client, _quantity=10)
+
+    response = authorized_client.get(f'/api/v1/client/{client.id}/waivers/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 10

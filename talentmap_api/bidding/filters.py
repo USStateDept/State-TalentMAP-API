@@ -18,6 +18,7 @@ class BidCycleFilter(filters.FilterSet):
 
 
 class BidFilter(filters.FilterSet):
+    waivers = filters.RelatedFilter('talentmap_api.bidding.filters.WaiverFilter', name='waivers', queryset=Waiver.objects.all())
 
     class Meta:
         model = Bid
