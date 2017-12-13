@@ -146,6 +146,6 @@ class BidListBidSubmitView(APIView):
 
         bid = get_object_or_404(Bid, user=user, id=pk)
         bid.status = Bid.Status.submitted
-        bid.submission_date = datetime.datetime.now()
+        bid.submitted_date = datetime.datetime.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

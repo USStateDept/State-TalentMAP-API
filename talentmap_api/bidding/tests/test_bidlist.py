@@ -19,7 +19,7 @@ def test_bidlist_fixture():
 @pytest.mark.django_db(transaction=True)
 def test_can_accept_new_bids_function(authorized_client, authorized_user, test_bidlist_fixture):
     active_cycle = BidCycle.objects.first()
-    nonactive_cycle = mommy.make(BidCycle, active=False)
+    nonactive_cycle = mommy.make(BidCycle, id=2, active=False)
 
     in_cycle_position = active_cycle.positions.first()
     out_of_cycle_position = mommy.make('position.Position')
@@ -112,7 +112,7 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["status"] == "draft"
     assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
-    assert response.data["results"][0]["submission_date"] is None
+    assert response.data["results"][0]["submitted_date"] is None
 
     bid_id = response.data["results"][0]["id"]
 
@@ -127,7 +127,7 @@ def test_bidlist_bid_actions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_200_OK
     assert response.data["results"][0]["status"] == "submitted"
     assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
-    assert response.data["results"][0]["submission_date"] is not None
+    assert response.data["results"][0]["submitted_date"] is not None
 
     # Try to delete our now submitted bid
     response = authorized_client.delete(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
