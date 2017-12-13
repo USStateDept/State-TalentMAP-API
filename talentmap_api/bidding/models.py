@@ -159,7 +159,7 @@ class Bid(StaticRepresentationModel):
         return {
             "handshake_offered_owner": f"Your bid for {self.position} has been offered a handshake.",
             "handshake_offered_other": f"A competing bid for {self.position} has been offered a handshake.",
-            "in_panel_owner": f"Your bid for {self.position} is under panel review.",
+            "in_panel_owner": f"Your bid for {self.position} has been schedule for panel review.",
             "approved_owner": f"Your bid for {self.position} has been approved by panel.",
             "declined_owner": f"Your bid for {self.position} has been declined."
         }
@@ -197,14 +197,25 @@ def bid_status_changed(sender, instance, **kwargs):
             others = list(UserProfile.objects.filter(id__in=others))
             for notification, users in [(f"{instance.status}_owner", owner), (f"{instance.status}_other", others)]:
                 # If we have that notification status in the notification bodies, create the notification
-                print(notification)
-                print(others)
-                print(notification in notification_bodies)
                 if notification in notification_bodies:
                     for user in users:
                         Notification.objects.create(owner=user,
                                                     tags=['bidding'],
                                                     message=notification_bodies[notification])
+
+
+@receiver(pre_save, sender=Bid, dispatch_uid="bid_panel_date_changed")
+def bid_panel_date_changed(sender, instance, **kwargs):
+    # If our instance has an id, we're performing an update (and not a create)
+    if instance.id and instance.scheduled_panel_date:
+        # Get our bid as it exists in the database
+        old_bid = Bid.objects.get(id=instance.id)
+
+        # Check if our old bid's paneling date is the same as the new one
+        if old_bid.scheduled_panel_date is not instance.scheduled_panel_date:
+            Notification.objects.create(owner=instance.user,
+                                        tags=['bidding', 'panel'],
+                                        message=f"Bid {instance} has been scheduled for paneling on {instance.scheduled_panel_date}.")
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")

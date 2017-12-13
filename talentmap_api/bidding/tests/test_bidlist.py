@@ -1,6 +1,5 @@
 import pytest
 import datetime
-import json
 from dateutil.relativedelta import relativedelta
 
 from model_mommy import mommy
@@ -94,81 +93,6 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
     response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
-def test_bidlist_bid_actions(authorized_client, authorized_user):
-    in_cycle_position = BidCycle.objects.first().positions.first()
-
-    # Put the position into the bidlist
-    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    # Get our bidlist, and validate that the position is in the list as a draft
-    response = authorized_client.get(f'/api/v1/bidlist/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data["results"][0]["status"] == "draft"
-    assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
-    assert response.data["results"][0]["submitted_date"] is None
-
-    bid_id = response.data["results"][0]["id"]
-
-    # Submit our bid
-    response = authorized_client.put(f'/api/v1/bidlist/bid/{bid_id}/submit/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    # Get our bidlist, and validate that the position is now "submitted"
-    response = authorized_client.get(f'/api/v1/bidlist/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data["results"][0]["status"] == "submitted"
-    assert response.data["results"][0]["position"]["id"] == in_cycle_position.id
-    assert response.data["results"][0]["submitted_date"] is not None
-
-    # Try to delete our now submitted bid
-    response = authorized_client.delete(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
-def test_bidlist_patch_bid(authorized_client, authorized_user):
-    bidcycle = BidCycle.objects.get(id=1)
-    bureau = mommy.make('organization.Organization', code='12345')
-
-    in_bureau_position = mommy.make('position.Position', bureau=bureau)
-    out_of_bureau_position = mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
-
-    bidcycle.positions.add(in_bureau_position)
-    bidcycle.positions.add(out_of_bureau_position)
-
-    in_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=in_bureau_position, bidcycle=bidcycle)
-    out_of_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=out_of_bureau_position, bidcycle=bidcycle)
-
-    # Give our user appropriate permissions
-    group = mommy.make('auth.Group', name='bureau_ao')
-    group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
-    group.user_set.add(authorized_user)
-
-    # Patch an in-bureau bid
-    response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
-        "status": "handshake_offered"
-    }), content_type="application/json")
-
-    assert response.status_code == status.HTTP_200_OK
-
-    # Patch an out-of-bureau bid
-    response = authorized_client.patch(f'/api/v1/bidlist/bid/{out_of_bureau_bid.id}/', data=json.dumps({
-        "status": "handshake_offered"
-    }), content_type="application/json")
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db(transaction=True)
@@ -267,37 +191,6 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
     assert report.profile.bidlist.count() == 1
     assert report.profile.notifications.count() == 1
     assert report.profile.notifications.first().message == f"Bid {report_bid} has been closed by CDO {authorized_user.profile}"
-
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
-def test_bidlist_max_submissions(authorized_client, authorized_user):
-    bidcycle = BidCycle.objects.get(id=1)
-    position = mommy.make('position.Position')
-    bidcycle.positions.add(position)
-    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, position=position, _quantity=10)
-
-    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft, position=position)
-
-    # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
-    response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db(transaction=True)
-def test_bid_declined_notification(authorized_client, authorized_user, test_bidlist_fixture):
-    assert authorized_user.profile.notifications.count() == 0
-
-    bidcycle = BidCycle.objects.get(id=1)
-    position = bidcycle.positions.first()
-    bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
-
-    bid.status = Bid.Status.declined
-    bid.save()
-
-    assert authorized_user.profile.notifications.count() == 1
-    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been declined."
 
 
 @pytest.mark.parametrize("status,message_key,owner", [

@@ -99,8 +99,11 @@ class UserBidStatisticsSerializer(PrefetchedSerializer):
 
 
 class BidWritableSerializer(PrefetchedSerializer):
+    '''
+    This is only used by AOs to schedule the panel date
+    '''
 
     class Meta:
         model = Bid
-        fields = ("id", "status")
-        writable_fields = ("status")
+        fields = ("id", "scheduled_panel_date")
+        writable_fields = ("scheduled_panel_date")
