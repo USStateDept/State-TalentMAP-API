@@ -1,6 +1,8 @@
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver
+from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.position.models import Position
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
@@ -16,6 +18,7 @@ class BidCycleFilter(filters.FilterSet):
 
 
 class BidFilter(filters.FilterSet):
+    waivers = filters.RelatedFilter('talentmap_api.bidding.filters.WaiverFilter', name='waivers', queryset=Waiver.objects.all())
 
     class Meta:
         model = Bid
@@ -53,4 +56,24 @@ class StatusSurveyFilter(filters.FilterSet):
             "is_fairshare": ["exact"],
             "is_six_eight": ["exact"],
             "bidcycle": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class WaiverFilter(filters.FilterSet):
+    bid = filters.RelatedFilter(BidFilter, name='bid', queryset=Bid.objects.all())
+    position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
+    user = filters.RelatedFilter('talentmap_api.user_profile.filters.UserProfileFilter', name='user', queryset=UserProfile.objects.all())
+
+    class Meta:
+        model = Waiver
+        fields = {
+            "user": FOREIGN_KEY_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "bid": FOREIGN_KEY_LOOKUPS,
+            "status": ALL_TEXT_LOOKUPS,
+            "category": ALL_TEXT_LOOKUPS,
+            "type": ALL_TEXT_LOOKUPS,
+            "description": ALL_TEXT_LOOKUPS,
+            "create_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS
         }

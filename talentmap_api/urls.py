@@ -32,12 +32,12 @@ urlpatterns = [
     url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
+    url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
     url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
-    url(r'^api/v1/language_waiver/', include('talentmap_api.language.urls.waiver')),
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),

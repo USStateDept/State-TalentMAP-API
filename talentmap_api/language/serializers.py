@@ -1,5 +1,5 @@
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.language.models import Language, Proficiency, Qualification, Waiver
+from talentmap_api.language.models import Language, Proficiency, Qualification
 
 
 class LanguageSerializer(PrefetchedSerializer):
@@ -14,26 +14,6 @@ class LanguageProficiencySerializer(PrefetchedSerializer):
     class Meta:
         model = Proficiency
         fields = "__all__"
-
-
-class WaiverSerializer(PrefetchedSerializer):
-    position = StaticRepresentationField(read_only=True)
-    bidcycle = StaticRepresentationField(read_only=True)
-    language = StaticRepresentationField(read_only=True)
-    user = StaticRepresentationField(read_only=True)
-
-    class Meta:
-        model = Waiver
-        fields = "__all__"
-        writable_fields = ("position", "bidcycle", "language", "type")
-
-
-class WaiverWritableSerializer(PrefetchedSerializer):
-
-    class Meta:
-        model = Waiver
-        fields = "__all__"
-        writable_fields = ("position", "bidcycle", "language", "type")
 
 
 class LanguageQualificationSerializer(PrefetchedSerializer):

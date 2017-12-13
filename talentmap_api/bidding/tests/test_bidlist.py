@@ -156,6 +156,11 @@ def test_bidlist_patch_bid(authorized_client, authorized_user):
     group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
     group.user_set.add(authorized_user)
 
+    # Get a list of all bids on the bureau's position
+    response = authorized_client.get(f'/api/v1/position/{in_bureau_position.id}/bids/')
+
+    assert response.status_code == status.HTTP_200_OK
+
     # Patch an in-bureau bid
     response = authorized_client.patch(f'/api/v1/bidlist/bid/{in_bureau_bid.id}/', data=json.dumps({
         "status": "handshake_offered"
@@ -283,21 +288,6 @@ def test_bidlist_max_submissions(authorized_client, authorized_user):
     response = authorized_client.put(f'/api/v1/bidlist/bid/{bid.id}/submit/')
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db(transaction=True)
-def test_bid_declined_notification(authorized_client, authorized_user, test_bidlist_fixture):
-    assert authorized_user.profile.notifications.count() == 0
-
-    bidcycle = BidCycle.objects.get(id=1)
-    position = bidcycle.positions.first()
-    bid = mommy.make(Bid, bidcycle=bidcycle, user=authorized_user.profile, position=position)
-
-    bid.status = Bid.Status.declined
-    bid.save()
-
-    assert authorized_user.profile.notifications.count() == 1
-    assert authorized_user.profile.notifications.first().message == f"Your bid for {position} has been declined."
 
 
 @pytest.mark.parametrize("status,message_key,owner", [
