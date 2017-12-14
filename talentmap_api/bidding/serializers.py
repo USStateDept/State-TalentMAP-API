@@ -91,6 +91,85 @@ class BidSerializer(PrefetchedSerializer):
         }
 
 
+class BidPrePanelSerializer(PrefetchedSerializer):
+    bidcycle = StaticRepresentationField(read_only=True)
+    user = StaticRepresentationField(read_only=True)
+    pre_panel = serializers.SerializerMethodField()
+    waivers = StaticRepresentationField(read_only=True, many=True)
+
+    def get_pre_panel(self, obj):
+        pre_panel = {}
+
+        user = obj.user
+        position = obj.position
+        waivers = obj.waivers
+        sii = user.status_surveys.filter(bidcycle=obj.bidcycle).first()
+
+        if not sii:
+            return "Bidder has not submited a self-identification survey for this bidcycle"
+
+        fairshare = {
+            "calculated": user.is_fairshare,
+            "self_identified": sii.is_fairshare,
+            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.fairshare))]
+        }
+
+        six_eight = {
+            "calculated": user.is_six_eight,
+            "self_identified": user.is_six_eight,
+            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.six_eight))]
+        }
+
+        language_match = True
+        reading_proficiency_match = True
+        spoken_proficiency_match = True
+        for language in list(position.languages.all()):
+            user_language = user.language_qualifications.filter(language=language.language).first()
+            if not user_language:
+                language_match = False
+                reading_proficiency_match = False
+                spoken_proficiency_match = False
+            elif language.reading_proficiency > user_language.reading_proficiency:
+                reading_proficiency_match = False
+            elif language.spoken_proficiency > user_language.spoken_proficiency:
+                spoken_proficiency_match = False
+
+        language = {
+            "language_match": language_match,
+            "reading_proficiency_match": reading_proficiency_match,
+            "spoken_proficiency_match": spoken_proficiency_match,
+            "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.language))]
+        }
+
+        skill = {
+            "skill_match": user.skill_code.filter(code=position.skill.code).exists(),
+            "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.skill))]
+        }
+
+        pre_panel['fairshare'] = fairshare
+        pre_panel['six_eight'] = six_eight
+        pre_panel['language'] = language
+        pre_panel['skill'] = skill
+
+        return pre_panel
+
+    class Meta:
+        model = Bid
+        fields = "__all__"
+        nested = {
+            "position": {
+                "class": PositionSerializer,
+                "field": "position",
+                "kwargs": {
+                    "override_exclude": [
+                        "bid_statistics"
+                    ],
+                    "read_only": True
+                }
+            }
+        }
+
+
 class UserBidStatisticsSerializer(PrefetchedSerializer):
     bidcycle = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)

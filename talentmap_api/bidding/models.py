@@ -179,6 +179,7 @@ class Waiver(StaticRepresentationModel):
         language = ChoiceItem('language')
         six_eight = ChoiceItem('six_eight', 'six_eight')
         fairshare = ChoiceItem('fairshare')
+        skill = ChoiceItem('skill')
 
     class Type(DjangoChoices):
         partial = ChoiceItem("partial")

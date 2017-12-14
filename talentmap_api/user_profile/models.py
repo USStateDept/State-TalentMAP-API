@@ -82,7 +82,6 @@ class UserProfile(StaticRepresentationModel):
 
         # Keep only assignments which are domestic, and foreign assignments which meet the criteria
         assignments = assignments.filter(valid_case).order_by("-start_date")
-        print(assignments)
 
         # Count our assignments in order from most recent to oldest, counting the service duration until we
         # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations

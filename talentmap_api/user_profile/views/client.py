@@ -9,9 +9,9 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 
-from talentmap_api.bidding.serializers import SurveySerializer, BidSerializer, WaiverSerializer
+from talentmap_api.bidding.serializers import SurveySerializer, BidSerializer, WaiverSerializer, BidPrePanelSerializer
 from talentmap_api.bidding.filters import StatusSurveyFilter, BidFilter, WaiverFilter
 from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
 
@@ -83,14 +83,25 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
 
 
 class CdoClientBidView(FieldLimitableSerializerMixin,
+                       ActionDependentSerializerMixin,
                        mixins.ListModelMixin,
+                       mixins.RetrieveModelMixin,
                        GenericViewSet):
     """
     list:
     Lists all of the specified client's bids
+
+    retrieve:
+    Retrieves a specific bid, with pre-panel screening
     """
 
     serializer_class = BidSerializer
+
+    serializers = {
+        "default": BidSerializer,
+        "retrieve": BidPrePanelSerializer,
+    }
+
     filter_class = BidFilter
     permission_classes = (IsAuthenticated,)
 
@@ -99,6 +110,10 @@ class CdoClientBidView(FieldLimitableSerializerMixin,
         queryset = client.bidlist.all()
         self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return get_object_or_404(queryset, id=self.request.parser_context.get("kwargs").get("bid_id"))
 
 
 class CdoClientWaiverView(FieldLimitableSerializerMixin,

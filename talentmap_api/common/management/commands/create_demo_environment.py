@@ -5,7 +5,7 @@ import logging
 import datetime
 import itertools
 
-from talentmap_api.bidding.models import BidCycle, Bid, Waiver
+from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
 from talentmap_api.user_profile.models import UserProfile
@@ -43,7 +43,15 @@ class Command(BaseCommand):
         self.logger.info("Created.")
 
         self.logger.info(f"Seeding bids for all users...")
-        valid_users = itertools.cycle(list(UserProfile.objects.exclude(user__username__in=["admin", "doej", "guest"]).all()))
+        persona_users = UserProfile.objects.exclude(user__username__in=["admin", "doej", "guest"]).all()
+        valid_users = itertools.cycle(list(persona_users))
+
+        # Remove any previous SII surveys
+        StatusSurvey.objects.all().delete()
+
+        # Create SII surveys
+        for user in list(persona_users):
+            StatusSurvey.objects.create(user=user, bidcycle=bc)
 
         # Remove any existing bids
         Bid.objects.all().delete()
