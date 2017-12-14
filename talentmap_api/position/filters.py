@@ -6,7 +6,7 @@ from django.db.models import Q, Subquery
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -14,7 +14,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS
 
 
 class GradeFilter(filters.FilterSet):
@@ -54,6 +54,21 @@ class CapsuleDescriptionFilter(filters.FilterSet):
         }
 
 
+class PositionBidStatisticsFilter(filters.FilterSet):
+    bidcycle = filters.RelatedFilter('talentmap_api.bidding.filters.BidCycleFilter', name='bidcycle', queryset=BidCycle.objects.all())
+
+    class Meta:
+        model = PositionBidStatistics
+        fields = {
+            "bidcycle": FOREIGN_KEY_LOOKUPS,
+            "total_bids": INTEGER_LOOKUPS,
+            "in_grade": INTEGER_LOOKUPS,
+            "at_skill": INTEGER_LOOKUPS,
+            "in_grade_at_skill": INTEGER_LOOKUPS
+
+        }
+
+
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
@@ -63,6 +78,7 @@ class PositionFilter(filters.FilterSet):
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
     current_assignment = filters.RelatedFilter('talentmap_api.position.filters.AssignmentFilter', name='current_assignment', queryset=Assignment.objects.all())
+    bid_statistics = filters.RelatedFilter(PositionBidStatisticsFilter, name='bid_statistics', queryset=PositionBidStatistics.objects.all())
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
     is_highlighted = filters.BooleanFilter(name="highlighted_by_org", lookup_expr="isnull", exclude=True)

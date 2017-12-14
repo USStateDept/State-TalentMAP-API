@@ -118,7 +118,7 @@ class Bid(StaticRepresentationModel):
     handshake_offered_date = models.DateField(null=True, help_text="The date the handshake was offered")
     handshake_accepted_date = models.DateField(null=True, help_text="The date the handshake was accepted")
     in_panel_date = models.DateField(null=True, help_text="The date the bid was scheduled for panel")
-    scheduled_panel_date = models.DateField(null=True, help_text="The scheduled date for paneling")
+    scheduled_panel_date = models.DateField(null=True, help_text="The date of the paneling meeting")
     approved_date = models.DateField(null=True, help_text="The date the bid was approved")
     declined_date = models.DateField(null=True, help_text="The date the bid was declined")
     closed_date = models.DateField(null=True, help_text="The date the bid was closed")
@@ -159,7 +159,7 @@ class Bid(StaticRepresentationModel):
         return {
             "handshake_offered_owner": f"Your bid for {self.position} has been offered a handshake.",
             "handshake_offered_other": f"A competing bid for {self.position} has been offered a handshake.",
-            "in_panel_owner": f"Your bid for {self.position} has been schedule for panel review.",
+            "in_panel_owner": f"Your bid for {self.position} has been scheduled for panel review.",
             "approved_owner": f"Your bid for {self.position} has been approved by panel.",
             "declined_owner": f"Your bid for {self.position} has been declined."
         }
@@ -167,6 +167,54 @@ class Bid(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date", "update_date"]
+
+
+class Waiver(StaticRepresentationModel):
+    '''
+    The waiver model represents an individual waiver for a particular facet of a bid's requirements
+    '''
+
+    class Category(DjangoChoices):
+        retirement = ChoiceItem('retirement')
+        language = ChoiceItem('language')
+        six_eight = ChoiceItem('six_eight', 'six_eight')
+        fairshare = ChoiceItem('fairshare')
+
+    class Type(DjangoChoices):
+        partial = ChoiceItem("partial")
+        full = ChoiceItem("full")
+
+    class Status(DjangoChoices):
+        approved = ChoiceItem("approved")
+        requested = ChoiceItem("requested")
+        denied = ChoiceItem("denied")
+
+    category = models.TextField(choices=Category.choices)
+    type = models.TextField(default=Type.full, choices=Type.choices)
+    status = models.TextField(default=Status.requested, choices=Status.choices)
+
+    bid = models.ForeignKey(Bid, related_name='waivers')
+    position = models.ForeignKey('position.Position', related_name='waivers')
+    user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
+
+    description = models.TextField(null=True, help_text="Description of the waiver request")
+
+    create_date = models.DateField(auto_now_add=True)
+    update_date = models.DateField(auto_now=True)
+
+    def generate_status_messages(self):
+        return {
+            "approved_owner": f"The requested waiver for {self.user} ({self.type} {self.category}) for position {self.position} has been approved.",
+            "requested_cdo": f"{self.user} has requested a {self.type} {self.category} waiver for position {self.position}.",
+            "denied_owner": f"The requested waiver for {self.user} ({self.type} {self.category}) for position {self.position} has been denied."
+        }
+
+    def __str__(self):
+        return f"{self.type} {self.category} for {self.user} at {self.position}, {self.status}"
+
+    class Meta:
+        managed = True
+        ordering = ["update_date"]
 
 
 @receiver(m2m_changed, sender=BidCycle.positions.through, dispatch_uid="bidcycle_m2m_changed")
@@ -228,3 +276,31 @@ def delete_update_bid_statistics(sender, instance, **kwargs):
     # Update the user's bid statistics
     statistics, _ = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
     statistics.update_statistics()
+
+
+@receiver(pre_save, sender=Waiver, dispatch_uid="waiver_status_changed")
+def waiver_status_changed(sender, instance, **kwargs):
+    notification_bodies = instance.generate_status_messages()
+
+    # If our instance has an id, we're performing an update (and not a create)
+    if instance.id:
+        # Get our waiver as it exists in the database
+        old_waiver = Waiver.objects.get(id=instance.id)
+        # Check if our old waiver's status equals the new instance's status
+        if old_waiver.status is not instance.status:
+            # Perform an action based upon the new status
+            if instance.status is Waiver.Status.approved:
+                Notification.objects.create(owner=instance.user,
+                                            tags=['waiver'],
+                                            message=notification_bodies['approved_owner'])
+            elif instance.status is Waiver.Status.denied:
+                Notification.objects.create(owner=instance.user,
+                                            tags=['waiver'],
+                                            message=notification_bodies['denied_owner'])
+
+    else:
+        # It's a new waiver request, notify the CDO
+        if instance.user.cdo:
+            Notification.objects.create(owner=instance.user.cdo,
+                                        tags=['waiver'],
+                                        message=notification_bodies['requested_cdo'])

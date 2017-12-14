@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver
 
 
 class BidCycleSerializer(PrefetchedSerializer):
@@ -63,6 +63,7 @@ class BidSerializer(PrefetchedSerializer):
     bidcycle = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
+    waivers = StaticRepresentationField(read_only=True, many=True)
 
     class Meta:
         model = Bid
@@ -107,3 +108,27 @@ class BidWritableSerializer(PrefetchedSerializer):
         model = Bid
         fields = ("id", "scheduled_panel_date")
         writable_fields = ("scheduled_panel_date")
+
+
+class WaiverSerializer(PrefetchedSerializer):
+    '''
+    For read-only usages
+    '''
+    bid = StaticRepresentationField(read_only=True)
+    user = StaticRepresentationField(read_only=True)
+    position = StaticRepresentationField(read_only=True)
+
+    class Meta:
+        model = Waiver
+        fields = "__all__"
+
+
+class WaiverClientSerializer(PrefetchedSerializer):
+    '''
+    For client/CDO creation (no status editing)
+    '''
+
+    class Meta:
+        model = Waiver
+        fields = "__all__"
+        writable_fields = ("bid", "position", "type", "category", "description")

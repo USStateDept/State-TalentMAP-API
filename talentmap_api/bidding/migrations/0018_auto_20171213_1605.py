@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bid',
             name='in_panel_date',
-            field=models.DateField(help_text='The date the bid was scheduled for panel', null=True),
+            field=models.DateField(help_text='The date of the paneling meeting', null=True),
         ),
         migrations.AddField(
             model_name='bid',
