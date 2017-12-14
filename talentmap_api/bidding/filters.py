@@ -24,7 +24,15 @@ class BidFilter(filters.FilterSet):
         model = Bid
         fields = {
             "status": ALL_TEXT_LOOKUPS,
-            "submission_date": DATE_LOOKUPS,
+            "draft_date": DATE_LOOKUPS,
+            "submitted_date": DATE_LOOKUPS,
+            "handshake_offered_date": DATE_LOOKUPS,
+            "handshake_accepted_date": DATE_LOOKUPS,
+            "in_panel_date": DATE_LOOKUPS,
+            "approved_date": DATE_LOOKUPS,
+            "declined_date": DATE_LOOKUPS,
+            "closed_date": DATE_LOOKUPS,
+            "scheduled_panel_date": DATE_LOOKUPS,
         }
 
 

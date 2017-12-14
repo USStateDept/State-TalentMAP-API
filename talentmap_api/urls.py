@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
 
     # Bidding endpoints
+    url(r'^api/v1/bid/', include('talentmap_api.bidding.urls.bid')),
     url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
