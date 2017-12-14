@@ -53,3 +53,27 @@ def test_assignment_estimated_end_date(authorized_client, authorized_user, test_
     expected_estimated_end_date = assignment.start_date + relativedelta(months=12)
 
     assert assignment.estimated_end_date == expected_estimated_end_date
+
+
+@pytest.mark.django_db(transaction=True)
+def test_assignment_service_duration(authorized_client, authorized_user, test_assignment_fixture):
+    # Get our required foreign key data
+    user = UserProfile.objects.get(user=authorized_user)
+
+    position = Position.objects.first()
+    tour_of_duty = TourOfDuty.objects.filter(months=12).first()
+
+    # Create an assignment
+    assignment = Assignment.objects.create(user=user, position=position, tour_of_duty=tour_of_duty)
+
+    # Assert the dates are currently null
+    assert assignment.start_date is None
+    assert assignment.estimated_end_date is None
+
+    # Now save a start date
+    assignment.start_date = "1991-02-01"
+    assignment.end_date = "1992-02-01"
+    assignment.save()
+    assignment.refresh_from_db()
+
+    assert assignment.service_duration == 12

@@ -1,3 +1,4 @@
+import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import Group, Permission
@@ -40,6 +41,24 @@ def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
     queryset = model.objects.filter(*args, **kwargs)
     queryset = serializer_class.prefetch_model(model, queryset)
     return queryset
+
+
+def ensure_date(date):
+    '''
+    Ensures the date given is a date object.
+
+    Args:
+        - date (Object or string) - The date
+
+    Returns:
+        - date (Object) - Date as a datetime date object
+    '''
+    if isinstance(date, str):
+        return datetime.datetime.strptime(date, '%Y-%m-%d').date()
+    elif isinstance(date, datetime.date):
+        return date
+    else:
+        raise Exception("Parameter must be a date object or string")
 
 
 def validate_filters_exist(filter_list, filter_class):
