@@ -121,6 +121,7 @@ class PositionWaiverActionView(GenericViewSet):
         # Get the position based on the PK from the url
         waiver = self.get_waiver(self.request.user, position_pk=url_kwargs.get('pk'), waiver_pk=url_kwargs.get('waiver_pk'))
         waiver.status = waiver.Status.approved
+        waiver.reviewer = self.request.user.profile
         waiver.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -134,6 +135,7 @@ class PositionWaiverActionView(GenericViewSet):
         # Get the position based on the PK from the url
         waiver = self.get_waiver(self.request.user, position_pk=url_kwargs.get('pk'), waiver_pk=url_kwargs.get('waiver_pk'))
         waiver.status = waiver.Status.denied
+        waiver.reviewer = self.request.user.profile
         waiver.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
