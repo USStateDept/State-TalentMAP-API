@@ -3,8 +3,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 
+from talentmap_api.common.models import StaticRepresentationModel
 
-class Notification(models.Model):
+
+class Notification(StaticRepresentationModel):
     '''
     This model represents an individual notification item
     '''
@@ -23,7 +25,7 @@ class Notification(models.Model):
         ordering = ["date_updated"]
 
 
-class Sharable(models.Model):
+class Sharable(StaticRepresentationModel):
     '''
     This model represents a shared item from one user to another. The field sharable_model
     is the string representation of the model, for example 'position.Position', and the

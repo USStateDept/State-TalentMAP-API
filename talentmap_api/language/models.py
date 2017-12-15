@@ -3,8 +3,10 @@ from djchoices import DjangoChoices, ChoiceItem
 
 import logging
 
+from talentmap_api.common.models import StaticRepresentationModel
 
-class Language(models.Model):
+
+class Language(StaticRepresentationModel):
     '''
     The language model represents an individual language, such as English, French, et. al.
     It is typically linked together with a language proficiency to create a qualification,
@@ -24,7 +26,7 @@ class Language(models.Model):
         ordering = ["code"]
 
 
-class Proficiency(models.Model):
+class Proficiency(StaticRepresentationModel):
     '''
     The language proficiency represents a positions linguistic proficiency requirement,
     or the linguistic proficiency of an individual. These are typically not used as
@@ -52,7 +54,7 @@ class Proficiency(models.Model):
         ordering = ["code"]
 
 
-class Qualification(models.Model):
+class Qualification(StaticRepresentationModel):
     '''
     The language qualification is defined by a combination of language proficiencies
     and a specific language. For example, German 2/2+, where the first numeral denotes
@@ -95,34 +97,3 @@ class Qualification(models.Model):
         managed = True
         ordering = ["language__code"]
         unique_together = (('language', 'reading_proficiency', 'spoken_proficiency'))
-
-
-class Waiver(models.Model):
-    '''
-    The waiver model represents a language requirement waiver for a particular position
-    assignment, along with the status
-    '''
-
-    class Type(DjangoChoices):
-        partial = ChoiceItem("partial")
-        full = ChoiceItem("full")
-
-    class Status(DjangoChoices):
-        approved = ChoiceItem("approved")
-        requested = ChoiceItem("requested")
-        denied = ChoiceItem("denied")
-
-    type = models.TextField(default=Type.full, choices=Type.choices)
-    status = models.TextField(default=Status.requested, choices=Status.choices)
-
-    user = models.ForeignKey("user_profile.UserProfile", on_delete=models.CASCADE, related_name="language_waivers")
-    position = models.ForeignKey("position.Position", related_name="language_waivers")
-    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="language_waivers")
-    language = models.ForeignKey("language.Language", related_name="waivers")
-
-    request_date = models.DateField(auto_now_add=True)
-    decision_date = models.DateField(null=True)
-
-    class Meta:
-        managed = True
-        ordering = ["request_date"]

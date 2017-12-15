@@ -1,7 +1,5 @@
-from rest_framework import serializers
-
-from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.language.models import Language, Proficiency, Qualification, Waiver
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
+from talentmap_api.language.models import Language, Proficiency, Qualification
 
 
 class LanguageSerializer(PrefetchedSerializer):
@@ -18,35 +16,12 @@ class LanguageProficiencySerializer(PrefetchedSerializer):
         fields = "__all__"
 
 
-class WaiverSerializer(PrefetchedSerializer):
-    position = serializers.StringRelatedField()
-    bidcycle = serializers.StringRelatedField()
-    language = serializers.StringRelatedField()
-    user = serializers.StringRelatedField()
-
-    class Meta:
-        model = Waiver
-        fields = "__all__"
-        writable_fields = ("position", "bidcycle", "language", "type")
-
-
-class WaiverWritableSerializer(PrefetchedSerializer):
-
-    class Meta:
-        model = Waiver
-        fields = "__all__"
-        writable_fields = ("position", "bidcycle", "language", "type")
-
-
 class LanguageQualificationSerializer(PrefetchedSerializer):
 
-    language = serializers.StringRelatedField()
-    reading_proficiency = serializers.StringRelatedField()
-    spoken_proficiency = serializers.StringRelatedField()
-    representation = serializers.SerializerMethodField()
-
-    def get_representation(self, obj):
-        return str(obj)
+    language = StaticRepresentationField(read_only=True)
+    reading_proficiency = StaticRepresentationField(read_only=True)
+    spoken_proficiency = StaticRepresentationField(read_only=True)
+    representation = StaticRepresentationField(read_only=True, source="_string_representation")
 
     class Meta:
         model = Qualification

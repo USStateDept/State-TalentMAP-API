@@ -21,12 +21,14 @@ class Command(BaseCommand):
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False),
-        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", True, False),
-        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True)
+        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False),
+        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True),
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False)
     ]
 
     def handle(self, *args, **options):
-        positions = list(set(Position.objects.filter(bureau__isnull=False).order_by('bureau__code').distinct('bureau__code').values_list('id', flat=True)))
+        positions = list(set(Position.objects.filter(bureau__code="150000").values_list('id', flat=True)))
+        positions = positions + list(set(Position.objects.filter(bureau__isnull=False).exclude(bureau__code="150000").order_by('bureau__code').values_list('id', flat=True)))
         for data in self.USERS:
             try:
                 try:
@@ -39,7 +41,7 @@ class Command(BaseCommand):
 
                 position = Position.objects.get(id=positions.pop())
                 profile = UserProfile.objects.get(user=user)
-                profile.skill_code = position.skill
+                profile.skill_code.add(position.skill)
                 profile.grade = position.grade
                 profile.primary_nationality = Country.objects.get(code="USA")
                 profile.date_of_birth = "1975-01-01"
@@ -56,7 +58,7 @@ class Command(BaseCommand):
                     group = get_group_by_name(f"bureau_ao")
                     group.user_set.add(user)
 
-                    group = get_group_by_name(f"bureau_ao_{position.bureau.code}")
+                    group = get_group_by_name(f"bureau_ao_150000")
                     group.user_set.add(user)
 
                 if data[6]:

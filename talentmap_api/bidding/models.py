@@ -6,11 +6,12 @@ from django.dispatch import receiver
 from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
 
-class BidCycle(models.Model):
+class BidCycle(StaticRepresentationModel):
     '''
     The bid cycle model represents an individual bidding cycle
     '''
@@ -46,7 +47,7 @@ class BidCycle(models.Model):
         ordering = ["cycle_start_date"]
 
 
-class StatusSurvey(models.Model):
+class StatusSurvey(StaticRepresentationModel):
     '''
     The status survey model represents eligiblity status self-identification information
     on a per-bidcycle basis
@@ -65,7 +66,7 @@ class StatusSurvey(models.Model):
         unique_together = (("user", "bidcycle"),)
 
 
-class UserBidStatistics(models.Model):
+class UserBidStatistics(StaticRepresentationModel):
     '''
     Stores bid statistics for any particular bidcycle for each user
     '''
@@ -93,7 +94,7 @@ class UserBidStatistics(models.Model):
         unique_together = (("bidcycle", "user",),)
 
 
-class Bid(models.Model):
+class Bid(StaticRepresentationModel):
     '''
     The bid object represents an individual bid, the position, user, and process status
     '''
@@ -112,11 +113,21 @@ class Bid(models.Model):
 
     status = models.TextField(default=Status.draft, choices=Status.choices)
 
+    draft_date = models.DateField(auto_now_add=True)
+    submitted_date = models.DateField(null=True, help_text="The date the bid was submitted")
+    handshake_offered_date = models.DateField(null=True, help_text="The date the handshake was offered")
+    handshake_accepted_date = models.DateField(null=True, help_text="The date the handshake was accepted")
+    in_panel_date = models.DateField(null=True, help_text="The date the bid was scheduled for panel")
+    scheduled_panel_date = models.DateField(null=True, help_text="The date of the paneling meeting")
+    approved_date = models.DateField(null=True, help_text="The date the bid was approved")
+    declined_date = models.DateField(null=True, help_text="The date the bid was declined")
+    closed_date = models.DateField(null=True, help_text="The date the bid was closed")
+
     bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="bids", help_text="The bidcycle for this bid")
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
     position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
 
-    submission_date = models.DateField(null=True)
+    create_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
 
     def __str__(self):
@@ -148,14 +159,64 @@ class Bid(models.Model):
         return {
             "handshake_offered_owner": f"Your bid for {self.position} has been offered a handshake.",
             "handshake_offered_other": f"A competing bid for {self.position} has been offered a handshake.",
-            "in_panel_owner": f"Your bid for {self.position} is under panel review.",
+            "in_panel_owner": f"Your bid for {self.position} has been scheduled for panel review.",
             "approved_owner": f"Your bid for {self.position} has been approved by panel.",
             "declined_owner": f"Your bid for {self.position} has been declined."
         }
 
     class Meta:
         managed = True
-        ordering = ["bidcycle__cycle_start_date", "submission_date"]
+        ordering = ["bidcycle__cycle_start_date", "update_date"]
+
+
+class Waiver(StaticRepresentationModel):
+    '''
+    The waiver model represents an individual waiver for a particular facet of a bid's requirements
+    '''
+
+    class Category(DjangoChoices):
+        retirement = ChoiceItem('retirement')
+        language = ChoiceItem('language')
+        six_eight = ChoiceItem('six_eight', 'six_eight')
+        fairshare = ChoiceItem('fairshare')
+
+    class Type(DjangoChoices):
+        partial = ChoiceItem("partial")
+        full = ChoiceItem("full")
+
+    class Status(DjangoChoices):
+        approved = ChoiceItem("approved")
+        requested = ChoiceItem("requested")
+        denied = ChoiceItem("denied")
+
+    category = models.TextField(choices=Category.choices)
+    type = models.TextField(default=Type.full, choices=Type.choices)
+    status = models.TextField(default=Status.requested, choices=Status.choices)
+
+    bid = models.ForeignKey(Bid, related_name='waivers')
+    position = models.ForeignKey('position.Position', related_name='waivers')
+    user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
+
+    reviewer = models.ForeignKey('user_profile.UserProfile', null=True, related_name='reviewed_waivers')
+
+    description = models.TextField(null=True, help_text="Description of the waiver request")
+
+    create_date = models.DateField(auto_now_add=True)
+    update_date = models.DateField(auto_now=True)
+
+    def generate_status_messages(self):
+        return {
+            "approved_owner": f"The requested waiver for {self.user} ({self.type} {self.category}) for position {self.position} has been approved.",
+            "requested_cdo": f"{self.user} has requested a {self.type} {self.category} waiver for position {self.position}.",
+            "denied_owner": f"The requested waiver for {self.user} ({self.type} {self.category}) for position {self.position} has been denied."
+        }
+
+    def __str__(self):
+        return f"{self.type} {self.category} for {self.user} at {self.position}, {self.status}"
+
+    class Meta:
+        managed = True
+        ordering = ["update_date"]
 
 
 @receiver(m2m_changed, sender=BidCycle.positions.through, dispatch_uid="bidcycle_m2m_changed")
@@ -177,38 +238,34 @@ def bid_status_changed(sender, instance, **kwargs):
     if instance.id:
         # Get our bid as it exists in the database
         old_bid = Bid.objects.get(id=instance.id)
+
         # Check if our old bid's status equals the new instance's status
         if old_bid.status is not instance.status:
-            # Perform an action based upon the new status
-            if instance.status is Bid.Status.handshake_offered:
-                # Notify the owning user that their bid has been offered a handshake
-                Notification.objects.create(owner=instance.user,
-                                            tags=['bidding'],
-                                            message=notification_bodies["handshake_offered_owner"])
-                # Notify all other bidders that this position has a handshake offered
-                # Get a list of all user profile ID's which aren't this user
-                users = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
-                for user in users:
-                    Notification.objects.create(owner=UserProfile.objects.get(id=user),
-                                                tags=['bidding'],
-                                                message=notification_bodies["handshake_offered_other"])
-            elif instance.status is Bid.Status.declined:
-                # Notify the owning user that this bid has been declined
-                Notification.objects.create(owner=instance.user,
-                                            tags=['bidding'],
-                                            message=notification_bodies["declined_owner"])
+            # Create notifications for the owner of the bid, and other bidders on the same position
+            owner = [instance.user]
+            others = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
+            others = list(UserProfile.objects.filter(id__in=others))
+            for notification, users in [(f"{instance.status}_owner", owner), (f"{instance.status}_other", others)]:
+                # If we have that notification status in the notification bodies, create the notification
+                if notification in notification_bodies:
+                    for user in users:
+                        Notification.objects.create(owner=user,
+                                                    tags=['bidding'],
+                                                    message=notification_bodies[notification])
 
-            elif instance.status is Bid.Status.in_panel:
-                # Notify the owning user that this bid is now under panel review
-                Notification.objects.create(owner=instance.user,
-                                            tags=['bidding'],
-                                            message=notification_bodies["in_panel_owner"])
 
-            elif instance.status is Bid.Status.approved:
-                # Notify the owning user that this bid has been accepted
-                Notification.objects.create(owner=instance.user,
-                                            tags=['bidding'],
-                                            message=notification_bodies["approved_owner"])
+@receiver(pre_save, sender=Bid, dispatch_uid="bid_panel_date_changed")
+def bid_panel_date_changed(sender, instance, **kwargs):
+    # If our instance has an id, we're performing an update (and not a create)
+    if instance.id and instance.scheduled_panel_date:
+        # Get our bid as it exists in the database
+        old_bid = Bid.objects.get(id=instance.id)
+
+        # Check if our old bid's paneling date is the same as the new one
+        if old_bid.scheduled_panel_date is not instance.scheduled_panel_date:
+            Notification.objects.create(owner=instance.user,
+                                        tags=['bidding', 'panel'],
+                                        message=f"Bid {instance} has been scheduled for paneling on {instance.scheduled_panel_date}.")
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
@@ -221,3 +278,31 @@ def delete_update_bid_statistics(sender, instance, **kwargs):
     # Update the user's bid statistics
     statistics, _ = UserBidStatistics.objects.get_or_create(user=instance.user, bidcycle=instance.bidcycle)
     statistics.update_statistics()
+
+
+@receiver(pre_save, sender=Waiver, dispatch_uid="waiver_status_changed")
+def waiver_status_changed(sender, instance, **kwargs):
+    notification_bodies = instance.generate_status_messages()
+
+    # If our instance has an id, we're performing an update (and not a create)
+    if instance.id:
+        # Get our waiver as it exists in the database
+        old_waiver = Waiver.objects.get(id=instance.id)
+        # Check if our old waiver's status equals the new instance's status
+        if old_waiver.status is not instance.status:
+            # Perform an action based upon the new status
+            if instance.status is Waiver.Status.approved:
+                Notification.objects.create(owner=instance.user,
+                                            tags=['waiver'],
+                                            message=notification_bodies['approved_owner'])
+            elif instance.status is Waiver.Status.denied:
+                Notification.objects.create(owner=instance.user,
+                                            tags=['waiver'],
+                                            message=notification_bodies['denied_owner'])
+
+    else:
+        # It's a new waiver request, notify the CDO
+        if instance.user.cdo:
+            Notification.objects.create(owner=instance.user.cdo,
+                                        tags=['waiver'],
+                                        message=notification_bodies['requested_cdo'])

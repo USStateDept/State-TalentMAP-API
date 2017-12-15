@@ -103,7 +103,11 @@ class XMLloader():
                 # Append our instance
                 new_instances.append(instance)
 
-        new_instances = self.model.objects.bulk_create(new_instances)
+        # new_instances = self.model.objects.bulk_create(new_instances)
+
+        # We want to call the save() logic on each new instance
+        for instance in new_instances:
+            instance.save()
         new_instances = [instance.id for instance in new_instances]
 
         # Create our instances

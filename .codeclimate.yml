@@ -13,6 +13,7 @@ engines:
           mass_threshold: 64  # The default here is 32, which is a bit too small given the required duplication of view methods
     exclude_paths:
       - "**/urls/"  # Django url files are necessarily often similar to others
+      - "**/views/" # Django view files are also necessarily often similar to others
   pep8:
     enabled: true
     checks:

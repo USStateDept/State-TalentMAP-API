@@ -11,6 +11,7 @@ def owned_saved_search():
 def client_for_profile():
     user = mommy.make('auth.User')
     user.profile.cdo = UserProfile.objects.get(user__username="authorized_user")
+    user.profile.date_of_birth = "1975-01-01"
     user.profile.save()
 
     return user.profile

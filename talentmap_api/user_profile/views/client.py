@@ -11,9 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
-from talentmap_api.bidding.serializers import SurveySerializer
-from talentmap_api.bidding.filters import StatusSurveyFilter
-from talentmap_api.bidding.models import StatusSurvey, Bid
+from talentmap_api.bidding.serializers import SurveySerializer, BidSerializer, WaiverSerializer
+from talentmap_api.bidding.filters import StatusSurveyFilter, BidFilter, WaiverFilter
+from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import ClientFilter
@@ -24,7 +24,6 @@ class CdoClientView(FieldLimitableSerializerMixin,
                     mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,
                     GenericViewSet):
-
     """
     list:
     Lists all of the user's clients' profiles
@@ -67,7 +66,6 @@ class CdoClientStatisticsView(APIView):
 class CdoClientSurveyView(FieldLimitableSerializerMixin,
                           mixins.ListModelMixin,
                           GenericViewSet):
-
     """
     list:
     Lists all of the specified client's status surveys
@@ -81,4 +79,42 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
         client = get_object_or_404(UserProfile.objects.filter(cdo=self.request.user.profile), id=self.request.parser_context.get("kwargs").get("pk"))
         queryset = client.status_surveys.all()
         self.serializer_class.prefetch_model(StatusSurvey, queryset)
+        return queryset
+
+
+class CdoClientBidView(FieldLimitableSerializerMixin,
+                       mixins.ListModelMixin,
+                       GenericViewSet):
+    """
+    list:
+    Lists all of the specified client's bids
+    """
+
+    serializer_class = BidSerializer
+    filter_class = BidFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        client = get_object_or_404(UserProfile.objects.filter(cdo=self.request.user.profile), id=self.request.parser_context.get("kwargs").get("pk"))
+        queryset = client.bidlist.all()
+        self.serializer_class.prefetch_model(Bid, queryset)
+        return queryset
+
+
+class CdoClientWaiverView(FieldLimitableSerializerMixin,
+                          mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    list:
+    Lists all of the specified client's waivers
+    """
+
+    serializer_class = WaiverSerializer
+    filter_class = WaiverFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        client = get_object_or_404(UserProfile.objects.filter(cdo=self.request.user.profile), id=self.request.parser_context.get("kwargs").get("pk"))
+        queryset = client.waivers.all()
+        self.serializer_class.prefetch_model(Waiver, queryset)
         return queryset

@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import F, Sum, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -8,13 +10,14 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.postgres.fields import JSONField
 
+from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
 
 
-class UserProfile(models.Model):
+class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     date_of_birth = models.DateField(null=True)
     mandatory_retirement_date = models.DateField(null=True)
@@ -24,7 +27,7 @@ class UserProfile(models.Model):
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
-    skill_code = models.ForeignKey('position.Skill', null=True)
+    skill_code = models.ManyToManyField('position.Skill')
 
     grade = models.ForeignKey('position.Grade', null=True)
 
@@ -34,12 +37,15 @@ class UserProfile(models.Model):
     secondary_nationality = models.ForeignKey('organization.Country', null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.user.first_name} {self.user.last_name}"
 
     def save(self, *args, **kwargs):
         # Set the retirement date to the user's birthdate + 65 years
         if self.date_of_birth:
-            self.mandatory_retirement_date = self.date_of_birth + relativedelta(years=65)
+            date_of_birth = self.date_of_birth
+            if isinstance(date_of_birth, str):
+                date_of_birth = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date()
+            self.mandatory_retirement_date = date_of_birth + relativedelta(years=65)
         super(UserProfile, self).save(*args, **kwargs)
 
     @property
@@ -92,7 +98,7 @@ class UserProfile(models.Model):
         ordering = ['user__last_name']
 
 
-class SavedSearch(models.Model):
+class SavedSearch(StaticRepresentationModel):
     '''
     Represents a saved search.
     '''

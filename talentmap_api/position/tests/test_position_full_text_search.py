@@ -12,19 +12,19 @@ def test_position_fts_fixture():
                organization__long_description="German Embassy",
                bureau__long_description="German Embassy",
                skill__description="Doctor",
-               language_requirements__language__long_description="German")
+               languages__language__long_description="German")
 
     mommy.make('position.Position',
                organization__long_description="French Embassy",
                bureau__long_description="French Embassy",
                skill__description="Doctor",
-               language_requirements__language__long_description="French")
+               languages__language__long_description="French")
 
     mommy.make('position.Position',
                organization__long_description="French Attache",
                bureau__long_description="French Attache",
                skill__description="Colorguard",
-               language_requirements__language__long_description="French")
+               languages__language__long_description="French")
 
 
 @pytest.mark.django_db()
