@@ -25,6 +25,31 @@ def resolve_path_to_view(request_path):
     return view
 
 
+def safe_navigation(object, attribute):
+    '''
+    Attempts a safe navigation to the specified attribute chain in the object.
+    For example, safe_navigation(position, "post.location.country.code") would attempt to return
+    the value for position.post.location.country.code, returning "None" if any item in the chain
+    does not exist.
+
+    Args:
+        - object (Object) - The base object
+        - attribute (String) - The dot separated attribute chain
+
+    Returns
+        - None - If the attribute chain is broken at some point
+        - Value - If the attribute chain is unbroken, the value of object.attribute
+    '''
+    chain = attribute.split(".")
+    try:
+        current_object = object
+        for link in chain:
+            current_object = getattr(current_object, link)
+        return current_object
+    except AttributeError:
+        return None
+
+
 def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
     '''
     Gets the model's default queryset, filters by the specified arguments, then

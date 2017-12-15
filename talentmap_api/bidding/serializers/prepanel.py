@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from rest_framework import serializers
 
+from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.position.models import Position
 from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, Waiver
+from talentmap_api.bidding.models import Bid, Waiver
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.serializers import UserProfileSerializer
@@ -31,34 +30,46 @@ class PrePanelSerializer(PrefetchedSerializer):
         if not sii:
             return "Bidder has not submited a self-identification survey for this bidcycle"
 
-        fairshare = {
+        prepanel['fairshare'] = self.generate_prepanel_fairshare(user, position, waivers, sii)
+        prepanel['six_eight'] = self.generate_prepanel_six_eight(user, position, waivers, sii)
+        prepanel['language'] = self.generate_prepanel_language(user, position, waivers)
+        prepanel['skill'] = self.generate_prepanel_skill(user, position, waivers)
+
+        return prepanel
+
+    def generate_prepanel_fairshare(self, user, position, waivers, sii):
+        return {
             "calculated": user.is_fairshare,
             "self_identified": sii.is_fairshare,
             "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.fairshare))]
         }
 
-        six_eight = {
+    def generate_prepanel_six_eight(self, user, position, waivers, sii):
+        return {
             "calculated": user.is_six_eight,
-            "self_identified": user.is_six_eight,
-            "post_location": str(position.post.location),
+            "self_identified": sii.is_six_eight,
+            "post_location": str(safe_navigation(position, 'post.location')),
             "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.six_eight))]
         }
 
+    def generate_prepanel_language(self, user, position, waivers):
         language_match = True
         reading_proficiency_match = True
         spoken_proficiency_match = True
+
         for language in list(position.languages.all()):
             user_language = user.language_qualifications.filter(language=language.language).first()
-            if not user_language:
+            if user_language:
+                reading_proficiency_match = language.reading_proficiency > user_language.reading_proficiency
+                spoken_proficiency_match = language.spoken_proficiency > user_language.spoken_proficiency
+            else:
+                # If we're missing even one language, fail all cases and break
                 language_match = False
                 reading_proficiency_match = False
                 spoken_proficiency_match = False
-            elif language.reading_proficiency > user_language.reading_proficiency:
-                reading_proficiency_match = False
-            elif language.spoken_proficiency > user_language.spoken_proficiency:
-                spoken_proficiency_match = False
+                break
 
-        language = {
+        return {
             "language_match": language_match,
             "reading_proficiency_match": reading_proficiency_match,
             "spoken_proficiency_match": spoken_proficiency_match,
@@ -67,19 +78,13 @@ class PrePanelSerializer(PrefetchedSerializer):
             "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.language))]
         }
 
-        skill = {
-            "skill_match": user.skill_code.filter(code=position.skill.code).exists(),
-            "position_skill": str(position.skill),
+    def generate_prepanel_skill(self, user, position, waivers):
+        return {
+            "skill_match": user.skill_code.filter(code=safe_navigation(position, 'skill.code')).exists(),
+            "position_skill": str(safe_navigation(position, 'skill')),
             "user_skills": [str(x) for x in list(user.skill_code.all())],
             "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.skill))]
         }
-
-        prepanel['fairshare'] = fairshare
-        prepanel['six_eight'] = six_eight
-        prepanel['language'] = language
-        prepanel['skill'] = skill
-
-        return prepanel
 
     class Meta:
         model = Bid
