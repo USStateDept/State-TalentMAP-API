@@ -116,6 +116,7 @@ class WaiverSerializer(PrefetchedSerializer):
     '''
     bid = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)
+    reviewer = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
 
     class Meta:
