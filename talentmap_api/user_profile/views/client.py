@@ -11,7 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 
-from talentmap_api.bidding.serializers import SurveySerializer, BidSerializer, WaiverSerializer, BidPrePanelSerializer
+from talentmap_api.bidding.serializers.serializers import SurveySerializer, BidSerializer, WaiverSerializer
+from talentmap_api.bidding.serializers.prepanel import PrePanelSerializer
 from talentmap_api.bidding.filters import StatusSurveyFilter, BidFilter, WaiverFilter
 from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
 
@@ -99,7 +100,7 @@ class CdoClientBidView(FieldLimitableSerializerMixin,
 
     serializers = {
         "default": BidSerializer,
-        "retrieve": BidPrePanelSerializer,
+        "retrieve": PrePanelSerializer,
     }
 
     filter_class = BidFilter

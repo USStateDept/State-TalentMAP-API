@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from talentmap_api.common.mixins import ActionDependentSerializerMixin
 
-from talentmap_api.bidding.serializers import WaiverSerializer, WaiverClientSerializer
+from talentmap_api.bidding.serializers.serializers import WaiverSerializer, WaiverClientSerializer
 from talentmap_api.bidding.filters import WaiverFilter
 from talentmap_api.bidding.models import Waiver
 from talentmap_api.user_profile.models import UserProfile

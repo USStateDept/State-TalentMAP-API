@@ -89,3 +89,6 @@ class Command(BaseCommand):
             waiver.save()
 
         self.logger.info("Done seeding waivers")
+
+        self.logger.info("Updating string representations...")
+        call_command("update_string_representations")

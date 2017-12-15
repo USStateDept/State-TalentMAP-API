@@ -13,7 +13,7 @@ from talentmap_api.position.filters import PositionFilter
 from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.bidding.filters import BidCycleFilter
-from talentmap_api.bidding.serializers import BidCycleSerializer
+from talentmap_api.bidding.serializers.serializers import BidCycleSerializer
 from talentmap_api.user_profile.models import SavedSearch
 
 
