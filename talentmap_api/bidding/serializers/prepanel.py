@@ -56,7 +56,6 @@ class PrePanelSerializer(PrefetchedSerializer):
         language_match = True
         reading_proficiency_match = True
         spoken_proficiency_match = True
-
         for language in list(position.languages.all()):
             user_language = user.language_qualifications.filter(language=language.language).first()
             if user_language:
