@@ -197,6 +197,8 @@ class Waiver(StaticRepresentationModel):
     position = models.ForeignKey('position.Position', related_name='waivers')
     user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
 
+    reviewer = models.ForeignKey('user_profile.UserProfile', null=True, related_name='reviewed_waivers')
+
     description = models.TextField(null=True, help_text="Description of the waiver request")
 
     create_date = models.DateField(auto_now_add=True)

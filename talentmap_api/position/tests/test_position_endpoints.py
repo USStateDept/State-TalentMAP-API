@@ -305,6 +305,7 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_204_NO_CONTENT
     waiver.refresh_from_db()
     assert waiver.status == waiver.Status.approved
+    assert waiver.reviewer == authorized_user.profile
 
     # Deny it the waiver
     response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/{waiver.id}/deny/')
@@ -312,6 +313,7 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_204_NO_CONTENT
     waiver.refresh_from_db()
     assert waiver.status == waiver.Status.denied
+    assert waiver.reviewer == authorized_user.profile
 
 
 @pytest.mark.django_db(transaction=True)
