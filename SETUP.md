@@ -47,7 +47,7 @@ If successful, the terminal prompt change to denote the active environment. To d
 The virtual environment has now been created. For further convenience, one can use the autoenv tool to automatically activate the virtual environment, but its usage falls outside the scope of this document.
 
 #### Environment Variables
-To run the Django server, the following environment variables must be set:
+To run the Django server, the following environment variables must be set (see `EXAMPLE_setup_environment.sh` for more):
 
 * `DJANGO_SECRET_KEY` - This should be any valid secret string. See the [Django documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-SECRET_KEY) for more information.
 * `DJANGO_DEBUG` - Set to `true` to run Django in Debug mode, which is helpful for development. It will default to `false`.
@@ -89,3 +89,6 @@ python manage.py runserver
 Viewing `localhost:8000` should serve you with Swagger documentation on the API.
 
 For production, it is recommended to set up uwsgi settings, which fall outside of the scope of this document.
+
+#### Deployment
+The application runs via WSGI in deployment. To support this, environment variables can be found in `EXAMPLE_setup_environment.sh` and should be modified to the particular deployment's specifications and saved as `setup_environment.sh` as this is where the application, when run in wsgi mode, will look for the environment variables.
