@@ -104,3 +104,6 @@ missing_coverage.sh
 
 # MacOS
 .DS_Store
+
+#Environment setup script
+setup_environment.sh
