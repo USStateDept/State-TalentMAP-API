@@ -1,6 +1,8 @@
 import pytest
 import datetime
+import os
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -8,7 +10,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_mommy import mommy
 
-from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation
+from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation, load_environment_script
 from talentmap_api.position.models import Position
 
 
@@ -98,3 +100,18 @@ def test_in_group_or_403(authorized_user):
 
     # Should not raise an exception
     in_group_or_403(authorized_user, "test_group")
+
+
+@pytest.mark.django_db()
+def test_load_environment():
+    # Try to load a nonexistent file
+    with pytest.raises(Exception):
+        load_environment_script('i_dont_exist.sh.existential')
+
+    # Load the test environment script
+    env = load_environment_script(os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_setup_environment.sh'))
+
+    assert env['DJANGO_DEBUG']
+    assert env['DATABASE_URL'] == 'postgres://username:password@hostname:5432/database_name'
+    assert env['DJANGO_SECRET_KEY'] == 'secret_key'
+    assert env['DEPLOYMENT_LOCATION'] == '/var/www/talentmap/api/'
