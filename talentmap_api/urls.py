@@ -67,6 +67,13 @@ urlpatterns += [
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
 ]
 
+if settings.ENABLE_SAML2:  # pragma: no cover
+    urlpatterns += [
+        url(r'^saml2/', include('djangosaml2.urls')),
+    ]
+    if settings.DEBUG:
+        urlpatterns.append(url(r'^saml2-test/', 'djangosaml2.views.echo_attributes'),)
+
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
