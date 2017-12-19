@@ -104,6 +104,12 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
     group.user_set.add(authorized_user)
 
+    # Assign the bid to us
+    response = authorized_client.get(f'/api/v1/bid/{in_bureau_bid.id}/self_assign/')
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    in_bureau_bid.refresh_from_db()
+    assert in_bureau_bid.reviewer == authorized_user.profile
+
     # Offer a handshake, this should 404 since there's no matching bid (because it lacks the submitted status)
     response = authorized_client.get(f'/api/v1/bid/{in_bureau_bid.id}/offer_handshake/')
     assert response.status_code == status.HTTP_404_NOT_FOUND
