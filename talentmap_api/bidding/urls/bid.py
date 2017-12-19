@@ -4,8 +4,9 @@ from talentmap_api.common.urls import patch_update
 from talentmap_api.bidding.views import bid as views
 
 urlpatterns = [
-    url(r'^(?P<pk>[0-9]+)/submit/$', views.BidListBidderActionView.as_view({'get': 'submit'}), name='bidding.Bid-bid-actions'),
-    url(r'^(?P<pk>[0-9]+)/accept_handshake/$', views.BidListBidderActionView.as_view({'get': 'accept_handshake'}), name='bidding.Bid-bid-actions'),
+    url(r'^(?P<pk>[0-9]+)/submit/$', views.BidListBidderActionView.as_view({'get': 'submit'}), name='bidding.Bid-bid-actions-submit'),
+    url(r'^(?P<pk>[0-9]+)/accept_handshake/$', views.BidListBidderActionView.as_view({'get': 'accept_handshake'}), name='bidding.Bid-bid-actions-accept-handshake'),
+    url(r'^(?P<pk>[0-9]+)/decline_handshake/$', views.BidListBidderActionView.as_view({'get': 'decline_handshake'}), name='bidding.Bid-bid-actions-decline-handshake'),
 
     # AO actions
     url(r'^(?P<pk>[0-9]+)/schedule_panel/$', views.BidUpdateView.as_view(patch_update), name='bidding.Bid-bid-update'),

@@ -76,6 +76,7 @@ class BidSerializer(PrefetchedSerializer):
                     "override_fields": [
                         "id",
                         "position_number",
+                        "bureau",
                         "title",
                         "skill",
                         "grade",
