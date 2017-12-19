@@ -68,6 +68,20 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.submitted_date == datetime.datetime.now().date()
     assert bid.handshake_accepted_date == datetime.datetime.now().date()
 
+    # Update the bid in the DB to have offered a handshake
+    bid.status = bid.Status.handshake_offered
+    bid.save()
+
+    # Try to decline a handshake on the position.
+    response = authorized_client.get(f'/api/v1/bid/{bid.id}/decline_handshake/')
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    bid.refresh_from_db()
+    assert bid.status == Bid.Status.handshake_declined
+    assert bid.draft_date == datetime.datetime.now().date()
+    assert bid.submitted_date == datetime.datetime.now().date()
+    assert bid.handshake_declined_date == datetime.datetime.now().date()
+
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")

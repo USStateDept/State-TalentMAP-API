@@ -115,3 +115,15 @@ class BidListBidderActionView(GenericViewSet):
         bid.handshake_accepted_date = datetime.datetime.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def decline_handshake(self, request, pk, format=None):
+        '''
+        Declines a handshake for a bid
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        bid.status = Bid.Status.handshake_declined
+        bid.handshake_declined_date = datetime.datetime.now()
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
