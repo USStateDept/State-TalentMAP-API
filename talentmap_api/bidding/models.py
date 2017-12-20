@@ -243,7 +243,7 @@ def bid_status_changed(sender, instance, **kwargs):
         old_bid = Bid.objects.get(id=instance.id)
 
         # Check if our old bid's status equals the new instance's status
-        if old_bid.status is not instance.status:
+        if old_bid.status != instance.status:
             # Create notifications for the owner of the bid, and other bidders on the same position
             owner = [instance.user]
             others = [x for x in instance.position.bids.values_list('user__id', flat=True) if x is not instance.user.id]
@@ -253,22 +253,26 @@ def bid_status_changed(sender, instance, **kwargs):
                 if notification in notification_bodies:
                     for user in users:
                         Notification.objects.create(owner=user,
-                                                    tags=['bidding'],
+                                                    tags=['bidding', f'{instance.status}'],
                                                     message=notification_bodies[notification])
 
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_panel_date_changed")
 def bid_panel_date_changed(sender, instance, **kwargs):
     # If our instance has an id, we're performing an update (and not a create)
-    if instance.id and instance.scheduled_panel_date:
+    if instance.id and instance.scheduled_panel_date and instance.status in [Bid.Status.handshake_accepted, Bid.Status.in_panel]:
         # Get our bid as it exists in the database
         old_bid = Bid.objects.get(id=instance.id)
 
+        verb = 'scheduled'
+        # If we have an old date, this a re-schedule
+        if old_bid.scheduled_panel_date:
+            verb = 'rescheduled'
         # Check if our old bid's paneling date is the same as the new one
-        if old_bid.scheduled_panel_date is not instance.scheduled_panel_date:
+        if old_bid.scheduled_panel_date != instance.scheduled_panel_date:
             Notification.objects.create(owner=instance.user,
-                                        tags=['bidding', 'panel'],
-                                        message=f"Bid {instance} has been scheduled for paneling on {instance.scheduled_panel_date}.")
+                                        tags=['bidding', f'{instance.status}', f'{verb}'],
+                                        message=f"Your bid for {instance.position} has been {verb} for paneling on {instance.scheduled_panel_date}.")
 
 
 @receiver(post_save, sender=Bid, dispatch_uid="save_update_bid_statistics")
@@ -292,20 +296,20 @@ def waiver_status_changed(sender, instance, **kwargs):
         # Get our waiver as it exists in the database
         old_waiver = Waiver.objects.get(id=instance.id)
         # Check if our old waiver's status equals the new instance's status
-        if old_waiver.status is not instance.status:
+        if old_waiver.status != instance.status:
             # Perform an action based upon the new status
             if instance.status is Waiver.Status.approved:
                 Notification.objects.create(owner=instance.user,
-                                            tags=['waiver'],
+                                            tags=['waiver', f'{instance.status}'],
                                             message=notification_bodies['approved_owner'])
             elif instance.status is Waiver.Status.denied:
                 Notification.objects.create(owner=instance.user,
-                                            tags=['waiver'],
+                                            tags=['waiver', f'{instance.status}'],
                                             message=notification_bodies['denied_owner'])
 
     else:
         # It's a new waiver request, notify the CDO
         if instance.user.cdo:
             Notification.objects.create(owner=instance.user.cdo,
-                                        tags=['waiver'],
+                                        tags=['waiver', f'{instance.status}'],
                                         message=notification_bodies['requested_cdo'])
