@@ -77,6 +77,7 @@ class BidSerializer(PrefetchedSerializer):
                     "override_fields": [
                         "id",
                         "position_number",
+                        "bureau",
                         "title",
                         "skill",
                         "grade",
@@ -85,6 +86,13 @@ class BidSerializer(PrefetchedSerializer):
                         "update_date",
                         "create_date"
                     ],
+                    "read_only": True
+                }
+            },
+            "reviewer": {
+                "class": "talentmap_api.user_profile.serializers.UserProfileShortSerializer",
+                "field": "reviewer",
+                "kwargs": {
                     "read_only": True
                 }
             }

@@ -81,6 +81,20 @@ class BidListAOActionView(GenericViewSet):
         self.set_bid_status(self.request.user, pk, Bid.Status.handshake_offered, Bid.Status.submitted)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def self_assign(self, request, pk, format=None):
+        '''
+        Assigns the current user as the specified bid's reviewer
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, id=pk)
+        # We must be an AO for the bureau for the bid's position
+        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+
+        bid.reviewer = self.request.user.profile
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BidListBidderActionView(GenericViewSet):
     '''
@@ -113,5 +127,17 @@ class BidListBidderActionView(GenericViewSet):
         bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
         bid.status = Bid.Status.handshake_accepted
         bid.handshake_accepted_date = datetime.datetime.now()
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def decline_handshake(self, request, pk, format=None):
+        '''
+        Declines a handshake for a bid
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        bid.status = Bid.Status.handshake_declined
+        bid.handshake_declined_date = datetime.datetime.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

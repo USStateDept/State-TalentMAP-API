@@ -11,10 +11,11 @@ import os
 import sys
 
 from talentmap_api.common.common_helpers import load_environment_script
+from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 
 
-environment = load_environment_script('../setup_environment.sh')
+environment = load_environment_script(os.path.join(settings.BASE_DIR, 'setup_environment.sh'))
 
 
 # https support for the swagger documentation

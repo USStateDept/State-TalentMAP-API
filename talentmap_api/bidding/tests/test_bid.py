@@ -68,6 +68,20 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.submitted_date == datetime.datetime.now().date()
     assert bid.handshake_accepted_date == datetime.datetime.now().date()
 
+    # Update the bid in the DB to have offered a handshake
+    bid.status = bid.Status.handshake_offered
+    bid.save()
+
+    # Try to decline a handshake on the position.
+    response = authorized_client.get(f'/api/v1/bid/{bid.id}/decline_handshake/')
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    bid.refresh_from_db()
+    assert bid.status == Bid.Status.handshake_declined
+    assert bid.draft_date == datetime.datetime.now().date()
+    assert bid.submitted_date == datetime.datetime.now().date()
+    assert bid.handshake_declined_date == datetime.datetime.now().date()
+
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
@@ -89,6 +103,12 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     group.user_set.add(authorized_user)
     group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
     group.user_set.add(authorized_user)
+
+    # Assign the bid to us
+    response = authorized_client.get(f'/api/v1/bid/{in_bureau_bid.id}/self_assign/')
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    in_bureau_bid.refresh_from_db()
+    assert in_bureau_bid.reviewer == authorized_user.profile
 
     # Offer a handshake, this should 404 since there's no matching bid (because it lacks the submitted status)
     response = authorized_client.get(f'/api/v1/bid/{in_bureau_bid.id}/offer_handshake/')
@@ -127,6 +147,18 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.in_panel
     assert in_bureau_bid.in_panel_date == datetime.datetime.now().date()
     assert str(in_bureau_bid.scheduled_panel_date) == "2019-01-01"
+
+    # Reschedule the panel date
+    response = authorized_client.patch(f'/api/v1/bid/{in_bureau_bid.id}/schedule_panel/', data=json.dumps({
+        "scheduled_panel_date": "2019-01-11"
+    }), content_type="application/json")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    in_bureau_bid.refresh_from_db()
+    assert in_bureau_bid.status == Bid.Status.in_panel
+    assert in_bureau_bid.in_panel_date == datetime.datetime.now().date()
+    assert str(in_bureau_bid.scheduled_panel_date) == "2019-01-11"
 
     # Patch an out-of-bureau bid
     response = authorized_client.patch(f'/api/v1/bid/{out_of_bureau_bid.id}/schedule_panel/', data=json.dumps({
