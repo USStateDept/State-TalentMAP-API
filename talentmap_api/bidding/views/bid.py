@@ -81,6 +81,20 @@ class BidListAOActionView(GenericViewSet):
         self.set_bid_status(self.request.user, pk, Bid.Status.handshake_offered, Bid.Status.submitted)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def self_assign(self, request, pk, format=None):
+        '''
+        Assigns the current user as the specified bid's reviewer
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, id=pk)
+        # We must be an AO for the bureau for the bid's position
+        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+
+        bid.reviewer = self.request.user.profile
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BidListBidderActionView(GenericViewSet):
     '''

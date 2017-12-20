@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/approve/$', views.BidListAOActionView.as_view({'get': 'approve'}), name='bidding.Bid-bid-ao-approve'),
     url(r'^(?P<pk>[0-9]+)/decline/$', views.BidListAOActionView.as_view({'get': 'decline'}), name='bidding.Bid-bid-ao-decline'),
     url(r'^(?P<pk>[0-9]+)/offer_handshake/$', views.BidListAOActionView.as_view({'get': 'offer_handshake'}), name='bidding.Bid-bid-ao-offer-handshake'),
+    url(r'^(?P<pk>[0-9]+)/self_assign/$', views.BidListAOActionView.as_view({'get': 'self_assign'}), name='bidding.Bid-bid-ao-self-assign'),
 ]
