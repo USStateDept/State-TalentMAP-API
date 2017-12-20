@@ -130,6 +130,8 @@ class Bid(StaticRepresentationModel):
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
     position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
 
+    reviewer = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name="reviewing_bids", help_text="The bureau reviewer for this bid")
+
     create_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
 

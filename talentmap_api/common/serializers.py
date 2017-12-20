@@ -1,3 +1,5 @@
+from pydoc import locate
+
 from rest_framework import serializers
 from django.db.models.constants import LOOKUP_SEP
 
@@ -61,6 +63,10 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
                 # Inherit our current context
                 kwargs["context"] = self.context
+
+                # If our class is specified as a string, import it
+                if isinstance(nested["class"], str):
+                    nested["class"] = locate(nested["class"])
 
                 self.fields[name] = nested["class"](**kwargs)
 

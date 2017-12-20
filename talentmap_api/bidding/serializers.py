@@ -87,6 +87,13 @@ class BidSerializer(PrefetchedSerializer):
                     ],
                     "read_only": True
                 }
+            },
+            "reviewer": {
+                "class": "talentmap_api.user_profile.serializers.UserProfileShortSerializer",
+                "field": "reviewer",
+                "kwargs": {
+                    "read_only": True
+                }
             }
         }
 
