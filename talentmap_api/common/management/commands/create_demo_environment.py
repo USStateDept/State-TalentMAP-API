@@ -5,7 +5,7 @@ import logging
 import datetime
 import itertools
 
-from talentmap_api.bidding.models import BidCycle, Bid, Waiver
+from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
 from talentmap_api.user_profile.models import UserProfile
@@ -43,7 +43,16 @@ class Command(BaseCommand):
         self.logger.info("Created.")
 
         self.logger.info(f"Seeding bids for all users...")
-        valid_users = itertools.cycle(list(UserProfile.objects.exclude(user__username__in=["admin", "doej", "guest", "woodwardw"]).all()))
+        persona_users = UserProfile.objects.exclude(user__username__in=["admin", "doej", "guest", "woodwardw"]).all()
+        valid_users = itertools.cycle(list(persona_users))
+        reviewer = UserProfile.objects.get(user__username="woodwardw")
+
+        # Remove any previous SII surveys
+        StatusSurvey.objects.all().delete()
+
+        # Create SII surveys
+        for user in list(persona_users):
+            StatusSurvey.objects.create(user=user, bidcycle=bc)
 
         # Remove any existing bids
         Bid.objects.all().delete()
@@ -52,8 +61,8 @@ class Command(BaseCommand):
         positions = list(bc.positions.filter(bureau__code="150000").order_by('?'))  # Our AO persona gets all the bids
         for _ in range(0, 20):
             position = positions.pop()
-            Bid.objects.create(position=position, bidcycle=bc, user=next(valid_users))
-            Bid.objects.create(position=position, bidcycle=bc, user=next(valid_users))
+            Bid.objects.create(position=position, bidcycle=bc, user=next(valid_users), reviewer=reviewer)
+            Bid.objects.create(position=position, bidcycle=bc, user=next(valid_users), reviewer=reviewer)
         self.logger.info(f"Seeded bids, randomly altering statuses...")
         # Assign random bids statuses
         statuses = itertools.cycle([Bid.Status.submitted, Bid.Status.handshake_offered])
@@ -106,3 +115,6 @@ class Command(BaseCommand):
             waiver.save()
 
         self.logger.info("Done seeding waivers")
+
+        self.logger.info("Updating string representations...")
+        call_command("update_string_representations")

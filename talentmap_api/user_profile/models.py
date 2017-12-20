@@ -1,5 +1,3 @@
-import datetime
-
 from django.db.models import F, Sum, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -11,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff, ensure_date
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
@@ -42,10 +40,7 @@ class UserProfile(StaticRepresentationModel):
     def save(self, *args, **kwargs):
         # Set the retirement date to the user's birthdate + 65 years
         if self.date_of_birth:
-            date_of_birth = self.date_of_birth
-            if isinstance(date_of_birth, str):
-                date_of_birth = datetime.datetime.strptime(date_of_birth, '%Y-%m-%d').date()
-            self.mandatory_retirement_date = date_of_birth + relativedelta(years=65)
+            self.mandatory_retirement_date = ensure_date(self.date_of_birth) + relativedelta(years=65)
         super(UserProfile, self).save(*args, **kwargs)
 
     @property
@@ -56,6 +51,48 @@ class UserProfile(StaticRepresentationModel):
         '''
 
         return self.direct_reports.count() != 0
+
+    @property
+    def is_six_eight(self):
+        '''
+        Determines if this user is classified as a 6/8 valid bidder. The rules to calculate this have some
+        exceptions, but this is just a baseline logic implmentation for the time being.
+        '''
+        # An employee is valid under 6/8 rules if the following states are TRUE
+        #  - Has served a suffiecient portion of a non-domestic tour of duty (10 of 12, 20 of 24, 30 of 36 or 83% of others)
+        #    such that there is no contiguous block (have removed invalid non-domestic TOD assignments) of 6 or 8 years domestic service
+
+        # Get the user's assignment history
+        assignments = self.assignments.all().filter(status__in=[self.assignments.model.Status.completed, self.assignments.model.Status.curtailed])
+
+        # Annotate with the TOD months to avoid a lookup error
+        assignments = assignments.annotate(tod_months=F("tour_of_duty__months")).annotate(required_service=F("tod_months") * 0.83)
+
+        # Create a case to filter for USA positions
+        usa_q_obj = Q(position__post__location__country__code="USA")
+        # Create cases for the 12, 24, and 36 month cases
+        tod_case_1 = Q(tod_months=12, service_duration__gte=10)
+        tod_case_2 = Q(tod_months=24, service_duration__gte=20)
+        tod_case_3 = Q(tod_months=36, service_duration__gte=30)
+        # Create case for the Non 12, 24, and 36 month cases
+        tod_case_4 = ~Q(tod_months__in=[12, 24, 36]) & Q(service_duration__gte=F("required_service"))
+        tod_cases = tod_case_1 | tod_case_2 | tod_case_3 | tod_case_4
+
+        valid_case = usa_q_obj | (~usa_q_obj & tod_cases)
+
+        # Keep only assignments which are domestic, and foreign assignments which meet the criteria
+        assignments = assignments.filter(valid_case).order_by("-start_date")
+
+        # Count our assignments in order from most recent to oldest, counting the service duration until we
+        # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations
+        total = 0
+        for assignment in list(assignments):
+            if assignment.position.post.location.country.code != "USA":
+                break
+            total += assignment.service_duration
+
+        # If the total number of now contiguous domestic service exceeds 6 years we should return FALSE as we don't meet the requirements
+        return total < (6 * 12)
 
     @property
     def is_fairshare(self):

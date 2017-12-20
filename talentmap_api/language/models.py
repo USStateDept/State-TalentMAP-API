@@ -1,5 +1,4 @@
 from django.db import models
-from djchoices import DjangoChoices, ChoiceItem
 
 import logging
 
@@ -48,6 +47,18 @@ class Proficiency(StaticRepresentationModel):
 
     def __str__(self):
         return f"{self.code}"
+
+    def __gt__(self, other):
+        return self.RANKING.index(self.code) > self.RANKING.index(other.code)
+
+    def __ge__(self, other):
+        return self.RANKING.index(self.code) >= self.RANKING.index(other.code)
+
+    def __lt__(self, other):
+        return self.RANKING.index(self.code) < self.RANKING.index(other.code)
+
+    def __le__(self, other):
+        return self.RANKING.index(self.code) <= self.RANKING.index(other.code)
 
     class Meta:
         managed = True

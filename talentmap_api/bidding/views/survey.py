@@ -2,7 +2,7 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from talentmap_api.bidding.serializers import SurveySerializer
+from talentmap_api.bidding.serializers.serializers import SurveySerializer
 from talentmap_api.bidding.filters import StatusSurveyFilter
 from talentmap_api.bidding.models import StatusSurvey
 from talentmap_api.user_profile.models import UserProfile

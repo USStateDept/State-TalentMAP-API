@@ -18,15 +18,5 @@ class Migration(migrations.Migration):
             model_name='waiver',
             name='reviewer',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reviewed_waivers', to='user_profile.UserProfile'),
-        ),
-        migrations.AlterField(
-            model_name='bid',
-            name='in_panel_date',
-            field=models.DateField(help_text='The date the bid was scheduled for panel', null=True),
-        ),
-        migrations.AlterField(
-            model_name='bid',
-            name='scheduled_panel_date',
-            field=models.DateField(help_text='The date of the paneling meeting', null=True),
-        ),
+        )
     ]

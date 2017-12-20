@@ -12,7 +12,7 @@ from rest_framework import status
 from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.serializers import BidWritableSerializer
+from talentmap_api.bidding.serializers.serializers import BidWritableSerializer
 from talentmap_api.bidding.models import Bid
 from talentmap_api.user_profile.models import UserProfile
 
