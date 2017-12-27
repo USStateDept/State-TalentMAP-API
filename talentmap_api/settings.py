@@ -158,10 +158,10 @@ if ENABLE_SAML2:
     # See https://github.com/knaperek/djangosaml2 for more information
     SAML_CONFIG = {
         # full path to the xmlsec1 binary program
-        'xmlsec_binary': f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/metadata/",
+        'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
 
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': os.environ.get('SAML2_ENTITY_ID'),
+        'entityid': f"os.environ.get('SAML2_ENTITY_ID')saml2/metadata/",
 
         # directory with attribute mapping
         'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
@@ -225,7 +225,7 @@ if ENABLE_SAML2:
 
         # Encryption
         'encryption_keypairs': [{
-            'key_file': os.envrion.get('SAML2_ENCRYPTION_KEY'),  # private part
+            'key_file': os.environ.get('SAML2_ENCRYPTION_KEY'),  # private part
             'cert_file': os.environ.get('SAML2_ENCRYPTION_CERT'),  # public part
         }],
 
