@@ -14,7 +14,7 @@ from talentmap_api.common.common_helpers import has_permission_or_403, in_group_
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 from talentmap_api.bidding.models import Bid, Waiver
-from talentmap_api.bidding.serializers import BidSerializer, WaiverSerializer
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment

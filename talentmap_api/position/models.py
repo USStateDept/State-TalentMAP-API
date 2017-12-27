@@ -4,10 +4,10 @@ from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-import datetime
 from dateutil.relativedelta import relativedelta
 
 import talentmap_api.bidding.models
+from talentmap_api.common.common_helpers import ensure_date, month_diff
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
@@ -300,16 +300,15 @@ class Assignment(StaticRepresentationModel):
     start_date = models.DateField(null=True, help_text='The date the assignment started')
     estimated_end_date = models.DateField(null=True, help_text='The estimated end date based upon tour of duty')
     end_date = models.DateField(null=True, help_text='The date this position was completed or curtailed')
+    service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
     update_date = models.DateField(auto_now=True)
 
     def save(self, *args, **kwargs):
         # Set the estimate end date to the date in the future based on tour of duty months
         if self.start_date and self.tour_of_duty:
-            start_date = self.start_date
-            # Ensure we are always dealing with a date object and not a string
-            if isinstance(self.start_date, str):
-                start_date = datetime.datetime.strptime(self.start_date, '%Y-%m-%d').date()
-            self.estimated_end_date = start_date + relativedelta(months=self.tour_of_duty.months)
+            self.estimated_end_date = ensure_date(self.start_date) + relativedelta(months=self.tour_of_duty.months)
+        if self.start_date and self.end_date:
+            self.service_duration = month_diff(ensure_date(self.start_date), ensure_date(self.end_date))
         super(Assignment, self).save(*args, **kwargs)
 
     def __str__(self):

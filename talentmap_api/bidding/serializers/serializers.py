@@ -50,6 +50,7 @@ class SurveySerializer(PrefetchedSerializer):
     def get_calculated_values(self, obj):
         calculated_values = {}
         calculated_values['is_fairshare'] = obj.user.is_fairshare
+        calculated_values['is_six_eight'] = obj.user.is_six_eight
 
         return calculated_values
 
@@ -85,6 +86,13 @@ class BidSerializer(PrefetchedSerializer):
                         "update_date",
                         "create_date"
                     ],
+                    "read_only": True
+                }
+            },
+            "reviewer": {
+                "class": "talentmap_api.user_profile.serializers.UserProfileShortSerializer",
+                "field": "reviewer",
+                "kwargs": {
                     "read_only": True
                 }
             }
