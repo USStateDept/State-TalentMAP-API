@@ -89,6 +89,44 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidlist_fixture")
+def test_bid_bidder_priority_restrictions(authorized_client, authorized_user):
+    in_cycle_position = BidCycle.objects.first().positions.first()
+
+    # Put the position into the bidlist
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    # Get our bidlist, and validate that the position is in the list as a draft
+    response = authorized_client.get(f'/api/v1/bidlist/')
+
+    assert response.status_code == status.HTTP_200_OK
+
+    bid = Bid.objects.get(id=response.data["results"][0]["id"])
+    assert bid.status == Bid.Status.draft
+    assert bid.position.id == in_cycle_position.id
+    assert bid.draft_date == datetime.datetime.now().date()
+    assert bid.submitted_date is None
+    assert not bid.is_priority
+
+    # Create a new bid for this user which is priority
+    mommy.make(Bid, position=in_cycle_position, bidcycle=BidCycle.objects.first(), user=authorized_user.profile, status=Bid.Status.approved, is_priority=True)
+
+    assert authorized_user.profile.bidlist.count() == 2
+    # Submit our bid, we should get 400 since we have a priority bid elsewhere in the bidcycle
+    response = authorized_client.get(f'/api/v1/bid/{bid.id}/submit/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Try to accept a handshake on the position. We should get a 400 since there is a priority bid elsewhere in the bidcycle for this user
+    bid.status = Bid.Status.handshake_offered
+    bid.save()
+    response = authorized_client.get(f'/api/v1/bid/{bid.id}/accept_handshake/')
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidlist_fixture")
 def test_bid_ao_actions(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
     bureau = mommy.make('organization.Organization', code='12345')
