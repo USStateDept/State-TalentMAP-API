@@ -84,7 +84,7 @@ class BidCycleStatisticsSerializer(PrefetchedSerializer):
 
     class Meta:
         model = BidCycle
-        fields = ("id", "name",
+        fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date",
                   "total_positions", "available_positions", "available_domestic_positions", "available_international_positions",
                   "total_bids", "total_bidders", "in_panel_bidders", "approved_bidders", "bidding_days_remaining",)
 
