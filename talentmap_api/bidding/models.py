@@ -129,6 +129,8 @@ class Bid(StaticRepresentationModel):
     bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="bids", help_text="The bidcycle for this bid")
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
     position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
+    is_priority = models.BooleanField(default=False, help_text="Flag indicating if this bid is the bidder's priority bid")
+    panel_reschedule_count = models.IntegerField(default=0, help_text="The number of times this bid's panel date has been rescheduled")
 
     reviewer = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name="reviewing_bids", help_text="The bureau reviewer for this bid")
 
@@ -144,6 +146,13 @@ class Bid(StaticRepresentationModel):
         Returns an array of statuses that denote some approval of the bid (handshake->approved)
         '''
         return [Bid.Status.handshake_offered, Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
+
+    @staticmethod
+    def get_priority_statuses():
+        '''
+        Returns an array of statuses that correspond to a priority bid (handshake_accepted->approved)
+        '''
+        return [Bid.Status.handshake_accepted, Bid.Status.in_panel, Bid.Status.approved]
 
     @staticmethod
     def get_unavailable_status_filter():
@@ -245,6 +254,9 @@ def bid_status_changed(sender, instance, **kwargs):
         # Get our bid as it exists in the database
         old_bid = Bid.objects.get(id=instance.id)
 
+        # Set the bid's priority flag
+        instance.is_priority = instance.status in instance.get_priority_statuses()
+
         # Check if our old bid's status equals the new instance's status
         if old_bid.status != instance.status:
             # Create notifications for the owner of the bid, and other bidders on the same position
@@ -271,6 +283,7 @@ def bid_panel_date_changed(sender, instance, **kwargs):
         # If we have an old date, this a re-schedule
         if old_bid.scheduled_panel_date:
             verb = 'rescheduled'
+            instance.panel_reschedule_count = old_bid.panel_reschedule_count + 1
         # Check if our old bid's paneling date is the same as the new one
         if old_bid.scheduled_panel_date != instance.scheduled_panel_date:
             Notification.objects.create(owner=instance.user,

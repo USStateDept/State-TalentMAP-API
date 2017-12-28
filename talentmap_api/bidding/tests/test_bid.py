@@ -35,6 +35,7 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.position.id == in_cycle_position.id
     assert bid.draft_date == datetime.datetime.now().date()
     assert bid.submitted_date is None
+    assert not bid.is_priority
 
     # Submit our bid
     response = authorized_client.get(f'/api/v1/bid/{bid.id}/submit/')
@@ -45,6 +46,7 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.status == Bid.Status.submitted
     assert bid.draft_date == datetime.datetime.now().date()
     assert bid.submitted_date == datetime.datetime.now().date()
+    assert not bid.is_priority
 
     # Try to submit again, we should get a 404 error since you can't submit a bid that's been submitted
     response = authorized_client.get(f'/api/v1/bid/{bid.id}/submit/')
@@ -67,6 +69,7 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.draft_date == datetime.datetime.now().date()
     assert bid.submitted_date == datetime.datetime.now().date()
     assert bid.handshake_accepted_date == datetime.datetime.now().date()
+    assert bid.is_priority
 
     # Update the bid in the DB to have offered a handshake
     bid.status = bid.Status.handshake_offered
@@ -81,6 +84,7 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
     assert bid.draft_date == datetime.datetime.now().date()
     assert bid.submitted_date == datetime.datetime.now().date()
     assert bid.handshake_declined_date == datetime.datetime.now().date()
+    assert not bid.is_priority
 
 
 @pytest.mark.django_db(transaction=True)
@@ -147,6 +151,8 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.in_panel
     assert in_bureau_bid.in_panel_date == datetime.datetime.now().date()
     assert str(in_bureau_bid.scheduled_panel_date) == "2019-01-01"
+    assert in_bureau_bid.is_priority
+    assert in_bureau_bid.panel_reschedule_count == 0
 
     # Reschedule the panel date
     response = authorized_client.patch(f'/api/v1/bid/{in_bureau_bid.id}/schedule_panel/', data=json.dumps({
@@ -159,6 +165,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.in_panel
     assert in_bureau_bid.in_panel_date == datetime.datetime.now().date()
     assert str(in_bureau_bid.scheduled_panel_date) == "2019-01-11"
+    assert in_bureau_bid.panel_reschedule_count == 1
 
     # Patch an out-of-bureau bid
     response = authorized_client.patch(f'/api/v1/bid/{out_of_bureau_bid.id}/schedule_panel/', data=json.dumps({
@@ -177,6 +184,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     in_bureau_bid.refresh_from_db()
     assert in_bureau_bid.status == Bid.Status.approved
     assert in_bureau_bid.approved_date == datetime.datetime.now().date()
+    assert in_bureau_bid.is_priority
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/approve/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -188,6 +196,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     in_bureau_bid.refresh_from_db()
     assert in_bureau_bid.status == Bid.Status.declined
     assert in_bureau_bid.declined_date == datetime.datetime.now().date()
+    assert not in_bureau_bid.is_priority
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/decline/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
