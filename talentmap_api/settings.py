@@ -14,9 +14,17 @@ import os
 import dj_database_url
 import datetime
 
+import saml2
+import saml2.saml
+
+
+# Simple function to evaluate if an environment variable is truthy
+def bool_env_variable(name):
+    return os.environ.get(name) in ["1", "True", "true", True]
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -25,9 +33,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-if os.environ.get("DJANGO_DEBUG") in ["1", "True", "true"]:
-    DEBUG = True
+DEBUG = bool_env_variable("DJANGO_DEBUG")
+
+# Whether to enable saml2 endpoints
+ENABLE_SAML2 = bool_env_variable("ENABLE_SAML2")
 
 # This is * for now, but should be set to a proper host when deployed
 ALLOWED_HOSTS = ['*']
@@ -35,12 +44,25 @@ ALLOWED_HOSTS = ['*']
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
 
-# Login paths for Swagger UI
+# Login paths
 LOGIN_URL = 'rest_framework:login'
 LOGOUT_URL = 'rest_framework:logout'
 
+# Check for SAML2 enable
+if ENABLE_SAML2:
+    LOGIN_URL = '/saml2/login/'
+    SESSION_EXPIRE_AT_BROWSER_CLOSE = bool_env_variable('SAML2_SESSION_EXPIRE_AT_BROWSER_CLOSE')
+
 # Authorization token lifetime
 EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(days=1)
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+if ENABLE_SAML2:
+    AUTHENTICATION_BACKENDS += ('djangosaml2.backends.Saml2Backend',)
 
 # Application definition
 
@@ -61,6 +83,7 @@ INSTALLED_APPS = [
     'rest_framework_expiring_authtoken',
     'rest_framework_swagger',
     'debug_toolbar',
+    'djangosaml2',
 
     # TalentMap Apps
     'talentmap_api.common',
@@ -123,6 +146,109 @@ REST_FRAMEWORK = {
     ),
 }
 
+# SAML Settings
+SAML_CONFIG = {}
+
+# Lookup by email
+SAML_DJANGO_USER_MAIN_ATTRIBUTE = 'email'
+# Create a new Django user if we have a saml2 user we don't know
+SAML_CREATE_UNKNOWN_USER = True
+
+if ENABLE_SAML2:
+    # See https://github.com/knaperek/djangosaml2 for more information
+    SAML_CONFIG = {
+        # full path to the xmlsec1 binary program
+        'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
+
+        # your entity id, usually your subdomain plus the url to the metadata view
+        'entityid': f"os.environ.get('SAML2_ENTITY_ID')saml2/metadata/",
+
+        # directory with attribute mapping
+        'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
+
+        # this block states what services we provide
+        'service': {
+            # We are a service provider
+            'sp': {
+                'name': 'TalentMAP',
+                'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                'endpoints': {
+                    # url and binding to the assetion consumer service view
+                    # do not change the binding or service name
+                    'assertion_consumer_service': [
+                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/acs/",
+                            saml2.BINDING_HTTP_POST),
+                    ],
+                    # url and binding to the single logout service view
+                    # do not change the binding or service name
+                    'single_logout_service': [
+                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/ls/",
+                            saml2.BINDING_HTTP_REDIRECT),
+                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}ls/post",
+                            saml2.BINDING_HTTP_POST),
+                    ],
+                },
+
+                # attributes that this project need to identify a user
+                'required_attributes': ['uid'],
+
+                # attributes that may be useful to have but not required
+                # TODO: What attributes are we getting back from DOS IdP?
+                'optional_attributes': [],
+
+                # in this section the list of IdPs we talk to are defined
+                'idp': {
+                    # the keys of this dictionary are entity ids
+                    os.environ.get('SAML2_IDP_METADATA_ENDPOINT'): {
+                        'single_sign_on_service': {
+                            saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML2_IDP_SSO_LOGIN_ENDPOINT'),
+                        },
+                        'single_logout_service': {
+                            saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML2_IDP_SLO_LOGOUT_ENDPOINT'),
+                        },
+                    },
+                },  # End IDP config
+            },  # End SP config
+        },  # End Service config
+
+        # where the remote metadata is stored
+        'metadata': {
+            'local': [os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'remote_metadata', 'remote_metadata.xml')],
+        },
+
+        # set to 1 to output debugging information
+        'debug': os.environ.get('SAML2_DEBUG'),
+
+        # Signing
+        'key_file': os.environ.get('SAML2_SIGNING_KEY'),  # private part
+        'cert_file': os.environ.get('SAML2_SIGNING_CERT'),  # public part
+
+        # Encryption
+        'encryption_keypairs': [{
+            'key_file': os.environ.get('SAML2_ENCRYPTION_KEY'),  # private part
+            'cert_file': os.environ.get('SAML2_ENCRYPTION_CERT'),  # public part
+        }],
+
+        # Our metadata
+        'contact_person': [
+            {
+                'given_name': os.environ.get('SAML2_TECHNICAL_POC_FIRST_NAME'),
+                'sur_name': os.environ.get('SAML2_TECHNICAL_POC_LAST_NAME'),
+                'company': os.environ.get('SAML2_TECHNICAL_POC_COMPANY'),
+                'email_address': os.environ.get('SAML2_TECHNICAL_POC_EMAIL'),
+                'contact_type': 'technical'
+            },
+            {
+                'given_name': os.environ.get('SAML2_ADMINISTRATIVE_POC_FIRST_NAME'),
+                'sur_name': os.environ.get('SAML2_ADMINISTRATIVE_POC_LAST_NAME'),
+                'company': os.environ.get('SAML2_ADMINISTRATIVE_POC_COMPANY'),
+                'email_address': os.environ.get('SAML2_ADMINISTRATIVE_POC_EMAIL'),
+                'contact_type': 'administrative'
+            },
+        ],
+
+        "valid_for": 24  # Our metadata is valid for 24-hours
+    }  # End SAML config
 
 # Logging Settings
 LOGGING = {

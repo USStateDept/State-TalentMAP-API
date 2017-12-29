@@ -1,5 +1,6 @@
 Requirements:
 * Python 3.6
+* xmlsec1
 
 ### Setting up a virtual environment
 

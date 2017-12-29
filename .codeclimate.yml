@@ -31,3 +31,4 @@ exclude_paths:
   - "*/site-packages/*"
   - "**/tests/"
   - "**/migrations/"
+  - "**/saml2/*"
