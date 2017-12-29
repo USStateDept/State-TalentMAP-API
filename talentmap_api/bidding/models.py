@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
@@ -139,6 +141,10 @@ class Bid(StaticRepresentationModel):
 
     def __str__(self):
         return f"{self.user}#{self.position.position_number} ({self.status})"
+
+    @property
+    def is_paneling_today(self):
+        return datetime.datetime.now().date() == self.scheduled_panel_date
 
     @staticmethod
     def get_approval_statuses():
