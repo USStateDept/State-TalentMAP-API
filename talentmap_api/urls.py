@@ -18,6 +18,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_expiring_authtoken import views as auth_views
+from djangosaml2.views import echo_attributes
 
 urlpatterns = [
     url(r'^$', get_swagger_view(title='TalentMAP API')),
@@ -66,6 +67,15 @@ urlpatterns += [
     url(r'^api/v1/accounts/token/', auth_views.obtain_expiring_auth_token),
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
 ]
+
+if settings.ENABLE_SAML2:  # pragma: no cover
+    urlpatterns += [
+        url(r'^saml2/', include('djangosaml2.urls')),
+    ]
+    if settings.DEBUG:
+        urlpatterns += [
+            url(r'^saml2-test/', echo_attributes),
+        ]
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
