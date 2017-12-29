@@ -14,18 +14,19 @@ from talentmap_api.common.common_helpers import load_environment_script
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 
-
-environment = load_environment_script(os.path.join(settings.BASE_DIR, 'setup_environment.sh'))
-
-
 # https support for the swagger documentation
 url_scheme = 'https'
 
-os.environ.setdefault("DJANGO_SECRET_KEY", environment["DJANGO_SECRET_KEY"])
-os.environ.setdefault("DATABASE_URL", environment["DATABASE_URL"])
-os.environ.setdefault("DJANGO_DEBUG", environment["DJANGO_DEBUG"])
+# Don't load from setup environment file if we're running development server
+if 'runserver' not in sys.argv:
+    environment = load_environment_script(os.path.join(settings.BASE_DIR, 'setup_environment.sh'))
+
+    for environment_variable in environment.keys():
+        os.environ.setdefault(environment_variable, environment[environment_variable])
+
+    sys.path.append(environment["DEPLOYMENT_LOCATION"])
+    sys.path.append(f'{environment["DEPLOYMENT_LOCATION"]}talentmap_api/')
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "talentmap_api.settings")
-sys.path.append(environment["DEPLOYMENT_LOCATION"])
-sys.path.append(f'{environment["DEPLOYMENT_LOCATION"]}talentmap_api/')
 
 application = get_wsgi_application()
