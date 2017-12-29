@@ -13,3 +13,7 @@ export DJANGO_DEBUG=True
 # Deployment location
 # The directory where manage.py is located; requires the trailing slash
 export DEPLOYMENT_LOCATION='/var/www/talentmap/api/'
+
+
+# SOAP API
+export WSDL_LOCATION='http://www.webservicex.net/uszip.asmx?WSDL'
