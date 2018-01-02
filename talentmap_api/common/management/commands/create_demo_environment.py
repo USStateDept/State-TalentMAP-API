@@ -5,6 +5,7 @@ import logging
 import datetime
 import itertools
 
+from dateutils import relativedelta
 from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty
@@ -21,12 +22,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command("create_seeded_users")
         BidCycle.objects.all().delete()
+        today = datetime.datetime.now().date()
         # Create bidcycle with all positions
         bc = BidCycle.objects.create(active=True,
                                      name=f"Demo BidCycle {datetime.datetime.now()}",
-                                     cycle_start_date="1900-01-01",
-                                     cycle_deadline_date="2100-01-01",
-                                     cycle_end_date="2101-01-01")
+                                     cycle_start_date=today - relativedelta(months=3),
+                                     cycle_deadline_date=today + relativedelta(months=1),
+                                     cycle_end_date=today + relativedelta(months=3))
 
         bc.positions.add(*list(Position.objects.all()))
         self.logger.info(f"Created demo bidcycle with all positions: {bc.name}")

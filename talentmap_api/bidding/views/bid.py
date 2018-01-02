@@ -109,10 +109,12 @@ class BidListBidderActionView(GenericViewSet):
         '''
         # First, validate that the user has not exceeded their maximum alloted bids
         user = UserProfile.objects.get(user=self.request.user)
-        if user.bidlist.filter(status=Bid.Status.submitted).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
-            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_400_BAD_REQUEST)
-
         bid = get_object_or_404(Bid, user=user, id=pk, status=Bid.Status.draft)
+        if user.bidlist.filter(status=Bid.Status.submitted, bidcycle=bid.bidcycle).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
+            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_400_BAD_REQUEST)
+        if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
+            return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
+
         bid.status = Bid.Status.submitted
         bid.submitted_date = datetime.datetime.now()
         bid.save()
@@ -124,7 +126,11 @@ class BidListBidderActionView(GenericViewSet):
 
         Returns 204 if the action is a success
         '''
-        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        user = UserProfile.objects.get(user=self.request.user)
+        bid = get_object_or_404(Bid, user=user, id=pk, status=Bid.Status.handshake_offered)
+        if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
+            return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
+
         bid.status = Bid.Status.handshake_accepted
         bid.handshake_accepted_date = datetime.datetime.now()
         bid.save()

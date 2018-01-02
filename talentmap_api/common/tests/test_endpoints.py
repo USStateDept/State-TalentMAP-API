@@ -19,6 +19,7 @@ parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
     # Bidcycle Endpoints
     ('/api/v1/bidcycle/', 'bidding.BidCycle', None, True),
+    ('/api/v1/bidcycle/statistics/', 'bidding.BidCycle', None, False),
 
     # Position Endpoints
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),

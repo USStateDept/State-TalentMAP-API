@@ -44,6 +44,51 @@ class BidCycleSerializer(PrefetchedSerializer):
         writable_fields = ("name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
 
 
+class BidCycleStatisticsSerializer(PrefetchedSerializer):
+    total_positions = serializers.SerializerMethodField()
+    available_positions = serializers.SerializerMethodField()
+    available_domestic_positions = serializers.SerializerMethodField()
+    available_international_positions = serializers.SerializerMethodField()
+    total_bids = serializers.SerializerMethodField()
+    total_bidders = serializers.SerializerMethodField()
+    approved_bidders = serializers.SerializerMethodField()
+    in_panel_bidders = serializers.SerializerMethodField()
+    bidding_days_remaining = serializers.SerializerMethodField()
+
+    def get_total_positions(self, obj):
+        return obj.positions.count()
+
+    def get_available_positions(self, obj):
+        return obj.annotated_positions.filter(accepting_bids=True).count()
+
+    def get_available_domestic_positions(self, obj):
+        return obj.annotated_positions.filter(accepting_bids=True, post__location__country__code="USA").count()
+
+    def get_available_international_positions(self, obj):
+        return obj.annotated_positions.filter(accepting_bids=True).exclude(post__location__country__code="USA").count()
+
+    def get_total_bids(self, obj):
+        return obj.bids.count()
+
+    def get_total_bidders(self, obj):
+        return obj.bids.values('user').distinct().count()
+
+    def get_in_panel_bidders(self, obj):
+        return obj.bids.filter(status=Bid.Status.in_panel).values('user').distinct().count()
+
+    def get_approved_bidders(self, obj):
+        return obj.bids.filter(status=Bid.Status.approved).values('user').distinct().count()
+
+    def get_bidding_days_remaining(self, obj):
+        return (obj.cycle_deadline_date - datetime.now().date()).days
+
+    class Meta:
+        model = BidCycle
+        fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date",
+                  "total_positions", "available_positions", "available_domestic_positions", "available_international_positions",
+                  "total_bids", "total_bidders", "in_panel_bidders", "approved_bidders", "bidding_days_remaining",)
+
+
 class SurveySerializer(PrefetchedSerializer):
     calculated_values = serializers.SerializerMethodField()
 
@@ -65,6 +110,14 @@ class BidSerializer(PrefetchedSerializer):
     user = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
     waivers = StaticRepresentationField(read_only=True, many=True)
+
+    is_paneling_today = serializers.SerializerMethodField()
+
+    def get_is_paneling_today(self, obj):
+        '''
+        We provide this so that if the front end is accessed from a different time zone, we are consistent
+        '''
+        return obj.is_paneling_today
 
     class Meta:
         model = Bid
