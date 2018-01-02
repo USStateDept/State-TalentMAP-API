@@ -68,26 +68,21 @@ class BrowsableAPIRendererWithoutForms(BrowsableAPIRenderer):
             if not self.show_form_for_method(view, method, request, instance):
                 return
 
-            # If possible, serialize the initial content for the generic form
-            content = None
-
             # Generate a generic form that includes a content type field,
             # and a content field.
             media_types = [parser.media_type for parser in view.parser_classes]
-            choices = [(media_type, media_type) for media_type in media_types]
-            initial = media_types[0]
 
             class GenericContentForm(forms.Form):
                 _content_type = forms.ChoiceField(
                     label='Media type',
-                    choices=choices,
-                    initial=initial,
+                    choices=[(media_type, media_type) for media_type in media_types],
+                    initial=media_types[0],
                     widget=forms.Select(attrs={'data-override': 'content-type'})
                 )
                 _content = forms.CharField(
                     label='Content',
                     widget=forms.Textarea(attrs={'data-override': 'content'}),
-                    initial=content
+                    initial=None
                 )
 
             return GenericContentForm()
