@@ -17,6 +17,9 @@ import datetime
 import saml2
 import saml2.saml
 
+# This supports swagger https
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Simple function to evaluate if an environment variable is truthy
 def bool_env_variable(name):
@@ -133,7 +136,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'talentmap_api.common.pagination.ControllablePageNumberPagination',
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        'talentmap_api.common.renderers.BrowsableAPIRendererWithoutForms',
         'talentmap_api.common.renderers.PaginatedCSVRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': (

@@ -1,5 +1,4 @@
 import datetime
-import re
 
 from dateutil.relativedelta import relativedelta
 
@@ -257,28 +256,3 @@ def month_diff(start_date, end_date):
 
     r = relativedelta(end_date, start_date)
     return r.months + 12 * r.years
-
-
-def load_environment_script(file):
-    '''
-    Attempts to load environment data from the specified location
-
-    Args:
-        - file (String) - The path to the file
-
-    Return:
-        - dictionary (Object) - A dictionary of variable-key pairs
-    '''
-
-    environment_file = {}
-    try:
-        with open(file) as f:
-            for variable in re.finditer(r'export (.*?)=(.+)', f.read()):
-                print(f"Found setup_environment.sh variable: {variable.group(1)}={variable.group(2)}")
-                # Store the variable, and strip any extra apostrophes or quotation marks
-                environment_file[variable.group(1)] = variable.group(2).replace("\'", "").replace("\"", "")
-    except:
-        print(f'TalentMAP: wsgi.py unable to load environment, does {file} exist?')
-        raise
-
-    return environment_file
