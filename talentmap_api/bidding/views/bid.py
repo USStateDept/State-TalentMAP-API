@@ -101,6 +101,8 @@ class BidListBidderActionView(GenericViewSet):
     Supports all bidder actions for a bid
     '''
 
+    permission_classes = (IsAuthenticated,)
+
     def submit(self, request, pk, format=None):
         '''
         Submits a bid

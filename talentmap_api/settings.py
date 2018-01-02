@@ -17,6 +17,9 @@ import datetime
 import saml2
 import saml2.saml
 
+# This supports swagger https
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Simple function to evaluate if an environment variable is truthy
 def bool_env_variable(name):
