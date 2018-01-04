@@ -242,6 +242,7 @@ class Skill(StaticRepresentationModel):
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
+    cone = models.ForeignKey("position.SkillCone", related_name="skills", null=True)
     description = models.TextField(null=False, help_text="Text description of the job skill")
 
     def __str__(self):
@@ -250,6 +251,26 @@ class Skill(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["code"]
+
+
+class SkillCone(StaticRepresentationModel):
+    '''
+    The skill cone represents a grouping of skills
+    '''
+
+    name = models.TextField(db_index=True, null=False, help_text="The name of the skill cone")
+
+    def __str__(self):
+        return f"{self.name}"
+
+    # Data as loaded from XML
+    _id = models.TextField(null=True)
+    _name = models.TextField(null=True)
+    _skill_codes = models.TextField(null=True)
+
+    class Meta:
+        managed = True
+        ordering = ["name"]
 
 
 class Classification(StaticRepresentationModel):
