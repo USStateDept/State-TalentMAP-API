@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Note that this file is parsed by python (in wsgi.py) so do not use any
+# interpolated bash variables; like $HOME
+
+
 # The database to connect to
 export DATABASE_URL='postgres://username:password@hostname:5432/database_name'
 

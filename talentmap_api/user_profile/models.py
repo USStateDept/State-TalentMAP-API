@@ -56,10 +56,10 @@ class UserProfile(StaticRepresentationModel):
     def is_six_eight(self):
         '''
         Determines if this user is classified as a 6/8 valid bidder. The rules to calculate this have some
-        exceptions, but this is just a baseline logic implmentation for the time being.
+        exceptions, but this is just a baseline logic implementation for the time being.
         '''
         # An employee is valid under 6/8 rules if the following states are TRUE
-        #  - Has served a suffiecient portion of a non-domestic tour of duty (10 of 12, 20 of 24, 30 of 36 or 83% of others)
+        #  - Has served a sufficient portion of a non-domestic tour of duty (10 of 12, 20 of 24, 30 of 36 or 83% of others)
         #    such that there is no contiguous block (have removed invalid non-domestic TOD assignments) of 6 or 8 years domestic service
 
         # Get the user's assignment history
