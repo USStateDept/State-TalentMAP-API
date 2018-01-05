@@ -110,14 +110,7 @@ class BidSerializer(PrefetchedSerializer):
     user = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
     waivers = StaticRepresentationField(read_only=True, many=True)
-
-    is_paneling_today = serializers.SerializerMethodField()
-
-    def get_is_paneling_today(self, obj):
-        '''
-        We provide this so that if the front end is accessed from a different time zone, we are consistent
-        '''
-        return obj.is_paneling_today
+    is_paneling_today = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Bid
