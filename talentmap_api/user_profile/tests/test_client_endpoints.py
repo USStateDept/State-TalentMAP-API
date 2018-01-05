@@ -185,7 +185,7 @@ def test_client_bid_prepanel(authorized_client, authorized_user, test_clients_fi
     response = authorized_client.get(f'/api/v1/client/{client.id}/bids/{bid.id}/prepanel/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["prepanel"] == "Bidder has not submited a self-identification survey for this bidcycle"
+    assert response.data["prepanel"] == "Bidder has not submitted a self-identification survey for this bidcycle"
 
     mommy.make('bidding.StatusSurvey', user=client, bidcycle=bidcycle)
 
