@@ -109,7 +109,7 @@ class BidListBidderActionView(GenericViewSet):
 
         Returns 204 if the action is a success
         '''
-        # First, validate that the user has not exceeded their maximum alotted bids
+        # First, validate that the user has not exceeded their maximum allotted bids
         user = UserProfile.objects.get(user=self.request.user)
         bid = get_object_or_404(Bid, user=user, id=pk, status=Bid.Status.draft)
         if user.bidlist.filter(status=Bid.Status.submitted, bidcycle=bid.bidcycle).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
