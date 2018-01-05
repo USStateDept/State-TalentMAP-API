@@ -53,6 +53,9 @@ parameterized_data = [
 
     # Messaging Endpoints
     ('/api/v1/notification/', 'messaging.Notification', owned_notification, True),
+
+    # Glossary
+    ('/api/v1/glossary/', 'glossary.GlossaryEntry', None, True),
 ]
 
 
