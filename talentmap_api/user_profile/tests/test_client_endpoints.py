@@ -164,3 +164,37 @@ def test_client_waiver_list(authorized_client, authorized_user, test_clients_fix
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 10
+
+
+@pytest.mark.django_db(transaction=True)
+def test_client_bid_prepanel(authorized_client, authorized_user, test_clients_fixture):
+    client = authorized_user.profile.direct_reports.first()
+    lang_1 = mommy.make('language.Language', code="FR", long_description="French", short_description="French")
+    lang_2 = mommy.make('language.Language', code="DE", long_description="German", short_description="German")
+    qual_1 = mommy.make('language.Qualification', id=1, language=lang_1, spoken_proficiency__code="2", reading_proficiency__code="2+")
+    qual_2 = mommy.make('language.Qualification', id=2, language=lang_2, spoken_proficiency__code="3", reading_proficiency__code="3+")
+
+    position = mommy.make('position.Position')
+    position.languages.add(*[qual_1, qual_2])
+    client.language_qualifications.add(position.languages.first())
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    bidcycle.positions.add(position)
+
+    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client)
+
+    response = authorized_client.get(f'/api/v1/client/{client.id}/bids/{bid.id}/prepanel/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["prepanel"] == "Bidder has not submitted a self-identification survey for this bidcycle"
+
+    mommy.make('bidding.StatusSurvey', user=client, bidcycle=bidcycle)
+
+    response = authorized_client.get(f'/api/v1/client/{client.id}/bids/{bid.id}/prepanel/')
+
+    assert response.status_code == status.HTTP_200_OK
+    prepanel = response.data["prepanel"]
+
+    assert "fairshare" in prepanel
+    assert "six_eight" in prepanel
+    assert "language" in prepanel
+    assert "skill" in prepanel

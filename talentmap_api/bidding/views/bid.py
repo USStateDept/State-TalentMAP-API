@@ -12,7 +12,7 @@ from rest_framework import status
 from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.serializers import BidWritableSerializer
+from talentmap_api.bidding.serializers.serializers import BidWritableSerializer
 from talentmap_api.bidding.models import Bid
 from talentmap_api.user_profile.models import UserProfile
 
@@ -81,11 +81,27 @@ class BidListAOActionView(GenericViewSet):
         self.set_bid_status(self.request.user, pk, Bid.Status.handshake_offered, Bid.Status.submitted)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def self_assign(self, request, pk, format=None):
+        '''
+        Assigns the current user as the specified bid's reviewer
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, id=pk)
+        # We must be an AO for the bureau for the bid's position
+        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+
+        bid.reviewer = self.request.user.profile
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class BidListBidderActionView(GenericViewSet):
     '''
     Supports all bidder actions for a bid
     '''
+
+    permission_classes = (IsAuthenticated,)
 
     def submit(self, request, pk, format=None):
         '''
@@ -93,12 +109,14 @@ class BidListBidderActionView(GenericViewSet):
 
         Returns 204 if the action is a success
         '''
-        # First, validate that the user has not exceeded their maximum alloted bids
+        # First, validate that the user has not exceeded their maximum allotted bids
         user = UserProfile.objects.get(user=self.request.user)
-        if user.bidlist.filter(status=Bid.Status.submitted).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
-            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_400_BAD_REQUEST)
-
         bid = get_object_or_404(Bid, user=user, id=pk, status=Bid.Status.draft)
+        if user.bidlist.filter(status=Bid.Status.submitted, bidcycle=bid.bidcycle).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
+            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_400_BAD_REQUEST)
+        if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
+            return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
+
         bid.status = Bid.Status.submitted
         bid.submitted_date = datetime.datetime.now()
         bid.save()
@@ -110,8 +128,24 @@ class BidListBidderActionView(GenericViewSet):
 
         Returns 204 if the action is a success
         '''
-        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        user = UserProfile.objects.get(user=self.request.user)
+        bid = get_object_or_404(Bid, user=user, id=pk, status=Bid.Status.handshake_offered)
+        if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
+            return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
+
         bid.status = Bid.Status.handshake_accepted
         bid.handshake_accepted_date = datetime.datetime.now()
+        bid.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def decline_handshake(self, request, pk, format=None):
+        '''
+        Declines a handshake for a bid
+
+        Returns 204 if the action is a success
+        '''
+        bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        bid.status = Bid.Status.handshake_declined
+        bid.handshake_declined_date = datetime.datetime.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

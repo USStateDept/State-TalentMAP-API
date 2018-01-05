@@ -1,6 +1,9 @@
 ---
 version: 2
 checks:
+  argument-count:
+    config:
+      threshold: 5  # The default value for this is 4, we up it to 5 to account for the required 'self' argument in Python
   method-complexity:
     config:
       threshold: 7  # The default value for this is 5, we up it to 7 because validators require a bit more complexity
@@ -28,3 +31,4 @@ exclude_paths:
   - "*/site-packages/*"
   - "**/tests/"
   - "**/migrations/"
+  - "**/saml2/*"

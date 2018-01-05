@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                     validUntil="2017-12-29T16:08:21Z"
+                     cacheDuration="PT1514995701S"
+                     entityID="Test IDP">
+    <md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+       <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                               Location="http://localhost:8080/sso/"/>
+    </md:IDPSSODescriptor>
+</md:EntityDescriptor>

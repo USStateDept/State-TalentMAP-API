@@ -13,7 +13,7 @@ from talentmap_api.position.filters import PositionFilter
 from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.bidding.filters import BidCycleFilter
-from talentmap_api.bidding.serializers import BidCycleSerializer
+from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
 
 
@@ -96,6 +96,29 @@ class BidCycleView(mixins.ListModelMixin,
     '''
 
     serializer_class = BidCycleSerializer
+    filter_class = BidCycleFilter
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        queryset = BidCycle.objects.all()
+        queryset = self.serializer_class.prefetch_model(BidCycle, queryset)
+        return queryset
+
+
+class BidCycleStatisticsView(mixins.ListModelMixin,
+                             mixins.RetrieveModelMixin,
+                             FieldLimitableSerializerMixin,
+                             GenericViewSet):
+
+    '''
+    list:
+    Returns a list of all bid cycles' statistics
+
+    retrieve:
+    Returns a specific bid cycle's statistics
+    '''
+
+    serializer_class = BidCycleStatisticsSerializer
     filter_class = BidCycleFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 

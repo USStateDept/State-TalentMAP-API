@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.bidding.serializers import BidSerializer
+from talentmap_api.bidding.serializers.serializers import BidSerializer
 from talentmap_api.bidding.models import Bid, BidCycle
 from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
