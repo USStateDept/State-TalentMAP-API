@@ -28,7 +28,7 @@ class PrePanelSerializer(PrefetchedSerializer):
         sii = user.status_surveys.filter(bidcycle=obj.bidcycle).first()
 
         if not sii:
-            return "Bidder has not submited a self-identification survey for this bidcycle"
+            return "Bidder has not submitted a self-identification survey for this bidcycle"
 
         prepanel['fairshare'] = self.generate_prepanel_fairshare(user, position, waivers, sii)
         prepanel['six_eight'] = self.generate_prepanel_six_eight(user, position, waivers, sii)
@@ -53,6 +53,11 @@ class PrePanelSerializer(PrefetchedSerializer):
         }
 
     def generate_prepanel_language(self, user, position, waivers):
+        '''
+        For matching the language, we consider a language_match to be true if they possess any
+        proficiency in the required language.
+        '''
+
         language_match = True
         reading_proficiency_match = True
         spoken_proficiency_match = True
@@ -74,7 +79,7 @@ class PrePanelSerializer(PrefetchedSerializer):
             "spoken_proficiency_match": spoken_proficiency_match,
             "position_languages": [str(x) for x in list(position.languages.all())],
             "user_languages": [str(x) for x in list(user.language_qualifications.all())],
-            "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.language))]
+            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.language))]
         }
 
     def generate_prepanel_skill(self, user, position, waivers):
@@ -82,7 +87,7 @@ class PrePanelSerializer(PrefetchedSerializer):
             "skill_match": user.skill_code.filter(code=safe_navigation(position, 'skill.code')).exists(),
             "position_skill": str(safe_navigation(position, 'skill')),
             "user_skills": [str(x) for x in list(user.skill_code.all())],
-            "waviers": [str(x) for x in list(waivers.filter(category=Waiver.Category.skill))]
+            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.skill))]
         }
 
     class Meta:
