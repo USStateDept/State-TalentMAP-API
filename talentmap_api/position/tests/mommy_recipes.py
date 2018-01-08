@@ -42,6 +42,6 @@ def highlighted_position():
 
 def assignment_for_user():
     assignment = mommy.make(Assignment, user=UserProfile.objects.last(), position=mommy.make(Position), tour_of_duty=mommy.make('organization.TourOfDuty', months=6))
-    assignment.start_date = "2017-02-01"
+    assignment.start_date = "2017-02-01T00:00:00Z"
     assignment.save()
     return assignment

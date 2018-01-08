@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, parse_date
 from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
@@ -67,7 +67,7 @@ def mode_languages():
         "LANGUAGES:LANG_CODE": "code",
         "LANGUAGES:LANG_LONG_DESC": "long_description",
         "LANGUAGES:LANG_SHORT_DESC": "short_description",
-        "LANGUAGES:LANG_EFFECTIVE_DATE": "effective_date"
+        "LANGUAGES:LANG_EFFECTIVE_DATE": parse_date("effective_date")
     }
 
     return (model, instance_tag, tag_map, collision_field, None)
@@ -162,10 +162,10 @@ def mode_positions():
         "POSITIONS:POS_SPEAK_PROFICIENCY_2_CODE": "_language_2_spoken_proficiency_code",
         "POSITIONS:POS_READ_PROFICIENCY_2_CODE": "_language_2_reading_proficiency_code",
         "POSITIONS:POS_CREATE_ID": "_create_id",
-        "POSITIONS:POS_CREATE_DATE": "create_date",
+        "POSITIONS:POS_CREATE_DATE": parse_date("create_date"),
         "POSITIONS:POS_UPDATE_ID": "_update_id",
-        "POSITIONS:POS_UPDATE_DATE": "update_date",
-        "POSITIONS:POS_EFFECTIVE_DATE": "effective_date",
+        "POSITIONS:POS_UPDATE_DATE": parse_date("update_date"),
+        "POSITIONS:POS_EFFECTIVE_DATE": parse_date("effective_date"),
         "POSITIONS:POS_JOBCODE_CODE": "_jobcode_code",
         "POSITIONS:POS_OCC_SERIES_CODE": "_occ_series_code",
     }

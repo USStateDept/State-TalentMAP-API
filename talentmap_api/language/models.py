@@ -15,7 +15,7 @@ class Language(StaticRepresentationModel):
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
-    effective_date = models.DateField(null=False, help_text="The date after which the language is in effect")
+    effective_date = models.DateTimeField(null=False, help_text="The date after which the language is in effect")
 
     def __str__(self):
         return f"{self.long_description} ({self.code})"

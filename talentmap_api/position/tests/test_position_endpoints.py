@@ -322,9 +322,11 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
     two_year_tod = mommy.make('organization.TourOfDuty', months=24)
     three_year_tod = mommy.make('organization.TourOfDuty', months=36)
 
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=one_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=two_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=three_year_tod, user=authorized_user.profile)
+    today = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
 
     response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
 

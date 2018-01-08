@@ -6,6 +6,8 @@ import defusedxml.lxml as ET
 import logging
 import re
 
+from talentmap_api.common.common_helpers import ensure_date
+
 
 class XMLloader():
 
@@ -136,4 +138,13 @@ def parse_boolean(field, true_values_override=None):
         if item.text in true_values:
             value = True
         setattr(instance, field, value)
+    return process_function
+
+
+def parse_date(field):
+    '''
+    Parses date fields into datetime
+    '''
+    def process_function(instance, item):
+        setattr(instance, field, ensure_date(item.text))
     return process_function
