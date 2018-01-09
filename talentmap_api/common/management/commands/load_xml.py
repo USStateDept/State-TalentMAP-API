@@ -3,9 +3,9 @@ from django.core.management.base import BaseCommand
 import logging
 import re
 
-from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean
+from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, get_nested_tag
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
+from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription, SkillCone
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 
 
@@ -28,6 +28,7 @@ class Command(BaseCommand):
             'countries': mode_country,
             'locations': mode_location,
             'capsule_descriptions': mode_capsule_description,
+            'skill_cone': mode_skill_cone
         }
 
     def add_arguments(self, parser):
@@ -254,6 +255,19 @@ def mode_capsule_description():
     tag_map = {
         "POS_SEQ_NUM": "_pos_seq_num",
         "capsuleDescription": "content",
+    }
+
+    return (model, instance_tag, tag_map, collision_field, None)
+
+
+def mode_skill_cone():
+    model = SkillCone
+    instance_tag = "jobCategorySkill"
+    collision_field = None
+    tag_map = {
+        "id": "_id",
+        "name": strip_extra_spaces("name"),
+        "skill": get_nested_tag("_skill_codes", "code"),
     }
 
     return (model, instance_tag, tag_map, collision_field, None)

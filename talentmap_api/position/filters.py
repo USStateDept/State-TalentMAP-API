@@ -6,7 +6,7 @@ from django.db.models import Q, Subquery
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -29,12 +29,25 @@ class GradeFilter(filters.FilterSet):
 
 class SkillFilter(filters.FilterSet):
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    cone = filters.RelatedFilter('talentmap_api.position.filters.SkillConeFilter', name='cone', queryset=SkillCone.objects.all())
 
     class Meta:
         model = Skill
         fields = {
             "code": ALL_TEXT_LOOKUPS,
-            "description": ALL_TEXT_LOOKUPS
+            "description": ALL_TEXT_LOOKUPS,
+            "cone": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class SkillConeFilter(filters.FilterSet):
+    skills = filters.RelatedFilter(SkillFilter, name='skills', queryset=Skill.objects.all())
+
+    class Meta:
+        model = SkillCone
+        fields = {
+            "name": ALL_TEXT_LOOKUPS,
+            "skills": FOREIGN_KEY_LOOKUPS
         }
 
 
