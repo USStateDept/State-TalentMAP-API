@@ -25,6 +25,7 @@ parameterized_data = [
     # Position Endpoints
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),
     ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
+    ('/api/v1/skill/cone/', 'position.SkillCone', None, True),
     ('/api/v1/grade/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
     ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
     ('/api/v1/position/highlighted/', 'position.Position', highlighted_position, False),

@@ -1,0 +1,47 @@
+<jobCategorySkills>
+<jobCategorySkill>
+  <id>1</id>
+  <name>Management</name>
+  <skill><code>1</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>1</id>
+  <name>Management</name>
+  <skill><code>2</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>1</id>
+  <name>Management</name>
+  <skill><code>3</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>1</id>
+  <name>Management</name>
+  <skill><code>4</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>10</id>
+  <name>Interfunctional</name>
+  <skill><code>5</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>10</id>
+  <name>Interfunctional</name>
+  <skill><code>6</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>10</id>
+  <name>Interfunctional</name>
+  <skill><code>7</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>10</id>
+  <name>Interfunctional</name>
+  <skill><code>8</code></skill>
+</jobCategorySkill>
+<jobCategorySkill>
+  <id>10</id>
+  <name>Interfunctional</name>
+  <skill><code>9</code></skill>
+</jobCategorySkill>
+</jobCategorySkills>

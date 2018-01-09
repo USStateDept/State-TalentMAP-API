@@ -140,11 +140,20 @@ def parse_boolean(field, true_values_override=None):
         setattr(instance, field, value)
     return process_function
 
-
+  
 def parse_date(field):
     '''
     Parses date fields into datetime
     '''
     def process_function(instance, item):
         setattr(instance, field, ensure_date(item.text))
+    return process_function
+
+def get_nested_tag(field, tag):
+    '''
+    Creates a function to grab a nested tag
+    '''
+
+    def process_function(instance, item):
+        setattr(instance, field, item.find(tag).text)
     return process_function
