@@ -1,3 +1,4 @@
+import datetime
 import itertools
 
 from django.db.models import OuterRef, Subquery
@@ -44,9 +45,9 @@ class Position(StaticRepresentationModel):
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
 
-    create_date = models.DateField(null=True, help_text="The creation date of the position")
-    update_date = models.DateField(null=True, help_text="The update date of this position")
-    effective_date = models.DateField(null=True, help_text="The effective date of this position")
+    create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
+    update_date = models.DateTimeField(null=True, help_text="The update date of this position")
+    effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
 
     # Values from the original XML/DB that are maintained but not displayed
     _seq_num = models.TextField(null=True)
@@ -355,12 +356,12 @@ class Assignment(StaticRepresentationModel):
     position = models.ForeignKey('position.Position', related_name='assignments')
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
 
-    create_date = models.DateField(auto_now_add=True, help_text='The date the assignment was created')
-    start_date = models.DateField(null=True, help_text='The date the assignment started')
-    estimated_end_date = models.DateField(null=True, help_text='The estimated end date based upon tour of duty')
-    end_date = models.DateField(null=True, help_text='The date this position was completed or curtailed')
+    create_date = models.DateTimeField(auto_now_add=True, help_text='The date the assignment was created')
+    start_date = models.DateTimeField(null=True, help_text='The date the assignment started')
+    estimated_end_date = models.DateTimeField(null=True, help_text='The estimated end date based upon tour of duty')
+    end_date = models.DateTimeField(null=True, help_text='The date this position was completed or curtailed')
     service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
-    update_date = models.DateField(auto_now=True)
+    update_date = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         # Set the estimate end date to the date in the future based on tour of duty months

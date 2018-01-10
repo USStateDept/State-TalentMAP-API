@@ -13,8 +13,8 @@ def test_fairshare_differential_case():
 
     # Assign our users to the post
     # User 1 will have a 20 month assignment, User 2 will have a 15 month assignment
-    mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01", end_date="1992-09-01")
-    mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01", end_date="1992-04-01")
+    mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01T00:00:00Z", end_date="1992-09-01T00:00:00Z")
+    mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01T00:00:00Z", end_date="1992-04-01T00:00:00Z")
 
     assert user_1.is_fairshare
     assert not user_2.is_fairshare
@@ -30,8 +30,8 @@ def test_fairshare_twelve_month_tod_case():
 
     # Assign our users to the post
     # User 1 will have a 10 month assignment, User 2 will have a 5 month assignment
-    mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01", end_date="1991-11-01")
-    mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01", end_date="1991-06-01")
+    mommy.make('position.Assignment', position=position, user=user_1, start_date="1991-01-01T00:00:00Z", end_date="1991-11-01T00:00:00Z")
+    mommy.make('position.Assignment', position=position, user=user_2, start_date="1991-01-01T00:00:00Z", end_date="1991-06-01T00:00:00Z")
 
     assert user_1.is_fairshare
     assert not user_2.is_fairshare
@@ -63,19 +63,19 @@ def test_six_eight_cases():
     tod_case_4 = mommy.make('organization.TourOfDuty', months=100)
 
     # Give our user six years of continuous domestic
-    mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1991-01-01", end_date="1994-01-01", status="completed")
-    mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1994-01-01", end_date="1997-01-01", status="completed")
+    mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1991-01-01T00:00:00Z", end_date="1994-01-01T00:00:00Z", status="completed")
+    mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1994-01-01T00:00:00Z", end_date="1997-01-01T00:00:00Z", status="completed")
 
     assert not user_1.is_six_eight
 
     # Give our user a small stint foreign, but not enough to trigger 6/8 validation
-    tod_assignment = mommy.make('position.Assignment', position=foreign_position, user=user_1, tour_of_duty=tod_case_1, start_date="1997-01-02", end_date="1997-08-01", status="completed")
+    tod_assignment = mommy.make('position.Assignment', position=foreign_position, user=user_1, tour_of_duty=tod_case_1, start_date="1997-01-02T00:00:00Z", end_date="1997-08-01T00:00:00Z", status="completed")
 
     assert user_1.assignments.count() == 3
     assert not user_1.is_six_eight
 
     # Make that assignment sufficient length
-    tod_assignment.end_date = "1998-01-02"
+    tod_assignment.end_date = "1998-01-02T00:00:00Z"
     tod_assignment.save()
 
     assert user_1.is_six_eight
@@ -87,7 +87,7 @@ def test_six_eight_cases():
     assert not user_1.is_six_eight
 
     # Make that assignment sufficient length
-    tod_assignment.end_date = "1999-01-02"
+    tod_assignment.end_date = "1999-01-02T00:00:00Z"
     tod_assignment.save()
 
     assert user_1.is_six_eight
@@ -99,7 +99,7 @@ def test_six_eight_cases():
     assert not user_1.is_six_eight
 
     # Make that assignment sufficient length
-    tod_assignment.end_date = "2000-01-02"
+    tod_assignment.end_date = "2000-01-02T00:00:00Z"
     tod_assignment.save()
 
     assert user_1.is_six_eight
@@ -111,7 +111,7 @@ def test_six_eight_cases():
     assert not user_1.is_six_eight
 
     # Make that assignment sufficient length
-    tod_assignment.end_date = "2003-12-02"
+    tod_assignment.end_date = "2003-12-02T00:00:00Z"
     tod_assignment.save()
 
     assert user_1.is_six_eight
