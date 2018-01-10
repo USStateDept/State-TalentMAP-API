@@ -165,7 +165,7 @@ if ENABLE_SAML2:
         'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
 
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': f"os.environ.get('SAML2_ENTITY_ID')saml2/metadata/",
+        'entityid': f"{os.environ.get('SAML2_ENTITY_ID')}saml2/metadata/",
 
         # directory with attribute mapping
         'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
