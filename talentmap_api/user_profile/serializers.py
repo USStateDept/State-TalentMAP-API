@@ -5,7 +5,7 @@ from talentmap_api.common.common_helpers import resolve_path_to_view, validate_f
 from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer
+from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 
 from django.contrib.auth.models import User
@@ -32,7 +32,7 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 class ClientSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = StaticRepresentationField(read_only=True, many=True)
+    skills = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
@@ -46,7 +46,7 @@ class ClientSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "skill_code", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications"]
+        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -77,7 +77,7 @@ class ClientSerializer(PrefetchedSerializer):
 
 class UserProfileSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skill_code = StaticRepresentationField(read_only=True, many=True)
+    skills = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
@@ -130,6 +130,13 @@ class UserProfileSerializer(PrefetchedSerializer):
             },
             "received_shares": {
                 "class": SharableSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "skills": {
+                "class": SkillSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
