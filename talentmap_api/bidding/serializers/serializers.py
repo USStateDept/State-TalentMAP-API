@@ -2,6 +2,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 
+from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver
@@ -16,7 +17,7 @@ class BidCycleSerializer(PrefetchedSerializer):
         for date_key in ["cycle_end_date", "cycle_deadline_date", "cycle_start_date"]:
             date = datasource.get(date_key, None)
             if date:
-                datasource[date_key] = datetime.strptime(date, '%Y-%m-%d').date()
+                datasource[date_key] = ensure_date(date)
 
         # Update our current data if we have any with new data
         if self.instance:
@@ -80,7 +81,7 @@ class BidCycleStatisticsSerializer(PrefetchedSerializer):
         return obj.bids.filter(status=Bid.Status.approved).values('user').distinct().count()
 
     def get_bidding_days_remaining(self, obj):
-        return (obj.cycle_deadline_date - datetime.now().date()).days
+        return (obj.cycle_deadline_date.date() - datetime.now().date()).days
 
     class Meta:
         model = BidCycle
@@ -158,6 +159,22 @@ class BidWritableSerializer(PrefetchedSerializer):
     '''
     This is only used by AOs to schedule the panel date
     '''
+
+    def validate(self, data):
+        datasource = self.initial_data
+
+        # Convert incoming string dates into date objects for validation
+        date = datasource.get('scheduled_panel_date', None)
+        if date:
+            datasource['scheduled_panel_date'] = ensure_date(date)
+
+        # Update our current data if we have any with new data
+        if self.instance:
+            instance_data = self.instance.__dict__
+            instance_data.update(datasource)
+            datasource = instance_data
+
+        return data
 
     class Meta:
         model = Bid

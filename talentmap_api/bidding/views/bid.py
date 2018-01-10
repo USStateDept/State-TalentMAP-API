@@ -51,7 +51,7 @@ class BidListAOActionView(GenericViewSet):
         in_group_or_403(user, f'bureau_ao_{bid.position.bureau.code}')
 
         bid.status = status
-        setattr(bid, f"{status}_date", datetime.datetime.now().date())
+        setattr(bid, f"{status}_date", datetime.datetime.now(datetime.timezone.utc))
         bid.save()
 
     def approve(self, request, pk, format=None):
@@ -118,7 +118,7 @@ class BidListBidderActionView(GenericViewSet):
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
         bid.status = Bid.Status.submitted
-        bid.submitted_date = datetime.datetime.now()
+        bid.submitted_date = datetime.datetime.now(datetime.timezone.utc)
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -134,7 +134,7 @@ class BidListBidderActionView(GenericViewSet):
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
         bid.status = Bid.Status.handshake_accepted
-        bid.handshake_accepted_date = datetime.datetime.now()
+        bid.handshake_accepted_date = datetime.datetime.now(datetime.timezone.utc)
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -146,6 +146,6 @@ class BidListBidderActionView(GenericViewSet):
         '''
         bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
         bid.status = Bid.Status.handshake_declined
-        bid.handshake_declined_date = datetime.datetime.now()
+        bid.handshake_declined_date = datetime.datetime.now(datetime.timezone.utc)
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
