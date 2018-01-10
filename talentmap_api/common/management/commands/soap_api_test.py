@@ -20,15 +20,20 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
+        parser.add_argument('--cert', nargs='?', dest="cert", help='Location of the certificate for validating self-signed certificates')
         parser.add_argument('command', nargs='?', type=str, help="The command to run")
         parser.add_argument('arguments', nargs='*', type=str, help="The arguments for the command, as named pairs; i.e. USCity=Fairfax")
 
     def handle(self, *args, **options):
         # Initialize transport layer
         session = Session()
-        # Uncomment the following line if we're verifying a self signed certificate
-        # session.verify = 'path_to_self_signed.cert'
-        session.verify = False
+        print(options)
+        if options['cert']:
+            self.logger.info(f'Setting SSL verification cert to {options["cert"]}')
+            session.verify = options['cert']
+        else:
+            self.logger.info(f'Ignoring self-signed certification errors.')
+            session.verify = False
         transport = Transport(session=session)
 
         # Get the WSDL location
