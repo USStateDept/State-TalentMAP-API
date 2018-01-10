@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('command', nargs='?', type=str, help="The command to run")
-        parser.add_argument('arguments', nargs='*', type=str, help="The arguments for the command")
+        parser.add_argument('arguments', nargs='*', type=str, help="The arguments for the command, as named pairs; i.e. USCity=Fairfax")
 
     def handle(self, *args, **options):
         # Initialize transport layer
@@ -41,8 +41,9 @@ class Command(BaseCommand):
             client.wsdl.dump()
             return
 
-        self.logger.info(f'Calling command {options["command"]} with parameters {options["arguments"]}')
-        response = getattr(client.service, options['command'])(*options['arguments'])
+        arguments = {x.split('=')[0]: x.split('=')[1] for x in options["arguments"]}
+        self.logger.info(f'Calling command {options["command"]} with parameters {arguments}')
+        response = getattr(client.service, options['command'])(**arguments)
         dict_response = xml_etree_to_dict(response)
         self.logger.info(type(response))
         if not isinstance(response, str):

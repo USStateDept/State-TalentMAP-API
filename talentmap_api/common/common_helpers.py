@@ -273,7 +273,6 @@ def xml_etree_to_dict(tree):
 
     for child in tree.iterchildren():
         child_dict = xml_etree_to_dict(child)
-        print(child_dict)
         if len(child_dict.keys()) == 2:
             # We are a single tag with a child tag
             if len(child_dict["children"]) == 0:
