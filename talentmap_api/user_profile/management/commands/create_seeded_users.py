@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 profile.skill_code.add(position.skill)
                 profile.grade = position.grade
                 profile.primary_nationality = Country.objects.get(code="USA")
-                profile.date_of_birth = "1975-01-01"
+                profile.date_of_birth = "1975-01-01T00:00:00Z"
                 profile.phone_number = "555-555-5555"
                 profile.save()
 

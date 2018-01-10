@@ -1,8 +1,7 @@
 import pytest
 import datetime
-import os
+from dateutil import parser
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -20,7 +19,7 @@ def test_ensure_date():
     with pytest.raises(Exception, match="Parameter must be a date object or string"):
         ensure_date(201225123)
 
-    date = datetime.datetime.strptime("1000-01-01", '%Y-%m-%d').date()
+    date = parser.parse("1000-01-01").astimezone(datetime.timezone.utc)
 
     # Now check it
     assert ensure_date("1000-01-01") == date

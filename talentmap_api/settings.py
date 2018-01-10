@@ -254,6 +254,8 @@ if ENABLE_SAML2:
     }  # End SAML config
 
 # Logging Settings
+debug_log_destination = os.environ.get('DEBUG_LOG_DESTINATION', 'console')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -276,17 +278,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filters': ['require_debug_true'],
-            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
-            'formatter': 'verbose'
-        }
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': [debug_log_destination],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -297,6 +292,16 @@ LOGGING = {
         },
     }
 }
+
+# Add our destination log file for debugging if we're logging to file
+if debug_log_destination == 'file':
+    LOGGING['handlers']['file'] = {
+        'level': 'DEBUG',
+        'class': 'logging.FileHandler',
+        'filters': ['require_debug_true'],
+        'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+        'formatter': 'verbose'
+    }
 
 
 WSGI_APPLICATION = 'talentmap_api.wsgi.application'

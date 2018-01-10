@@ -46,7 +46,7 @@ def test_assignment_estimated_end_date(authorized_client, authorized_user, test_
     assert assignment.estimated_end_date is None
 
     # Now save a start date
-    assignment.start_date = "1991-02-01"
+    assignment.start_date = "1991-02-01T00:00:00Z"
     assignment.save()
     assignment.refresh_from_db()
 
@@ -71,8 +71,8 @@ def test_assignment_service_duration(authorized_client, authorized_user, test_as
     assert assignment.estimated_end_date is None
 
     # Now save a start date
-    assignment.start_date = "1991-02-01"
-    assignment.end_date = "1992-02-01"
+    assignment.start_date = "1991-02-01T00:00:00Z"
+    assignment.end_date = "1992-02-01T00:00:00Z"
     assignment.save()
     assignment.refresh_from_db()
 
