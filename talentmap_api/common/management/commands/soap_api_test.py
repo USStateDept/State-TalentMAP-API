@@ -27,7 +27,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Initialize transport layer
         session = Session()
-        print(options)
+
         if options['cert']:
             self.logger.info(f'Setting SSL verification cert to {options["cert"]}')
             session.verify = options['cert']
