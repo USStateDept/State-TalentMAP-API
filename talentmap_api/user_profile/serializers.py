@@ -32,7 +32,6 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 class ClientSerializer(PrefetchedSerializer):
     current_assignment = serializers.SerializerMethodField()
-    skills = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
@@ -67,6 +66,13 @@ class ClientSerializer(PrefetchedSerializer):
             },
             "bid_statistics": {
                 "class": UserBidStatisticsSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "skills": {
+                "class": SkillSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
