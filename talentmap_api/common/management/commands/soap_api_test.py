@@ -11,6 +11,7 @@ from zeep.transports import Transport
 
 from talentmap_api.common.common_helpers import xml_etree_to_dict
 
+
 class Command(BaseCommand):
     help = 'Tests the connection to the SOAP webservices'
     logger = logging.getLogger('console')
