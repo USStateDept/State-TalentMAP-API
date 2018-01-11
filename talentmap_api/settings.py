@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'debug_toolbar',
     'djangosaml2',
+    'simple_history',
 
     # TalentMap Apps
     'talentmap_api.common',
@@ -112,6 +113,7 @@ MIDDLEWARE = [
     # Third-party
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'

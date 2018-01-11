@@ -42,7 +42,7 @@ class Command(BaseCommand):
             tour_of_duty = position.post.tour_of_duty
             if not tour_of_duty:
                 tour_of_duty = TourOfDuty.objects.get(id=1)
-            Assignment.objects.create(user=profile, position=position, start_date=datetime.datetime.now().date(), tour_of_duty=tour_of_duty, status="active")
+            Assignment.objects.create(user=profile, position=position, start_date=datetime.datetime.now().date(), tour_of_duty=tour_of_duty, status="active", bid_approval_date="1975-02-02T00:00:00Z")
         self.logger.info("Created.")
 
         self.logger.info(f"Seeding bids for all users...")

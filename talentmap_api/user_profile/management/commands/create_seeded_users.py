@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 profile.phone_number = "555-555-5555"
                 profile.save()
 
-                assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=datetime.datetime.now().date().strftime('%Y-%m-%d'), status="active")
+                assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=datetime.datetime.now().date().strftime('%Y-%m-%d'), status="active", bid_approval_date="1975-01-01T00:00:00Z")
 
                 # Add the user to the editing group for their position
                 group = get_group_by_name(f"post_editors_{position.post.id}")
