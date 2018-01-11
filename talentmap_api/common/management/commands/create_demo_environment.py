@@ -8,6 +8,7 @@ import itertools
 from dateutils import relativedelta
 from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
+from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.organization.models import TourOfDuty
 from talentmap_api.user_profile.models import UserProfile
 
@@ -117,6 +118,10 @@ class Command(BaseCommand):
             waiver.save()
 
         self.logger.info("Done seeding waivers")
+
+        self.logger.info("Create some glossary entries")
+        GlossaryEntry.objects.create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
+        GlossaryEntry.objects.create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
 
         self.logger.info("Updating string representations...")
         call_command("update_string_representations")
