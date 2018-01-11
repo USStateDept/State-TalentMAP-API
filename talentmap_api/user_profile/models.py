@@ -69,7 +69,7 @@ class UserProfile(StaticRepresentationModel):
         assignments = assignments.annotate(tod_months=F("tour_of_duty__months")).annotate(required_service=F("tod_months") * 0.83)
 
         # Create a case to filter for USA positions
-        usa_q_obj = Q(position__post__location__country__code="USA")
+        usa_q_obj = Q(domestic=True)
         # Create cases for the 12, 24, and 36 month cases
         tod_case_1 = Q(tod_months=12, service_duration__gte=10)
         tod_case_2 = Q(tod_months=24, service_duration__gte=20)
@@ -87,7 +87,7 @@ class UserProfile(StaticRepresentationModel):
         # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations
         total = 0
         for assignment in list(assignments):
-            if assignment.position.post.location.country.code != "USA":
+            if not assignment.domestic:
                 break
             total += assignment.service_duration
 
@@ -105,14 +105,10 @@ class UserProfile(StaticRepresentationModel):
         #  - Served at least 10 months at a post with 1 year standard TOD
 
         # Get the user's assignment history
-        assignments = self.assignments.all()  # This gives us a copy of the queryset we can tinker with
-
-        # Annotate our assignments with the pertinent data
-        assignments = assignments.annotate(combined_differential=Sum(F('position__post__differential_rate') + F('position__post__danger_pay')),
-                                           standard_tod_months=F('position__post__tour_of_duty__months'))
+        assignments = self.assignments.all().filter(status__in=[self.assignments.model.Status.completed, self.assignments.model.Status.curtailed])
 
         # Create our cases
-        case_1 = Q(combined_differential__gte=20)
+        case_1 = Q(combined_differential__gte=20) | Q(combined_differential__gte=15, bid_approval_date__lte="2017-06-30T23:59:59Z")
         case_2 = Q(standard_tod_months=12)
 
         # Filter our assignments to only those matching these cases
@@ -120,8 +116,8 @@ class UserProfile(StaticRepresentationModel):
         case_2_assignments = assignments.filter(case_2)
 
         # Calculate the number of months spent in each of these cases
-        case_1_lengths = [month_diff(a.start_date, a.end_date) for a in case_1_assignments if a.end_date]
-        case_2_lengths = [month_diff(a.start_date, a.end_date) for a in case_2_assignments if a.end_date]
+        case_1_lengths = case_1_assignments.values_list("service_duration", flat=True)
+        case_2_lengths = case_2_assignments.values_list("service_duration", flat=True)
 
         # Sum our values
         case_1 = sum(case_1_lengths) >= 20

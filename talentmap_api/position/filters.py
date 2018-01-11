@@ -171,5 +171,7 @@ class AssignmentFilter(filters.FilterSet):
             "end_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
             "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "combined_differential": INTEGER_LOOKUPS,
+            "domestic": ["exact"]
         }

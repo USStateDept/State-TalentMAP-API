@@ -4,13 +4,14 @@ import itertools
 from django.db.models import OuterRef, Subquery
 from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from simple_history.models import HistoricalRecords
 
 from dateutil.relativedelta import relativedelta
 
 import talentmap_api.bidding.models
-from talentmap_api.common.common_helpers import ensure_date, month_diff
+from talentmap_api.common.common_helpers import ensure_date, month_diff, safe_navigation
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
@@ -44,6 +45,8 @@ class Position(StaticRepresentationModel):
     post = models.ForeignKey('organization.Post', related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
+
+    history = HistoricalRecords()
 
     create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
@@ -349,27 +352,48 @@ class Assignment(StaticRepresentationModel):
         compassionate = ChoiceItem("compassionate")
         other = ChoiceItem("other")
 
+    # Statuses
     status = models.TextField(default=Status.pending, choices=Status.choices)
     curtailment_reason = models.TextField(null=True, choices=CurtailmentReason.choices)
 
+    # Incumbent and position information
     user = models.ForeignKey('user_profile.UserProfile', related_name='assignments')
     position = models.ForeignKey('position.Position', related_name='assignments')
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
 
+    # Chronology information
     create_date = models.DateTimeField(auto_now_add=True, help_text='The date the assignment was created')
     start_date = models.DateTimeField(null=True, help_text='The date the assignment started')
     estimated_end_date = models.DateTimeField(null=True, help_text='The estimated end date based upon tour of duty')
     end_date = models.DateTimeField(null=True, help_text='The date this position was completed or curtailed')
+    bid_approval_date = models.DateTimeField(help_text='The date the bid for this assignment was approved')
+    arrival_date = models.DateTimeField(null=True, help_text='The date the incumbent arrived at the position')
     service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
     update_date = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        # Set the estimate end date to the date in the future based on tour of duty months
-        if self.start_date and self.tour_of_duty:
-            self.estimated_end_date = ensure_date(self.start_date) + relativedelta(months=self.tour_of_duty.months)
-        if self.start_date and self.end_date:
-            self.service_duration = month_diff(ensure_date(self.start_date), ensure_date(self.end_date))
-        super(Assignment, self).save(*args, **kwargs)
+    # Fairshare and 6/8 calculation values
+    domestic = models.BooleanField(default=False, help_text='Indicates if this position is domestic')
+    # The combined differential is calculated according to rules that make it the most beneficial to the bidder
+    combined_differential = models.IntegerField(default=0, help_text='The combined differential (danger pay and differential) for this assignment')
+    standard_tod_months = models.IntegerField(default=0, help_text='The standard tour of duty for the post at assignment creation')
+
+    history = HistoricalRecords()
+
+    @staticmethod
+    def create_from_bid(bid):
+        '''
+        Creates an assignment from a specified bid
+        '''
+        if bid.status != talentmap_api.bidding.models.Bid.Status.approved:
+            raise Exception("Only an approved bid may create an assignment.")
+
+        assignment = Assignment.objects.create(status=Assignment.Status.assigned,
+                                               user=bid.user,
+                                               position=bid.position,
+                                               tour_of_duty=bid.position.post.tour_of_duty,
+                                               bid_approval_date=bid.approved_date)
+
+        return assignment
 
     def __str__(self):
         return f"({self.status}) {self.user} at {self.position}"
@@ -380,11 +404,61 @@ class Assignment(StaticRepresentationModel):
 
 
 # Signal listeners
+@receiver(pre_save, sender=Assignment, dispatch_uid="assignment_pre_save")
+def assignment_pre_save(sender, instance, **kwargs):
+    '''
+    This listener performs operations during the pre-save cylce of the assignment.
+    '''
+
+    if not instance.id:
+        # This is a new instance
+        # Set the domestic flag
+        instance.domestic = not instance.position.is_overseas
+        if safe_navigation(instance, "position.post.tour_of_duty.months"):
+            instance.standard_tod_months = instance.position.post.tour_of_duty.months
+    else:
+        # Get our assignment as it is in the database
+        db_assignment = Assignment.objects.get(id=instance.id)
+
+        # Check if our status has changed, and if we're now completed or curtailed
+        if instance.status in [Assignment.Status.completed, Assignment.Status.curtailed]:
+            # Set our service duration now that the assignment is complete
+            if instance.start_date and instance.end_date:
+                instance.service_duration = month_diff(ensure_date(instance.start_date), ensure_date(instance.end_date))
+
+            # Set our combined differential according to rules as designated in the SOP
+            today = datetime.datetime.utcnow()
+
+            sd = ensure_date(instance.start_date)           # Start date
+            bd = ensure_date(instance.bid_approval_date)    # Bid date
+
+            sd_post = instance.position.post                # post as of start date
+            bd_post = instance.position.post                # post as of bid date
+
+            # If a historical record exists for the post for Nov. 1st, use that
+            if sd.year < today.year or \
+               (sd.year == today.year and sd.month < 11 and today.month > 11):
+                sd_post = sd_post.history.as_of(f"{sd.year}-11-01T00:00:00Z")
+
+            if bd.year < today.year or \
+               (bd.year == today.year and bd.month < 11 and today.month > 11):
+                bd_post = bd_post.history.as_of(f"{bd.year}-11-01T00:00:00Z")
+
+            instance.combined_differential = max((sd_post.differential_rate + sd_post.danger_pay),
+                                                 (bd_post.differential_rate + bd_post.danger_pay))
+
+    # Update our estimated end date
+    # Set the estimate end date to the date in the future based on tour of duty months
+    if instance.start_date and instance.tour_of_duty:
+        instance.estimated_end_date = ensure_date(instance.start_date) + relativedelta(months=instance.tour_of_duty.months)
+
+
 @receiver(post_save, sender=Assignment, dispatch_uid="assignment_post_save")
 def assignment_post_save(sender, instance, created, **kwargs):
     '''
     This listener updates all positions' current assignments when any assignment is updated
     '''
+    # Update the current assignment for all positions
     latest_assignment = Assignment.objects.filter(position=OuterRef('pk')).order_by('-start_date')
     latest_assignment = Subquery(latest_assignment.values('id')[:1])
 

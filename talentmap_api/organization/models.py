@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from simple_history.models import HistoricalRecords
 
 import logging
 
@@ -28,6 +29,8 @@ class Organization(StaticRepresentationModel):
 
     # List of highlighted positions
     highlighted_positions = models.ManyToManyField('position.Position', related_name='highlighted_by_org', help_text="Positions which have been designated as highlighted by this organization")
+
+    history = HistoricalRecords()
 
     # These fields are used during loading to preserve source coded data, before the FK relationships are set
     # These also preserve the data should the FK items be deleted
@@ -214,6 +217,7 @@ class Post(StaticRepresentationModel):
     has_service_needs_differential = models.BooleanField(default=False)
 
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
+    history = HistoricalRecords()
 
     _tod_code = models.TextField(null=True)
     _location_code = models.TextField(null=True)
