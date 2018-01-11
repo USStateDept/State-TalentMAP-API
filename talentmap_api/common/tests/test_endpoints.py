@@ -11,6 +11,7 @@ from rest_framework import status
 
 from django.apps import apps
 
+from talentmap_api.bidding.tests.mommy_recipes import tz_aware_bidcycle
 from talentmap_api.position.tests.mommy_recipes import favorite_position, highlighted_position, assignment_for_user
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
 from talentmap_api.messaging.tests.mommy_recipes import owned_notification
@@ -19,7 +20,7 @@ parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
     # Bidcycle Endpoints
     ('/api/v1/bidcycle/', 'bidding.BidCycle', None, True),
-    ('/api/v1/bidcycle/statistics/', 'bidding.BidCycle', None, False),
+    ('/api/v1/bidcycle/statistics/', 'bidding.BidCycle', tz_aware_bidcycle, False),
 
     # Position Endpoints
     ('/api/v1/position/', 'position.Position', 'talentmap_api.position.tests.position', True),

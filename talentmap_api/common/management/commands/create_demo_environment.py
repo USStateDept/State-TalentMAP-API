@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command("create_seeded_users")
         BidCycle.objects.all().delete()
-        today = datetime.datetime.now().date()
+        today = datetime.datetime.now()
         # Create bidcycle with all positions
         bc = BidCycle.objects.create(active=True,
                                      name=f"Demo BidCycle {datetime.datetime.now()}",
@@ -88,11 +88,11 @@ class Command(BaseCommand):
 
         bid.status = Bid.Status.in_panel
         bid.in_panel_date = datetime.datetime.now().date()
-        bid.scheduled_panel_date = "2017-12-25"
+        bid.scheduled_panel_date = "2017-12-25T00:00:00Z"
         bid.save()
 
         # Reschedule the bid
-        bid.scheduled_panel_date = "2018-01-20"
+        bid.scheduled_panel_date = "2018-01-20T00:00:00Z"
         bid.save()
 
         bid.status = Bid.Status.approved

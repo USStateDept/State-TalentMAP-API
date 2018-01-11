@@ -55,7 +55,7 @@ class BidListView(mixins.ListModelMixin,
                                         tags=['bidding'],
                                         message=f"Bid {bid} has been closed by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif datetime.datetime.now().date() < bid.bidcycle.cycle_deadline_date:
+        elif datetime.datetime.now(datetime.timezone.utc) < bid.bidcycle.cycle_deadline_date:
             if bid.status in [Bid.Status.draft, Bid.Status.submitted]:
                 bid.status = Bid.Status.closed
                 bid.save()

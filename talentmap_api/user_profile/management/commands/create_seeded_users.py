@@ -41,10 +41,10 @@ class Command(BaseCommand):
 
                 position = Position.objects.get(id=positions.pop())
                 profile = UserProfile.objects.get(user=user)
-                profile.skill_code.add(position.skill)
+                profile.skills.add(position.skill)
                 profile.grade = position.grade
                 profile.primary_nationality = Country.objects.get(code="USA")
-                profile.date_of_birth = "1975-01-01"
+                profile.date_of_birth = "1975-01-01T00:00:00Z"
                 profile.phone_number = "555-555-5555"
                 profile.save()
 
@@ -64,6 +64,6 @@ class Command(BaseCommand):
                 if data[6]:
                     UserProfile.objects.exclude(id=profile.id).update(cdo=profile)
 
-                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skill_code}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}\n\tAssignment: {assignment}")
+                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skills}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}\n\tAssignment: {assignment}")
             except Exception as e:
                 self.logger.info(f"Could not create {data}, {e}")
