@@ -174,8 +174,8 @@ class PositionBidStatistics(StaticRepresentationModel):
         bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
         self.total_bids = bidcycle_bids.count()
         self.in_grade = bidcycle_bids.filter(user__grade=self.position.grade).count()
-        self.at_skill = bidcycle_bids.filter(user__skill_code=self.position.skill).count()
-        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skill_code=self.position.skill).count()
+        self.at_skill = bidcycle_bids.filter(user__skills=self.position.skill).count()
+        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skills=self.position.skill).count()
         self.save()
 
     class Meta:

@@ -24,12 +24,12 @@ def test_bid_statistics(authorized_client, authorized_user):
     in_grade.save()
 
     at_skill = mommy.make("auth.User").profile
-    at_skill.skill_code.add(Skill.objects.get(id=1))
+    at_skill.skills.add(Skill.objects.get(id=1))
     at_skill.save()
 
     in_grade_at_skill = mommy.make("auth.User").profile
     in_grade_at_skill.grade_id = 1
-    in_grade_at_skill.skill_code.add(Skill.objects.get(id=1))
+    in_grade_at_skill.skills.add(Skill.objects.get(id=1))
     in_grade_at_skill.save()
 
     assert Position.objects.count() == 1

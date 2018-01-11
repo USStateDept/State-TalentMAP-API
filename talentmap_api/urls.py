@@ -60,6 +60,9 @@ urlpatterns = [
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
+
+    # Glossary
+    url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
