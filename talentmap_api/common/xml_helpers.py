@@ -30,13 +30,14 @@ class XMLloader():
         self.collision_behavior = collision_behavior
         self.collision_field = collision_field
 
-    def create_models_from_xml(self, xml_filepath):
+    def create_models_from_xml(self, xml, raw_string=False):
         '''
         Loads data from an XML file into a model, using a defined mapping of fields
         to XML tags.
 
         Args:
-            xml_filepath (str) - The filepath to the XML file to load
+            xml (str) - The XML to load; either a filepath or string
+            raw_string (bool) - True if xml is a string, false (default) if it is a filepath
 
         Returns:
             list: The list of new instance ids
@@ -51,7 +52,7 @@ class XMLloader():
 
         # Parse the XML tree
         parser = ET._etree.XMLParser(recover=True)
-        xml_tree = ET.parse(xml_filepath, parser)
+        xml_tree = ET.parse(xml, parser)
 
         # Get the root node
         root = xml_tree.getroot()
@@ -60,6 +61,7 @@ class XMLloader():
         instance_tags = root.findall(self.instance_tag, root.nsmap)
 
         # For every instance tag, create a new instance and populate it
+        last_tag_collision_field = None  # Used when loading piecemeal
         for tag in instance_tags:
             instance = self.model()
             for key in self.tag_map.keys():
@@ -80,6 +82,7 @@ class XMLloader():
             if self.collision_field:
                 q_kwargs = {}
                 q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
+                last_tag_collision_field = getattr(instance, self.collision_field)
                 collisions = type(instance).objects.filter(**q_kwargs)
                 if collisions.count() > 1:
                     logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
@@ -114,7 +117,7 @@ class XMLloader():
         new_instances = [instance.id for instance in new_instances]
 
         # Create our instances
-        return (new_instances, updated_instances)
+        return (new_instances, updated_instances, last_tag_collision_field)
 
 
 class CSVloader():

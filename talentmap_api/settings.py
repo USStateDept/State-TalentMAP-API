@@ -98,7 +98,8 @@ INSTALLED_APPS = [
     'talentmap_api.user_profile',
     'talentmap_api.bidding',
     'talentmap_api.permission',
-    'talentmap_api.glossary'
+    'talentmap_api.glossary',
+    'talentmap_api.integrations'
 ]
 
 MIDDLEWARE = [
@@ -289,6 +290,11 @@ LOGGING = {
             'propagate': True,
         },
         'console': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'synchronization': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,

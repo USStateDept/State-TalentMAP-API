@@ -24,6 +24,8 @@ export DEPLOYMENT_LOCATION='/var/www/talentmap/api/'
 
 # SOAP API
 export WSDL_LOCATION='http://www.webservicex.net/uszip.asmx?WSDL'
+# The location of a certificate to verify self-signed SSL certificates on the WSDL (optional)
+export WSDL_SSL_CERT=''
 
 # SAML2 Configuration
 export ENABLE_SAML2=False
