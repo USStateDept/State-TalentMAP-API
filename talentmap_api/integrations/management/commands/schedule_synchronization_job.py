@@ -32,7 +32,6 @@ class Command(BaseCommand):
             return
 
         if options['set-defaults']:
-            print("setting defaults")
             for model, delta in self.default_jobs:
                 if not SynchronizationJob.objects.filter(talentmap_model=model):
                     self.logger.info(f'Creating default synchronization job {model} ∆{delta}')
