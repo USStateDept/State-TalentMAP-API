@@ -16,7 +16,6 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
-        parser.add_argument('--cert', nargs='?', dest="cert", help='Location of the certificate for validating self-signed certificates')
         parser.add_argument('command', nargs='?', type=str, help="The command to run")
         parser.add_argument('arguments', nargs='*', type=str, help="The arguments for the command, as named pairs; i.e. USCity=Fairfax")
 

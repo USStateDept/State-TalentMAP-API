@@ -33,7 +33,7 @@ class SynchronizationJob(models.Model):
     delta_synchronization = models.IntegerField(default=TIME_DAY, help_text="The time, in seconds, between synchronizations")
     running = models.BooleanField(default=False, help_text="Whether the synchronization job is currently running")
 
-    talentmap_model = models.TextField(help_text="The talentmap model as a string; e.g. position.Position")
+    talentmap_model = models.TextField(unique=True, help_text="The talentmap model as a string; e.g. position.Position")
 
     @staticmethod
     def get_scheduled():
@@ -113,7 +113,7 @@ class SynchronizationJob(models.Model):
 
     def __str__(self):
         d = relativedelta(seconds=self.delta_synchronization)
-        status_string = f"Last@{self.last_synchronization} ∆[{d.years} y {d.months} mo {d.days} d {d.minutes} min {d.seconds} s]"
+        status_string = f"Last@{self.last_synchronization} ∆[{d.years}y {d.months}mo {d.days}d {d.minutes}min {d.seconds}s]"
         if self.running:
             status_string = "IN PROGRESS"
         return f"SynchronizationJob - {self.talentmap_model}: {status_string}"
