@@ -111,6 +111,9 @@ class TourOfDuty(StaticRepresentationModel):
     long_description = models.TextField(null=False, help_text="Long-format description of the tour of duty")
     short_description = models.TextField(null=False, help_text="Short-format description of the tour of duty")
     months = models.IntegerField(null=False, default=0, help_text="The number of months for this tour of duty")
+    is_active = models.BooleanField(default=False)
+
+    _status = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.long_description}"

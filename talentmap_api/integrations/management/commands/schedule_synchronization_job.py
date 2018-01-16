@@ -16,6 +16,7 @@ class Command(BaseCommand):
         self.default_jobs = [
             ('position.Skill', SynchronizationJob.TIME_WEEK),
             ('position.Grade', SynchronizationJob.TIME_WEEK),
+            ('organization.TourOfDuty', SynchronizationJob.TIME_WEEK),
             ('organization.Organization', SynchronizationJob.TIME_WEEK),
             ('organization.Country', SynchronizationJob.TIME_WEEK),
             ('organization.Location', SynchronizationJob.TIME_WEEK),
@@ -29,6 +30,7 @@ class Command(BaseCommand):
         parser.add_argument('--list', dest='list', action='store_true', help='Lists all synchronization jobs')
         parser.add_argument('--remove', dest='remove', action='store_true', help='Removes the specified model')
         parser.add_argument('--reset', dest='reset', action='store_true', help='Resets the last synchronization date on the model')
+        parser.add_argument('--reset-all', dest='reset-all', action='store_true', help='Resets the last synchronization date on all models')
         parser.add_argument('--set-defaults', dest='set-defaults', action='store_true', help='Creates any missing baseline synchronization jobs')
 
     def handle(self, *args, **options):
@@ -44,7 +46,12 @@ class Command(BaseCommand):
                     SynchronizationJob.objects.create(talentmap_model=model, delta_synchronization=delta)
             return
 
+        if options['reset-all']:
+            SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", running=False)
+            return
+
         job = SynchronizationJob.objects.get(talentmap_model=options['model'])
+
         if job:
             if options['reset']:
                 self.logger.info(f"Resetting: {job}")

@@ -7,6 +7,8 @@ import logging
 import re
 import csv
 
+from io import StringIO
+
 from talentmap_api.common.common_helpers import ensure_date
 
 
@@ -52,6 +54,10 @@ class XMLloader():
 
         # Parse the XML tree
         parser = ET._etree.XMLParser(recover=True)
+
+        if raw_string:
+            xml = StringIO(xml)
+
         xml_tree = ET.parse(xml, parser)
 
         # Get the root node
@@ -59,6 +65,10 @@ class XMLloader():
 
         # Get a set of all tags which match our instance tag
         instance_tags = root.findall(self.instance_tag, root.nsmap)
+
+        # If we get nothing using namespace, try without
+        if len(instance_tags) == 0:
+            instance_tags = [element for element in list(root.iter()) if element.tag == self.instance_tag]
 
         # For every instance tag, create a new instance and populate it
         last_tag_collision_field = None  # Used when loading piecemeal

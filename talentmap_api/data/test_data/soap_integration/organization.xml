@@ -1,0 +1,230 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <organizations xmlns="">
+               <organization>
+                  <code>000000</code>
+                  <short_description>DEPT</short_description>
+                  <long_description>DEPARTMENT               DEPARTMENT</long_description>
+                  <parent_organization/>
+                  <bureau_organization/>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010000</code>
+                  <short_description>S</short_description>
+                  <long_description>OFFICE OF THE SECRETARY</long_description>
+                  <parent_organization>000000</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>1</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010101</code>
+                  <short_description>S</short_description>
+                  <long_description>IMMEDIATE OFFICE OF THE SECRETARY</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010106</code>
+                  <short_description>S/SRAP</short_description>
+                  <long_description>SPECIAL REP FOR AFGHANISTAN AND PAKISTAN</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010107</code>
+                  <short_description>S/FSG</short_description>
+                  <long_description>FOREIGN SERVICE GRIEVANCE BOARD</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010108</code>
+                  <short_description>S/SEIPN</short_description>
+                  <long_description>SPECIAL ENVOY FOR ISRAELI-PALESTINIAN NEGOTIATIONS</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010110</code>
+                  <short_description>S/SN</short_description>
+                  <long_description>OFF AMB-AT-LG/SP MID EAST NEGOTIATOR</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010111</code>
+                  <short_description>S/CT</short_description>
+                  <long_description>OFF OF THE AMB-AT-LARGE FOR COUNTER-TERRORISM</long_description>
+                  <parent_organization>010110</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010113</code>
+                  <short_description>J/GCJ</short_description>
+                  <long_description>OFFICE OF GLOBAL CRIMINAL JUSTICE</long_description>
+                  <parent_organization>010110</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010114</code>
+                  <short_description>S/GAC</short_description>
+                  <long_description>OFFICE OF THE GLOBAL AIDS COORDINATOR</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010115</code>
+                  <short_description>S/CRS</short_description>
+                  <long_description>OFF OF THE COORD FOR RECONSTRUCTION AND STABIL</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010119</code>
+                  <short_description>S/CRS/PLN</short_description>
+                  <long_description>OFFICE OF PLANNING</long_description>
+                  <parent_organization>010115</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010120</code>
+                  <short_description>S/CRS/CRR</short_description>
+                  <long_description>OFFICE OF CIVILIAN READINESS AND RESPONSE</long_description>
+                  <parent_organization>010115</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010121</code>
+                  <short_description>SCRS/CRR/ARC</short_description>
+                  <long_description>ACTIVE RESPONSE CORPS</long_description>
+                  <parent_organization>010115</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010130</code>
+                  <short_description>S/OCR</short_description>
+                  <long_description>OFFICE OF CIVIL RIGHTS</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010140</code>
+                  <short_description>S/GWI</short_description>
+                  <long_description>OFFICE OF GLOBAL WOMEN'S ISSUES</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010145</code>
+                  <short_description>S/USSES</short_description>
+                  <long_description>UNITED STATES SPECIAL ENVOY TO SUDAN</long_description>
+                  <parent_organization>010140</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010150</code>
+                  <short_description>F</short_description>
+                  <long_description>OFFICE OF U.S. FOREIGN ASSISTANCE RESOURCES</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010160</code>
+                  <short_description>S/SECC</short_description>
+                  <long_description>SPECIAL ENVOY FOR CLIMATE CHANGE</long_description>
+                  <parent_organization>010100</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+               <organization>
+                  <code>010163</code>
+                  <short_description>S/GP</short_description>
+                  <long_description>OFFICE OF GLOBAL PARTNERSHIPS</long_description>
+                  <parent_organization>010101</parent_organization>
+                  <bureau_organization>010000</bureau_organization>
+                  <state_country_code>110000000</state_country_code>
+                  <city_code>110010001</city_code>
+                  <is_bureau>0</is_bureau>
+                  <is_regional>0</is_regional>
+               </organization>
+            </organizations>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>

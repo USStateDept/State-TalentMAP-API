@@ -6,21 +6,28 @@ from requests import Session
 
 import logging
 import os
+import re
 
 import zeep
 from zeep.transports import Transport
+
+import defusedxml.lxml as ET
+
+from django.conf import settings
 
 from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean
 
 from talentmap_api.language.models import Proficiency
 
 
-def get_soap_client(cert=None):
+def get_soap_client(cert=None, soap_function="", test=False):
     '''
-    Creates a properly initialized SOAP client
+    Creates a properly initialized SOAP client, with unit testing support
 
     Args:
         - cert (str) - The location of the certificate to verify self-signed certificates (optional)
+        - soap_function (str) - The name of the function that the loader will look for (optional unless testing)
+        - test (bool) - Whether this is a testing SOAP client
 
     Returns:
         - client (Object) - The SOAP client
@@ -28,25 +35,53 @@ def get_soap_client(cert=None):
 
     logger = logging.getLogger('console')
 
-    # Initialize transport layer
-    session = Session()
+    client = None
 
-    # Attempt to get the cert location
-    cert = os.environ.get('WSDL_SSL_CERT', None)
+    if test:
+        logger.info("Creating mock SOAP client for testing")
 
-    if cert:
-        logger.info(f'Setting SSL verification cert to {cert}')
-        session.verify = cert
-    else:
-        logger.info(f'Ignoring self-signed certification errors.')
-        session.verify = False
-    transport = Transport(session=session)
+        # Create an anonymous object
+        client = type('soapclient', (object,), {})
 
-    # Get the WSDL location
-    wsdl_location = os.environ.get('WSDL_LOCATION')
-    logger.info(f'Initializing client with WSDL: {wsdl_location}')
+        # Add the test function
+        def unit_test_function(self, **kwargs):
+            # Get the value from kwargs for the RequestName
+            requestname = kwargs.get("RequestName")
+            paginationstartkey = kwargs.get("PaginationStartKey", "")
 
-    client = zeep.Client(wsdl=wsdl_location, transport=transport)
+            parser = ET._etree.XMLParser(recover=True)
+
+            # Load the soap integration test data for that request name
+            xml = os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'soap_integration', f'empty.xml')
+            if paginationstartkey == "":
+                xml = os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'soap_integration', f'{requestname}.xml')
+
+            xml_tree = ET.parse(xml, parser)
+
+            return xml_tree
+
+        # Bind the unit test function; Ash nazg thrakatulûk agh burzum-ishi krimpatul
+        setattr(client, soap_function, unit_test_function.__get__(client, client.__class__))
+    else:  # pragma: no cover
+        # Initialize transport layer
+        session = Session()
+
+        # Attempt to get the cert location
+        cert = os.environ.get('WSDL_SSL_CERT', None)
+
+        if cert:
+            logger.info(f'Setting SSL verification cert to {cert}')
+            session.verify = cert
+        else:
+            logger.info(f'Ignoring self-signed certification errors.')
+            session.verify = False
+        transport = Transport(session=session)
+
+        # Get the WSDL location
+        wsdl_location = os.environ.get('WSDL_LOCATION')
+        logger.info(f'Initializing client with WSDL: {wsdl_location}')
+
+        client = zeep.Client(wsdl=wsdl_location, transport=transport)
 
     return client
 
@@ -89,6 +124,32 @@ def mode_grade():
     collision_field = "code"
     tag_map = {
         "code": "code",
+    }
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+
+
+def mode_tods():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "tods",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<tods><tod></tod></tods>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "tod"
+    collision_field = "code"
+    tag_map = {
+        "code": "code",
+        "short_description": "short_description",
+        "long_description": lambda instance, item: setattr(instance, "long_description", re.sub('&amp;', '&', item.text).strip()),
+        "months": "months",
+        "status": "_status",
+        "is_active": parse_boolean("is_active")
     }
 
     return (soap_arguments, instance_tag, tag_map, collision_field, None)
@@ -187,7 +248,7 @@ def mode_locations():
     }
 
     # Response parsing data
-    instance_tag = "country"
+    instance_tag = "location"
     collision_field = "code"
     tag_map = {
         "code": "code",
@@ -231,6 +292,7 @@ def mode_posts():
 MODEL_HELPER_MAP = {
     "position.Skill": mode_skills,
     "position.Grade": mode_grade,
+    "organization.TourOfDuty": mode_tods,
     "organization.Organization": mode_organizations,
     "organization.Country": mode_countries,
     "organization.Location": mode_locations,

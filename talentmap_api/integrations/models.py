@@ -43,9 +43,13 @@ class SynchronizationJob(models.Model):
         '''
         return SynchronizationJob.objects.filter(next_synchronization__lte=datetime.datetime.utcnow(), running=False)
 
-    def synchronize(self):
+    def synchronize(self, soap_function="IPMSDataWebService", test=False):
         '''
         Runs the SynchronizationJob
+
+        Args:
+            soap_function (str) - The function to call on the SOAP client
+            test (bool) - Indicates if we should use the testing method of the SOAP client
         '''
         start = datetime.datetime.utcnow()
         self.running = True
@@ -55,7 +59,10 @@ class SynchronizationJob(models.Model):
             logger.info(self)
 
             logger.info("Getting SOAP client")
-            client = get_soap_client()
+
+            client = get_soap_client(soap_function=soap_function, test=test)
+
+            logger.info(f"Using function {soap_function}")
 
             soap_arguments, instance_tag, tag_map, collision_field, post_load_function = get_synchronization_information(self.talentmap_model)
             model = apps.get_model(self.talentmap_model)
@@ -73,7 +80,7 @@ class SynchronizationJob(models.Model):
             new_ids = []
             updated_ids = []
             last_collision_field = None
-            soap_function_name = "IPMSDataWebService"  # Hardcoded for now because it is unlikely to change in deployment
+            soap_function_name = soap_function
             while True:
                 if last_collision_field:
                     # Set the pagination start key to our last collision field; which should be the remote data's primary key
@@ -83,9 +90,13 @@ class SynchronizationJob(models.Model):
                     logger.info(f"Requesting first page")
 
                 # Get the data
-                response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments))
+                response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments), encoding="unicode")
 
                 newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
+
+                # If there are no new or updated ids on this page, we've reached the end
+                if len(newer_ids) == 0 and len(updateder_ids) == 0:
+                    break
 
                 logger.info(f"Got: {len(newer_ids)} new, {len(updateder_ids)} updated this page")
 

@@ -1,0 +1,70 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <locations xmlns="">
+               <location>
+                  <code>010000101</code>
+                  <city>Montgomery</city>
+                  <country/>
+                  <representation>Montgomery, AL</representation>
+               </location>
+               <location>
+                  <code>012130101</code>
+                  <city>Montgomery</city>
+                  <country/>
+                  <representation>Montgomery, AL</representation>
+               </location>
+               <location>
+                  <code>040330023</code>
+                  <city>Nogales</city>
+                  <country/>
+                  <representation>Nogales, AZ</representation>
+               </location>
+               <location>
+                  <code>040530019</code>
+                  <city>Tucson</city>
+                  <country/>
+                  <representation>Tucson, AZ</representation>
+               </location>
+               <location>
+                  <code>051907051</code>
+                  <city>Hot Springs</city>
+                  <country/>
+                  <representation>Hot Springs, AR</representation>
+               </location>
+               <location>
+                  <code>060000037</code>
+                  <city>Los Angeles</city>
+                  <country/>
+                  <representation>Los Angeles, CA</representation>
+               </location>
+               <location>
+                  <code>060000059</code>
+                  <city>Orange</city>
+                  <country/>
+                  <representation>Orange, CA</representation>
+               </location>
+               <location>
+                  <code>060000073</code>
+                  <city>San Diego</city>
+                  <country/>
+                  <representation>San Diego, CA</representation>
+               </location>
+               <location>
+                  <code>060000075</code>
+                  <city>San Francisco</city>
+                  <country/>
+                  <representation>San Francisco, CA</representation>
+               </location>
+               <location>
+                  <code>060340001</code>
+                  <city>Berkeley</city>
+                  <country/>
+                  <representation>Berkeley, CA</representation>
+               </location>
+            </locations>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>
