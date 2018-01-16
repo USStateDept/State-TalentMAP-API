@@ -131,6 +131,28 @@ def mode_organizations():
         for org in Organization.objects.filter(id__in=new_ids + updated_ids):
             org.update_relationships()
 
+            # Regional code setting is done automatically by DOS Webservices, so
+            # we now only need this logic when loading from our sample XML files
+            # Array of regional codes
+            regional_codes = [
+                "110000",
+                "120000",
+                "130000",
+                "140000",
+                "146000",
+                "150000",
+                "160000"
+            ]
+            if org.code in regional_codes:
+                org.is_regional = True
+            else:
+                org.is_regional = False
+
+            if org.code == org._parent_bureau_code:
+                org.is_bureau = True
+
+            org.save()
+
     return (model, instance_tag, tag_map, collision_field, post_load_function)
 
 

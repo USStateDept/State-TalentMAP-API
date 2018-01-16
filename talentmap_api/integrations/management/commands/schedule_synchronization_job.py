@@ -14,7 +14,13 @@ class Command(BaseCommand):
 
         # Jobs, as a (model, delta) keypair
         self.default_jobs = [
-            ('position.Skill', SynchronizationJob.TIME_DAY),
+            ('position.Skill', SynchronizationJob.TIME_WEEK),
+            ('position.Grade', SynchronizationJob.TIME_WEEK),
+            ('organization.Organization', SynchronizationJob.TIME_WEEK),
+            ('organization.Country', SynchronizationJob.TIME_WEEK),
+            ('organization.Location', SynchronizationJob.TIME_WEEK),
+            ('organization.Post', SynchronizationJob.TIME_WEEK),
+            ('language.Language', SynchronizationJob.TIME_WEEK)
         ]
 
     def add_arguments(self, parser):

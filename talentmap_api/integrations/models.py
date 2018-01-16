@@ -97,8 +97,8 @@ class SynchronizationJob(models.Model):
 
             # Run the post load function, if it exists
             if callable(post_load_function):
-                logger.info("Calling post-load function")
-                post_load_function(new_ids, updated_ids)
+                logger.info(f"Calling post-load function for model {model}")
+                post_load_function(model, new_ids, updated_ids)
 
             logger.info("Synchronization complete")
             d = relativedelta(start, datetime.datetime.utcnow())
