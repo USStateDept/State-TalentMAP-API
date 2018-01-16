@@ -29,7 +29,7 @@ class Command(BaseCommand):
         jobs = SynchronizationJob.get_scheduled()
 
         if options['model']:
-            jobs = jobs.filter(talentmap_model=options['talentmap_model'])
+            jobs = jobs.filter(talentmap_model=options['model'])
 
         for job in list(jobs.all()):
             if options['test']:

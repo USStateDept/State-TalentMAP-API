@@ -117,11 +117,11 @@ class SynchronizationJob(models.Model):
 
             # Successful, set the last synchronization
             self.last_synchronization = datetime.datetime.utcnow()
-        except:
+        except:  # pragma: no cover
+            raise
+        finally:
             self.running = False
             self.save()
-
-            raise
 
     def save(self, *args, **kwargs):
         self.next_synchronization = ensure_date(self.last_synchronization) + relativedelta(seconds=self.delta_synchronization)

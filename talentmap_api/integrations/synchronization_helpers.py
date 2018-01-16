@@ -208,7 +208,7 @@ def mode_languages():
         # as there is no current SOAP synchronization endpoint for these
         Proficiency.create_defaults()
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function)
 
 
 def mode_countries():

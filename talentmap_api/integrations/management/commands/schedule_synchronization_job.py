@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 return
 
             self.logger.info(f"Old: {job}")
-            job.delta = options['delta']
+            job.delta_synchronization = options['delta']
             job.save()
             job.refresh_from_db()
         else:
