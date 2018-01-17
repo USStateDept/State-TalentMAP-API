@@ -372,7 +372,7 @@ class Assignment(StaticRepresentationModel):
     update_date = models.DateTimeField(auto_now=True)
 
     # Fairshare and 6/8 calculation values
-    domestic = models.BooleanField(default=False, help_text='Indicates if this position is domestic')
+    is_domestic = models.BooleanField(default=False, help_text='Indicates if this position is domestic')
     # The combined differential is calculated according to rules that make it the most beneficial to the bidder
     combined_differential = models.IntegerField(default=0, help_text='The combined differential (danger pay and differential) for this assignment')
     standard_tod_months = models.IntegerField(default=0, help_text='The standard tour of duty for the post at assignment creation')
@@ -448,7 +448,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                                                  (bd_post.differential_rate + bd_post.danger_pay))
 
     # Update our estimated end date
-    # Set the estimate end date to the date in the future based on tour of duty months
+    # Set the estimated end date to the date in the future based on tour of duty months
     if instance.start_date and instance.tour_of_duty:
         instance.estimated_end_date = ensure_date(instance.start_date) + relativedelta(months=instance.tour_of_duty.months)
 

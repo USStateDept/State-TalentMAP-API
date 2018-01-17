@@ -69,7 +69,7 @@ class UserProfile(StaticRepresentationModel):
         assignments = assignments.annotate(tod_months=F("tour_of_duty__months")).annotate(required_service=F("tod_months") * 0.83)
 
         # Create a case to filter for USA positions
-        usa_q_obj = Q(domestic=True)
+        usa_q_obj = Q(is_domestic=True)
         # Create cases for the 12, 24, and 36 month cases
         tod_case_1 = Q(tod_months=12, service_duration__gte=10)
         tod_case_2 = Q(tod_months=24, service_duration__gte=20)
@@ -87,7 +87,7 @@ class UserProfile(StaticRepresentationModel):
         # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations
         total = 0
         for assignment in list(assignments):
-            if not assignment.domestic:
+            if not assignment.is_domestic:
                 break
             total += assignment.service_duration
 

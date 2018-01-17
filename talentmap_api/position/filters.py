@@ -173,5 +173,5 @@ class AssignmentFilter(filters.FilterSet):
             "position": FOREIGN_KEY_LOOKUPS,
             "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "combined_differential": INTEGER_LOOKUPS,
-            "domestic": ["exact"]
+            "is_domestic": ["exact"]
         }
