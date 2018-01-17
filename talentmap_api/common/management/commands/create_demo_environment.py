@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.utils import timezone
 
 import logging
 import datetime
@@ -23,10 +24,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command("create_seeded_users")
         BidCycle.objects.all().delete()
-        today = datetime.datetime.now()
+        today = timezone.now()
         # Create bidcycle with all positions
         bc = BidCycle.objects.create(active=True,
-                                     name=f"Demo BidCycle {datetime.datetime.now()}",
+                                     name=f"Demo BidCycle {timezone.now()}",
                                      cycle_start_date=today - relativedelta(months=3),
                                      cycle_deadline_date=today + relativedelta(months=1),
                                      cycle_end_date=today + relativedelta(months=3))
@@ -42,7 +43,7 @@ class Command(BaseCommand):
             tour_of_duty = position.post.tour_of_duty
             if not tour_of_duty:
                 tour_of_duty = TourOfDuty.objects.get(id=1)
-            Assignment.objects.create(user=profile, position=position, start_date=datetime.datetime.now().date(), tour_of_duty=tour_of_duty, status="active", bid_approval_date="1975-02-02T00:00:00Z")
+            Assignment.objects.create(user=profile, position=position, start_date=timezone.now(), tour_of_duty=tour_of_duty, status="active", bid_approval_date="1975-02-02T00:00:00Z")
         self.logger.info("Created.")
 
         self.logger.info(f"Seeding bids for all users...")
@@ -71,7 +72,7 @@ class Command(BaseCommand):
         statuses = itertools.cycle([Bid.Status.submitted, Bid.Status.handshake_offered])
         for bid in list(Bid.objects.all().order_by('?')[:20]):
             bid.status = next(statuses)
-            setattr(bid, f"{bid.status}_date", datetime.datetime.now().date())
+            setattr(bid, f"{bid.status}_date", timezone.now())
             self.logger.info(f"Setting bid status: {bid}")
             bid.save()
 
@@ -79,15 +80,15 @@ class Command(BaseCommand):
         bid = Bid.objects.exclude(user__user__username='woodwardw').filter(status=Bid.Status.submitted).first()
         self.logger.info(f"Walking through bid process with {bid.id} {bid}")
         bid.status = Bid.Status.handshake_offered
-        bid.handshake_offered_date = datetime.datetime.now().date()
+        bid.handshake_offered_date = timezone.now()
         bid.save()
 
         bid.status = Bid.Status.handshake_accepted
-        bid.handshake_accepted_date = datetime.datetime.now().date()
+        bid.handshake_accepted_date = timezone.now()
         bid.save()
 
         bid.status = Bid.Status.in_panel
-        bid.in_panel_date = datetime.datetime.now().date()
+        bid.in_panel_date = timezone.now()
         bid.scheduled_panel_date = "2017-12-25T00:00:00Z"
         bid.save()
 
@@ -96,7 +97,7 @@ class Command(BaseCommand):
         bid.save()
 
         bid.status = Bid.Status.approved
-        bid.approved_date = datetime.datetime.now().date()
+        bid.approved_date = timezone.now()
         bid.save()
 
         self.logger.info("Done initializing bids")

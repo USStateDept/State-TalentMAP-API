@@ -1,4 +1,3 @@
-import datetime
 import itertools
 
 from django.db.models import OuterRef, Subquery
@@ -6,6 +5,7 @@ from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
 from dateutil.relativedelta import relativedelta
@@ -427,7 +427,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                 instance.service_duration = month_diff(ensure_date(instance.start_date), ensure_date(instance.end_date))
 
             # Set our combined differential according to rules as designated in the SOP
-            today = datetime.datetime.utcnow()
+            today = timezone.now()
 
             sd = ensure_date(instance.start_date)           # Start date
             bd = ensure_date(instance.bid_approval_date)    # Bid date

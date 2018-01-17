@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 
 import logging
-import datetime
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from talentmap_api.common.common_helpers import get_group_by_name
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.organization.models import TourOfDuty, Country
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 profile.phone_number = "555-555-5555"
                 profile.save()
 
-                assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=datetime.datetime.now().date().strftime('%Y-%m-%d'), status="active", bid_approval_date="1975-01-01T00:00:00Z")
+                assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=timezone.now(), status="active", bid_approval_date="1975-01-01T00:00:00Z")
 
                 # Add the user to the editing group for their position
                 group = get_group_by_name(f"post_editors_{position.post.id}")
