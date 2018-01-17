@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 from model_mommy import mommy
 from rest_framework import status
 
+from django.utils import timezone
+
 from talentmap_api.bidding.models import BidCycle, Bid
 
 
@@ -112,10 +114,10 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
     [Start Date] [Bad Deadline] [TODAY] [Good Deadline] [End Date]
     '''
 
-    start_date = (datetime.datetime.now(datetime.timezone.utc) - relativedelta(days=2))
-    bad_deadline = (datetime.datetime.now(datetime.timezone.utc) - relativedelta(days=1))
-    good_deadline = (datetime.datetime.now(datetime.timezone.utc) + relativedelta(days=1))
-    end_date = (datetime.datetime.now(datetime.timezone.utc) + relativedelta(days=2))
+    start_date = (timezone.now() - relativedelta(days=2))
+    bad_deadline = (timezone.now() - relativedelta(days=1))
+    good_deadline = (timezone.now() + relativedelta(days=1))
+    end_date = (timezone.now() + relativedelta(days=2))
 
     # Set our bidcycle dates
     bidcycle.cycle_start_date = start_date

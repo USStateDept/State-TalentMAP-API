@@ -104,11 +104,11 @@ def test_six_eight_cases():
         tod_case_4 = mommy.make('organization.TourOfDuty', months=100)
 
         # Give our user six years of continuous domestic
-        assignment_1 = mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1991-01-01T00:00:00Z", end_date="1994-01-01T00:00:00Z", status="active")
+        assignment_1 = mommy.make('position.Assignment', position=domestic_position, user=user_1, is_domestic=True, start_date="1991-01-01T00:00:00Z", end_date="1994-01-01T00:00:00Z", status="active")
         assignment_1.status = Assignment.Status.completed
         assignment_1.save()
 
-        assignment_2 = mommy.make('position.Assignment', position=domestic_position, user=user_1, start_date="1994-01-01T00:00:00Z", end_date="1997-01-01T00:00:00Z", status="active")
+        assignment_2 = mommy.make('position.Assignment', position=domestic_position, user=user_1, is_domestic=True, start_date="1994-01-01T00:00:00Z", end_date="1997-01-01T00:00:00Z", status="active")
         assignment_2.status = Assignment.Status.completed
         assignment_2.save()
 

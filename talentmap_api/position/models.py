@@ -1,4 +1,3 @@
-import datetime
 import itertools
 
 from django.db.models import OuterRef, Subquery
@@ -6,6 +5,7 @@ from django.db import models
 from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
 from dateutil.relativedelta import relativedelta
@@ -372,7 +372,7 @@ class Assignment(StaticRepresentationModel):
     update_date = models.DateTimeField(auto_now=True)
 
     # Fairshare and 6/8 calculation values
-    domestic = models.BooleanField(default=False, help_text='Indicates if this position is domestic')
+    is_domestic = models.BooleanField(default=False, help_text='Indicates if this position is domestic')
     # The combined differential is calculated according to rules that make it the most beneficial to the bidder
     combined_differential = models.IntegerField(default=0, help_text='The combined differential (danger pay and differential) for this assignment')
     standard_tod_months = models.IntegerField(default=0, help_text='The standard tour of duty for the post at assignment creation')
@@ -427,7 +427,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                 instance.service_duration = month_diff(ensure_date(instance.start_date), ensure_date(instance.end_date))
 
             # Set our combined differential according to rules as designated in the SOP
-            today = datetime.datetime.utcnow()
+            today = timezone.now()
 
             sd = ensure_date(instance.start_date)           # Start date
             bd = ensure_date(instance.bid_approval_date)    # Bid date
@@ -448,7 +448,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                                                  (bd_post.differential_rate + bd_post.danger_pay))
 
     # Update our estimated end date
-    # Set the estimate end date to the date in the future based on tour of duty months
+    # Set the estimated end date to the date in the future based on tour of duty months
     if instance.start_date and instance.tour_of_duty:
         instance.estimated_end_date = ensure_date(instance.start_date) + relativedelta(months=instance.tour_of_duty.months)
 

@@ -1,6 +1,5 @@
-import datetime
-
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
@@ -27,7 +26,7 @@ class BidUpdateView(mixins.UpdateModelMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 
     def perform_update(self, serializer):
-        serializer.save(status=Bid.Status.in_panel, in_panel_date=datetime.datetime.now().date())
+        serializer.save(status=Bid.Status.in_panel, in_panel_date=timezone.now())
 
     def get_object(self):
         bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"), status__in=[Bid.Status.handshake_accepted, Bid.Status.in_panel])
@@ -51,7 +50,7 @@ class BidListAOActionView(GenericViewSet):
         in_group_or_403(user, f'bureau_ao_{bid.position.bureau.code}')
 
         bid.status = status
-        setattr(bid, f"{status}_date", datetime.datetime.now(datetime.timezone.utc))
+        setattr(bid, f"{status}_date", timezone.now())
         bid.save()
 
     def approve(self, request, pk, format=None):
@@ -118,7 +117,7 @@ class BidListBidderActionView(GenericViewSet):
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
         bid.status = Bid.Status.submitted
-        bid.submitted_date = datetime.datetime.now(datetime.timezone.utc)
+        bid.submitted_date = timezone.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -134,7 +133,7 @@ class BidListBidderActionView(GenericViewSet):
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
         bid.status = Bid.Status.handshake_accepted
-        bid.handshake_accepted_date = datetime.datetime.now(datetime.timezone.utc)
+        bid.handshake_accepted_date = timezone.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -146,6 +145,6 @@ class BidListBidderActionView(GenericViewSet):
         '''
         bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
         bid.status = Bid.Status.handshake_declined
-        bid.handshake_declined_date = datetime.datetime.now(datetime.timezone.utc)
+        bid.handshake_declined_date = timezone.now()
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

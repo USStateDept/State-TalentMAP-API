@@ -1,5 +1,4 @@
-import datetime
-
+from django.utils import timezone
 from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
@@ -144,7 +143,7 @@ class Bid(StaticRepresentationModel):
 
     @property
     def is_paneling_today(self):
-        return datetime.datetime.now().date() == self.scheduled_panel_date.date()
+        return timezone.now().date() == self.scheduled_panel_date.date()
 
     @staticmethod
     def get_approval_statuses():
