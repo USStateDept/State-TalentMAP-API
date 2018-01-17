@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification, Assignment, PositionBidStatistics
+from talentmap_api.position.models import Position, Grade, Skill, SkillCone, CapsuleDescription, Classification, Assignment, PositionBidStatistics
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
 
 
 class CapsuleDescriptionSerializer(PrefetchedSerializer):
-    last_editing_user = serializers.StringRelatedField(read_only=True)
+    last_editing_user = StaticRepresentationField(read_only=True)
 
     # This is a dynamic flag used by the front end to simplify checking if the current user has permissions
     is_editable_by_user = serializers.SerializerMethodField()
@@ -18,7 +18,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
     def get_is_editable_by_user(self, obj):
         try:
-            return self.context.get("request").user.has_perm(f"position.{self.post.permission_edit_post_capsule_description_codename}")
+            return self.context.get("request").user.has_perm(f"position.{obj.position.post.permission_edit_post_capsule_description_codename}")
         except AttributeError:
             # The position doesn't have a post, or otherwise
             return False
@@ -30,9 +30,9 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
 
 class AssignmentSerializer(PrefetchedSerializer):
-    user = serializers.StringRelatedField()
-    position = serializers.StringRelatedField()
-    tour_of_duty = serializers.StringRelatedField()
+    user = StaticRepresentationField(read_only=True)
+    position = StaticRepresentationField(read_only=True)
+    tour_of_duty = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Assignment
@@ -55,8 +55,7 @@ class PositionWritableSerializer(PrefetchedSerializer):
 
 
 class PositionBidStatisticsSerializer(PrefetchedSerializer):
-    # We'll want to serialize this as text once the representation tech debt story is complete
-    # bidcycle = serializers.StringRelatedField()
+    bidcycle = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = PositionBidStatistics
@@ -64,21 +63,17 @@ class PositionBidStatisticsSerializer(PrefetchedSerializer):
 
 
 class PositionSerializer(PrefetchedSerializer):
-    grade = serializers.StringRelatedField()
-    skill = serializers.StringRelatedField()
+    grade = StaticRepresentationField(read_only=True)
+    skill = StaticRepresentationField(read_only=True)
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
-    representation = serializers.SerializerMethodField()
-    classifications = serializers.StringRelatedField(many=True)
-
-    def get_representation(self, obj):
-        return str(obj)
+    classifications = StaticRepresentationField(read_only=True, many=True)
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
     def get_bureau(self, obj):
         if obj.bureau:
-            return str(obj.bureau)
+            return obj.bureau._string_representation
         else:
             return obj._bureau_code
 
@@ -86,7 +81,7 @@ class PositionSerializer(PrefetchedSerializer):
     # if it doesn't currently exist in the database
     def get_organization(self, obj):
         if obj.organization:
-            return str(obj.organization)
+            return obj.organization._string_representation
         else:
             return obj._org_code
 
@@ -96,7 +91,6 @@ class PositionSerializer(PrefetchedSerializer):
         nested = {
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
-                "field": "bid_statistics",
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -104,7 +98,6 @@ class PositionSerializer(PrefetchedSerializer):
             },
             "languages": {
                 "class": LanguageQualificationSerializer,
-                "field": "language_requirements",
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -150,7 +143,16 @@ class GradeSerializer(PrefetchedSerializer):
 
 
 class SkillSerializer(PrefetchedSerializer):
+    cone = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Skill
+        fields = "__all__"
+
+
+class SkillConeSerializer(PrefetchedSerializer):
+    skills = StaticRepresentationField(read_only=True, many=True)
+
+    class Meta:
+        model = SkillCone
         fields = "__all__"

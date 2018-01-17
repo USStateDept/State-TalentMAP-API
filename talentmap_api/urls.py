@@ -18,6 +18,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_expiring_authtoken import views as auth_views
+from djangosaml2.views import echo_attributes
 
 urlpatterns = [
     url(r'^$', get_swagger_view(title='TalentMAP API')),
@@ -29,15 +30,16 @@ urlpatterns = [
     url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
 
     # Bidding endpoints
+    url(r'^api/v1/bid/', include('talentmap_api.bidding.urls.bid')),
     url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
+    url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
     url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
-    url(r'^api/v1/language_waiver/', include('talentmap_api.language.urls.waiver')),
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
@@ -54,9 +56,13 @@ urlpatterns = [
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
     url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
+    url(r'^api/v1/client/', include('talentmap_api.user_profile.urls.client')),
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
+
+    # Glossary
+    url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
@@ -64,6 +70,15 @@ urlpatterns += [
     url(r'^api/v1/accounts/token/', auth_views.obtain_expiring_auth_token),
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
 ]
+
+if settings.ENABLE_SAML2:  # pragma: no cover
+    urlpatterns += [
+        url(r'^saml2/', include('djangosaml2.urls')),
+    ]
+    if settings.DEBUG:
+        urlpatterns += [
+            url(r'^saml2-test/', echo_attributes),
+        ]
 
 if settings.DEBUG:  # pragma: no cover
     import debug_toolbar

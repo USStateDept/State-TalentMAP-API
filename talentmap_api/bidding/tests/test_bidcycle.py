@@ -5,13 +5,14 @@ from model_mommy.recipe import seq
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, Bid
+from talentmap_api.position.models import PositionBidStatistics
 from talentmap_api.user_profile.models import SavedSearch
 
 
 @pytest.fixture
 def test_bidcycle_fixture(authorized_user):
-    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01")
+    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z", active=True)
     for i in range(5):
         bidcycle.positions.add(mommy.make('position.Position', position_number=seq("2")))
 
@@ -46,14 +47,14 @@ def test_bidcycle_creation(authorized_client, authorized_user):
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
         {
             "name": "bidcycle",
-            "cycle_start_date": "1988-01-01",
-            "cycle_deadline_date": "1988-02-02",
-            "cycle_end_date": "2088-01-01"
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_deadline_date": "1988-02-02T00:00:00Z",
+            "cycle_end_date": "2088-01-01T00:00:00Z"
         }
     ), content_type='application/json')
 
-    assert BidCycle.objects.all().count() == 1
     assert response.status_code == status.HTTP_201_CREATED
+    assert BidCycle.objects.all().count() == 1
 
 
 @pytest.mark.django_db(transaction=True)
@@ -64,9 +65,9 @@ def test_bidcycle_creation_validation(authorized_client, authorized_user):
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
         {
             "name": "bidcycle",
-            "cycle_start_date": "1988-01-01",
-            "cycle_deadline_date": "1988-02-02",
-            "cycle_end_date": "1088-01-01"
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_deadline_date": "1988-02-02T00:00:00Z",
+            "cycle_end_date": "1088-01-01T00:00:00Z"
         }
     ), content_type='application/json')
 
@@ -77,9 +78,9 @@ def test_bidcycle_creation_validation(authorized_client, authorized_user):
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
         {
             "name": "bidcycle",
-            "cycle_start_date": "1988-01-01",
-            "cycle_deadline_date": "1088-02-02",
-            "cycle_end_date": "2088-01-01"
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_deadline_date": "1088-02-02T00:00:00Z",
+            "cycle_end_date": "2088-01-01T00:00:00Z"
         }
     ), content_type='application/json')
 
@@ -90,9 +91,9 @@ def test_bidcycle_creation_validation(authorized_client, authorized_user):
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
         {
             "name": "bidcycle",
-            "cycle_start_date": "1988-01-01",
-            "cycle_deadline_date": "1988-03-02",
-            "cycle_end_date": "1988-02-01"
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_deadline_date": "1988-03-02T00:00:00Z",
+            "cycle_end_date": "1988-02-01T00:00:00Z"
         }
     ), content_type='application/json')
 
@@ -106,8 +107,8 @@ def test_bidcycle_patch(authorized_client, authorized_user):
     response = authorized_client.patch('/api/v1/bidcycle/1/', data=json.dumps(
         {
             "name": "bidcycle",
-            "cycle_start_date": "1988-01-01",
-            "cycle_end_date": "2088-01-01",
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_end_date": "2088-01-01T00:00:00Z",
             "active": True
         }
     ), content_type='application/json')
@@ -117,8 +118,8 @@ def test_bidcycle_patch(authorized_client, authorized_user):
     assert BidCycle.objects.all().count() == 1
     cycle = BidCycle.objects.get(id=1)
     assert cycle.name == "bidcycle"
-    assert str(cycle.cycle_start_date) == "1988-01-01"
-    assert str(cycle.cycle_end_date) == "2088-01-01"
+    assert str(cycle.cycle_start_date) == "1988-01-01 00:00:00+00:00"
+    assert str(cycle.cycle_end_date) == "2088-01-01 00:00:00+00:00"
     assert cycle.active
 
 
@@ -127,7 +128,7 @@ def test_bidcycle_patch(authorized_client, authorized_user):
 def test_bidcycle_patch_validation(authorized_client, authorized_user):
     response = authorized_client.patch('/api/v1/bidcycle/1/', data=json.dumps(
         {
-            "cycle_end_date": "1088-01-01",
+            "cycle_end_date": "1088-01-01T00:00:00Z",
         }
     ), content_type='application/json')
 
@@ -135,7 +136,7 @@ def test_bidcycle_patch_validation(authorized_client, authorized_user):
 
     response = authorized_client.patch('/api/v1/bidcycle/1/', data=json.dumps(
         {
-            "cycle_start_date": "9999-01-01",
+            "cycle_start_date": "9999-01-01T00:00:00Z",
         }
     ), content_type='application/json')
 
@@ -185,7 +186,7 @@ def test_bidcycle_actions(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidcycle_fixture")
 def test_bidcycle_batch_actions(authorized_client, authorized_user):
-    mommy.make(BidCycle, id=2, name="Bidcycle 2", cycle_start_date="2017-01-01", cycle_end_date="2018-01-01")
+    mommy.make(BidCycle, id=2, name="Bidcycle 2", cycle_start_date="2017-01-01T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z")
     # Try to add a saved search batch that isn't positions
     response = authorized_client.put(f'/api/v1/bidcycle/2/position/batch/2/')
 
@@ -206,3 +207,23 @@ def test_bidcycle_batch_actions(authorized_client, authorized_user):
     savedsearch.refresh_from_db()
 
     assert len(response.data["results"]) == savedsearch.count
+    # Ensure we've created statistics objects for all of the positions
+    assert PositionBidStatistics.objects.filter(bidcycle_id=2).count() == savedsearch.count
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidcycle_fixture")
+def test_bidcycle_current_cycle_available_filter(authorized_client, authorized_user):
+    # Add a handshake bid
+    bidcycle = BidCycle.objects.first()
+    mommy.make('bidding.Bid', bidcycle=bidcycle, status=Bid.Status.handshake_offered, position=bidcycle.positions.first(), user=authorized_user.profile)
+
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=true')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 4
+
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=false')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1

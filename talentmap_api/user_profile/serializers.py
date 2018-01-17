@@ -2,9 +2,10 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist
-from talentmap_api.common.serializers import PrefetchedSerializer
+from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
+from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer
+from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 
 from django.contrib.auth.models import User
@@ -17,11 +18,83 @@ class UserSerializer(PrefetchedSerializer):
         fields = ["username", "email", "first_name", "last_name"]
 
 
+class UserProfileShortSerializer(PrefetchedSerializer):
+    is_cdo = serializers.ReadOnlyField()
+    username = serializers.CharField(source="user.username")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
+
+    class Meta:
+        model = UserProfile
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo"]
+
+
+class ClientSerializer(PrefetchedSerializer):
+    current_assignment = serializers.SerializerMethodField()
+    grade = StaticRepresentationField(read_only=True)
+    is_cdo = serializers.ReadOnlyField()
+    primary_nationality = StaticRepresentationField(read_only=True)
+    secondary_nationality = StaticRepresentationField(read_only=True)
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
+
+    class Meta:
+        model = UserProfile
+        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications"]
+        nested = {
+            "user": {
+                "class": UserSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "language_qualifications": {
+                "class": LanguageQualificationSerializer,
+                "kwargs": {
+                    "override_fields": [
+                        "id",
+                        "representation"
+                    ],
+                    "many": True,
+                    "read_only": True,
+                }
+            },
+            "bid_statistics": {
+                "class": UserBidStatisticsSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "skills": {
+                "class": SkillSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            }
+        }
+
+
 class UserProfileSerializer(PrefetchedSerializer):
-    skill_code = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
-    primary_nationality = serializers.StringRelatedField()
-    secondary_nationality = serializers.StringRelatedField()
+    current_assignment = serializers.SerializerMethodField()
+    skills = StaticRepresentationField(read_only=True, many=True)
+    grade = StaticRepresentationField(read_only=True)
+    cdo = StaticRepresentationField(read_only=True)
+    is_cdo = serializers.ReadOnlyField()
+    primary_nationality = StaticRepresentationField(read_only=True)
+    secondary_nationality = StaticRepresentationField(read_only=True)
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
 
     class Meta:
         model = UserProfile
@@ -29,6 +102,12 @@ class UserProfileSerializer(PrefetchedSerializer):
         nested = {
             "user": {
                 "class": UserSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "cdo": {
+                "class": UserProfileShortSerializer,
                 "kwargs": {
                     "read_only": True
                 }
@@ -61,6 +140,13 @@ class UserProfileSerializer(PrefetchedSerializer):
                     "many": True,
                     "read_only": True
                 }
+            },
+            "skills": {
+                "class": SkillSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
             }
         }
 
@@ -69,8 +155,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality"]
-        writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality")
+        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number"]
+        writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):

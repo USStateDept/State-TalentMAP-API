@@ -1,4 +1,6 @@
 import pytest
+import datetime
+from dateutil import parser
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -7,8 +9,39 @@ from django.core.exceptions import PermissionDenied
 
 from model_mommy import mommy
 
-from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403
+from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation
 from talentmap_api.position.models import Position
+
+
+@pytest.mark.django_db()
+def test_ensure_date():
+    # Try to get a permission without it existing
+    with pytest.raises(Exception, match="Parameter must be a date object or string"):
+        ensure_date(201225123)
+
+    date = parser.parse("1000-01-01").astimezone(datetime.timezone.utc)
+
+    # Now check it
+    assert ensure_date("1000-01-01") == date
+    assert ensure_date(date) == date
+
+
+@pytest.mark.django_db()
+def test_safe_navigation():
+    position = mommy.make('position.Position')
+
+    assert safe_navigation(position, "post") is None
+
+    position.post = mommy.make('organization.Post')
+    position.save()
+
+    assert safe_navigation(position, "post") is not None
+    assert safe_navigation(position, "post.location") is None
+
+    position.post.location = mommy.make('organization.Location')
+    position.save()
+
+    assert safe_navigation(position, "post.location") is not None
 
 
 @pytest.mark.django_db()

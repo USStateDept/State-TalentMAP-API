@@ -1,11 +1,12 @@
-import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models import Q
+from django.db.models import Q, Subquery
+from django.utils import timezone
 import rest_framework_filters as filters
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment
+from talentmap_api.bidding.models import BidCycle
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -22,20 +23,31 @@ class GradeFilter(filters.FilterSet):
     class Meta:
         model = Grade
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS
         }
 
 
 class SkillFilter(filters.FilterSet):
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    cone = filters.RelatedFilter('talentmap_api.position.filters.SkillConeFilter', name='cone', queryset=SkillCone.objects.all())
 
     class Meta:
         model = Skill
         fields = {
-            "id": INTEGER_LOOKUPS,
             "code": ALL_TEXT_LOOKUPS,
-            "description": ALL_TEXT_LOOKUPS
+            "description": ALL_TEXT_LOOKUPS,
+            "cone": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class SkillConeFilter(filters.FilterSet):
+    skills = filters.RelatedFilter(SkillFilter, name='skills', queryset=Skill.objects.all())
+
+    class Meta:
+        model = SkillCone
+        fields = {
+            "name": ALL_TEXT_LOOKUPS,
+            "skills": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -49,15 +61,29 @@ class CapsuleDescriptionFilter(filters.FilterSet):
     class Meta:
         model = CapsuleDescription
         fields = {
-            "id": INTEGER_LOOKUPS,
             "content": ALL_TEXT_LOOKUPS,
             "date_created": DATE_LOOKUPS,
             "date_updated": DATE_LOOKUPS
         }
 
 
+class PositionBidStatisticsFilter(filters.FilterSet):
+    bidcycle = filters.RelatedFilter('talentmap_api.bidding.filters.BidCycleFilter', name='bidcycle', queryset=BidCycle.objects.all())
+
+    class Meta:
+        model = PositionBidStatistics
+        fields = {
+            "bidcycle": FOREIGN_KEY_LOOKUPS,
+            "total_bids": INTEGER_LOOKUPS,
+            "in_grade": INTEGER_LOOKUPS,
+            "at_skill": INTEGER_LOOKUPS,
+            "in_grade_at_skill": INTEGER_LOOKUPS
+
+        }
+
+
 class PositionFilter(filters.FilterSet):
-    languages = filters.RelatedFilter(QualificationFilter, name='language_requirements', queryset=Qualification.objects.all())
+    languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -65,6 +91,7 @@ class PositionFilter(filters.FilterSet):
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
     current_assignment = filters.RelatedFilter('talentmap_api.position.filters.AssignmentFilter', name='current_assignment', queryset=Assignment.objects.all())
+    bid_statistics = filters.RelatedFilter(PositionBidStatisticsFilter, name='bid_statistics', queryset=PositionBidStatistics.objects.all())
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
     is_highlighted = filters.BooleanFilter(name="highlighted_by_org", lookup_expr="isnull", exclude=True)
@@ -76,7 +103,7 @@ class PositionFilter(filters.FilterSet):
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
-            "language_requirements__language__long_description",
+            "languages__language__long_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
@@ -86,13 +113,24 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
+    is_available_in_current_bidcycle = filters.BooleanFilter(name="bid_cycles", method="filter_available_in_current_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
+
+    def filter_available_in_current_bidcycle(self, queryset, name, value):
+        '''
+        Returns a queryset of all positions who are in the latest active bidcycle and do not have any
+        bids with handshake or above status
+        '''
+        # Get latest active bidcycle
+        bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
+        accepting_bids_query = Subquery(bidcycle.annotated_positions.filter(accepting_bids=value).values_list('id', flat=True))
+        return queryset.filter(id__in=accepting_bids_query)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''
         Returns a queryset of all positions with a vacancy in the specified number of years
         '''
-        start = datetime.datetime.now().date()
+        start = timezone.now()
         end = start + relativedelta(years=value)
         q_obj = {}
         q_obj[LOOKUP_SEP.join([name, "gt"])] = start
@@ -102,19 +140,19 @@ class PositionFilter(filters.FilterSet):
     class Meta:
         model = Position
         fields = {
-            "id": INTEGER_LOOKUPS,
             "position_number": ALL_TEXT_LOOKUPS,
             "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
-            "languages": FOREIGN_KEY_LOOKUPS,
-            "grade": FOREIGN_KEY_LOOKUPS,
-            "skill": FOREIGN_KEY_LOOKUPS,
+            "create_date": DATE_LOOKUPS,
+            "update_date": DATE_LOOKUPS,
+            "post": FOREIGN_KEY_LOOKUPS,
             "organization": FOREIGN_KEY_LOOKUPS,
             "bureau": FOREIGN_KEY_LOOKUPS,
-            "current_assignment": FOREIGN_KEY_LOOKUPS,
-            "post": FOREIGN_KEY_LOOKUPS,
-            "create_date": DATE_LOOKUPS,
-            "update_date": DATE_LOOKUPS
+            "skill": FOREIGN_KEY_LOOKUPS,
+            "grade": FOREIGN_KEY_LOOKUPS,
+            "description": FOREIGN_KEY_LOOKUPS,
+            "languages": FOREIGN_KEY_LOOKUPS,
+            "current_assignment": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -125,14 +163,15 @@ class AssignmentFilter(filters.FilterSet):
     class Meta:
         model = Assignment
         fields = {
-            "id": INTEGER_LOOKUPS,
             "status": ALL_TEXT_LOOKUPS,
             "curtailment_reason": ALL_TEXT_LOOKUPS,
-            "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "create_date": DATE_LOOKUPS,
             "start_date": DATE_LOOKUPS,
             "estimated_end_date": DATE_LOOKUPS,
             "end_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
+            "position": FOREIGN_KEY_LOOKUPS,
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "combined_differential": INTEGER_LOOKUPS,
+            "is_domestic": ["exact"]
         }

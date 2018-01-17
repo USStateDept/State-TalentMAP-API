@@ -13,13 +13,9 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid
-from talentmap_api.bidding.serializers import PositionBidSerializer
-from talentmap_api.bidding.filters import BidFilter
-
-from talentmap_api.language.models import Waiver
-from talentmap_api.language.serializers import WaiverSerializer
-from talentmap_api.language.filters import WaiverFilter
+from talentmap_api.bidding.models import Bid, Waiver
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
+from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
 from talentmap_api.position.filters import PositionFilter, AssignmentFilter
@@ -68,7 +64,7 @@ class PositionBidListView(FieldLimitableSerializerMixin,
     Return a list of all of the position's bids.
     """
 
-    serializer_class = PositionBidSerializer
+    serializer_class = BidSerializer
     filter_class = BidFilter
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 
@@ -80,6 +76,69 @@ class PositionBidListView(FieldLimitableSerializerMixin,
         queryset = position.bids
         self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
+
+
+class PositionWaiverListView(FieldLimitableSerializerMixin,
+                             mixins.ListModelMixin,
+                             GenericViewSet):
+    """
+    list:
+    Return a list of all of the position's waivers.
+    """
+
+    serializer_class = WaiverSerializer
+    filter_class = WaiverFilter
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        in_group_or_403(self.request.user, f"bureau_ao_{position.bureau.code}")
+        # Get the position's bids
+        queryset = position.waivers
+        self.serializer_class.prefetch_model(Waiver, queryset)
+        return queryset
+
+
+class PositionWaiverActionView(GenericViewSet):
+    '''
+    Controls the status of a waiver
+    '''
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+
+    def get_waiver(self, user, position_pk, waiver_pk):
+        position = get_object_or_404(Position, pk=position_pk)
+        in_group_or_403(user, f"bureau_ao_{position.bureau.code}")
+        return get_object_or_404(position.waivers, pk=waiver_pk)
+
+    def approve(self, request, format=None, **url_kwargs):
+        '''
+        Approves the specified waiver request
+
+        Returns 204 if the operation is successful
+        '''
+        # Get the position based on the PK from the url
+        waiver = self.get_waiver(self.request.user, position_pk=url_kwargs.get('pk'), waiver_pk=url_kwargs.get('waiver_pk'))
+        waiver.status = waiver.Status.approved
+        waiver.reviewer = self.request.user.profile
+        waiver.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def deny(self, request, format=None, **url_kwargs):
+        '''
+        Denies the specified waiver request
+
+        Returns 204 if the operation is successful
+        '''
+        # Get the position based on the PK from the url
+        waiver = self.get_waiver(self.request.user, position_pk=url_kwargs.get('pk'), waiver_pk=url_kwargs.get('waiver_pk'))
+        waiver.status = waiver.Status.denied
+        waiver.reviewer = self.request.user.profile
+        waiver.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
@@ -100,27 +159,6 @@ class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
         # Get the position's assignments
         queryset = position.assignments
         self.serializer_class.prefetch_model(Assignment, queryset)
-        return queryset
-
-
-class PositionWaiverHistoryView(FieldLimitableSerializerMixin,
-                                GenericViewSet,
-                                mixins.ListModelMixin):
-    '''
-    list:
-    Lists all of the position's waivers
-    '''
-
-    serializer_class = WaiverSerializer
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
-    filter_class = WaiverFilter
-
-    def get_queryset(self):
-        # Get the position based on the PK from the url
-        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        # Get the position's assignments
-        queryset = position.language_waivers.all()
-        self.serializer_class.prefetch_model(Waiver, queryset)
         return queryset
 
 

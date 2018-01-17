@@ -1,10 +1,11 @@
 from django.db import models
-from djchoices import DjangoChoices, ChoiceItem
 
 import logging
 
+from talentmap_api.common.models import StaticRepresentationModel
 
-class Language(models.Model):
+
+class Language(StaticRepresentationModel):
     '''
     The language model represents an individual language, such as English, French, et. al.
     It is typically linked together with a language proficiency to create a qualification,
@@ -14,7 +15,7 @@ class Language(models.Model):
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
-    effective_date = models.DateField(null=False, help_text="The date after which the language is in effect")
+    effective_date = models.DateTimeField(null=False, help_text="The date after which the language is in effect")
 
     def __str__(self):
         return f"{self.long_description} ({self.code})"
@@ -24,7 +25,7 @@ class Language(models.Model):
         ordering = ["code"]
 
 
-class Proficiency(models.Model):
+class Proficiency(StaticRepresentationModel):
     '''
     The language proficiency represents a positions linguistic proficiency requirement,
     or the linguistic proficiency of an individual. These are typically not used as
@@ -47,12 +48,24 @@ class Proficiency(models.Model):
     def __str__(self):
         return f"{self.code}"
 
+    def __gt__(self, other):
+        return self.RANKING.index(self.code) > self.RANKING.index(other.code)
+
+    def __ge__(self, other):
+        return self.RANKING.index(self.code) >= self.RANKING.index(other.code)
+
+    def __lt__(self, other):
+        return self.RANKING.index(self.code) < self.RANKING.index(other.code)
+
+    def __le__(self, other):
+        return self.RANKING.index(self.code) <= self.RANKING.index(other.code)
+
     class Meta:
         managed = True
         ordering = ["code"]
 
 
-class Qualification(models.Model):
+class Qualification(StaticRepresentationModel):
     '''
     The language qualification is defined by a combination of language proficiencies
     and a specific language. For example, German 2/2+, where the first numeral denotes
@@ -95,34 +108,3 @@ class Qualification(models.Model):
         managed = True
         ordering = ["language__code"]
         unique_together = (('language', 'reading_proficiency', 'spoken_proficiency'))
-
-
-class Waiver(models.Model):
-    '''
-    The waiver model represents a language requirement waiver for a particular position
-    assignment, along with the status
-    '''
-
-    class Type(DjangoChoices):
-        partial = ChoiceItem("partial")
-        full = ChoiceItem("full")
-
-    class Status(DjangoChoices):
-        approved = ChoiceItem("approved")
-        requested = ChoiceItem("requested")
-        denied = ChoiceItem("denied")
-
-    type = models.TextField(default=Type.full, choices=Type.choices)
-    status = models.TextField(default=Status.requested, choices=Status.choices)
-
-    user = models.ForeignKey("user_profile.UserProfile", on_delete=models.CASCADE, related_name="language_waivers")
-    position = models.ForeignKey("position.Position", related_name="language_waivers")
-    bidcycle = models.ForeignKey("bidding.BidCycle", related_name="language_waivers")
-    language = models.ForeignKey("language.Language", related_name="waivers")
-
-    request_date = models.DateField(auto_now_add=True)
-    decision_date = models.DateField(null=True)
-
-    class Meta:
-        managed = True
-        ordering = ["request_date"]

@@ -1,3 +1,8 @@
+import datetime
+
+from dateutil.relativedelta import relativedelta
+from dateutil import parser
+
 from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import resolve
 from django.http import QueryDict
@@ -20,6 +25,67 @@ def resolve_path_to_view(request_path):
     view = view.cls()
 
     return view
+
+
+def safe_navigation(object, attribute):
+    '''
+    Attempts a safe navigation to the specified attribute chain in the object.
+    For example, safe_navigation(position, "post.location.country.code") would attempt to return
+    the value for position.post.location.country.code, returning "None" if any item in the chain
+    does not exist.
+
+    Args:
+        - object (Object) - The base object
+        - attribute (String) - The dot separated attribute chain
+
+    Returns
+        - None - If the attribute chain is broken at some point
+        - Value - If the attribute chain is unbroken, the value of object.attribute
+    '''
+    chain = attribute.split(".")
+    try:
+        current_object = object
+        for link in chain:
+            current_object = getattr(current_object, link)
+        return current_object
+    except AttributeError:
+        return None
+
+
+def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
+    '''
+    Gets the model's default queryset, filters by the specified arguments, then
+    prefetches the model using the specified serializer class and returns the queryset
+
+    Args:
+        - model (Class) - The model for the queryset
+        - serializer_class (Class) - The serializer class that supports prefetching
+        - *args, **kwargs - Supports filtering of the queryset
+
+    Returns:
+        - queryset - The filtered, prefetched queryset
+    '''
+    queryset = model.objects.filter(*args, **kwargs)
+    queryset = serializer_class.prefetch_model(model, queryset)
+    return queryset
+
+
+def ensure_date(date):
+    '''
+    Ensures the date given is a datetime object.
+
+    Args:
+        - date (Object or string) - The date
+
+    Returns:
+        - date (Object) - Datetime
+    '''
+    if isinstance(date, str):
+        return parser.parse(date).astimezone(datetime.timezone.utc)
+    elif isinstance(date, datetime.date):
+        return date
+    else:
+        raise Exception("Parameter must be a date object or string")
 
 
 def validate_filters_exist(filter_list, filter_class):
@@ -175,3 +241,47 @@ def has_permission_or_403(user, permission):
 
     if not user.has_perm(permission):
         raise PermissionDenied
+
+
+def month_diff(start_date, end_date):
+    '''
+    This function calculates the difference between two dates in months.
+
+    Args:
+        - start_date (Date Object) - The start date
+        - end_date (Date Object) - The end date
+
+    Returns
+        - Integer - The number of months between the dates
+    '''
+
+    r = relativedelta(end_date, start_date)
+    return r.months + 12 * r.years
+
+
+def xml_etree_to_dict(tree):
+    '''
+    Converts an XML etree into a dictionary.
+
+    Args:
+        - tree (Object) - XML Element tree
+
+    Returns:
+        - Dictionary
+    '''
+
+    dictionary = {"children": []}
+
+    for child in tree.iterchildren():
+        child_dict = xml_etree_to_dict(child)
+        if len(child_dict.keys()) == 2:
+            # We are a single tag with a child tag
+            if len(child_dict["children"]) == 0:
+                del child_dict["children"]
+            dictionary = {**dictionary, **child_dict}
+        else:
+            dictionary["children"].append(xml_etree_to_dict(child))
+
+    dictionary[tree.tag] = tree.text
+
+    return dictionary

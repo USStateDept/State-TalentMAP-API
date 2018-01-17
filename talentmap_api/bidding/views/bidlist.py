@@ -1,7 +1,6 @@
-import datetime
-
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
@@ -11,10 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.common.common_helpers import in_group_or_403
-from talentmap_api.common.permissions import isDjangoGroupMember
-
-from talentmap_api.bidding.serializers import BidSerializer, BidWritableSerializer
+from talentmap_api.bidding.serializers.serializers import BidSerializer
 from talentmap_api.bidding.models import Bid, BidCycle
 from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
@@ -55,9 +51,10 @@ class BidListView(mixins.ListModelMixin,
             bid.status = Bid.Status.closed
             bid.save()
             Notification.objects.create(owner=bid.user,
+                                        tags=['bidding'],
                                         message=f"Bid {bid} has been closed by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif datetime.datetime.now().date() < bid.bidcycle.cycle_deadline_date:
+        elif timezone.now() < bid.bidcycle.cycle_deadline_date:
             if bid.status in [Bid.Status.draft, Bid.Status.submitted]:
                 bid.status = Bid.Status.closed
                 bid.save()
@@ -74,21 +71,6 @@ class BidListView(mixins.ListModelMixin,
         queryset = UserProfile.objects.get(user=self.request.user).bidlist.all()
         queryset = self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
-
-
-class BidUpdateView(mixins.UpdateModelMixin,
-                    GenericViewSet):
-    '''
-    partial_update:
-    Update the specified bid
-    '''
-    serializer_class = BidWritableSerializer
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
-
-    def get_object(self):
-        bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"))
-        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
-        return bid
 
 
 class BidListPositionActionView(APIView):
@@ -110,6 +92,10 @@ class BidListPositionActionView(APIView):
         bidcycle = BidCycle.objects.filter(active=True).latest("cycle_start_date")
         position = get_object_or_404(bidcycle.positions.all(), id=pk)
 
+        # Position must not already have a handshake or greater bid status
+        if not position.can_accept_new_bids(bidcycle):
+            return Response("Cannot bid on a position that already has a qualifying bid", status=status.HTTP_400_BAD_REQUEST)
+
         # For now, we use whatever the latest active bidcycle is
         bid = Bid.objects.get_or_create(bidcycle=bidcycle,
                                         user=UserProfile.objects.get(user=self.request.user),
@@ -126,21 +112,4 @@ class BidListPositionActionView(APIView):
                                 position__id=pk,
                                 status=Bid.Status.draft)
         bid.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class BidListBidSubmitView(APIView):
-    def put(self, request, pk, format=None):
-        '''
-        Submits the specified bid
-        '''
-        # First, validate that the user has not exceeded their maximum alloted bids
-        user = UserProfile.objects.get(user=self.request.user)
-        if user.bidlist.filter(status=Bid.Status.submitted).count() >= Bid.MAXIMUM_SUBMITTED_BIDS:
-            return Response({"detail": "Submitted bid limit exceeded."}, status=status.HTTP_400_BAD_REQUEST)
-
-        bid = get_object_or_404(Bid, user=user, id=pk)
-        bid.status = Bid.Status.submitted
-        bid.submission_date = datetime.datetime.now()
-        bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

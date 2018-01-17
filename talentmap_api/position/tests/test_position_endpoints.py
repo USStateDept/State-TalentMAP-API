@@ -1,5 +1,4 @@
 import pytest
-import datetime
 
 from model_mommy import mommy
 from rest_framework import status
@@ -7,6 +6,7 @@ from rest_framework import status
 from itertools import cycle
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from talentmap_api.common.common_helpers import get_permission_by_name
 
 
@@ -32,8 +32,8 @@ def test_position_endpoints_fixture():
     mommy.make_recipe('talentmap_api.position.tests.skill', _quantity=8)
 
     # Create a position with the specific qualification
-    mommy.make('position.Position', language_requirements=[qualification], grade=grade, skill=skill)
-    mommy.make('position.Position', language_requirements=[qualification_2], grade=grade_2, skill=skill_2)
+    mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill)
+    mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2)
 
     is_overseas = [True, False]
     # Create some junk positions to add numbers
@@ -185,20 +185,6 @@ def test_position_assignment_list(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db()
-def test_position_waiver_list(authorized_client, authorized_user):
-    # Give the user AO permissions
-    group = mommy.make("auth.Group", name="bureau_ao")
-    group.user_set.add(authorized_user)
-    position = mommy.make("position.Position")
-    mommy.make("language.Waiver", position=position, user=authorized_user.profile, _quantity=5)
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/language_waivers/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data['results']) == 5
-
-
-@pytest.mark.django_db()
 def test_position_bid_list(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
@@ -290,14 +276,57 @@ def test_highlight_action_endpoints(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_position_waiver_actions(authorized_client, authorized_user):
+    # Create a bureau for the position
+    bureau = mommy.make('organization.Organization', code='12345')
+    position = mommy.make('position.Position', bureau=bureau)
+    bidcycle = mommy.make('bidding.BidCycle')
+    bidcycle.positions.add(position)
+    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle)
+    waiver = mommy.make('bidding.Waiver', user=authorized_user.profile, position=position, bid=bid)
+
+    # Create valid permissions to view this position's waivers
+    group = mommy.make('auth.Group', name='bureau_ao')
+    group.user_set.add(authorized_user)
+    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group.user_set.add(authorized_user)
+
+    assert waiver.status == waiver.Status.requested
+
+    # Pull a list of all the waivers
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    # Approve the waiver
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/{waiver.id}/approve/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    waiver.refresh_from_db()
+    assert waiver.status == waiver.Status.approved
+    assert waiver.reviewer == authorized_user.profile
+
+    # Deny it the waiver
+    response = authorized_client.get(f'/api/v1/position/{position.id}/waivers/{waiver.id}/deny/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    waiver.refresh_from_db()
+    assert waiver.status == waiver.Status.denied
+    assert waiver.reviewer == authorized_user.profile
+
+
+@pytest.mark.django_db(transaction=True)
 def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
     one_year_tod = mommy.make('organization.TourOfDuty', months=12)
     two_year_tod = mommy.make('organization.TourOfDuty', months=24)
     three_year_tod = mommy.make('organization.TourOfDuty', months=36)
 
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=one_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=two_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=datetime.datetime.now().date().strftime("%Y-%m-%d"), tour_of_duty=three_year_tod, user=authorized_user.profile)
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
 
     response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
 

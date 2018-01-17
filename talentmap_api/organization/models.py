@@ -1,11 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from simple_history.models import HistoricalRecords
 
 import logging
 
+from talentmap_api.common.models import StaticRepresentationModel
 
-class Organization(models.Model):
+
+class Organization(StaticRepresentationModel):
     '''
     The organization model represents a DoS organization, such as bureaus
     '''
@@ -26,6 +29,8 @@ class Organization(models.Model):
 
     # List of highlighted positions
     highlighted_positions = models.ManyToManyField('position.Position', related_name='highlighted_by_org', help_text="Positions which have been designated as highlighted by this organization")
+
+    history = HistoricalRecords()
 
     # These fields are used during loading to preserve source coded data, before the FK relationships are set
     # These also preserve the data should the FK items be deleted
@@ -107,14 +112,14 @@ class Organization(models.Model):
         group.permissions.add(permission)
 
     def __str__(self):
-        return f"{self.long_description} ({self.short_description})"
+        return f"({self.short_description}) {self.long_description}"
 
     class Meta:
         managed = True
         ordering = ["code"]
 
 
-class TourOfDuty(models.Model):
+class TourOfDuty(StaticRepresentationModel):
     '''
     Represents a tour of duty
     '''
@@ -132,7 +137,7 @@ class TourOfDuty(models.Model):
         ordering = ["code"]
 
 
-class Country(models.Model):
+class Country(StaticRepresentationModel):
     '''
     Represents a country
     '''
@@ -152,7 +157,7 @@ class Country(models.Model):
         ordering = ["code"]
 
 
-class Location(models.Model):
+class Location(StaticRepresentationModel):
     '''
     Represents a geographic location
     '''
@@ -195,7 +200,7 @@ class Location(models.Model):
         ordering = ["code"]
 
 
-class Post(models.Model):
+class Post(StaticRepresentationModel):
     '''
     Represents a post and its related fields
     '''
@@ -212,6 +217,7 @@ class Post(models.Model):
     has_service_needs_differential = models.BooleanField(default=False)
 
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
+    history = HistoricalRecords()
 
     _tod_code = models.TextField(null=True)
     _location_code = models.TextField(null=True)
