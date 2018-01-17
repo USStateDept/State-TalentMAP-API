@@ -1,5 +1,4 @@
-import datetime
-
+from django.utils import timezone
 from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
@@ -19,9 +18,9 @@ class BidCycle(StaticRepresentationModel):
     '''
 
     name = models.TextField(null=False, help_text="The name of the bid cycle")
-    cycle_start_date = models.DateField(null=False, help_text="The start date for the bid cycle")
-    cycle_deadline_date = models.DateField(null=False, help_text="The deadline date for the bid cycle")
-    cycle_end_date = models.DateField(null=False, help_text="The end date for the bid cycle")
+    cycle_start_date = models.DateTimeField(null=False, help_text="The start date for the bid cycle")
+    cycle_deadline_date = models.DateTimeField(null=False, help_text="The deadline date for the bid cycle")
+    cycle_end_date = models.DateTimeField(null=False, help_text="The end date for the bid cycle")
     active = models.BooleanField(default=False, help_text="Whether this bidcycle is active or not")
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
@@ -117,16 +116,16 @@ class Bid(StaticRepresentationModel):
 
     status = models.TextField(default=Status.draft, choices=Status.choices)
 
-    draft_date = models.DateField(auto_now_add=True)
-    submitted_date = models.DateField(null=True, help_text="The date the bid was submitted")
-    handshake_offered_date = models.DateField(null=True, help_text="The date the handshake was offered")
-    handshake_accepted_date = models.DateField(null=True, help_text="The date the handshake was accepted")
-    handshake_declined_date = models.DateField(null=True, help_text="The date the handshake was declined")
-    in_panel_date = models.DateField(null=True, help_text="The date the bid was scheduled for panel")
-    scheduled_panel_date = models.DateField(null=True, help_text="The date of the paneling meeting")
-    approved_date = models.DateField(null=True, help_text="The date the bid was approved")
-    declined_date = models.DateField(null=True, help_text="The date the bid was declined")
-    closed_date = models.DateField(null=True, help_text="The date the bid was closed")
+    draft_date = models.DateTimeField(auto_now_add=True)
+    submitted_date = models.DateTimeField(null=True, help_text="The date the bid was submitted")
+    handshake_offered_date = models.DateTimeField(null=True, help_text="The date the handshake was offered")
+    handshake_accepted_date = models.DateTimeField(null=True, help_text="The date the handshake was accepted")
+    handshake_declined_date = models.DateTimeField(null=True, help_text="The date the handshake was declined")
+    in_panel_date = models.DateTimeField(null=True, help_text="The date the bid was scheduled for panel")
+    scheduled_panel_date = models.DateTimeField(null=True, help_text="The date of the paneling meeting")
+    approved_date = models.DateTimeField(null=True, help_text="The date the bid was approved")
+    declined_date = models.DateTimeField(null=True, help_text="The date the bid was declined")
+    closed_date = models.DateTimeField(null=True, help_text="The date the bid was closed")
 
     bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="bids", help_text="The bidcycle for this bid")
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
@@ -136,15 +135,15 @@ class Bid(StaticRepresentationModel):
 
     reviewer = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name="reviewing_bids", help_text="The bureau reviewer for this bid")
 
-    create_date = models.DateField(auto_now_add=True)
-    update_date = models.DateField(auto_now=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user}#{self.position.position_number} ({self.status})"
 
     @property
     def is_paneling_today(self):
-        return datetime.datetime.now().date() == self.scheduled_panel_date
+        return timezone.now().date() == self.scheduled_panel_date.date()
 
     @staticmethod
     def get_approval_statuses():
@@ -222,8 +221,8 @@ class Waiver(StaticRepresentationModel):
 
     description = models.TextField(null=True, help_text="Description of the waiver request")
 
-    create_date = models.DateField(auto_now_add=True)
-    update_date = models.DateField(auto_now=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
 
     def generate_status_messages(self):
         return {

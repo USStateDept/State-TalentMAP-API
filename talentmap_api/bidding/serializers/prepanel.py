@@ -84,9 +84,9 @@ class PrePanelSerializer(PrefetchedSerializer):
 
     def generate_prepanel_skill(self, user, position, waivers):
         return {
-            "skill_match": user.skill_code.filter(code=safe_navigation(position, 'skill.code')).exists(),
+            "skill_match": user.skills.filter(code=safe_navigation(position, 'skill.code')).exists(),
             "position_skill": str(safe_navigation(position, 'skill')),
-            "user_skills": [str(x) for x in list(user.skill_code.all())],
+            "user_skills": [str(x) for x in list(user.skills.all())],
             "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.skill))]
         }
 

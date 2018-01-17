@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Classification, Assignment, PositionBidStatistics
+from talentmap_api.position.models import Position, Grade, Skill, SkillCone, CapsuleDescription, Classification, Assignment, PositionBidStatistics
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
 
@@ -143,7 +143,16 @@ class GradeSerializer(PrefetchedSerializer):
 
 
 class SkillSerializer(PrefetchedSerializer):
+    cone = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Skill
+        fields = "__all__"
+
+
+class SkillConeSerializer(PrefetchedSerializer):
+    skills = StaticRepresentationField(read_only=True, many=True)
+
+    class Meta:
+        model = SkillCone
         fields = "__all__"

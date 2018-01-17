@@ -1,7 +1,6 @@
-import datetime
-
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
@@ -55,7 +54,7 @@ class BidListView(mixins.ListModelMixin,
                                         tags=['bidding'],
                                         message=f"Bid {bid} has been closed by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
-        elif datetime.datetime.now().date() < bid.bidcycle.cycle_deadline_date:
+        elif timezone.now() < bid.bidcycle.cycle_deadline_date:
             if bid.status in [Bid.Status.draft, Bid.Status.submitted]:
                 bid.status = Bid.Status.closed
                 bid.save()

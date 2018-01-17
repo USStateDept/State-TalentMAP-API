@@ -1,6 +1,7 @@
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from dateutil import parser
 
 from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import resolve
@@ -71,16 +72,16 @@ def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
 
 def ensure_date(date):
     '''
-    Ensures the date given is a date object.
+    Ensures the date given is a datetime object.
 
     Args:
         - date (Object or string) - The date
 
     Returns:
-        - date (Object) - Date as a datetime date object
+        - date (Object) - Datetime
     '''
     if isinstance(date, str):
-        return datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        return parser.parse(date).astimezone(datetime.timezone.utc)
     elif isinstance(date, datetime.date):
         return date
     else:
@@ -256,3 +257,31 @@ def month_diff(start_date, end_date):
 
     r = relativedelta(end_date, start_date)
     return r.months + 12 * r.years
+
+
+def xml_etree_to_dict(tree):
+    '''
+    Converts an XML etree into a dictionary.
+
+    Args:
+        - tree (Object) - XML Element tree
+
+    Returns:
+        - Dictionary
+    '''
+
+    dictionary = {"children": []}
+
+    for child in tree.iterchildren():
+        child_dict = xml_etree_to_dict(child)
+        if len(child_dict.keys()) == 2:
+            # We are a single tag with a child tag
+            if len(child_dict["children"]) == 0:
+                del child_dict["children"]
+            dictionary = {**dictionary, **child_dict}
+        else:
+            dictionary["children"].append(xml_etree_to_dict(child))
+
+    dictionary[tree.tag] = tree.text
+
+    return dictionary

@@ -26,6 +26,7 @@ class Command(BaseCommand):
             'tours_of_duty': 'tour_of_duty.xml',
             'posts': 'bidding_tool.xml',
             'positions': 'position.xml',
+            'skill_cone': 'jobCategorySkills.xml'
         }
 
         # File modes whose post load function should be skipped during this load

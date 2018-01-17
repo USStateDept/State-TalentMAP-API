@@ -6,8 +6,9 @@ from django.core.management import call_command
 
 from model_mommy import mommy
 
+from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.language.models import Language, Proficiency
-from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription
+from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription, SkillCone
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 
 
@@ -241,3 +242,101 @@ def test_xml_capsule_description_loading():
     assert CapsuleDescription.objects.count() == 2
     assert Position.objects.get(_seq_num=1).description._pos_seq_num == '1'
     assert Position.objects.get(_seq_num=2).description._pos_seq_num == '2'
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_collision_noaction():
+    GlossaryEntry.objects.create(title="item1", link="link1", definition="")
+
+    call_command('load_csv',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_glossary.csv'),
+                 'glossary')
+
+    assert GlossaryEntry.objects.count() == 3
+
+    item1 = GlossaryEntry.objects.get(title="item1")
+
+    assert item1.definition == ""
+    assert item1.link == "link1"
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_collision_delete():
+    start = GlossaryEntry.objects.create(title="item1", link="link1", definition="")
+    start_id = start.id
+
+    call_command('load_csv',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_glossary.csv'),
+                 'glossary',
+                 '--delete')
+
+    assert GlossaryEntry.objects.count() == 3
+
+    item1 = GlossaryEntry.objects.get(title="item1")
+
+    assert item1.id != start_id
+    assert item1.link == ""
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_collision_update():
+    start = GlossaryEntry.objects.create(title="item1", link="link1", definition="")
+    start_id = start.id
+
+    call_command('load_csv',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_glossary.csv'),
+                 'glossary',
+                 '--update')
+
+    assert GlossaryEntry.objects.count() == 3
+
+    item1 = GlossaryEntry.objects.get(title="item1")
+
+    assert item1.id == start_id
+    assert item1.link == ""
+    assert item1.definition == "def1"
+
+
+@pytest.mark.django_db()
+def test_csv_glossary_loading():
+    call_command('load_csv',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_glossary.csv'),
+                 'glossary')
+
+    assert GlossaryEntry.objects.count() == 3
+
+    item1 = GlossaryEntry.objects.get(title="item1")
+    item2 = GlossaryEntry.objects.get(title="item2")
+    item3 = GlossaryEntry.objects.get(title="item3")
+
+    assert item1.definition == "def1"
+    assert item2.definition == "def2"
+    assert item3.definition == "def3"
+
+    assert item1.link == ""
+    assert item2.link == "link2"
+    assert item3.link == "link3"
+
+
+@pytest.mark.django_db()
+def test_xml_skill_cone_loading():
+    for i in range(1, 10):
+        mommy.make("position.Skill", code=i)
+
+    call_command('load_xml',
+                 os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'test_jobCategorySkill.xml'),
+                 'skill_cone')
+
+    call_command('update_relationships')
+
+    assert SkillCone.objects.count() == 2
+
+    management = SkillCone.objects.filter(name="Management").first()
+    interfunctional = SkillCone.objects.filter(name="Interfunctional").first()
+
+    # Do a set comparison so we don't have to care about order
+    assert set(management.skill_codes) - set(['1', '2', '3', '4']) == set()
+    assert set(interfunctional.skill_codes) - set(['5', '6', '7', '8', '9']) == set()
+
+    assert Skill.objects.filter(code__in=management.skill_codes, cone=management).count() == 4
+    assert Skill.objects.filter(code__in=interfunctional.skill_codes, cone=interfunctional).count() == 5

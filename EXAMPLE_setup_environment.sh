@@ -14,6 +14,10 @@ export DJANGO_SECRET_KEY='secret_key'
 # This should be set to False when in deployment
 export DJANGO_DEBUG=True
 
+# The debug log destination; either 'console' or 'file'
+# The file output will be located in logs/debug.log; ensure proper permissions are set
+export DEBUG_LOG_DESTINATION='console'
+
 # Deployment location
 # The directory where manage.py is located; requires the trailing slash
 export DEPLOYMENT_LOCATION='/var/www/talentmap/api/'

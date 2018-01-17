@@ -1,4 +1,4 @@
-from django.db.models import F, Sum, Q
+from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff, ensure_date
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
@@ -17,15 +17,15 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    date_of_birth = models.DateField(null=True)
-    mandatory_retirement_date = models.DateField(null=True)
+    date_of_birth = models.DateTimeField(null=True)
+    mandatory_retirement_date = models.DateTimeField(null=True)
     phone_number = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
-    skill_code = models.ManyToManyField('position.Skill')
+    skills = models.ManyToManyField('position.Skill')
 
     grade = models.ForeignKey('position.Grade', null=True)
 
@@ -69,7 +69,7 @@ class UserProfile(StaticRepresentationModel):
         assignments = assignments.annotate(tod_months=F("tour_of_duty__months")).annotate(required_service=F("tod_months") * 0.83)
 
         # Create a case to filter for USA positions
-        usa_q_obj = Q(position__post__location__country__code="USA")
+        usa_q_obj = Q(is_domestic=True)
         # Create cases for the 12, 24, and 36 month cases
         tod_case_1 = Q(tod_months=12, service_duration__gte=10)
         tod_case_2 = Q(tod_months=24, service_duration__gte=20)
@@ -87,7 +87,7 @@ class UserProfile(StaticRepresentationModel):
         # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations
         total = 0
         for assignment in list(assignments):
-            if assignment.position.post.location.country.code != "USA":
+            if not assignment.is_domestic:
                 break
             total += assignment.service_duration
 
@@ -105,14 +105,10 @@ class UserProfile(StaticRepresentationModel):
         #  - Served at least 10 months at a post with 1 year standard TOD
 
         # Get the user's assignment history
-        assignments = self.assignments.all()  # This gives us a copy of the queryset we can tinker with
-
-        # Annotate our assignments with the pertinent data
-        assignments = assignments.annotate(combined_differential=Sum(F('position__post__differential_rate') + F('position__post__danger_pay')),
-                                           standard_tod_months=F('position__post__tour_of_duty__months'))
+        assignments = self.assignments.all().filter(status__in=[self.assignments.model.Status.completed, self.assignments.model.Status.curtailed])
 
         # Create our cases
-        case_1 = Q(combined_differential__gte=20)
+        case_1 = Q(combined_differential__gte=20) | Q(combined_differential__gte=15, bid_approval_date__lte="2017-06-30T23:59:59Z")
         case_2 = Q(standard_tod_months=12)
 
         # Filter our assignments to only those matching these cases
@@ -120,8 +116,8 @@ class UserProfile(StaticRepresentationModel):
         case_2_assignments = assignments.filter(case_2)
 
         # Calculate the number of months spent in each of these cases
-        case_1_lengths = [month_diff(a.start_date, a.end_date) for a in case_1_assignments if a.end_date]
-        case_2_lengths = [month_diff(a.start_date, a.end_date) for a in case_2_assignments if a.end_date]
+        case_1_lengths = case_1_assignments.values_list("service_duration", flat=True)
+        case_2_lengths = case_2_assignments.values_list("service_duration", flat=True)
 
         # Sum our values
         case_1 = sum(case_1_lengths) >= 20

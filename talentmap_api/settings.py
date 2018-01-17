@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'debug_toolbar',
     'djangosaml2',
+    'simple_history',
 
     # TalentMap Apps
     'talentmap_api.common',
@@ -96,7 +97,8 @@ INSTALLED_APPS = [
     'talentmap_api.messaging',
     'talentmap_api.user_profile',
     'talentmap_api.bidding',
-    'talentmap_api.permission'
+    'talentmap_api.permission',
+    'talentmap_api.glossary'
 ]
 
 MIDDLEWARE = [
@@ -111,6 +113,7 @@ MIDDLEWARE = [
     # Third-party
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
@@ -164,7 +167,7 @@ if ENABLE_SAML2:
         'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
 
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': f"os.environ.get('SAML2_ENTITY_ID')saml2/metadata/",
+        'entityid': f"{os.environ.get('SAML2_ENTITY_ID')}saml2/metadata/",
 
         # directory with attribute mapping
         'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
@@ -254,6 +257,8 @@ if ENABLE_SAML2:
     }  # End SAML config
 
 # Logging Settings
+debug_log_destination = os.environ.get('DEBUG_LOG_DESTINATION', 'console')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -276,17 +281,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filters': ['require_debug_true'],
-            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
-            'formatter': 'verbose'
-        }
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': [debug_log_destination],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -297,6 +295,16 @@ LOGGING = {
         },
     }
 }
+
+# Add our destination log file for debugging if we're logging to file
+if debug_log_destination == 'file':
+    LOGGING['handlers']['file'] = {
+        'level': 'DEBUG',
+        'class': 'logging.FileHandler',
+        'filters': ['require_debug_true'],
+        'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+        'formatter': 'verbose'
+    }
 
 
 WSGI_APPLICATION = 'talentmap_api.wsgi.application'

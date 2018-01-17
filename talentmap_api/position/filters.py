@@ -1,12 +1,12 @@
-import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q, Subquery
+from django.utils import timezone
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -29,12 +29,25 @@ class GradeFilter(filters.FilterSet):
 
 class SkillFilter(filters.FilterSet):
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
+    cone = filters.RelatedFilter('talentmap_api.position.filters.SkillConeFilter', name='cone', queryset=SkillCone.objects.all())
 
     class Meta:
         model = Skill
         fields = {
             "code": ALL_TEXT_LOOKUPS,
-            "description": ALL_TEXT_LOOKUPS
+            "description": ALL_TEXT_LOOKUPS,
+            "cone": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class SkillConeFilter(filters.FilterSet):
+    skills = filters.RelatedFilter(SkillFilter, name='skills', queryset=Skill.objects.all())
+
+    class Meta:
+        model = SkillCone
+        fields = {
+            "name": ALL_TEXT_LOOKUPS,
+            "skills": FOREIGN_KEY_LOOKUPS
         }
 
 
@@ -117,7 +130,7 @@ class PositionFilter(filters.FilterSet):
         '''
         Returns a queryset of all positions with a vacancy in the specified number of years
         '''
-        start = datetime.datetime.now().date()
+        start = timezone.now()
         end = start + relativedelta(years=value)
         q_obj = {}
         q_obj[LOOKUP_SEP.join([name, "gt"])] = start
@@ -158,5 +171,7 @@ class AssignmentFilter(filters.FilterSet):
             "end_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
             "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS
+            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
+            "combined_differential": INTEGER_LOOKUPS,
+            "is_domestic": ["exact"]
         }
