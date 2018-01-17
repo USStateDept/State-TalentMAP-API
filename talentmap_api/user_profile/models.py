@@ -1,4 +1,4 @@
-from django.db.models import F, Sum, Q
+from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, month_diff, ensure_date
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
