@@ -1,8 +1,8 @@
-import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q, Subquery
+from django.utils import timezone
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle
@@ -130,7 +130,7 @@ class PositionFilter(filters.FilterSet):
         '''
         Returns a queryset of all positions with a vacancy in the specified number of years
         '''
-        start = datetime.datetime.now().date()
+        start = timezone.now()
         end = start + relativedelta(years=value)
         q_obj = {}
         q_obj[LOOKUP_SEP.join([name, "gt"])] = start
@@ -173,5 +173,5 @@ class AssignmentFilter(filters.FilterSet):
             "position": FOREIGN_KEY_LOOKUPS,
             "tour_of_duty": FOREIGN_KEY_LOOKUPS,
             "combined_differential": INTEGER_LOOKUPS,
-            "domestic": ["exact"]
+            "is_domestic": ["exact"]
         }

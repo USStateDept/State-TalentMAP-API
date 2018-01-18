@@ -134,7 +134,7 @@ class CSVloader():
 
     def __init__(self, model, tag_map, collision_behavior=None, collision_field=None):
         '''
-        Instantiates the XMLloader
+        Instantiates the CSVloader
 
         Args:
             model (Class) - The model class used to create instances

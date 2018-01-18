@@ -1,5 +1,4 @@
 import pytest
-import datetime
 
 from model_mommy import mommy
 from rest_framework import status
@@ -7,6 +6,7 @@ from rest_framework import status
 from itertools import cycle
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from talentmap_api.common.common_helpers import get_permission_by_name
 
 
@@ -322,7 +322,7 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
     two_year_tod = mommy.make('organization.TourOfDuty', months=24)
     three_year_tod = mommy.make('organization.TourOfDuty', months=36)
 
-    today = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
     mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)

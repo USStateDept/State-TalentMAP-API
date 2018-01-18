@@ -119,6 +119,16 @@ class PrefetchedSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"The following fields are not writable: {', '.join(invalid_fields)}")
         return data
 
+    def get_representation(self, obj):
+        '''
+        Allows children to add `representation = serializers.SerializerMethodField()` to add
+        their string representation to their own serializer
+        '''
+        if isinstance(obj, StaticRepresentationModel):
+            return obj._string_representation
+        else:
+            return str(obj)
+
     @classmethod
     def correct_include_hierarchy(cls, override_fields):
         '''
