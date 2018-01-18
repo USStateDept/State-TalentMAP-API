@@ -29,14 +29,36 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
         writable_fields = ("content", "point_of_contact", "website",)
 
 
-class AssignmentSerializer(PrefetchedSerializer):
+class CurrentAssignmentSerializer(PrefetchedSerializer):
     user = StaticRepresentationField(read_only=True)
-    position = StaticRepresentationField(read_only=True)
     tour_of_duty = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Assignment
+        exclude = ("position",)
+
+
+class AssignmentSerializer(CurrentAssignmentSerializer):
+
+    class Meta:
+        model = Assignment
         fields = "__all__"
+        nested = {
+            "position": {
+                "class": "talentmap_api.position.serializers.PositionSerializer",
+                "field": "position",
+                "kwargs": {
+                    "override_fields": [
+                        "position_number",
+                        "bureau",
+                        "skill",
+                        "title",
+                        "post__location",
+                    ],
+                    "read_only": True
+                }
+            }
+        }
 
 
 class ClassificationSerializer(PrefetchedSerializer):
@@ -68,6 +90,7 @@ class PositionSerializer(PrefetchedSerializer):
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
     classifications = StaticRepresentationField(read_only=True, many=True)
+    representation = serializers.SerializerMethodField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -119,7 +142,7 @@ class PositionSerializer(PrefetchedSerializer):
                 }
             },
             "current_assignment": {
-                "class": AssignmentSerializer,
+                "class": CurrentAssignmentSerializer,
                 "field": "current_assignment",
                 "kwargs": {
                     "override_fields": [
