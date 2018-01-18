@@ -57,6 +57,7 @@ class CdoClientStatisticsView(APIView):
         statistics = {
             "all_clients": profile.direct_reports.count(),
             "bidding_clients": profile.direct_reports.exclude(bidlist=None).count(),
+            "bidding_no_handshake": profile.direct_reports.exclude(bidlist=None).filter(bidlist__handshake_offered_date=None).distinct().count(),
             "in_panel_clients": profile.direct_reports.filter(bidlist__status=Bid.Status.in_panel).count(),
             "on_post_clients": profile.direct_reports.exclude(assignments__current_for_position=None).count()
         }
