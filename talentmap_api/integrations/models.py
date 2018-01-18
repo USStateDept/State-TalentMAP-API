@@ -6,6 +6,7 @@ import defusedxml.lxml as ET
 
 from django.db import models
 from django.apps import apps
+from django.utils import timezone
 
 from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client
 from talentmap_api.common.xml_helpers import XMLloader
@@ -116,7 +117,7 @@ class SynchronizationJob(models.Model):
             logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.minutes} min {d.seconds} s\t\t")
 
             # Successful, set the last synchronization
-            self.last_synchronization = datetime.datetime.utcnow()
+            self.last_synchronization = timezone.now()
         except:  # pragma: no cover
             raise
         finally:

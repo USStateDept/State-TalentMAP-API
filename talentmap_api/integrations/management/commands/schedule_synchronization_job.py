@@ -21,7 +21,8 @@ class Command(BaseCommand):
             ('organization.Country', SynchronizationJob.TIME_WEEK),
             ('organization.Location', SynchronizationJob.TIME_WEEK),
             ('organization.Post', SynchronizationJob.TIME_WEEK),
-            ('language.Language', SynchronizationJob.TIME_WEEK)
+            ('language.Language', SynchronizationJob.TIME_WEEK),
+            ('position.Position', SynchronizationJob.TIME_DAY)
         ]
 
     def add_arguments(self, parser):

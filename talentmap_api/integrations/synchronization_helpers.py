@@ -15,7 +15,7 @@ import defusedxml.lxml as ET
 
 from django.conf import settings
 
-from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean
+from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date
 
 from talentmap_api.language.models import Proficiency
 
@@ -288,6 +288,44 @@ def mode_posts():
     return (soap_arguments, instance_tag, tag_map, collision_field, None)
 
 
+def mode_positions():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "position",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<positions><position></position></positions>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "position"
+    collision_field = "_seq_num"
+    tag_map = {
+        "pos_id": "_seq_num",
+        "position_number": "position_number",
+        "title": "title",
+        "org_code": "_org_code",
+        "bureau_code": "_bureau_code",
+        "skill_code": "_skill_code",
+        "is_overseas": parse_boolean("is_overseas", ['O']),
+        "grade": "_grade_code",
+        "language_code_1": "_language_1_code",
+        "language_code_2": "_language_2_code",
+        "location_code": "_location_code",
+        "spoken_proficiency_1": "_language_1_spoken_proficiency_code",
+        "reading_proficiency_1": "_language_1_reading_proficiency_code",
+        "spoken_proficiency_2": "_language_2_spoken_proficiency_code",
+        "reading_proficiency_2": "_language_2_reading_proficiency_code",
+        "create_date": parse_date("create_date"),
+        "update_date": parse_date("update_date"),
+        "effective_date": parse_date("effective_date"),
+    }
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+
+
 # Model helper maps and return functions
 MODEL_HELPER_MAP = {
     "position.Skill": mode_skills,
@@ -298,6 +336,7 @@ MODEL_HELPER_MAP = {
     "organization.Location": mode_locations,
     "organization.Post": mode_posts,
     "language.Language": mode_languages,
+    "position.Position": mode_positions
 }
 
 
