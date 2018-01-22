@@ -37,39 +37,44 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['list']:
-            for job in list(SynchronizationJob.objects.all()):
-                print(job)
+            self.list_jobs()
             return
 
         if options['set-defaults']:
-            for model, delta in self.default_jobs:
-                if not SynchronizationJob.objects.filter(talentmap_model=model):
-                    self.logger.info(f'Creating default synchronization job {model} ∆{delta}')
-                    SynchronizationJob.objects.create(talentmap_model=model, delta_synchronization=delta)
+            self.set_defaults()
             return
 
         if options['reset-all']:
             SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", running=False)
             return
 
-        job = SynchronizationJob.objects.get(talentmap_model=options['model'])
+        job, _ = SynchronizationJob.objects.get_or_create(talentmap_model=options['model'])
 
-        if job:
-            if options['reset']:
-                self.logger.info(f"Resetting: {job}")
-                job.last_synchronization = "1975-01-01T00:00:00Z"
-                job.save()
-                return
+        self.logger.info(f"Old: {job}")
 
-            if options['remove']:
-                self.logger.info(f"Removed: {job}")
-                job.delete()
-                return
-
-            self.logger.info(f"Old: {job}")
-            job.delta_synchronization = options['delta']
+        if options['reset']:
+            self.logger.info(f"Resetting: {job}")
+            job.last_synchronization = "1975-01-01T00:00:00Z"
             job.save()
-            job.refresh_from_db()
-        else:
-            job = SynchronizationJob.objects.create(model=options['model'], delta=options['delta'])
+            return
+
+        if options['remove']:
+            self.logger.info(f"Removed: {job}")
+            job.delete()
+            return
+
+        job.delta_synchronization = options['delta']
+        job.save()
+        job.refresh_from_db()
+
         self.logger.info(f"New: {job}")
+
+    def list_jobs(self):
+        for job in list(SynchronizationJob.objects.all()):
+            print(job)
+
+    def set_defaults(self):
+        for model, delta in self.default_jobs:
+            if not SynchronizationJob.objects.filter(talentmap_model=model):
+                self.logger.info(f'Creating default synchronization job {model} ∆{delta}')
+                SynchronizationJob.objects.create(talentmap_model=model, delta_synchronization=delta)
