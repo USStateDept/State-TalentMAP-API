@@ -16,6 +16,7 @@ class Command(BaseCommand):
         self.default_jobs = [
             ('position.Skill', SynchronizationJob.TIME_WEEK),
             ('position.Grade', SynchronizationJob.TIME_WEEK),
+            ('position.SkillCone', SynchronizationJob.TIME_WEEK),
             ('organization.TourOfDuty', SynchronizationJob.TIME_WEEK),
             ('organization.Organization', SynchronizationJob.TIME_WEEK),
             ('organization.Country', SynchronizationJob.TIME_WEEK),

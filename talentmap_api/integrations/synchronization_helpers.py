@@ -15,7 +15,7 @@ import defusedxml.lxml as ET
 
 from django.conf import settings
 
-from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date
+from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date, get_nested_tag
 
 from talentmap_api.language.models import Proficiency
 
@@ -326,9 +326,33 @@ def mode_positions():
     return (soap_arguments, instance_tag, tag_map, collision_field, None)
 
 
+def mode_skill_cones():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "jobcategory",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<jobCategories><jobCategory></jobCategory></jobCategories>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "jobCategory"
+    collision_field = "_id"
+    tag_map = {
+        "jc_id": "_id",
+        "JC_NM_TXT": "name",
+        "skills": get_nested_tag("_skill_codes", "code", many=True)
+    }
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+
+
 # Model helper maps and return functions
 MODEL_HELPER_MAP = {
     "position.Skill": mode_skills,
+    "position.SkillCone": mode_skill_cones,
     "position.Grade": mode_grade,
     "organization.TourOfDuty": mode_tods,
     "organization.Organization": mode_organizations,

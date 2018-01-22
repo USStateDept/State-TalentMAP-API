@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 
 from dateutil.relativedelta import relativedelta
 import defusedxml.lxml as ET
@@ -65,6 +66,14 @@ class SynchronizationJob(models.Model):
 
             logger.info(f"Using function {soap_function}")
 
+            # This will search for any environment variables called DJANGO_SOAP_HEADER_xxxx, and parse it as a Header/Value pair
+            soap_headers = {}
+            env_soap_headers = [os.environ[key] for key in os.environ.keys() if key[:18] == "DJANGO_SOAP_HEADER"]
+            for header in env_soap_headers:  # pragma: no cover
+                split = header.split("=")
+                soap_headers[split[0]] = split[1]
+                logger.info(f"Setting SOAP header\t\t{split[0]}: {split[1]}")
+
             soap_arguments, instance_tag, tag_map, collision_field, post_load_function = get_synchronization_information(self.talentmap_model)
             model = apps.get_model(self.talentmap_model)
 
@@ -91,7 +100,7 @@ class SynchronizationJob(models.Model):
                     logger.info(f"Requesting first page")
 
                 # Get the data
-                response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments), encoding="unicode")
+                response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
 
                 newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
 

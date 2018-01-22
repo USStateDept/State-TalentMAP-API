@@ -255,11 +255,17 @@ def parse_date(field):
     return process_function
 
 
-def get_nested_tag(field, tag):
+def get_nested_tag(field, tag, many=False):
     '''
     Creates a function to grab a nested tag
+    If the many parameter is set to True, it will concatenate them into a comma
+    seperated list as a string
     '''
 
     def process_function(instance, item):
-        setattr(instance, field, item.find(tag).text)
+        if not many:
+            setattr(instance, field, item.find(tag).text)
+        else:
+            data = [element.text for element in list(item.iter()) if element.tag == tag]
+            setattr(instance, field, ",".join(data))
     return process_function
