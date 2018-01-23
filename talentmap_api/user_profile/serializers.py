@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist
+from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
 from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
@@ -79,6 +79,15 @@ class ClientSerializer(PrefetchedSerializer):
                 }
             }
         }
+
+
+class ClientDetailSerializer(ClientSerializer):
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return serialize_instance(obj.assignments.latest('start_date'), "talentmap_api.position.serializers.AssignmentSerializer")
+        else:
+            return None
 
 
 class UserProfileSerializer(PrefetchedSerializer):

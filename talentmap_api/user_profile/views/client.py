@@ -18,10 +18,11 @@ from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import ClientFilter
-from talentmap_api.user_profile.serializers import ClientSerializer
+from talentmap_api.user_profile.serializers import ClientSerializer, ClientDetailSerializer
 
 
-class CdoClientView(FieldLimitableSerializerMixin,
+class CdoClientView(ActionDependentSerializerMixin,
+                    FieldLimitableSerializerMixin,
                     mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,
                     GenericViewSet):
@@ -34,6 +35,12 @@ class CdoClientView(FieldLimitableSerializerMixin,
     """
 
     serializer_class = ClientSerializer
+
+    serializers = {
+        "default": ClientSerializer,
+        "retrieve": ClientDetailSerializer,
+    }
+
     filter_class = ClientFilter
     permission_classes = (IsAuthenticated,)
 
