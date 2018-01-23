@@ -1,3 +1,5 @@
+import logging
+
 from django.utils import timezone
 from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
@@ -54,8 +56,7 @@ class BidCycle(StaticRepresentationModel):
             try:
                 self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
             except:
-                # Couldn't find a matching seq num
-                pass
+                logging.getLogger('console').info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
 
     class Meta:
         managed = True
