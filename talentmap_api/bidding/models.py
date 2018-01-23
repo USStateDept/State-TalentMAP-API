@@ -3,6 +3,7 @@ from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
 from django.dispatch import receiver
+from django.contrib.postgres.fields import ArrayField
 
 from djchoices import DjangoChoices, ChoiceItem
 
@@ -18,12 +19,16 @@ class BidCycle(StaticRepresentationModel):
     '''
 
     name = models.TextField(null=False, help_text="The name of the bid cycle")
-    cycle_start_date = models.DateTimeField(null=False, help_text="The start date for the bid cycle")
-    cycle_deadline_date = models.DateTimeField(null=False, help_text="The deadline date for the bid cycle")
-    cycle_end_date = models.DateTimeField(null=False, help_text="The end date for the bid cycle")
+    cycle_start_date = models.DateTimeField(null=True, help_text="The start date for the bid cycle")
+    cycle_deadline_date = models.DateTimeField(null=True, help_text="The deadline date for the bid cycle")
+    cycle_end_date = models.DateTimeField(null=True, help_text="The end date for the bid cycle")
     active = models.BooleanField(default=False, help_text="Whether this bidcycle is active or not")
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
+
+    _id = models.TextField(null=True)
+    _positions_seq_nums = ArrayField(models.TextField(), default=list)
+    _category_code = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -42,6 +47,15 @@ class BidCycle(StaticRepresentationModel):
         positions = self.positions.annotate(accepting_bids=case)
 
         return positions
+
+    def update_relationships(self):
+        # For each position in our _positions_seq_nums, find it and add it to our positions
+        for seq_num in self._positions_seq_nums:
+            try:
+                self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
+            except:
+                # Couldn't find a matching seq num
+                pass
 
     class Meta:
         managed = True

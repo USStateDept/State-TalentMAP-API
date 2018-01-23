@@ -15,7 +15,7 @@ import defusedxml.lxml as ET
 
 from django.conf import settings
 
-from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date, get_nested_tag
+from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
 
 from talentmap_api.language.models import Proficiency
 
@@ -105,7 +105,7 @@ def mode_skills():
         "description": "description"
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_grade():
@@ -126,7 +126,7 @@ def mode_grade():
         "code": "code",
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_tods():
@@ -152,7 +152,7 @@ def mode_tods():
         "is_active": parse_boolean("is_active")
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_organizations():
@@ -180,7 +180,7 @@ def mode_organizations():
         "is_regional": parse_boolean("is_regional")
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_languages():
@@ -208,7 +208,7 @@ def mode_languages():
         # as there is no current SOAP synchronization endpoint for these
         Proficiency.create_defaults()
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function)
+    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, None)
 
 
 def mode_countries():
@@ -233,7 +233,7 @@ def mode_countries():
         "location_prefix": "location_prefix"
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_locations():
@@ -257,7 +257,7 @@ def mode_locations():
         "country": "_country"
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_posts():
@@ -285,7 +285,7 @@ def mode_posts():
         "has_service_needs_differential": parse_boolean("has_service_needs_differential"),
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_positions():
@@ -323,7 +323,7 @@ def mode_positions():
         "effective_date": parse_date("effective_date"),
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
 def mode_skill_cones():
@@ -346,23 +346,84 @@ def mode_skill_cones():
         "skills": get_nested_tag("_skill_codes", "code", many=True)
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None)
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
+
+
+def mode_cycles():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "cycle",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<cycles><cycle></cycle></cycles>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "cycle"
+    collision_field = "_id"
+    tag_map = {
+        "id": "_id",
+        "name": "name",
+        "category_code": "_category_code"
+    }
+
+    def override_loading_method(loader, tag, new_instances, updated_instances):
+        # If our cycle exists, clear it's position numbers
+        extant_cycle = loader.model.objects.filter(_id=xml_etree_to_dict(tag)['id']).first()
+        if extant_cycle:
+            extant_cycle._positions_seq_nums.clear()
+
+        loader.default_xml_action(tag, new_instances, updated_instances)
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, override_loading_method)
+
+
+def mode_cycle_positions():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "availableposition",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<availablePositions><availablePosition></availablePosition></availablePositions>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "availablePosition"
+    collision_field = ""
+    tag_map = {
+
+    }
+
+    def override_loading_method(loader, tag, new_instances, updated_instances):
+        data = xml_etree_to_dict(tag)
+        # Find our matching bidcycle
+        bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
+        if bc:
+            bc._positions_seq_nums.append(data["POSITION_ID"])
+            bc.save()
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, override_loading_method)
 
 
 # Model helper maps and return functions
 MODEL_HELPER_MAP = {
-    "position.Skill": mode_skills,
-    "position.SkillCone": mode_skill_cones,
-    "position.Grade": mode_grade,
-    "organization.TourOfDuty": mode_tods,
-    "organization.Organization": mode_organizations,
-    "organization.Country": mode_countries,
-    "organization.Location": mode_locations,
-    "organization.Post": mode_posts,
-    "language.Language": mode_languages,
-    "position.Position": mode_positions
+    "position.Skill": [mode_skills],
+    "position.SkillCone": [mode_skill_cones],
+    "position.Grade": [mode_grade],
+    "organization.TourOfDuty": [mode_tods],
+    "organization.Organization": [mode_organizations],
+    "organization.Country": [mode_countries],
+    "organization.Location": [mode_locations],
+    "organization.Post": [mode_posts],
+    "language.Language": [mode_languages],
+    "position.Position": [mode_positions],
+    "bidding.BidCycle": [mode_cycles, mode_cycle_positions],
 }
 
 
 def get_synchronization_information(model):
-    return MODEL_HELPER_MAP[model]()
+    return iter(MODEL_HELPER_MAP[model])

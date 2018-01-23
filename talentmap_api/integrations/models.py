@@ -74,45 +74,48 @@ class SynchronizationJob(models.Model):
                 soap_headers[split[0]] = split[1]
                 logger.info(f"Setting SOAP header\t\t{split[0]}: {split[1]}")
 
-            soap_arguments, instance_tag, tag_map, collision_field, post_load_function = get_synchronization_information(self.talentmap_model)
-            model = apps.get_model(self.talentmap_model)
+            synchronization_tasks = get_synchronization_information(self.talentmap_model)
+            for task in synchronization_tasks:
+                logger.info(f"Running task {task.__name__}")
+                soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method = task()
+                model = apps.get_model(self.talentmap_model)
 
-            logger.info("Intializing XML loader")
+                logger.info("Intializing XML loader")
 
-            loader = XMLloader(model, instance_tag, tag_map, 'update', collision_field)
+                loader = XMLloader(model, instance_tag, tag_map, 'update', collision_field, override_loading_method)
 
-            logger.info("Loader initialized, pulling XML data")
+                logger.info("Loader initialized, pulling XML data")
 
-            '''
-            The XML data from DOS SOAP comes back in batches, we need to use the last 'collision_field'
-            as the PaginationStartKey of the next request, and continue until we get no more results
-            '''
-            new_ids = []
-            updated_ids = []
-            last_collision_field = None
-            soap_function_name = soap_function
-            while True:
-                if last_collision_field:
-                    # Set the pagination start key to our last collision field; which should be the remote data's primary key
-                    soap_arguments['PaginationStartKey'] = last_collision_field
-                    logger.info(f"Requesting page from primary key: {last_collision_field}")
-                else:
-                    logger.info(f"Requesting first page")
+                '''
+                The XML data from DOS SOAP comes back in batches, we need to use the last 'collision_field'
+                as the PaginationStartKey of the next request, and continue until we get no more results
+                '''
+                new_ids = []
+                updated_ids = []
+                last_collision_field = None
+                soap_function_name = soap_function
+                while True:
+                    if last_collision_field:
+                        # Set the pagination start key to our last collision field; which should be the remote data's primary key
+                        soap_arguments['PaginationStartKey'] = last_collision_field
+                        logger.info(f"Requesting page from primary key: {last_collision_field}")
+                    else:
+                        logger.info(f"Requesting first page")
 
-                # Get the data
-                response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
+                    # Get the data
+                    response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
 
-                newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
+                    newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
 
-                # If there are no new or updated ids on this page, we've reached the end
-                if len(newer_ids) == 0 and len(updateder_ids) == 0:
-                    break
+                    # If there are no new or updated ids on this page, we've reached the end
+                    if len(newer_ids) == 0 and len(updateder_ids) == 0:
+                        break
 
-                logger.info(f"Got: {len(newer_ids)} new, {len(updateder_ids)} updated this page")
+                    logger.info(f"Got: {len(newer_ids)} new, {len(updateder_ids)} updated this page")
 
-                # Append our newer and updated-er ids to our total list
-                new_ids = new_ids + newer_ids
-                updated_ids = updated_ids + updateder_ids
+                    # Append our newer and updated-er ids to our total list
+                    new_ids = new_ids + newer_ids
+                    updated_ids = updated_ids + updateder_ids
 
             logger.info("Data pull complete")
 

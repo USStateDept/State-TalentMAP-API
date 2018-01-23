@@ -9,12 +9,12 @@ import csv
 
 from io import StringIO
 
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 
 
 class XMLloader():
 
-    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None):
+    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None, override_loading_method=None):
         '''
         Instantiates the XMLloader
 
@@ -24,6 +24,7 @@ class XMLloader():
             tag_map (dict) - A dictionary defining what XML tags map to which model fields
             collision_behavior (str) - What to do when a collision is detected (update or delete)
             collision_field (str) - The field to detect collisions on
+            override_loading_method (Method) - This will override the normal behavior of the load function
         '''
 
         self.model = model
@@ -31,6 +32,7 @@ class XMLloader():
         self.tag_map = tag_map
         self.collision_behavior = collision_behavior
         self.collision_field = collision_field
+        self.override_loading_method = override_loading_method
 
     def create_models_from_xml(self, xml, raw_string=False):
         '''
@@ -71,55 +73,13 @@ class XMLloader():
             instance_tags = [element for element in list(root.iter()) if element.tag == self.instance_tag]
 
         # For every instance tag, create a new instance and populate it
-        last_tag_collision_field = None  # Used when loading piecemeal
+        self.last_tag_collision_field = None  # Used when loading piecemeal
         for tag in instance_tags:
-            instance = self.model()
-            for key in self.tag_map.keys():
-                # Find a matching entry for the tag from the tag map
-                item = tag.find(key, tag.nsmap)
-                if item is not None:
-                    # If we have a matching entry, and the map is not a callable,
-                    # set the instance's property to that value
-                    if not callable(self.tag_map[key]):
-                        data = item.text
-                        if data and len(data.strip()) > 0:
-                            setattr(instance, self.tag_map[key], data)
-                    else:
-                        # Tag map is a callable, so call it with instance + item
-                        self.tag_map[key](instance, item)
+            if self.override_loading_method:
+                self.override_loading_method(self, tag, new_instances, updated_instances)
+                continue
 
-            # Check for collisions
-            if self.collision_field:
-                q_kwargs = {}
-                q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
-                last_tag_collision_field = getattr(instance, self.collision_field)
-                collisions = type(instance).objects.filter(**q_kwargs)
-                if collisions.count() > 1:
-                    logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
-                    continue
-                elif collisions.count() == 1:
-                    # We have exactly one collision, so handle it
-                    if self.collision_behavior == 'delete':
-                        collisions.delete()
-                        new_instances.append(instance)
-                    elif self.collision_behavior == 'update':
-                        # Update our collided instance
-                        update_dict = dict(instance.__dict__)
-                        del update_dict["id"]
-                        del update_dict["_state"]
-                        collisions.update(**update_dict)
-                        updated_instances.append(collisions.first().id)
-                        continue
-                    elif self.collision_behavior == 'skip':
-                        # Skip this instance, because it already exists
-                        continue
-                else:
-                    new_instances.append(instance)
-            else:
-                # Append our instance
-                new_instances.append(instance)
-
-        # new_instances = self.model.objects.bulk_create(new_instances)
+            self.default_xml_action(tag, new_instances, updated_instances)
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
@@ -127,7 +87,54 @@ class XMLloader():
         new_instances = [instance.id for instance in new_instances]
 
         # Create our instances
-        return (new_instances, updated_instances, last_tag_collision_field)
+        return (new_instances, updated_instances, self.last_tag_collision_field)
+
+    def default_xml_action(self, tag, new_instances, updated_instances):
+        instance = self.model()
+        for key in self.tag_map.keys():
+            # Find a matching entry for the tag from the tag map
+            item = tag.find(key, tag.nsmap)
+            if item is not None:
+                # If we have a matching entry, and the map is not a callable,
+                # set the instance's property to that value
+                if not callable(self.tag_map[key]):
+                    data = item.text
+                    if data and len(data.strip()) > 0:
+                        setattr(instance, self.tag_map[key], data)
+                else:
+                    # Tag map is a callable, so call it with instance + item
+                    self.tag_map[key](instance, item)
+
+        # Check for collisions
+        if self.collision_field:
+            q_kwargs = {}
+            q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
+            self.last_tag_collision_field = getattr(instance, self.collision_field)
+            collisions = type(instance).objects.filter(**q_kwargs)
+            if collisions.count() > 1:
+                logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
+                return
+            elif collisions.count() == 1:
+                # We have exactly one collision, so handle it
+                if self.collision_behavior == 'delete':
+                    collisions.delete()
+                    new_instances.append(instance)
+                elif self.collision_behavior == 'update':
+                    # Update our collided instance
+                    update_dict = dict(instance.__dict__)
+                    del update_dict["id"]
+                    del update_dict["_state"]
+                    collisions.update(**update_dict)
+                    updated_instances.append(collisions.first().id)
+                    return
+                elif self.collision_behavior == 'skip':
+                    # Skip this instance, because it already exists
+                    return
+            else:
+                new_instances.append(instance)
+        else:
+            # Append our instance
+            new_instances.append(instance)
 
 
 class CSVloader():
@@ -252,6 +259,15 @@ def parse_date(field):
     '''
     def process_function(instance, item):
         setattr(instance, field, ensure_date(item.text))
+    return process_function
+
+
+def append_to_array(field):
+    '''
+    Appends the item to the array field
+    '''
+    def process_function(instance, item):
+        getattr(instance, field).append(item.text)
     return process_function
 
 

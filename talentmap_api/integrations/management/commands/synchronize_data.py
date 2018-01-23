@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 
 import logging
-import os
 
 from django.core.management import call_command
 

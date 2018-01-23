@@ -6,7 +6,7 @@ from talentmap_api.integrations.models import SynchronizationJob
 
 
 class Command(BaseCommand):
-    help = 'Creates  and updates synchronization jobs'
+    help = 'Creates and updates synchronization jobs'
     logger = logging.getLogger('console')
 
     def __init__(self, *args, **kwargs):
@@ -23,7 +23,8 @@ class Command(BaseCommand):
             ('organization.Location', SynchronizationJob.TIME_WEEK),
             ('organization.Post', SynchronizationJob.TIME_WEEK),
             ('language.Language', SynchronizationJob.TIME_WEEK),
-            ('position.Position', SynchronizationJob.TIME_DAY)
+            ('position.Position', SynchronizationJob.TIME_DAY),
+            ('bidding.BidCycle', SynchronizationJob.TIME_DAY),
         ]
 
     def add_arguments(self, parser):
