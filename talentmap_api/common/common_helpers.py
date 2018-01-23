@@ -1,5 +1,7 @@
 import datetime
 
+from pydoc import locate
+
 from dateutil.relativedelta import relativedelta
 from dateutil import parser
 
@@ -285,3 +287,11 @@ def xml_etree_to_dict(tree):
     dictionary[tree.tag] = tree.text
 
     return dictionary
+
+
+def serialize_instance(instance, serializer_string, many=False):
+    '''
+    Used when performing some look-up logic in a serializer
+    Returns the objects serialized data.
+    '''
+    return locate(serializer_string)(instance, many=many).data
