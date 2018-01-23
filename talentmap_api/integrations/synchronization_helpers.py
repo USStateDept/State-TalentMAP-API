@@ -288,6 +288,30 @@ def mode_posts():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
+def mode_capsule_descriptions():
+    # Request data
+    soap_arguments = {
+        "RequestorID": "TalentMAP",
+        "Action": "GET",
+        "RequestName": "positioncapsule",
+        "Version": "0.01",
+        "DataFormat": "XML",
+        "InputParameters": "<![CDATA[<positionCapsules><positionCapsule></positionCapsule></positionCapsules>]]>"
+    }
+
+    # Response parsing data
+    instance_tag = "positionCapsule"
+    collision_field = "_pos_seq_num"
+    tag_map = {
+        "POSITIONID": "_pos_seq_num",
+        "CONTENT": "content",
+        "DATE_CREATED": parse_date("date_created"),
+        "DATE_UPDATED": parse_date("date_updated"),
+    }
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
+
+
 def mode_positions():
     # Request data
     soap_arguments = {
@@ -414,6 +438,7 @@ MODEL_HELPER_MAP = {
     "position.Skill": [mode_skills],
     "position.SkillCone": [mode_skill_cones],
     "position.Grade": [mode_grade],
+    "position.CapsuleDescription": [mode_capsule_descriptions],
     "organization.TourOfDuty": [mode_tods],
     "organization.Organization": [mode_organizations],
     "organization.Country": [mode_countries],

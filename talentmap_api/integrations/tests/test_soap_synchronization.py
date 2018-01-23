@@ -4,7 +4,7 @@ from django.core.management import call_command
 
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.language.models import Language
-from talentmap_api.position.models import Grade, Skill, Position, SkillCone
+from talentmap_api.position.models import Grade, Skill, Position, SkillCone, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 
 from talentmap_api.integrations.models import SynchronizationJob
@@ -22,6 +22,7 @@ def test_soap_integrations():
     assert Language.objects.count() == 10
     assert Country.objects.count() == 10
     assert Location.objects.count() == 10
+    assert CapsuleDescription.objects.count() == 9
     assert Organization.objects.count() == 20
     assert Post.objects.count() == 17  # 10 from the file, 7 from the positions
     assert TourOfDuty.objects.count() == 5

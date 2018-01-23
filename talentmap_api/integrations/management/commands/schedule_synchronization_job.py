@@ -17,6 +17,7 @@ class Command(BaseCommand):
             ('position.Skill', SynchronizationJob.TIME_WEEK),
             ('position.Grade', SynchronizationJob.TIME_WEEK),
             ('position.SkillCone', SynchronizationJob.TIME_WEEK),
+            ('position.CapsuleDescription', SynchronizationJob.TIME_DAY),
             ('organization.TourOfDuty', SynchronizationJob.TIME_WEEK),
             ('organization.Organization', SynchronizationJob.TIME_WEEK),
             ('organization.Country', SynchronizationJob.TIME_WEEK),
