@@ -303,6 +303,7 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
+            'filters': ['require_debug_true']
         },
     }
 }
