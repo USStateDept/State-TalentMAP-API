@@ -299,6 +299,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'zeep.transports': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     }
 }
 

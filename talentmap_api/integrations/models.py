@@ -9,7 +9,7 @@ from django.db import models
 from django.apps import apps
 from django.utils import timezone
 
-from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client
+from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client, generate_soap_header
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.common.common_helpers import ensure_date
 
@@ -67,12 +67,13 @@ class SynchronizationJob(models.Model):
             logger.info(f"Using function {soap_function}")
 
             # This will search for any environment variables called DJANGO_SOAP_HEADER_xxxx, and parse it as a Header/Value pair
-            soap_headers = {}
+            soap_headers = []
             env_soap_headers = [os.environ[key] for key in os.environ.keys() if key[:18] == "DJANGO_SOAP_HEADER"]
             for header in env_soap_headers:  # pragma: no cover
                 split = header.split("=")
-                soap_headers[split[0]] = split[1]
-                logger.info(f"Setting SOAP header\t\t{split[0]}: {split[1]}")
+                header = generate_soap_header(split[0])(split[1])
+                soap_headers.append(header)
+                logger.info(f"Setting SOAP header\t\t{split[0]}: {split[1]} [{header}]")
 
             synchronization_tasks = get_synchronization_information(self.talentmap_model)
             for task in synchronization_tasks:

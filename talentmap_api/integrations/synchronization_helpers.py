@@ -87,6 +87,17 @@ def get_soap_client(cert=None, soap_function="", test=False):
     return client
 
 
+def generate_soap_header(tag):
+    '''
+    Generates and returns an XSD complex type representing the requested header
+    '''
+
+    return zeep.xsd.Element(
+        tag,
+        zeep.xsd.String()
+    )
+
+
 def mode_skills():
     # Request data
     soap_arguments = {
