@@ -103,7 +103,7 @@ class SynchronizationJob(models.Model):
                         logger.info(f"Requesting first page")
 
                     # Get the data
-                    response_xml = ET.tostring(getattr(client, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
+                    response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
 
                     newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
 

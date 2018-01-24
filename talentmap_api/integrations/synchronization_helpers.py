@@ -42,6 +42,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
 
         # Create an anonymous object
         client = type('soapclient', (object,), {})
+        client.service = type('soapclientserivce', (object,), {})
 
         # Add the test function
         def unit_test_function(self, **kwargs):
@@ -61,7 +62,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
             return xml_tree
 
         # Bind the unit test function; Ash nazg thrakatulûk agh burzum-ishi krimpatul
-        setattr(client, soap_function, unit_test_function.__get__(client, client.__class__))
+        setattr(client.service, soap_function, unit_test_function.__get__(client.service, client.service.__class__))
     else:  # pragma: no cover
         # Initialize transport layer
         session = Session()
