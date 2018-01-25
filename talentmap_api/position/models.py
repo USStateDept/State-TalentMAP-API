@@ -197,6 +197,8 @@ class CapsuleDescription(StaticRepresentationModel):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    history = HistoricalRecords()
+
     _pos_seq_num = models.TextField(null=True)
 
     class Meta:
