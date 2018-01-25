@@ -1,7 +1,11 @@
 from django.conf.urls import url
+from rest_framework import routers
 
 from talentmap_api.bidding.views import bidcycle as views
 from talentmap_api.common.urls import get_retrieve, patch_update, post_create, get_list
+
+router = routers.SimpleRouter()
+router.register(r'^(?P<instance_id>[0-9]+)/history', views.HistoricalBidCycleView, base_name="organization.BidCycle-history")
 
 urlpatterns = [
     url(r'^$', views.BidCycleView.as_view({**get_list, **post_create})),
@@ -13,3 +17,5 @@ urlpatterns = [
     url(r'^statistics/$', views.BidCycleStatisticsView.as_view({**get_list})),
     url(r'^(?P<pk>[0-9]+)/statistics/$', views.BidCycleStatisticsView.as_view({**get_retrieve}), name="bidding.BidCycle-details"),
 ]
+
+urlpatterns += router.urls
