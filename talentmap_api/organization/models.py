@@ -129,6 +129,8 @@ class TourOfDuty(StaticRepresentationModel):
     short_description = models.TextField(null=False, help_text="Short-format description of the tour of duty")
     months = models.IntegerField(null=False, default=0, help_text="The number of months for this tour of duty")
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return f"{self.long_description}"
 
@@ -149,6 +151,8 @@ class Country(StaticRepresentationModel):
     name = models.TextField(help_text="The name of the country")
     short_name = models.TextField(null=True, help_text="The short name of the country")
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return f"{self.short_name}"
 
@@ -167,6 +171,8 @@ class Location(StaticRepresentationModel):
     city = models.TextField(default="", blank=True)
     state = models.TextField(default="", blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
+
+    history = HistoricalRecords()
 
     _country = models.TextField(null=True)
 
