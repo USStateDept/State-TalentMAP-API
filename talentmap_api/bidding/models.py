@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 
+from simple_history.models import HistoricalRecords
 from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
@@ -24,6 +25,8 @@ class BidCycle(StaticRepresentationModel):
     active = models.BooleanField(default=False, help_text="Whether this bidcycle is active or not")
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.name}"

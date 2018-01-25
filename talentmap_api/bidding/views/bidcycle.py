@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.position.filters import PositionFilter
@@ -15,6 +16,9 @@ from talentmap_api.bidding.models import BidCycle
 from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
+
+
+HistoricalBidCycleView = generate_historical_view(BidCycle, BidCycleSerializer, BidCycleFilter)
 
 
 class BidCycleListPositionView(mixins.ListModelMixin,
