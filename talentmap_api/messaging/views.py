@@ -13,9 +13,9 @@ from rest_framework.permissions import IsAuthenticated
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.messaging.models import Notification, Sharable
-from talentmap_api.messaging.filters import NotificationFilter
-from talentmap_api.messaging.serializers import NotificationSerializer, SharableSerializer
+from talentmap_api.messaging.models import Notification, Sharable, Task
+from talentmap_api.messaging.filters import NotificationFilter, TaskFilter
+from talentmap_api.messaging.serializers import NotificationSerializer, SharableSerializer, TaskSerializer
 
 
 class NotificationView(FieldLimitableSerializerMixin,
@@ -45,6 +45,36 @@ class NotificationView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         queryset = Notification.objects.filter(owner=self.request.user.profile)
         self.serializer_class.prefetch_model(Notification, queryset)
+        return queryset
+
+
+class TaskView(FieldLimitableSerializerMixin,
+               GenericViewSet,
+               mixins.ListModelMixin,
+               mixins.RetrieveModelMixin,
+               mixins.UpdateModelMixin,
+               mixins.DestroyModelMixin):
+    '''
+    partial_update:
+    Edits a saved task
+
+    retrieve:
+    Retrieves a specific task
+
+    list:
+    Lists all tasks
+
+    destroy:
+    Deletes a specified task
+    '''
+
+    serializer_class = TaskSerializer
+    filter_class = TaskFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Task.objects.filter(owner=self.request.user.profile)
+        self.serializer_class.prefetch_model(Task, queryset)
         return queryset
 
 

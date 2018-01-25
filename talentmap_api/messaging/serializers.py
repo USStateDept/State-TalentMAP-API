@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from django.apps import apps
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.messaging.models import Notification, Sharable
+from talentmap_api.messaging.models import Notification, Sharable, Task
 
 
 class NotificationSerializer(PrefetchedSerializer):
@@ -13,6 +13,15 @@ class NotificationSerializer(PrefetchedSerializer):
         model = Notification
         fields = "__all__"
         writable_fields = ("is_read")
+
+
+class TaskSerializer(PrefetchedSerializer):
+    owner = StaticRepresentationField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = "__all__"
+        writable_fields = ("date_due", "date_completed", "title", "content", "priority", "tags")
 
 
 class SharableSerializer(PrefetchedSerializer):

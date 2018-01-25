@@ -3,6 +3,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 
+from djchoices import DjangoChoices, ChoiceItem
+
 from talentmap_api.common.models import StaticRepresentationModel
 
 
@@ -23,6 +25,32 @@ class Notification(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["date_updated"]
+
+
+class Task(StaticRepresentationModel):
+    '''
+    This model represents a task object.
+    '''
+    class Priority(DjangoChoices):
+        low = ChoiceItem(0)
+        medium = ChoiceItem(1)
+        high = ChoiceItem(2)
+
+    owner = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, null=False, related_name="tasks", help_text="The owner of the task")
+    priority = models.IntegerField(default=Priority.low, choices=Priority.choices)
+    tags = ArrayField(models.CharField(max_length=20), default=list, help_text="This task's tags")
+
+    title = models.TextField(null=True)
+    content = models.TextField(null=True)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+    date_due = models.DateTimeField(null=True)
+    date_completed = models.DateTimeField(null=True)
+
+    class Meta:
+        managed = True
+        ordering = ['priority', 'date_due']
 
 
 class Sharable(StaticRepresentationModel):
