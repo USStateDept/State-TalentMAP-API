@@ -66,15 +66,6 @@ class SynchronizationJob(models.Model):
 
             logger.info(f"Using function {soap_function}")
 
-            # This will search for any environment variables called DJANGO_SOAP_HEADER_xxxx, and parse it as a Header/Value pair
-            soap_headers = []
-            env_soap_headers = [os.environ[key] for key in os.environ.keys() if key[:18] == "DJANGO_SOAP_HEADER"]
-            for header in env_soap_headers:  # pragma: no cover
-                split = header.split("=")
-                header = generate_soap_header(split[0])(split[1])
-                soap_headers.append(header)
-                logger.info(f"Setting SOAP header\t\t{split[0]}: {split[1]} [{header}]")
-
             synchronization_tasks = get_synchronization_information(self.talentmap_model)
             for task in synchronization_tasks:
                 logger.info(f"Running task {task.__name__}")
@@ -104,7 +95,7 @@ class SynchronizationJob(models.Model):
                         logger.info(f"Requesting first page")
 
                     # Get the data
-                    response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments, _soapheaders=soap_headers), encoding="unicode")
+                    response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
 
                     newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
 

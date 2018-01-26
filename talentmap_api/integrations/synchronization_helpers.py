@@ -67,6 +67,17 @@ def get_soap_client(cert=None, soap_function="", test=False):
         # Initialize transport layer
         session = Session()
 
+        # Get our Synchronization headers
+        # This will search for any environment variables called DJANGO_SYNCHRONIZATION_HEADER_xxxx, and parse it as a Header/Value pair
+        headers = {}
+        env_sync_headers = [os.environ[key] for key in os.environ.keys() if key[:29] == "DJANGO_SYNCHRONIZATION_HEADER"]
+        for header in env_sync_headers:  # pragma: no cover
+            split = header.split("=")
+            headers[split[0]] = split[1]
+            logger.info(f"Setting Synchronization header\t\t{split[0]}: {split[1]}")
+
+        session.headers.update(headers)
+
         # Attempt to get the cert location
         cert = os.environ.get('WSDL_SSL_CERT', None)
 
