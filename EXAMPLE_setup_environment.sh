@@ -28,6 +28,8 @@ export WSDL_LOCATION='http://www.webservicex.net/uszip.asmx?WSDL'
 export WSDL_SSL_CERT=''
 # You may set any number of soap headers as key=value pairs, in variables starting with DJANGO_SOAP_HEADER
 export DJANGO_SYNCHRONIZATION_HEADER_ANY_STRING="x-key-here=value"
+# You may set any number of namespace overrides for the SOAP XML here (from=to format)
+export DJANGO_SOAP_NS_OVERRIDE_ANY_STRING="ns0=tem"
 
 # SAML2 Configuration
 export ENABLE_SAML2=False
