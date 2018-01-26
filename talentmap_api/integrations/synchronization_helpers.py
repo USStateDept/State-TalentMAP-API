@@ -98,10 +98,12 @@ def get_soap_client(cert=None, soap_function="", test=False):
         # Get our Synchronization namespace overrides
         # This will search for any environment variables called DJANGO_SOAP_NS_OVERRIDE_xxxx, and parse it as a Header/Value pair
         soap_ns_overrides = [os.environ[key] for key in os.environ.keys() if key[:23] == "DJANGO_SOAP_NS_OVERRIDE"]
+        logger.info(f"Current namespace mapping {client.wsdl.types.prefix_map}")
         for override in soap_ns_overrides:  # pragma: no cover
             split = override.split("=")
             logger.info(f"Setting namespace override header\t\t{split[1]} -> {split[0]}")
             client.set_ns_prefix(split[1], client.wsdl.types.prefix_map[split[0]])
+        logger.info(f"New namespace mapping {client.wsdl.types.prefix_map}")
 
     return client
 
