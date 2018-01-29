@@ -1,0 +1,50 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <cycles xmlns="">
+               <cycle>
+                  <id>138</id>
+                  <name>Details/Training 2016</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>147</id>
+                  <name>Details/Training 2017</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>151</id>
+                  <name>Now &amp; Winter 2017/2018</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>152</id>
+                  <name>Details/Training 2018</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>153</id>
+                  <name>PSP Now &amp; 2018</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>154</id>
+                  <name>ELSPEC Summer 2018</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>155</id>
+                  <name>2018 DCM/PO Cycle</name>
+                  <category_code>O</category_code>
+               </cycle>
+               <cycle>
+                  <id>156</id>
+                  <name>Summer 2018</name>
+                  <category_code>O</category_code>
+               </cycle>
+            </cycles>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>

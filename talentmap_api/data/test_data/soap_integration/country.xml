@@ -1,0 +1,80 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <countries xmlns="">
+               <country>
+                  <code>AFG</code>
+                  <name>Islamic Republic of Afghanistan</name>
+                  <short_name>Afghanistan</short_name>
+                  <short_code>AF</short_code>
+                  <location_prefix>AF</location_prefix>
+               </country>
+               <country>
+                  <code>AGO</code>
+                  <name>Republic of Angola</name>
+                  <short_name>Angola</short_name>
+                  <short_code>AO</short_code>
+                  <location_prefix>AO</location_prefix>
+               </country>
+               <country>
+                  <code>ALB</code>
+                  <name>Republic of Albania</name>
+                  <short_name>Albania</short_name>
+                  <short_code>AL</short_code>
+                  <location_prefix>AL</location_prefix>
+               </country>
+               <country>
+                  <code>AND</code>
+                  <name>Principality of Andorra</name>
+                  <short_name>Andorra</short_name>
+                  <short_code>AD</short_code>
+                  <location_prefix>AN</location_prefix>
+               </country>
+               <country>
+                  <code>ARE</code>
+                  <name>United Arab Emirates</name>
+                  <short_name>United Arab Emirates</short_name>
+                  <short_code>AE</short_code>
+                  <location_prefix>AE</location_prefix>
+               </country>
+               <country>
+                  <code>ARG</code>
+                  <name>Argentine Republic</name>
+                  <short_name>Argentina</short_name>
+                  <short_code>AR</short_code>
+                  <location_prefix>AR</location_prefix>
+               </country>
+               <country>
+                  <code>ARM</code>
+                  <name>Republic of Armenia</name>
+                  <short_name>Armenia</short_name>
+                  <short_code>AM</short_code>
+                  <location_prefix>AM</location_prefix>
+               </country>
+               <country>
+                  <code>ATG</code>
+                  <name>Antigua and Barbuda</name>
+                  <short_name>Antigua and Barbuda</short_name>
+                  <short_code>AG</short_code>
+                  <location_prefix>AC</location_prefix>
+               </country>
+               <country>
+                  <code>AUS</code>
+                  <name>Commonwealth of Australia</name>
+                  <short_name>Australia</short_name>
+                  <short_code>AU</short_code>
+                  <location_prefix>AS</location_prefix>
+               </country>
+               <country>
+                  <code>AUT</code>
+                  <name>Republic of Austria</name>
+                  <short_name>Austria</short_name>
+                  <short_code>AT</short_code>
+                  <location_prefix>AU</location_prefix>
+               </country>
+            </countries>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>

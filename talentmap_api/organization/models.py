@@ -42,30 +42,13 @@ class Organization(StaticRepresentationModel):
         '''
         Update the organization relationships, using the codes stored in the _parent fields.
         '''
-        # Array of regional codes
-        regional_codes = [
-            "110000",
-            "120000",
-            "130000",
-            "140000",
-            "146000",
-            "150000",
-            "160000"
-        ]
-        if self.code in regional_codes:
-            self.is_regional = True
-        else:
-            self.is_regional = False
-
         if self._parent_bureau_code:
-            if self.code != self._parent_bureau_code:
+            if not self.is_bureau:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:
                     logging.getLogger('console').warn(f"While setting organization relationships, got {bureau.count()} values for bureau code {self._parent_bureau_code}")
                 else:
                     self.bureau_organization = bureau.first()
-            else:
-                self.is_bureau = True
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
             if org.count() != 1:
@@ -128,6 +111,9 @@ class TourOfDuty(StaticRepresentationModel):
     long_description = models.TextField(null=False, help_text="Long-format description of the tour of duty")
     short_description = models.TextField(null=False, help_text="Short-format description of the tour of duty")
     months = models.IntegerField(null=False, default=0, help_text="The number of months for this tour of duty")
+    is_active = models.BooleanField(default=False)
+
+    _status = models.TextField(null=True)
 
     history = HistoricalRecords()
 

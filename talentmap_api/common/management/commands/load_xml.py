@@ -51,7 +51,7 @@ class Command(BaseCommand):
             collision_behavior = "skip"
 
         loader = XMLloader(model, instance_tag, tag_map, collision_behavior, collision_field)
-        new_ids, updated_ids = loader.create_models_from_xml(options['file'][0])
+        new_ids, updated_ids, _ = loader.create_models_from_xml(options['file'][0])
 
         # Run the post load function, if it exists
         if callable(post_load_function) and not options['skip_post']:
@@ -130,6 +130,28 @@ def mode_organizations():
     def post_load_function(new_ids, updated_ids):
         for org in Organization.objects.filter(id__in=new_ids + updated_ids):
             org.update_relationships()
+
+            # Regional code setting is done automatically by DOS Webservices, so
+            # we now only need this logic when loading from our sample XML files
+            # Array of regional codes
+            regional_codes = [
+                "110000",
+                "120000",
+                "130000",
+                "140000",
+                "146000",
+                "150000",
+                "160000"
+            ]
+            if org.code in regional_codes:
+                org.is_regional = True
+            else:
+                org.is_regional = False
+
+            if org.code == org._parent_bureau_code:
+                org.is_bureau = True
+
+            org.save()
 
     return (model, instance_tag, tag_map, collision_field, post_load_function)
 

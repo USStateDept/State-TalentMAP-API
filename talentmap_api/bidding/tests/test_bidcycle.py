@@ -12,7 +12,7 @@ from talentmap_api.user_profile.models import SavedSearch
 
 @pytest.fixture
 def test_bidcycle_fixture(authorized_user):
-    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z", active=True)
+    bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", cycle_start_date="2017-01-01T00:00:00Z", cycle_deadline_date="2017-05-05T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z", active=True)
     for i in range(5):
         bidcycle.positions.add(mommy.make('position.Position', position_number=seq("2")))
 

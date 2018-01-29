@@ -1,15 +1,11 @@
 from django.core.management.base import BaseCommand
 
 import logging
-import os
-import zeep
 
 import defusedxml.lxml as ET
 
-from requests import Session
-from zeep.transports import Transport
-
 from talentmap_api.common.common_helpers import xml_etree_to_dict
+from talentmap_api.integrations.synchronization_helpers import get_soap_client
 
 
 class Command(BaseCommand):
@@ -20,27 +16,11 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
-        parser.add_argument('--cert', nargs='?', dest="cert", help='Location of the certificate for validating self-signed certificates')
         parser.add_argument('command', nargs='?', type=str, help="The command to run")
         parser.add_argument('arguments', nargs='*', type=str, help="The arguments for the command, as named pairs; i.e. USCity=Fairfax")
 
     def handle(self, *args, **options):
-        # Initialize transport layer
-        session = Session()
-
-        if options['cert']:
-            self.logger.info(f'Setting SSL verification cert to {options["cert"]}')
-            session.verify = options['cert']
-        else:
-            self.logger.info(f'Ignoring self-signed certification errors.')
-            session.verify = False
-        transport = Transport(session=session)
-
-        # Get the WSDL location
-        wsdl_location = os.environ.get('WSDL_LOCATION')
-        self.logger.info(f'Initializing client with WSDL: {wsdl_location}')
-
-        client = zeep.Client(wsdl=wsdl_location, transport=transport)
+        client = get_soap_client()
 
         if not options['command']:
             self.logger.info('No command specified, dumping wsdl information')

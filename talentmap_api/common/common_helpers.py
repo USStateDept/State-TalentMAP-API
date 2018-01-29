@@ -85,7 +85,7 @@ def ensure_date(date):
     if isinstance(date, str):
         return parser.parse(date).astimezone(datetime.timezone.utc)
     elif isinstance(date, datetime.date):
-        return date
+        return date.astimezone(datetime.timezone.utc)
     else:
         raise Exception("Parameter must be a date object or string")
 

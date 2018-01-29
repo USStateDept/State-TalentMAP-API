@@ -15,7 +15,7 @@ class Language(StaticRepresentationModel):
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
-    effective_date = models.DateTimeField(null=False, help_text="The date after which the language is in effect")
+    effective_date = models.DateTimeField(null=True, help_text="The date after which the language is in effect")
 
     def __str__(self):
         return f"{self.long_description} ({self.code})"
@@ -59,6 +59,32 @@ class Proficiency(StaticRepresentationModel):
 
     def __le__(self, other):
         return self.RANKING.index(self.code) <= self.RANKING.index(other.code)
+
+    @staticmethod
+    def create_defaults():
+        '''
+        Ensure we have the following list of proficiencies.
+        This is required because the DOS SOAP synchronization doesn't support proficiencies yet
+        '''
+        proficiencies = [
+            ('0', 'No Practical Proficiency'),
+            ('0+', 'Memorized Proficiency'),
+            ('1', 'Elementary Proficiency'),
+            ('1+', 'Elementary Proficiency, Plus'),
+            ('2', 'Limited Working Proficiency'),
+            ('2+', 'Limited Working Proficiency, Plus'),
+            ('3', 'General Professional Proficiency'),
+            ('3+', 'General Professional Proficiency, Plus'),
+            ('4', 'Advanced Professional Proficiency'),
+            ('4+', 'Advanced Professional Proficiency, Plus'),
+            ('5', 'Native or Bilingual Proficiency'),
+            ('F', 'Failed Board of Examiners Language Test'),
+            ('P', 'Passed Board of Examiners Language Test'),
+            ('X', 'No Test')
+        ]
+
+        for code, description in proficiencies:
+            Proficiency.objects.get_or_create(code=code, description=description)
 
     class Meta:
         managed = True
