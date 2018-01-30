@@ -12,9 +12,11 @@ from talentmap_api.bidding.models import BidCycle, Bid
 
 @pytest.fixture
 def test_bidlist_fixture():
+    tour_of_duty = mommy.make("organization.TourOfDuty", months=24)
+    post = mommy.make("organization.Post", tour_of_duty=tour_of_duty)
     bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", active=True)
     for i in range(5):
-        bidcycle.positions.add(mommy.make('position.Position'))
+        bidcycle.positions.add(mommy.make('position.Position', post=post))
 
 
 @pytest.mark.django_db(transaction=True)
@@ -41,6 +43,19 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    # Put the position into the bidlist, but it will fail as we will be retired
+    in_cycle_position.current_assignment = mommy.make("position.Assignment", position=in_cycle_position, user=authorized_user.profile, estimated_end_date="1999-01-01T00:00:00Z")
+    in_cycle_position.save()
+    profile = authorized_user.profile
+    profile.mandatory_retirement_date = "1888-01-01T00:00:00Z"
+    profile.save()
+    response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    profile.mandatory_retirement_date = "9999-01-01T00:00:00Z"
+    profile.save()
 
     # Put the position into the bidlist
     response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')

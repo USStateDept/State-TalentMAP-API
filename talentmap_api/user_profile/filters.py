@@ -59,6 +59,7 @@ class ClientFilter(UserProfileFilter):
     is_bidding = filters.BooleanFilter(name="bidlist", method="filter_is_bidding")
     is_in_panel = filters.BooleanFilter(name="bidlist", method="filter_is_in_panel")
     is_on_post = filters.BooleanFilter(name="bidlist", method="filter_is_on_post")
+    is_bidding_no_handshake = filters.BooleanFilter(name="bidlist", method="filter_is_bidding_no_handshake")
 
     def filter_is_bidding(self, queryset, name, value):
         value = bool(value)
@@ -80,6 +81,13 @@ class ClientFilter(UserProfileFilter):
             return queryset.exclude(assignments__current_for_position=None)
         else:
             return queryset.filter(assignments__current_for_position=None)
+
+    def filter_is_bidding_no_handshake(self, queryset, name, value):
+        value = bool(value)
+        if value:
+            return queryset.exclude(bidlist=None).filter(bidlist__handshake_offered_date=None).distinct()
+        else:
+            return queryset.exclude(bidlist=None).exclude(bidlist__handshake_offered_date=None).distinct()
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="user", method=full_text_search(

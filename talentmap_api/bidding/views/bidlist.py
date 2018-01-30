@@ -1,3 +1,5 @@
+from dateutil.relativedelta import relativedelta
+
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
@@ -100,7 +102,15 @@ class BidListPositionActionView(APIView):
         bid = Bid.objects.get_or_create(bidcycle=bidcycle,
                                         user=UserProfile.objects.get(user=self.request.user),
                                         position=position)[0]
-        UserProfile.objects.get(user=self.request.user).bidlist.add(bid)
+        user = UserProfile.objects.get(user=self.request.user)
+
+        # User cannot be retiring during the position's tour of duty
+        current_assignment = bid.position.current_assignment
+        if current_assignment and current_assignment.estimated_end_date + relativedelta(months=bid.position.post.tour_of_duty.months) > user.mandatory_retirement_date:
+            return Response("Cannot bid on a position during which the user will retire", status=status.HTTP_400_BAD_REQUEST)
+
+        user.bidlist.add(bid)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):

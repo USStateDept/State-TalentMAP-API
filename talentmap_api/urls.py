@@ -60,6 +60,7 @@ urlpatterns = [
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
+    url(r'^api/v1/task/', include('talentmap_api.messaging.urls.task')),
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),

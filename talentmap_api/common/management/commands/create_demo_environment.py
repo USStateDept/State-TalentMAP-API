@@ -3,13 +3,13 @@ from django.core.management import call_command
 from django.utils import timezone
 
 import logging
-import datetime
 import itertools
 
 from dateutils import relativedelta
 from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.glossary.models import GlossaryEntry
+from talentmap_api.messaging.models import Task
 from talentmap_api.organization.models import TourOfDuty
 from talentmap_api.user_profile.models import UserProfile
 
@@ -123,6 +123,10 @@ class Command(BaseCommand):
         self.logger.info("Create some glossary entries")
         GlossaryEntry.objects.create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
         GlossaryEntry.objects.create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
+
+        self.logger.info("Creating some tasks")
+        for user in list(persona_users):
+            Task.objects.create(owner=user, content="Demo Task", title="Demo task", tags=["todo"], date_due="2018-12-25T00:00:00Z")
 
         self.logger.info("Updating string representations...")
         call_command("update_string_representations")

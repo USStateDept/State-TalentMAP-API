@@ -98,7 +98,8 @@ INSTALLED_APPS = [
     'talentmap_api.user_profile',
     'talentmap_api.bidding',
     'talentmap_api.permission',
-    'talentmap_api.glossary'
+    'talentmap_api.glossary',
+    'talentmap_api.integrations'
 ]
 
 MIDDLEWARE = [
@@ -292,6 +293,17 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'synchronization': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'zeep.transports': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+            'filters': ['require_debug_true']
         },
     }
 }

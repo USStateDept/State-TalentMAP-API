@@ -42,30 +42,13 @@ class Organization(StaticRepresentationModel):
         '''
         Update the organization relationships, using the codes stored in the _parent fields.
         '''
-        # Array of regional codes
-        regional_codes = [
-            "110000",
-            "120000",
-            "130000",
-            "140000",
-            "146000",
-            "150000",
-            "160000"
-        ]
-        if self.code in regional_codes:
-            self.is_regional = True
-        else:
-            self.is_regional = False
-
         if self._parent_bureau_code:
-            if self.code != self._parent_bureau_code:
+            if not self.is_bureau:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:
                     logging.getLogger('console').warn(f"While setting organization relationships, got {bureau.count()} values for bureau code {self._parent_bureau_code}")
                 else:
                     self.bureau_organization = bureau.first()
-            else:
-                self.is_bureau = True
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
             if org.count() != 1:
@@ -128,6 +111,11 @@ class TourOfDuty(StaticRepresentationModel):
     long_description = models.TextField(null=False, help_text="Long-format description of the tour of duty")
     short_description = models.TextField(null=False, help_text="Short-format description of the tour of duty")
     months = models.IntegerField(null=False, default=0, help_text="The number of months for this tour of duty")
+    is_active = models.BooleanField(default=False)
+
+    _status = models.TextField(null=True)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.long_description}"
@@ -149,6 +137,8 @@ class Country(StaticRepresentationModel):
     name = models.TextField(help_text="The name of the country")
     short_name = models.TextField(null=True, help_text="The short name of the country")
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return f"{self.short_name}"
 
@@ -167,6 +157,8 @@ class Location(StaticRepresentationModel):
     city = models.TextField(default="", blank=True)
     state = models.TextField(default="", blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
+
+    history = HistoricalRecords()
 
     _country = models.TextField(null=True)
 

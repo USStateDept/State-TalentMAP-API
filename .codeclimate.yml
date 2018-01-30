@@ -32,3 +32,4 @@ exclude_paths:
   - "**/tests/"
   - "**/migrations/"
   - "**/saml2/*"
+  - "**/commands/*"  # Management commands may have odd structures (due to lots of conditionals checking options)
