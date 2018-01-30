@@ -415,7 +415,7 @@ def assignment_pre_save(sender, instance, **kwargs):
     if not instance.id:
         # This is a new instance
         # Set the domestic flag
-        instance.domestic = not instance.position.is_overseas
+        instance.is_domestic = not instance.position.is_overseas
         if safe_navigation(instance, "position.post.tour_of_duty.months"):
             instance.standard_tod_months = instance.position.post.tour_of_duty.months
     else:

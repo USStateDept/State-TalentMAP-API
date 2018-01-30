@@ -292,6 +292,6 @@ def xml_etree_to_dict(tree):
 def serialize_instance(instance, serializer_string, many=False):
     '''
     Used when performing some look-up logic in a serializer
-    Returns the objects serialized data.
+    Returns the object's serialized data.
     '''
     return locate(serializer_string)(instance, many=many).data

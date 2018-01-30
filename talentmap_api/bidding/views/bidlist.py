@@ -104,7 +104,7 @@ class BidListPositionActionView(APIView):
                                         position=position)[0]
         user = UserProfile.objects.get(user=self.request.user)
 
-        # User cannot be retiring during the positions tour of duty
+        # User cannot be retiring during the position's tour of duty
         current_assignment = bid.position.current_assignment
         if current_assignment and current_assignment.estimated_end_date + relativedelta(months=bid.position.post.tour_of_duty.months) > user.mandatory_retirement_date:
             return Response("Cannot bid on a position during which the user will retire", status=status.HTTP_400_BAD_REQUEST)
