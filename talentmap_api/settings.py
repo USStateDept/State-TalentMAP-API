@@ -183,15 +183,15 @@ if ENABLE_SAML2:
                     # url and binding to the assetion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/acs/",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/acs/",
                             saml2.BINDING_HTTP_POST),
                     ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/ls/",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/ls/",
                             saml2.BINDING_HTTP_REDIRECT),
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}ls/post",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}ls/post",
                             saml2.BINDING_HTTP_POST),
                     ],
                 },
