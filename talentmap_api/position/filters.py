@@ -109,7 +109,8 @@ class PositionFilter(filters.FilterSet):
             "post__location__country__code",
             "post__location__city",
             "post__location__state",
-            "description__content"
+            "description__content",
+            "position_number"
         ]
     ))
 
