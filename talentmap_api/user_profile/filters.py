@@ -97,6 +97,7 @@ class ClientFilter(UserProfileFilter):
             "user__username",
             "skills__code",
             "skills__description",
+            "skills__cone__name",
             "language_qualifications__language__short_description",
             "primary_nationality__name",
             "secondary_nationality__name"
