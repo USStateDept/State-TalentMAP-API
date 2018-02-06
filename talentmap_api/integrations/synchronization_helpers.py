@@ -125,9 +125,10 @@ def mode_skills():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "skill",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<skills><skill></skill></skills>]]>"
+        "InputParameters": "<skills><skill></skill></skills>"
     }
 
     # Response parsing data
@@ -147,9 +148,10 @@ def mode_grade():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "grade",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<grades><grade></grade></grades>]]>"
+        "InputParameters": "<grades><grade></grade></grades>"
     }
 
     # Response parsing data
@@ -168,9 +170,10 @@ def mode_tods():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "tods",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<tods><tod></tod></tods>]]>"
+        "InputParameters": "<tods><tod></tod></tods>"
     }
 
     # Response parsing data
@@ -194,9 +197,10 @@ def mode_organizations():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "organization",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<organizations><organization></organization></organizations>]]>"
+        "InputParameters": "<organizations><organization></organization></organizations>"
     }
 
     # Response parsing data
@@ -222,9 +226,10 @@ def mode_languages():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "language",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<languages><language></language></languages>]]>"
+        "InputParameters": "<languages><language></language></languages>"
     }
 
     # Response parsing data
@@ -250,9 +255,10 @@ def mode_countries():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "country",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<countries><country></country></countries>]]>"
+        "InputParameters": "<countries><country></country></countries>"
     }
 
     # Response parsing data
@@ -275,9 +281,10 @@ def mode_locations():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "location",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<locations><location></location></locations>]]>"
+        "InputParameters": "<locations><location></location></locations>"
     }
 
     # Response parsing data
@@ -299,9 +306,10 @@ def mode_posts():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "orgpost",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<orgposts><orgpost></orgpost></orgposts>]]>"
+        "InputParameters": "<orgposts><orgpost></orgpost></orgposts>"
     }
 
     # Response parsing data
@@ -327,9 +335,10 @@ def mode_capsule_descriptions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "positioncapsule",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<positionCapsules><positionCapsule></positionCapsule></positionCapsules>]]>"
+        "InputParameters": "<positionCapsules><positionCapsule></positionCapsule></positionCapsules>"
     }
 
     # Response parsing data
@@ -351,9 +360,10 @@ def mode_positions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "position",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<positions><position></position></positions>]]>"
+        "InputParameters": "<positions><position></position></positions>"
     }
 
     # Response parsing data
@@ -389,9 +399,10 @@ def mode_skill_cones():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "jobcategory",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<jobCategories><jobCategory></jobCategory></jobCategories>]]>"
+        "InputParameters": "<jobCategories><jobCategory></jobCategory></jobCategories>"
     }
 
     # Response parsing data
@@ -412,9 +423,10 @@ def mode_cycles():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "cycle",
-        "Version": "0.01",
+        "MaximumOutputRows": 100,
+        "Version": "0.02",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<cycles><cycle></cycle></cycles>]]>"
+        "InputParameters": "<cycles><cycle></cycle></cycles>"
     }
 
     # Response parsing data
@@ -443,9 +455,10 @@ def mode_cycle_positions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "availableposition",
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<![CDATA[<availablePositions><availablePosition></availablePosition></availablePositions>]]>"
+        "InputParameters": "<availablePositions><availablePosition></availablePosition></availablePositions>"
     }
 
     # Response parsing data
