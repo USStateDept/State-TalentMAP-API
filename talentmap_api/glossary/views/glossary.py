@@ -1,7 +1,11 @@
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import mixins
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
+from talentmap_api.common.common_helpers import in_group_or_403
 
 from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.glossary.filters import GlossaryEntryFilter
@@ -9,17 +13,36 @@ from talentmap_api.glossary.serializers import GlossaryEntrySerializer
 
 
 class GlossaryView(FieldLimitableSerializerMixin,
-                   ReadOnlyModelViewSet):
+                   GenericViewSet,
+                   mixins.CreateModelMixin,
+                   mixins.ListModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin):
     """
     retrieve:
     Return the given glossary entry.
 
     list:
     Return a list of all glossary entries.
+
+    partial_update:
+    Update a glossary entry.
+
+    create:
+    Creates a glossary entry.
     """
 
     serializer_class = GlossaryEntrySerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = GlossaryEntryFilter
+
+    def perform_create(self, serializer):
+        in_group_or_403(self.request.user, f"glossary_editors")
+        serializer.save(last_editing_user=self.request.user.profile)
+
+    def perform_update(self, serializer):
+        in_group_or_403(self.request.user, f"glossary_editors")
+        serializer.save(last_editing_user=self.request.user.profile)
 
     def get_queryset(self):
         return get_prefetched_filtered_queryset(GlossaryEntry, self.serializer_class)

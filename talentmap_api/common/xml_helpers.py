@@ -207,6 +207,9 @@ class CSVloader():
                             update_dict = dict(instance.__dict__)
                             del update_dict["id"]
                             del update_dict["_state"]
+                            # strip out any "null" values from the update dict; when we parse the CSVs we set nulls where empty
+                            # and this sometimes will inadvertently overwrite data we want to keep
+                            update_dict = {k: v for k, v in update_dict.items() if v is not None}
                             collisions.update(**update_dict)
                             updated_instances.append(collisions.first().id)
                             continue
