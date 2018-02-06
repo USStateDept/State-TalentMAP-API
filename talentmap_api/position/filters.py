@@ -103,13 +103,15 @@ class PositionFilter(filters.FilterSet):
             "organization__long_description",
             "bureau__long_description",
             "skill__description",
+            "skill__code",
             "languages__language__long_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
             "post__location__city",
             "post__location__state",
-            "description__content"
+            "description__content",
+            "position_number"
         ]
     ))
 
