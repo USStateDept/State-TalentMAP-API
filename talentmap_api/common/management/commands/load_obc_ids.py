@@ -29,7 +29,7 @@ class Command(BaseCommand):
             model = self.modes[options['type'][0]]
             count = 0
             for line in csv.DictReader(csv_file):
-                search_terms = line["description"].split(" ")
+                search_terms = (line["description"] + line["aux"]).split(" ")
                 instance = model.objects.filter(_string_representation__search=line["description"])
                 if instance.count() != 1:
                     for term in search_terms:
