@@ -12,9 +12,9 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
 
-        # These models should have update_relationships
         self.groups = [
-            "bureau_ao"
+            "bureau_ao",
+            "glossary_editors"
         ]
 
     def handle(self, *args, **options):
