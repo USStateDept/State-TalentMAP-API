@@ -29,16 +29,18 @@ class Command(BaseCommand):
             model = self.modes[options['type'][0]]
             count = 0
             for line in csv.DictReader(csv_file):
-                search_terms = line["description"].split(" ")
-                instance = None
-                for term in search_terms:
-                    instance = model.objects.filter(_string_representation__icontains=term)
-                    if instance.count() == 1:
-                        break
+                search_terms = (line["description"] + line["aux"]).split(" ")
+                instance = model.objects.filter(_string_representation__search=line["description"])
+                if instance.count() != 1:
+                    for term in search_terms:
+                        instance = model.objects.filter(_string_representation__icontains=term)
+                        if instance.count() == 1:
+                            break
                 if instance.count() == 0:
-                    print(f"Could not find {model} for {line['description']}")
+                    self.logger.info(f"Could not find {model} for {line['description']}")
                 elif instance.count() > 1:
                     self.logger.info(f"Found multiple matches for {line['description']}")
+                    self.logger.info(instance)
                 else:
                     instance = instance.first()
                     instance.obc_id = line["obc_id"]
