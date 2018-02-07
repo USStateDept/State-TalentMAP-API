@@ -21,5 +21,6 @@ class GlossaryEntryFilter(filters.FilterSet):
             "link": ALL_TEXT_LOOKUPS,
             "last_editing_user": FOREIGN_KEY_LOOKUPS,
             "date_created": DATETIME_LOOKUPS,
-            "date_updated": DATETIME_LOOKUPS
+            "date_updated": DATETIME_LOOKUPS,
+            "is_archived": ["exact"]
         }
