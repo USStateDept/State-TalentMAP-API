@@ -43,6 +43,8 @@ class Organization(StaticRepresentationModel):
         Update the organization relationships, using the codes stored in the _parent fields.
         '''
         if self._parent_bureau_code:
+            if self._parent_bureau_code == self.code:
+                self.is_bureau = True
             if not self.is_bureau:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:

@@ -281,6 +281,7 @@ def test_csv_collision_delete():
 @pytest.mark.django_db(transaction=True)
 def test_csv_collision_update():
     start = GlossaryEntry.objects.create(title="item1", link="link1", definition="")
+
     start_id = start.id
 
     call_command('load_csv',
