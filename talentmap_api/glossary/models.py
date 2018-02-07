@@ -14,6 +14,8 @@ class GlossaryEntry(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    is_archived = models.BooleanField(default=False, help_text="Denotes if this glossary item is archived")
+
     class Meta:
         managed = True
         ordering = ["title"]

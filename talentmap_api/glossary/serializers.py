@@ -9,4 +9,4 @@ class GlossaryEntrySerializer(PrefetchedSerializer):
     class Meta:
         model = GlossaryEntry
         fields = "__all__"
-        writable_fields = ('title', 'definition', 'link')
+        writable_fields = ('title', 'definition', 'link', 'is_archived')
