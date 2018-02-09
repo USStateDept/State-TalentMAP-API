@@ -361,11 +361,13 @@ class Command(BaseCommand):
             self.logger.info(f"Position count: {Position.objects.count()}")
 
         self.logger.info(f"Padding clients to {min_client_count}")
+        sysrandom = random.SystemRandom()
         for i in range(0, min_client_count - User.objects.count()):
             # Create a new user
-            fname = random.choice(self.first_names)
-            lname = random.choice(self.last_names)
-            user = User.objects.create_user(f"{lname}{fname[0]}_{i}", f"{lname}{fname[0]}_{i}@state.gov", "password")
+            fname = sysrandom.choice(self.first_names)
+            lname = sysrandom.choice(self.last_names)
+            username = f"{lname}{fname[0]}_{i}"
+            user = User.objects.create_user(f"{username}", f"{username}@state.gov", "password")
             user.first_name = fname
             user.last_name = lname
             user.save()
