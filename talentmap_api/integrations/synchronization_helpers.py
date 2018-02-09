@@ -15,7 +15,7 @@ import defusedxml.lxml as ET
 
 from django.conf import settings
 
-from talentmap_api.common.xml_helpers import strip_extra_spaces, parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
+from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
 
 from talentmap_api.language.models import Proficiency
 
@@ -125,7 +125,6 @@ def mode_skills():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "skill",
-        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<skills><skill></skill></skills>"
@@ -148,7 +147,6 @@ def mode_grade():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "grade",
-        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<grades><grade></grade></grades>"
@@ -170,7 +168,7 @@ def mode_tods():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "tods",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<tods><tod></tod></tods>"
@@ -197,7 +195,7 @@ def mode_organizations():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "organization",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<organizations><organization></organization></organizations>"
@@ -209,7 +207,7 @@ def mode_organizations():
     tag_map = {
         "code": "code",
         "short_description": "short_description",
-        "long_description": strip_extra_spaces("long_description"),
+        "long_description": "long_description",
         "parent_organization": "_parent_organization_code",
         "bureau_organization": "_parent_bureau_code",
         "city_code": "_location_code",
@@ -226,7 +224,6 @@ def mode_languages():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "language",
-        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<languages><language></language></languages>"
@@ -255,7 +252,6 @@ def mode_countries():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "country",
-        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<countries><country></country></countries>"
@@ -281,7 +277,7 @@ def mode_locations():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "location",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<locations><location></location></locations>"
@@ -292,8 +288,8 @@ def mode_locations():
     collision_field = "code"
     tag_map = {
         "code": "code",
-        "city": strip_extra_spaces("city"),
-        "state": strip_extra_spaces("state"),
+        "city": "city",
+        "state": "state",
         "country": "_country"
     }
 
@@ -306,7 +302,7 @@ def mode_posts():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "orgpost",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<orgposts><orgpost></orgpost></orgposts>"
@@ -320,7 +316,7 @@ def mode_posts():
         "tod_code": "_tod_code",
         "cost_of_living_adjustment": "cost_of_living_adjustment",
         "differential_rate": "differential_rate",
-        "rest_relaxation_point": strip_extra_spaces("rest_relaxation_point"),
+        "rest_relaxation_point": "rest_relaxation_point",
         "danger_pay": "danger_pay",
         "has_consumable_allowance": parse_boolean("has_consumable_allowance"),
         "has_service_needs_differential": parse_boolean("has_service_needs_differential"),
@@ -335,7 +331,7 @@ def mode_capsule_descriptions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "positioncapsule",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<positionCapsules><positionCapsule></positionCapsule></positionCapsules>"
@@ -360,7 +356,7 @@ def mode_positions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "position",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<positions><position></position></positions>"
@@ -399,7 +395,6 @@ def mode_skill_cones():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "jobcategory",
-        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<jobCategories><jobCategory></jobCategory></jobCategories>"
@@ -423,7 +418,6 @@ def mode_cycles():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "cycle",
-        "MaximumOutputRows": 100,
         "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
@@ -455,7 +449,7 @@ def mode_cycle_positions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "availableposition",
-        "MaximumOutputRows": 100,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<availablePositions><availablePosition></availablePosition></availablePositions>"
