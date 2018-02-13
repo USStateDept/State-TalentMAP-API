@@ -43,6 +43,8 @@ class Organization(StaticRepresentationModel):
         Update the organization relationships, using the codes stored in the _parent fields.
         '''
         if self._parent_bureau_code:
+            if self._parent_bureau_code == self.code:
+                self.is_bureau = True
             if not self.is_bureau:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:
@@ -137,6 +139,8 @@ class Country(StaticRepresentationModel):
     name = models.TextField(help_text="The name of the country")
     short_name = models.TextField(null=True, help_text="The short name of the country")
 
+    obc_id = models.TextField(null=True, help_text="The OBC ID for this country")
+
     history = HistoricalRecords()
 
     def __str__(self):
@@ -208,7 +212,10 @@ class Post(StaticRepresentationModel):
     has_consumable_allowance = models.BooleanField(default=False)
     has_service_needs_differential = models.BooleanField(default=False)
 
+    obc_id = models.TextField(null=True, help_text="The OBC ID for this post")
+
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
+
     history = HistoricalRecords()
 
     _tod_code = models.TextField(null=True)

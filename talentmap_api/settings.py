@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     # Third-party
     'corsheaders',
@@ -168,7 +169,7 @@ if ENABLE_SAML2:
         'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
 
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': f"{os.environ.get('SAML2_ENTITY_ID')}saml2/metadata/",
+        'entityid': f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/metadata/",
 
         # directory with attribute mapping
         'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
@@ -183,15 +184,15 @@ if ENABLE_SAML2:
                     # url and binding to the assetion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/acs/",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/acs/",
                             saml2.BINDING_HTTP_POST),
                     ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}saml2/ls/",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/ls/",
                             saml2.BINDING_HTTP_REDIRECT),
-                        (f"{os.environ.get('SAML2_XMLSEC1_PATH')}ls/post",
+                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}ls/post",
                             saml2.BINDING_HTTP_POST),
                     ],
                 },

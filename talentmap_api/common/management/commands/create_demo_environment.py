@@ -3,9 +3,13 @@ from django.core.management import call_command
 from django.utils import timezone
 
 import logging
+import random
 import itertools
 
 from dateutils import relativedelta
+
+from django.contrib.auth.models import User
+
 from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.glossary.models import GlossaryEntry
@@ -20,6 +24,212 @@ class Command(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
+
+        self.first_names = [
+            "Arthur",
+            "Rusty",
+            "Russell",
+            "Edmond",
+            "Nathanial",
+            "King",
+            "Aron",
+            "Ward",
+            "Brendan",
+            "Lesley",
+            "Waldo",
+            "Foster",
+            "Will",
+            "Arden",
+            "Mose",
+            "Major",
+            "Patrick",
+            "Daryl",
+            "Grover",
+            "Cristobal",
+            "Israel",
+            "Genaro",
+            "Fidel",
+            "Lawerence",
+            "Jamel",
+            "Harley",
+            "Clair",
+            "Ben",
+            "Miguel",
+            "Cleveland",
+            "Weston",
+            "Zackary",
+            "Vance",
+            "Luis",
+            "Jamar",
+            "Milan",
+            "Ryan",
+            "Duncan",
+            "Mitchell",
+            "Minh",
+            "Garret",
+            "Wade",
+            "Marco",
+            "Antwan",
+            "Francisco",
+            "Damian",
+            "Owen",
+            "Neville",
+            "Travis",
+            "Gilberto",
+            "Lisha",
+            "Serina",
+            "Damaris",
+            "Trisha",
+            "Rhonda",
+            "Marnie",
+            "Margot",
+            "Gita",
+            "Tam",
+            "Retha",
+            "Ulrike",
+            "Adina",
+            "Halina",
+            "Noelle",
+            "Britni",
+            "Sherita",
+            "Vanetta",
+            "Chantal",
+            "Nelle",
+            "Chasity",
+            "Clarita",
+            "Oralee",
+            "Katharyn",
+            "Daria",
+            "Reita",
+            "Shelba",
+            "Viki",
+            "Susanna",
+            "Marlene",
+            "Dottie",
+            "Mertie",
+            "Tran",
+            "Ossie",
+            "Tessa",
+            "Christen",
+            "Sara",
+            "Dorene",
+            "Jackelyn",
+            "Rosina",
+            "Reda",
+            "Tarah",
+            "Katharina",
+            "Piedad",
+            "Mila",
+            "Merry",
+            "Shila",
+            "Genesis",
+            "Crystle",
+            "Roxy",
+            "Zula",
+        ]
+
+        self.last_names = [
+            "Koehl",
+            "Albee",
+            "Prince",
+            "Dumond",
+            "Thoreson",
+            "Currie",
+            "Ference",
+            "Hippe",
+            "Schroyer",
+            "Seabolt",
+            "Mosqueda",
+            "Cowley",
+            "Ebron",
+            "Cope",
+            "Legette",
+            "Ranallo",
+            "Sawtelle",
+            "Walko",
+            "Cieslak",
+            "Barhorst",
+            "Barrio",
+            "Reddick",
+            "Torre",
+            "Mattison",
+            "Rath",
+            "Collins",
+            "Sharples",
+            "Mayhugh",
+            "Ange",
+            "Pershall",
+            "Ostrem",
+            "Tomberlin",
+            "Gammel",
+            "Overman",
+            "Filice",
+            "Fadden",
+            "Goldner",
+            "Kirkman",
+            "Then",
+            "Gottlieb",
+            "Talley",
+            "Haight",
+            "Damelio",
+            "Ratcliffe",
+            "Lazarus",
+            "Borrelli",
+            "Ross",
+            "Holstein",
+            "Bradish",
+            "Trumbauer",
+            "Hinojos",
+            "Harlan",
+            "Menzie",
+            "Mccourt",
+            "Sipos",
+            "Nadeau",
+            "Santoro",
+            "Cheadle",
+            "Littlefield",
+            "Yerger",
+            "Hefley",
+            "Mcguffey",
+            "Oliveira",
+            "Mckinnon",
+            "Ausmus",
+            "Rentz",
+            "Enlow",
+            "Mcniel",
+            "Deville",
+            "Funkhouser",
+            "Brinegar",
+            "Randel",
+            "Bunt",
+            "Heitmann",
+            "Bierbaum",
+            "Dias",
+            "Coplan",
+            "Linsey",
+            "Linares",
+            "Rockett",
+            "Neuman",
+            "Ospina",
+            "Mook",
+            "Finkel",
+            "Hardy",
+            "Guerrero",
+            "Lyon",
+            "Glazer",
+            "Ricardo",
+            "Barkley",
+            "Rayo",
+            "Mcmann",
+            "Levey",
+            "Billingslea",
+            "Embrey",
+            "Stransky",
+            "Simone",
+            "Hilson",
+            "Kelling",
+            "Mcculloch",
+        ]
 
     def handle(self, *args, **options):
         call_command("create_seeded_users")
@@ -127,6 +337,43 @@ class Command(BaseCommand):
         self.logger.info("Creating some tasks")
         for user in list(persona_users):
             Task.objects.create(owner=user, content="Demo Task", title="Demo task", tags=["todo"], date_due="2018-12-25T00:00:00Z")
+
+        min_position_count = 6000
+        min_client_count = 600
+
+        self.logger.info(f"Padding positions to {min_position_count}")
+        count = Position.objects.count()
+        while count < min_position_count:
+            for position in list(Position.objects.all()):
+                # Duplicate the description
+                description = position.description
+                description.id = None
+                description.save()
+
+                # Duplicate position
+                position.id = None
+                position.description = description
+                position.save()
+                count = count + 1
+                if count >= min_position_count:
+                    break
+
+            self.logger.info(f"Position count: {Position.objects.count()}")
+
+        self.logger.info(f"Padding clients to {min_client_count}")
+        sysrandom = random.SystemRandom()
+        for i in range(0, min_client_count - User.objects.count()):
+            # Create a new user
+            fname = sysrandom.choice(self.first_names)
+            lname = sysrandom.choice(self.last_names)
+            username = f"{lname}{fname[0]}_{i}"
+            user = User.objects.create_user(f"{username}", f"{username}@state.gov", "password")
+            user.first_name = fname
+            user.last_name = lname
+            user.save()
+
+            user.profile.cdo = User.objects.get(username="shadtrachl").profile
+            user.profile.save()
 
         self.logger.info("Updating string representations...")
         call_command("update_string_representations")
