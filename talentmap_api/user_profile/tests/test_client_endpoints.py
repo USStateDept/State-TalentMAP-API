@@ -48,17 +48,19 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.status_code == status.HTTP_200_OK
     assert response.data["all_clients"] == 10
     assert response.data["bidding_clients"] == 1
+    assert response.data["bidding_no_handshake"] == 1
     assert response.data["in_panel_clients"] == 0
     assert response.data["on_post_clients"] == 1
 
     # Give users some bids
-    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in_panel")
+    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in_panel", handshake_offered_date="1999-01-01T00:00:00Z")
 
     response = authorized_client.get('/api/v1/client/statistics/')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["all_clients"] == 10
     assert response.data["bidding_clients"] == 2
+    assert response.data["bidding_no_handshake"] == 1
     assert response.data["in_panel_clients"] == 1
     assert response.data["on_post_clients"] == 1
 
@@ -70,6 +72,14 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     response = authorized_client.get('/api/v1/client/?is_bidding=false')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 8
+
+    response = authorized_client.get('/api/v1/client/?is_bidding_no_handshake=true')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+
+    response = authorized_client.get('/api/v1/client/?is_bidding_no_handshake=false')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
 
     response = authorized_client.get('/api/v1/client/?is_in_panel=true')
     assert response.status_code == status.HTTP_200_OK

@@ -1,0 +1,294 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <skills xmlns="">
+               <skill>
+                  <code>0010</code>
+                  <description>Executive (Pas)</description>
+               </skill>
+               <skill>
+                  <code>0020</code>
+                  <description>Executive (Career)</description>
+               </skill>
+               <skill>
+                  <code>0060</code>
+                  <description>Multifunctional</description>
+               </skill>
+               <skill>
+                  <code>2010</code>
+                  <description>Management Officer</description>
+               </skill>
+               <skill>
+                  <code>2050</code>
+                  <description>Inspection (Functional)</description>
+               </skill>
+               <skill>
+                  <code>2080</code>
+                  <description>Administrative Support</description>
+               </skill>
+               <skill>
+                  <code>2090</code>
+                  <description>Management Support</description>
+               </skill>
+               <skill>
+                  <code>2101</code>
+                  <description>Financial Management</description>
+               </skill>
+               <skill>
+                  <code>2112</code>
+                  <description>Fiscal Administration</description>
+               </skill>
+               <skill>
+                  <code>2125</code>
+                  <description>Budget Administration</description>
+               </skill>
+               <skill>
+                  <code>2190</code>
+                  <description>Financial Management Assist</description>
+               </skill>
+               <skill>
+                  <code>2201</code>
+                  <description>Human Resources Management</description>
+               </skill>
+               <skill>
+                  <code>2235</code>
+                  <description>Human Resources Staffing</description>
+               </skill>
+               <skill>
+                  <code>2255</code>
+                  <description>Employee Relations</description>
+               </skill>
+               <skill>
+                  <code>2275</code>
+                  <description>Human Resources Support</description>
+               </skill>
+               <skill>
+                  <code>2301</code>
+                  <description>General Services</description>
+               </skill>
+               <skill>
+                  <code>2324</code>
+                  <description>Foreign Buildings</description>
+               </skill>
+               <skill>
+                  <code>2345</code>
+                  <description>Supply And Procurement</description>
+               </skill>
+               <skill>
+                  <code>2501</code>
+                  <description>Security</description>
+               </skill>
+               <skill>
+                  <code>2503</code>
+                  <description>Security - Threat Analysis</description>
+               </skill>
+               <skill>
+                  <code>2550</code>
+                  <description>Security Engineering</description>
+               </skill>
+               <skill>
+                  <code>2560</code>
+                  <description>Security Engineering-Technica</description>
+               </skill>
+               <skill>
+                  <code>2570</code>
+                  <description>Security - Overseas Protection</description>
+               </skill>
+               <skill>
+                  <code>2580</code>
+                  <description>Diplomatic Courier</description>
+               </skill>
+               <skill>
+                  <code>2601</code>
+                  <description>Program &amp; Management Analysis</description>
+               </skill>
+               <skill>
+                  <code>2880</code>
+                  <description>Information Management</description>
+               </skill>
+               <skill>
+                  <code>2881</code>
+                  <description>Information Programs Admin</description>
+               </skill>
+               <skill>
+                  <code>2882</code>
+                  <description>Information Management-Tech</description>
+               </skill>
+               <skill>
+                  <code>2884</code>
+                  <description>Information Tech Mgtmnt</description>
+               </skill>
+               <skill>
+                  <code>3001</code>
+                  <description>Consular Affairs</description>
+               </skill>
+               <skill>
+                  <code>3020</code>
+                  <description>Passport Affairs</description>
+               </skill>
+               <skill>
+                  <code>3030</code>
+                  <description>Visa Affairs</description>
+               </skill>
+               <skill>
+                  <code>3055</code>
+                  <description>U.S. Citizen Services</description>
+               </skill>
+               <skill>
+                  <code>4100</code>
+                  <description>Printing</description>
+               </skill>
+               <skill>
+                  <code>4200</code>
+                  <description>Regional Public Engagement Spe</description>
+               </skill>
+               <skill>
+                  <code>4300</code>
+                  <description>English Language Programs</description>
+               </skill>
+               <skill>
+                  <code>4400</code>
+                  <description>Public Diplomacy</description>
+               </skill>
+               <skill>
+                  <code>4410</code>
+                  <description>Information Officer</description>
+               </skill>
+               <skill>
+                  <code>4420</code>
+                  <description>Cultural Affairs Officer</description>
+               </skill>
+               <skill>
+                  <code>4505</code>
+                  <description>Information</description>
+               </skill>
+               <skill>
+                  <code>5015</code>
+                  <description>Economics</description>
+               </skill>
+               <skill>
+                  <code>5025</code>
+                  <description>Finance &amp; Economic Development</description>
+               </skill>
+               <skill>
+                  <code>5030</code>
+                  <description>International Trans &amp; Comm</description>
+               </skill>
+               <skill>
+                  <code>5050</code>
+                  <description>Econ Resources &amp; Commodities</description>
+               </skill>
+               <skill>
+                  <code>5500</code>
+                  <description>Political Field</description>
+               </skill>
+               <skill>
+                  <code>5505</code>
+                  <description>Political Affairs</description>
+               </skill>
+               <skill>
+                  <code>5520</code>
+                  <description>Political-Military Affairs</description>
+               </skill>
+               <skill>
+                  <code>5535</code>
+                  <description>Labor Affairs</description>
+               </skill>
+               <skill>
+                  <code>5810</code>
+                  <description>Intelligence Research</description>
+               </skill>
+               <skill>
+                  <code>6020</code>
+                  <description>Environment Sci &amp; Technology</description>
+               </skill>
+               <skill>
+                  <code>6045</code>
+                  <description>Congressional Relations</description>
+               </skill>
+               <skill>
+                  <code>6050</code>
+                  <description>Political And Economic Affairs</description>
+               </skill>
+               <skill>
+                  <code>6070</code>
+                  <description>Narcotics Control</description>
+               </skill>
+               <skill>
+                  <code>6080</code>
+                  <description>Interfunctional Officer Oper</description>
+               </skill>
+               <skill>
+                  <code>6090</code>
+                  <description>Refugee Affairs</description>
+               </skill>
+               <skill>
+                  <code>6093</code>
+                  <description>Pepfar Affairs</description>
+               </skill>
+               <skill>
+                  <code>6110</code>
+                  <description>Medicine</description>
+               </skill>
+               <skill>
+                  <code>6115</code>
+                  <description>Medical Provider</description>
+               </skill>
+               <skill>
+                  <code>6125</code>
+                  <description>Psychiatry</description>
+               </skill>
+               <skill>
+                  <code>6145</code>
+                  <description>Medical Technology</description>
+               </skill>
+               <skill>
+                  <code>6160</code>
+                  <description>Mental Health</description>
+               </skill>
+               <skill>
+                  <code>6217</code>
+                  <description>Facility Maintenance</description>
+               </skill>
+               <skill>
+                  <code>6218</code>
+                  <description>Construction Engineering</description>
+               </skill>
+               <skill>
+                  <code>6220</code>
+                  <description>Attorney Adviser</description>
+               </skill>
+               <skill>
+                  <code>7020</code>
+                  <description>Rotational Officer</description>
+               </skill>
+               <skill>
+                  <code>7073</code>
+                  <description>Separation</description>
+               </skill>
+               <skill>
+                  <code>7074</code>
+                  <description>Detail</description>
+               </skill>
+               <skill>
+                  <code>7076</code>
+                  <description>Training</description>
+               </skill>
+               <skill>
+                  <code>7079</code>
+                  <description>Overcomplement</description>
+               </skill>
+               <skill>
+                  <code>9017</code>
+                  <description>Office Management</description>
+               </skill>
+               <skill>
+                  <code>9040</code>
+                  <description>Support</description>
+               </skill>
+            </skills>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>

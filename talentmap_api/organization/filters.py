@@ -61,6 +61,7 @@ class CountryFilter(filters.FilterSet):
             "location_prefix": ALL_TEXT_LOOKUPS,
             "name": ALL_TEXT_LOOKUPS,
             "short_name": ALL_TEXT_LOOKUPS,
+            "obc_id": ALL_TEXT_LOOKUPS,
         }
 
 
@@ -105,5 +106,6 @@ class PostFilter(filters.FilterSet):
             "has_consumable_allowance": ["exact"],
             "has_service_needs_differential": ["exact"],
             "tour_of_duty": FOREIGN_KEY_LOOKUPS,
-            "location": FOREIGN_KEY_LOOKUPS
+            "location": FOREIGN_KEY_LOOKUPS,
+            "obc_id": ALL_TEXT_LOOKUPS,
         }

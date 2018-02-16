@@ -18,10 +18,11 @@ from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import ClientFilter
-from talentmap_api.user_profile.serializers import ClientSerializer
+from talentmap_api.user_profile.serializers import ClientSerializer, ClientDetailSerializer
 
 
-class CdoClientView(FieldLimitableSerializerMixin,
+class CdoClientView(ActionDependentSerializerMixin,
+                    FieldLimitableSerializerMixin,
                     mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,
                     GenericViewSet):
@@ -34,6 +35,12 @@ class CdoClientView(FieldLimitableSerializerMixin,
     """
 
     serializer_class = ClientSerializer
+
+    serializers = {
+        "default": ClientSerializer,
+        "retrieve": ClientDetailSerializer,
+    }
+
     filter_class = ClientFilter
     permission_classes = (IsAuthenticated,)
 
@@ -57,6 +64,7 @@ class CdoClientStatisticsView(APIView):
         statistics = {
             "all_clients": profile.direct_reports.count(),
             "bidding_clients": profile.direct_reports.exclude(bidlist=None).count(),
+            "bidding_no_handshake": profile.direct_reports.exclude(bidlist=None).filter(bidlist__handshake_offered_date=None).distinct().count(),
             "in_panel_clients": profile.direct_reports.filter(bidlist__status=Bid.Status.in_panel).count(),
             "on_post_clients": profile.direct_reports.exclude(assignments__current_for_position=None).count()
         }

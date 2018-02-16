@@ -1,0 +1,126 @@
+<jobCategories>
+ <jobCategory>
+  <jc_id>1</jc_id>
+  <JC_NM_TXT>Management</JC_NM_TXT>
+  <skills>
+   <skill>
+    <code>2010</code>
+    <description>MANAGEMENT OFFICER</description>
+   </skill>
+   <skill>
+    <code>2101</code>
+    <description>FINANCIAL MANAGEMENT</description>
+   </skill>
+   <skill>
+    <code>2125</code>
+    <description>BUDGET ADMINISTRATION</description>
+   </skill>
+   <skill>
+    <code>2201</code>
+    <description>HUMAN RESOURCES MANAGEMENT</description>
+   </skill>
+   <skill>
+    <code>2235</code>
+    <description>HUMAN RESOURCES STAFFING</description>
+   </skill>
+   <skill>
+    <code>2255</code>
+    <description>EMPLOYEE RELATIONS</description>
+   </skill>
+   <skill>
+    <code>2301</code>
+    <description>GENERAL SERVICES</description>
+   </skill>
+   <skill>
+    <code>2324</code>
+    <description>FOREIGN BUILDINGS</description>
+   </skill>
+   <skill>
+    <code>2610</code>
+    <description>PROGRAM ANALYSIS OFFICER</description>
+   </skill>
+  </skills>
+ </jobCategory>
+ <jobCategory>
+  <jc_id>10</jc_id>
+  <JC_NM_TXT>Interfunctional</JC_NM_TXT>
+  <skills>
+   <skill>
+    <code>0010</code>
+    <description>EXECUTIVE (PAS)</description>
+   </skill>
+   <skill>
+    <code>0035</code>
+    <description>EXECUTIVE (OTHER AGENCY)</description>
+   </skill>
+   <skill>
+    <code>0060</code>
+    <description>MULTIFUNCTIONAL</description>
+   </skill>
+   <skill>
+    <code>2050</code>
+    <description>INSPECTION (FUNCTIONAL)</description>
+   </skill>
+   <skill>
+    <code>2601</code>
+    <description>PROGRAM &amp; MANAGEMENT ANALYSIS</description>
+   </skill>
+   <skill>
+    <code>4525</code>
+    <description>TRANSLATION</description>
+   </skill>
+   <skill>
+    <code>4535</code>
+    <description>INTERPRETING</description>
+   </skill>
+   <skill>
+    <code>4545</code>
+    <description>SCIENTIFIC LINGUISTICS</description>
+   </skill>
+   <skill>
+    <code>5535</code>
+    <description>LABOR AFFAIRS</description>
+   </skill>
+   <skill>
+    <code>5810</code>
+    <description>INTELLIGENCE RESEARCH</description>
+   </skill>
+   <skill>
+    <code>6020</code>
+    <description>ENVIRONMENT SCI &amp; TECHNOLOGY</description>
+   </skill>
+   <skill>
+    <code>6030</code>
+    <description>PROTOCOL OPERATIONS</description>
+   </skill>
+   <skill>
+    <code>6045</code>
+    <description>CONGRESSIONAL RELATIONS</description>
+   </skill>
+   <skill>
+    <code>6050</code>
+    <description>POLITICAL AND ECONOMIC AFFAIRS</description>
+   </skill>
+   <skill>
+    <code>6070</code>
+    <description>NARCOTICS CONTROL</description>
+   </skill>
+   <skill>
+    <code>6080</code>
+    <description>INTERFUNCTIONAL OFFICER OPER</description>
+   </skill>
+   <skill>
+    <code>6090</code>
+    <description>REFUGEE AFFAIRS</description>
+   </skill>
+   <skill>
+    <code>6220</code>
+    <description>ATTORNEY ADVISER</description>
+   </skill>
+   <skill>
+    <code>7074</code>
+    <description>DETAIL</description>
+   </skill>
+  </skills>
+ </jobCategory>
+</jobCategories>

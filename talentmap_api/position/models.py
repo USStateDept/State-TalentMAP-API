@@ -197,6 +197,8 @@ class CapsuleDescription(StaticRepresentationModel):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    history = HistoricalRecords()
+
     _pos_seq_num = models.TextField(null=True)
 
     class Meta:
@@ -268,7 +270,7 @@ class SkillCone(StaticRepresentationModel):
 
     # Data as loaded from XML
     _id = models.TextField(null=True)
-    _skill_codes = models.TextField(null=True)
+    _skill_codes = models.TextField(null=True, blank=True, default="")
 
     @property
     def skill_codes(self):
@@ -282,6 +284,8 @@ class SkillCone(StaticRepresentationModel):
         '''
         Sets the skill code string to the joined array value
         '''
+        if not value:
+            value = [""]
         self._skill_codes = ','.join(value)
 
     def update_relationships(self):
@@ -292,14 +296,15 @@ class SkillCone(StaticRepresentationModel):
         if same_cone.count() > 0:
             # Add their skill codes to our skill code list
             new_codes = [x.skill_codes for x in list(same_cone)]
-            # Use chain to flatten the list of lists
-            skill_codes += list(itertools.chain.from_iterable(new_codes))
-            # Eliminate duplicates
-            skill_codes = list(set(skill_codes))
-            # Set the data
-            self.skill_codes = skill_codes
-            # Save this cone
-            self.save()
+            if len(new_codes) > 0:
+                # Use chain to flatten the list of lists
+                skill_codes += list(itertools.chain.from_iterable(new_codes))
+                # Eliminate duplicates
+                skill_codes = list(set(skill_codes))
+                # Set the data
+                self.skill_codes = skill_codes
+                # Save this cone
+                self.save()
 
         # Update all skills to point to this cone
         Skill.objects.filter(code__in=skill_codes).update(cone=self)
@@ -413,7 +418,7 @@ def assignment_pre_save(sender, instance, **kwargs):
     if not instance.id:
         # This is a new instance
         # Set the domestic flag
-        instance.domestic = not instance.position.is_overseas
+        instance.is_domestic = not instance.position.is_overseas
         if safe_navigation(instance, "position.post.tour_of_duty.months"):
             instance.standard_tod_months = instance.position.post.tour_of_duty.months
     else:
