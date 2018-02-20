@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
+from talentmap_api.common.common_helpers import get_group_by_name
+
 from talentmap_api.position.models import Position, Grade, Skill, SkillCone, CapsuleDescription, Classification, Assignment, PositionBidStatistics
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
@@ -18,6 +20,12 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
     def get_is_editable_by_user(self, obj):
         try:
+            # RC-1 inform UI of superuser status
+            try:
+                if get_group_by_name("superuser") in self.context.get("request").user.groups.all():
+                    return True
+            except:
+                pass  # No super user group
             return self.context.get("request").user.has_perm(f"position.{obj.position.post.permission_edit_post_capsule_description_codename}")
         except AttributeError:
             # The position doesn't have a post, or otherwise

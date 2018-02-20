@@ -222,6 +222,15 @@ def in_group_or_403(user, group_name):
         - user (Object) - The user instance
         - group_name (String) - The name of the permission group
     '''
+    # RC-1 - check for superuser status
+    sug = None
+    try:
+        sug = get_group_by_name("superuser")
+    except:
+        pass
+    if sug and sug in user.groups.all():
+            return
+
     try:
         group = get_group_by_name(group_name)
     except:
@@ -240,6 +249,14 @@ def has_permission_or_403(user, permission):
         - user (Object) - The user instance
         - permission (String) - The permission codename string
     '''
+    # RC-1 - check for superuser status
+    sug = None
+    try:
+        sug = get_group_by_name("superuser")
+    except:
+        pass
+    if sug and sug in user.groups.all():
+            return
 
     if not user.has_perm(permission):
         raise PermissionDenied
