@@ -224,7 +224,7 @@ def in_group_or_403(user, group_name):
     '''
     # RC-1 - check for superuser status
     sug = None
-    try:
+    try:  # nosec
         sug = get_group_by_name("superuser")
     except:
         pass
@@ -251,7 +251,7 @@ def has_permission_or_403(user, permission):
     '''
     # RC-1 - check for superuser status
     sug = None
-    try:
+    try:  # nosec
         sug = get_group_by_name("superuser")
     except:
         pass

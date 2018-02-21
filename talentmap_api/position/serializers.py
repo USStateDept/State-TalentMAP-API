@@ -21,7 +21,7 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
     def get_is_editable_by_user(self, obj):
         try:
             # RC-1 inform UI of superuser status
-            try:
+            try:  # nosec
                 if get_group_by_name("superuser") in self.context.get("request").user.groups.all():
                     return True
             except:
