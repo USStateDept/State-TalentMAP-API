@@ -405,7 +405,7 @@ def mode_skill_cones():
     instance_tag = "jobCategory"
     collision_field = "_id"
     tag_map = {
-        "jc_id": "_id",
+        "JC_ID": "_id",
         "JC_NM_TXT": "name",
         "skills": get_nested_tag("_skill_codes", "code", many=True)
     }
