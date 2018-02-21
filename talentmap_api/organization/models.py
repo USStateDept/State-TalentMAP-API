@@ -65,6 +65,7 @@ class Organization(StaticRepresentationModel):
             else:
                 self.location = loc.first()
 
+        # Putting this here because SOAP WS aren't reading the regional code properly - RC-1
         regional_codes = [
             "110000",
             "120000",
