@@ -77,8 +77,6 @@ class Organization(StaticRepresentationModel):
         ]
         if self.code in regional_codes:
             self.is_regional = True
-        else:
-            self.is_regional = False
 
         self.save()
 
