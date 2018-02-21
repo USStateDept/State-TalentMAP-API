@@ -15,6 +15,7 @@ import defusedxml.lxml as ET
 
 from django.conf import settings
 
+from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
 
 from talentmap_api.language.models import Proficiency
@@ -341,7 +342,7 @@ def mode_capsule_descriptions():
     instance_tag = "positionCapsule"
     collision_field = "_pos_seq_num"
     tag_map = {
-        "POSITIONID": "_pos_seq_num",
+        "POSITION_ID": "_pos_seq_num",
         "CONTENT": "content",
         "DATE_CREATED": parse_date("date_created"),
         "DATE_UPDATED": parse_date("date_updated"),
@@ -394,8 +395,8 @@ def mode_skill_cones():
     soap_arguments = {
         "RequestorID": "TalentMAP",
         "Action": "GET",
-        "RequestName": "jobcategory",
-        "Version": "0.01",
+        "RequestName": "jobcategoryskill",
+        "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<jobCategories><jobCategory></jobCategory></jobCategories>"
     }
@@ -434,11 +435,22 @@ def mode_cycles():
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         # If our cycle exists, clear it's position numbers
-        extant_cycle = loader.model.objects.filter(_id=xml_etree_to_dict(tag)['id']).first()
+        xml_dict = xml_etree_to_dict(tag)
+        extant_cycle = loader.model.objects.filter(_id=xml_dict['id']).first()
         if extant_cycle:
             extant_cycle._positions_seq_nums.clear()
 
-        loader.default_xml_action(tag, new_instances, updated_instances)
+        instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
+
+        # Find the dates for this cycle
+        for date in xml_dict["children"]:
+            if date["DATA_TYPE"] == "CYCLE":
+                instance.cycle_start_date = ensure_date(date["BEGIN_DATE"])
+                instance.cycle_end_date = ensure_date(date["END_DATE"])
+            elif date["DATA_TYPE"] == "BIDDUE":
+                instance.cycle_deadline_date = ensure_date(date["BEGIN_DATE"])
+        if updated:
+            instance.save()
 
     return (soap_arguments, instance_tag, tag_map, collision_field, None, override_loading_method)
 
