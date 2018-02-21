@@ -5,7 +5,7 @@
             <availablePositions xmlns="">
                <availablePosition>
                   <CP_ID>130641</CP_ID>
-                  <POSITION_ID>102996</POSITION_ID>
+                  <POSITION_ID>1640</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -15,7 +15,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>130728</CP_ID>
-                  <POSITION_ID>103046</POSITION_ID>
+                  <POSITION_ID>1657</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
@@ -25,7 +25,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>130734</CP_ID>
-                  <POSITION_ID>112</POSITION_ID>
+                  <POSITION_ID>1660</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -35,7 +35,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>131872</CP_ID>
-                  <POSITION_ID>11264</POSITION_ID>
+                  <POSITION_ID>1661</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -45,7 +45,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137817</CP_ID>
-                  <POSITION_ID>11736</POSITION_ID>
+                  <POSITION_ID>1662</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
@@ -55,7 +55,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137825</CP_ID>
-                  <POSITION_ID>1271</POSITION_ID>
+                  <POSITION_ID>1668</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -65,7 +65,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137826</CP_ID>
-                  <POSITION_ID>75878</POSITION_ID>
+                  <POSITION_ID>1673</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -75,7 +75,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137843</CP_ID>
-                  <POSITION_ID>132004</POSITION_ID>
+                  <POSITION_ID>1675</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
@@ -85,7 +85,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137867</CP_ID>
-                  <POSITION_ID>36998</POSITION_ID>
+                  <POSITION_ID>1678</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
@@ -95,7 +95,7 @@
                </availablePosition>
                <availablePosition>
                   <CP_ID>137868</CP_ID>
-                  <POSITION_ID>37002</POSITION_ID>
+                  <POSITION_ID>1679</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>

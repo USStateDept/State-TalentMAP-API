@@ -1,56 +1,80 @@
-<positionCapsules>
-  <positionCapsule>
-    <POSITIONID>102996</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 1</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2016/06/01 12:00:09</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>103046</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 2</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2016/08/09 11:12:56</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>112</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 3</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2017/08/09 08:54:06</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>11264</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 4</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2016/02/10 10:19:31</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>409</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 5</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2015/06/22 15:25:31</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>410</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 6</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2017/02/06 09:32:59</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>423</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 7</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2016/02/23 07:41:41</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>424</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 8</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2017/03/27 02:24:36</DATE_UPDATED>
-  </positionCapsule>
-  <positionCapsule>
-    <POSITIONID>425</POSITIONID>
-    <CONTENT>TEST CAPSULE DESCRIPTION CONTENT 9</CONTENT>
-    <DATE_CREATED>2003/07/01 22:16:39</DATE_CREATED>
-    <DATE_UPDATED>2016/07/06 08:54:21</DATE_UPDATED>
-  </positionCapsule>
-</positionCapsules>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <IPMSDataWebServiceResponse xmlns="http://tempuri.org/">
+         <IPMSDataWebServiceResult>
+            <positionCapsules xmlns="">
+               <positionCapsule>
+                  <POSITION_ID>1640</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 1</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2017/06/05 09:46:16</DATE_UPDATED>
+                  <paginationStartKey>1</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1657</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 2</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2012/05/19 09:27:34</DATE_UPDATED>
+                  <paginationStartKey>2</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1660</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 3</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2016/06/01 12:38:41</DATE_UPDATED>
+                  <paginationStartKey>3</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1661</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 4</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2017/03/16 18:32:22</DATE_UPDATED>
+                  <paginationStartKey>4</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1662</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 5</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2016/01/26 16:18:23</DATE_UPDATED>
+                  <paginationStartKey>5</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1668</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 6</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2016/09/02 09:46:16</DATE_UPDATED>
+                  <paginationStartKey>6</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1673</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 7</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2016/08/29 11:40:16</DATE_UPDATED>
+                  <paginationStartKey>7</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1675</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 8</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2016/12/30 11:17:33</DATE_UPDATED>
+                  <paginationStartKey>8</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1678</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 9</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2017/05/31 16:20:41</DATE_UPDATED>
+                  <paginationStartKey>9</paginationStartKey>
+               </positionCapsule>
+               <positionCapsule>
+                  <POSITION_ID>1679</POSITION_ID>
+                  <CONTENT>DUMMY CAPSULE DESCRIPTION 0</CONTENT>
+                  <DATE_CREATED>2003/07/01 22:16:35</DATE_CREATED>
+                  <DATE_UPDATED>2017/09/12 14:38:08</DATE_UPDATED>
+                  <paginationStartKey>10</paginationStartKey>
+               </positionCapsule>
+            </positionCapsules>
+         </IPMSDataWebServiceResult>
+      </IPMSDataWebServiceResponse>
+   </s:Body>
+</s:Envelope>
