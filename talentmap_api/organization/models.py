@@ -65,6 +65,19 @@ class Organization(StaticRepresentationModel):
             else:
                 self.location = loc.first()
 
+        # Putting this here because SOAP WS aren't reading the regional code properly - RC-1
+        regional_codes = [
+            "110000",
+            "120000",
+            "130000",
+            "140000",
+            "146000",
+            "150000",
+            "160000"
+        ]
+        if self.code in regional_codes:
+            self.is_regional = True
+
         self.save()
 
         if self.is_bureau:
