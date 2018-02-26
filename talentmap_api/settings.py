@@ -116,6 +116,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+
+    # Our middleware
+    'talentmap_api.common.middleware.IE11Middleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
