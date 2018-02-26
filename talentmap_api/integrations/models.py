@@ -84,23 +84,29 @@ class SynchronizationJob(models.Model):
                 '''
                 new_ids = []
                 updated_ids = []
-                last_collision_field = None
                 soap_function_name = soap_function
+                previous_lpsk = None
                 while True:
-                    if last_collision_field:
+                    if loader.last_pagination_start_key:
+                        if previous_lpsk == loader.last_pagination_start_key:
+                            # Prevents getting stuck in a loop on the last page
+                            break
+                        # Store this as the previous lpsk
+                        previous_lpsk = loader.last_pagination_start_key
                         # Set the pagination start key to our last collision field; which should be the remote data's primary key
-                        soap_arguments['PaginationStartKey'] = last_collision_field
-                        logger.info(f"Requesting page from primary key: {last_collision_field}")
+                        soap_arguments['PaginationStartKey'] = loader.last_pagination_start_key
+                        logger.info(f"Requesting page from primary key: {loader.last_pagination_start_key}")
                     else:
                         logger.info(f"Requesting first page")
 
                     # Get the data
                     response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
 
-                    newer_ids, updateder_ids, last_collision_field = loader.create_models_from_xml(response_xml, raw_string=True)
+                    newer_ids, updateder_ids = loader.create_models_from_xml(response_xml, raw_string=True)
 
                     # If there are no new or updated ids on this page, we've reached the end
-                    if len(newer_ids) == 0 and len(updateder_ids) == 0:
+                    # Also, if the loader has no last pagination start key, we break
+                    if (len(newer_ids) == 0 and len(updateder_ids) == 0) or not loader.last_pagination_start_key:
                         break
 
                     logger.info(f"Got: {len(newer_ids)} new, {len(updateder_ids)} updated this page")

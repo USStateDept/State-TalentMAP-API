@@ -33,6 +33,7 @@ class XMLloader():
         self.collision_behavior = collision_behavior
         self.collision_field = collision_field
         self.override_loading_method = override_loading_method
+        self.last_pagination_start_key = None
 
     def create_models_from_xml(self, xml, raw_string=False):
         '''
@@ -74,7 +75,14 @@ class XMLloader():
 
         # For every instance tag, create a new instance and populate it
         self.last_tag_collision_field = None  # Used when loading piecemeal
+        self.last_pagination_start_key = None  # Used when loading SOAP integrations
         for tag in instance_tags:
+            # Update the last pagination start key
+            last_pagination_key_item = tag.find("paginationStartKey", tag.nsmap)
+            if last_pagination_key_item is not None:
+                self.last_pagination_start_key = last_pagination_key_item.text
+
+            # Call override method if it exists
             if self.override_loading_method:
                 self.override_loading_method(self, tag, new_instances, updated_instances)
                 continue
@@ -87,9 +95,12 @@ class XMLloader():
         new_instances = [instance.id for instance in new_instances]
 
         # Create our instances
-        return (new_instances, updated_instances, self.last_tag_collision_field)
+        return (new_instances, updated_instances)
 
     def default_xml_action(self, tag, new_instances, updated_instances):
+        '''
+        Returns the instance and a boolean indicating if the instance was "updated" or not
+        '''
         instance = self.model()
         for key in self.tag_map.keys():
             # Find a matching entry for the tag from the tag map
@@ -126,15 +137,17 @@ class XMLloader():
                     del update_dict["_state"]
                     collisions.update(**update_dict)
                     updated_instances.append(collisions.first().id)
-                    return
+                    return instance, True
                 elif self.collision_behavior == 'skip':
                     # Skip this instance, because it already exists
-                    return
+                    return None, False
             else:
                 new_instances.append(instance)
         else:
             # Append our instance
             new_instances.append(instance)
+
+        return instance, False
 
 
 class CSVloader():

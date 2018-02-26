@@ -14,6 +14,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>0</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>1</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AF1000000</location_code>
@@ -26,6 +27,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>2</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AF2000000</location_code>
@@ -38,6 +40,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>3</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AF2200000</location_code>
@@ -50,6 +53,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>0</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>4</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AG1000000</location_code>
@@ -62,6 +66,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>5</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AJ2000000</location_code>
@@ -74,6 +79,7 @@
                   <rest_relaxation_point>Rome</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>6</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AL6000000</location_code>
@@ -86,6 +92,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>7</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AM1000000</location_code>
@@ -98,6 +105,7 @@
                   <rest_relaxation_point>Rome</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>8</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AO5000000</location_code>
@@ -110,6 +118,7 @@
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>1</has_consumable_allowance>
                   <has_service_needs_differential>1</has_service_needs_differential>
+                  <paginationStartKey>9</paginationStartKey>
                </orgpost>
                <orgpost>
                   <location_code>AR2000000</location_code>
@@ -122,6 +131,7 @@
                   <rest_relaxation_point>Miami, FL</rest_relaxation_point>
                   <has_consumable_allowance>0</has_consumable_allowance>
                   <has_service_needs_differential>0</has_service_needs_differential>
+                  <paginationStartKey>10</paginationStartKey>
                </orgpost>
             </orgposts>
          </IPMSDataWebServiceResult>
