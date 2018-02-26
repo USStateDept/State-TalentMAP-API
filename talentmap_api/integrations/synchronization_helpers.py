@@ -19,6 +19,7 @@ from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
 
 from talentmap_api.language.models import Proficiency
+from talentmap_api.user_profile.models import SavedSearch
 
 
 def get_soap_client(cert=None, soap_function="", test=False):
@@ -387,7 +388,12 @@ def mode_positions():
         "effective_date": parse_date("effective_date"),
     }
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
+    def post_load_function(model, new_ids, updated_ids):
+        # If we have any new or updated positions, updated saved search counts
+        if len(new_ids) + len(updated_ids) > 0:
+            SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
+
+    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, None)
 
 
 def mode_skill_cones():
@@ -474,6 +480,11 @@ def mode_cycle_positions():
 
     }
 
+    def post_load_function(model, new_ids, updated_ids):
+        # If we have any new or updated positions, updated saved search counts
+        if len(new_ids) + len(updated_ids) > 0:
+            SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
+
     def override_loading_method(loader, tag, new_instances, updated_instances):
         data = xml_etree_to_dict(tag)
         # Find our matching bidcycle
@@ -482,7 +493,7 @@ def mode_cycle_positions():
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
-    return (soap_arguments, instance_tag, tag_map, collision_field, None, override_loading_method)
+    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 
 
 # Model helper maps and return functions
