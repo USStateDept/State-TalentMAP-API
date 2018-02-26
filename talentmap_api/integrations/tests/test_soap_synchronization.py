@@ -22,17 +22,16 @@ def test_soap_integrations():
     assert Language.objects.count() == 10
     assert Country.objects.count() == 10
     assert Location.objects.count() == 10
-    assert CapsuleDescription.objects.count() == 9
-    assert Organization.objects.count() == 20
-    assert Post.objects.count() == 17  # 10 from the file, 7 from the positions
+    assert CapsuleDescription.objects.count() == 10
+    assert Post.objects.count() == 19  # 10 from the file, 9 from the positions
     assert TourOfDuty.objects.count() == 5
     assert Grade.objects.count() == 13
     assert Skill.objects.count() == 71
-    assert SkillCone.objects.count() == 2
+    assert SkillCone.objects.count() == 10
     assert Position.objects.count() == 10
     assert BidCycle.objects.count() == 8
     assert BidCycle.objects.get(_id="147").positions.count() == 4
-    assert BidCycle.objects.get(_id="151").positions.count() == 2
+    assert BidCycle.objects.get(_id="151").positions.count() == 6
 
     call_command('synchronize_data', '--list')
 
