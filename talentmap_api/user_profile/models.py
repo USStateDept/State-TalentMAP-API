@@ -180,7 +180,7 @@ class SavedSearch(StaticRepresentationModel):
             self._disable_signals = False
 
     @staticmethod
-    def update_counts_for_endpoint(endpoint=None):
+    def update_counts_for_endpoint(endpoint=None, contains=False):
         '''
         Update all saved searches counts whose endpoint matches the specified endpoint.
         If the endpoint is omitted, updates all saved search counts.
@@ -191,7 +191,10 @@ class SavedSearch(StaticRepresentationModel):
 
         queryset = SavedSearch.objects.all()
         if endpoint:
-            queryset = SavedSearch.objects.filter(endpoint=endpoint)
+            if contains:
+                queryset = SavedSearch.objects.filter(endpoint__icontains=endpoint)
+            else:
+                queryset = SavedSearch.objects.filter(endpoint=endpoint)
 
         for search in queryset:
             search.update_count()
