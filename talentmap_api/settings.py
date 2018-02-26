@@ -210,7 +210,7 @@ if ENABLE_SAML2:
                 },
 
                 # attributes that this project need to identify a user
-                'required_attributes': ['emailAddress', 'nameidentifier', 'givenname', 'surname'],
+                'required_attributes': ['EmailAddress', 'nameidentifier', 'givenname', 'surname'],
 
                 # attributes that may be useful to have but not required
                 # TODO: What attributes are we getting back from DOS IdP?
