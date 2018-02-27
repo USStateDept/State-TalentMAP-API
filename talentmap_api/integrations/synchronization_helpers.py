@@ -389,7 +389,7 @@ def mode_positions():
     }
 
     def post_load_function(model, new_ids, updated_ids):
-        # If we have any new or updated positions, updated saved search counts
+        # If we have any new or updated positions, update saved search counts
         if len(new_ids) + len(updated_ids) > 0:
             SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
 
@@ -440,7 +440,7 @@ def mode_cycles():
     }
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
-        # If our cycle exists, clear it's position numbers
+        # If our cycle exists, clear its position numbers
         xml_dict = xml_etree_to_dict(tag)
         extant_cycle = loader.model.objects.filter(_id=xml_dict['id']).first()
         if extant_cycle:
@@ -481,7 +481,7 @@ def mode_cycle_positions():
     }
 
     def post_load_function(model, new_ids, updated_ids):
-        # If we have any new or updated positions, updated saved search counts
+        # If we have any new or updated positions, update saved search counts
         if len(new_ids) + len(updated_ids) > 0:
             SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
 
