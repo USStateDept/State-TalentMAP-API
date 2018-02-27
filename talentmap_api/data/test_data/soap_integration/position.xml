@@ -4,161 +4,345 @@
          <IPMSDataWebServiceResult>
             <positions xmlns="">
                <position>
-                  <pos_id>102996</pos_id>
-                  <grade>01</grade>
-                  <skill_code>0020</skill_code>
-                  <skill>EXECUTIVE (CAREER)  (0020)</skill>
+                  <pos_id>1640</pos_id>
+                  <grade>03</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
                   <bureau_code>130000</bureau_code>
                   <bureau>BUREAU EAST ASIAN AND PACIFIC AFFAIRS  (EAP)</bureau>
-                  <org_code>330506</org_code>
-                  <organization>WUHAN, CHINA</organization>
-                  <representation>[00247196]  PRINCIPAL OFFICER  (Wuhan, China )</representation>
-                  <position_number>00247196</position_number>
-                  <title>PRINCIPAL OFFICER</title>
+                  <org_code>330705</org_code>
+                  <organization>PERTH, AUSTRALIA</organization>
+                  <representation>[30003005]  CONSULAR OFFICER  (Perth, Australia )</representation>
+                  <position_number>30003005</position_number>
+                  <title>CONSULAR OFFICER</title>
                   <is_overseas>true</is_overseas>
-                  <create_date>2012-05-27</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2017-08-15</effective_date>
-                  <language_code_1>CM</language_code_1>
-                  <language1>Chinese-Mandar (CM)</language1>
-                  <spoken_proficiency_1>3</spoken_proficiency_1>
-                  <reading_proficiency_1>3</reading_proficiency_1>
-                  <language_representation_1>Chinese-Mandar (CM) 3/3</language_representation_1>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1/>
+                  <language1/>
+                  <spoken_proficiency_1/>
+                  <reading_proficiency_1/>
+                  <language_representation_1/>
                   <language_code_2/>
                   <language2/>
                   <spoken_proficiency_2/>
                   <reading_proficiency_2/>
                   <language_representation_2/>
-                  <location_code>CH8000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>35</cost_of_living_adjustment>
-                  <differential_rate>25</differential_rate>
+                  <location_code>AS6000000</location_code>
+                  <tour_of_duty>3 YRS/TRANSFER</tour_of_duty>
+                  <cost_of_living_adjustment>30</cost_of_living_adjustment>
+                  <differential_rate>0</differential_rate>
                   <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Sydney</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>103046</pos_id>
-                  <grade>01</grade>
-                  <skill_code>5015</skill_code>
-                  <skill>ECONOMICS  (5015)</skill>
-                  <bureau_code>140000</bureau_code>
-                  <bureau>BUREAU NEAR EASTERN AFFAIRS  (NEA)</bureau>
-                  <org_code>341601</org_code>
-                  <organization>CAIRO, EGYPT</organization>
-                  <representation>[20208001]  ECONOMIC OFFICER  (Cairo, Egypt )</representation>
-                  <position_number>20208001</position_number>
-                  <title>ECONOMIC OFFICER</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2012-05-30</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2014-04-06</effective_date>
-                  <language_code_1>AD</language_code_1>
-                  <language1>Arabic-Modern (AD)</language1>
-                  <spoken_proficiency_1>3</spoken_proficiency_1>
-                  <reading_proficiency_1>3</reading_proficiency_1>
-                  <language_representation_1>Arabic-Modern (AD) 3/3</language_representation_1>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>EG3000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
-                  <differential_rate>20</differential_rate>
-                  <danger_pay>15</danger_pay>
-                  <rest_relaxation_point>London</rest_relaxation_point>
+                  <rest_relaxation_point/>
                   <has_consumable_allowance>false</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>1</paginationStartKey>
                </position>
                <position>
-                  <pos_id>112</pos_id>
-                  <grade>01</grade>
-                  <skill_code>0020</skill_code>
-                  <skill>EXECUTIVE (CAREER)  (0020)</skill>
-                  <bureau_code>150000</bureau_code>
-                  <bureau>BUREAU OF AFRICAN AFFAIRS  (AF)</bureau>
-                  <org_code>352801</org_code>
-                  <organization>CONAKRY, GUINEA</organization>
-                  <representation>[00001126]  DEPUTY CHIEF OF MISSION  (Conakry, Guinea )</representation>
-                  <position_number>00001126</position_number>
-                  <title>DEPUTY CHIEF OF MISSION</title>
+                  <pos_id>1657</pos_id>
+                  <grade>OC</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>146000</bureau_code>
+                  <bureau>BUREAU OF SOUTH AND CENTRAL ASIAN AFFAIRS  (SCA)</bureau>
+                  <org_code>362802</org_code>
+                  <organization>MUMBAI, INDIA</organization>
+                  <representation>[30007004]  CONSULAR OFFICER  (Mumbai, India )</representation>
+                  <position_number>30007004</position_number>
+                  <title>CONSULAR OFFICER</title>
                   <is_overseas>true</is_overseas>
                   <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2012-11-15</effective_date>
-                  <language_code_1>FR</language_code_1>
-                  <language1>French (FR)</language1>
-                  <spoken_proficiency_1>3</spoken_proficiency_1>
-                  <reading_proficiency_1>3</reading_proficiency_1>
-                  <language_representation_1>French (FR) 3/3</language_representation_1>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1/>
+                  <language1/>
+                  <spoken_proficiency_1/>
+                  <reading_proficiency_1/>
+                  <language_representation_1/>
                   <language_code_2/>
                   <language2/>
                   <spoken_proficiency_2/>
                   <reading_proficiency_2/>
                   <language_representation_2/>
-                  <location_code>GV1000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>25</cost_of_living_adjustment>
-                  <differential_rate>30</differential_rate>
-                  <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Paris</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>11264</pos_id>
-                  <grade>01</grade>
-                  <skill_code>0020</skill_code>
-                  <skill>EXECUTIVE (CAREER)  (0020)</skill>
-                  <bureau_code>130000</bureau_code>
-                  <bureau>BUREAU EAST ASIAN AND PACIFIC AFFAIRS  (EAP)</bureau>
-                  <org_code>330504</org_code>
-                  <organization>SHENYANG, CHINA</organization>
-                  <representation>[00004008]  PRINCIPAL OFFICER  (Shenyang, China )</representation>
-                  <position_number>00004008</position_number>
-                  <title>PRINCIPAL OFFICER</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2017-07-05</effective_date>
-                  <language_code_1>CM</language_code_1>
-                  <language1>Chinese-Mandar (CM)</language1>
-                  <spoken_proficiency_1>3</spoken_proficiency_1>
-                  <reading_proficiency_1>3</reading_proficiency_1>
-                  <language_representation_1>Chinese-Mandar (CM) 3/3</language_representation_1>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>CH5860000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <location_code>IN6167000</location_code>
+                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
                   <cost_of_living_adjustment>15</cost_of_living_adjustment>
                   <differential_rate>25</differential_rate>
                   <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Sydney</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
+                  <rest_relaxation_point>London</rest_relaxation_point>
+                  <has_consumable_allowance>false</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>2</paginationStartKey>
                </position>
                <position>
-                  <pos_id>11736</pos_id>
-                  <grade>01</grade>
-                  <skill_code>2550</skill_code>
-                  <skill>SECURITY ENGINEERING  (2550)</skill>
-                  <bureau_code>140000</bureau_code>
-                  <bureau>BUREAU NEAR EASTERN AFFAIRS  (NEA)</bureau>
-                  <org_code>341668</org_code>
-                  <organization>CAIRO, EGYPT</organization>
-                  <representation>[57111001]  SECURITY OFCR - ENGINEERING  (Cairo, Egypt )</representation>
-                  <position_number>57111001</position_number>
-                  <title>SECURITY OFCR - ENGINEERING</title>
+                  <pos_id>1660</pos_id>
+                  <grade>03</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>146000</bureau_code>
+                  <bureau>BUREAU OF SOUTH AND CENTRAL ASIAN AFFAIRS  (SCA)</bureau>
+                  <org_code>364401</org_code>
+                  <organization>BISHKEK, KYRGYZSTAN</organization>
+                  <representation>[30008004]  CONSULAR OFFICER  (Bishkek, Kyrgyzstan )</representation>
+                  <position_number>30008004</position_number>
+                  <title>CONSULAR OFFICER</title>
                   <is_overseas>true</is_overseas>
                   <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2017-10-29</effective_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1>RU</language_code_1>
+                  <language1>Russian (RU)</language1>
+                  <spoken_proficiency_1>3</spoken_proficiency_1>
+                  <reading_proficiency_1>3</reading_proficiency_1>
+                  <language_representation_1>Russian (RU) 3/3</language_representation_1>
+                  <language_code_2>KM</language_code_2>
+                  <language2>Kirghiz (KM)</language2>
+                  <spoken_proficiency_2>3</spoken_proficiency_2>
+                  <reading_proficiency_2>3</reading_proficiency_2>
+                  <language_representation_2>Kirghiz (KM) 3/3</language_representation_2>
+                  <location_code>KG1000000</location_code>
+                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>20</cost_of_living_adjustment>
+                  <differential_rate>25</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Rome</rest_relaxation_point>
+                  <has_consumable_allowance>true</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>3</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1661</pos_id>
+                  <grade>02</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>130000</bureau_code>
+                  <bureau>BUREAU EAST ASIAN AND PACIFIC AFFAIRS  (EAP)</bureau>
+                  <org_code>331201</org_code>
+                  <organization>SUVA, VITI LEVU, FIJI</organization>
+                  <representation>[30008006]  CONSULAR OFFICER  (Suva, Viti Levu, Fiji )</representation>
+                  <position_number>30008006</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1/>
+                  <language1/>
+                  <spoken_proficiency_1/>
+                  <reading_proficiency_1/>
+                  <language_representation_1/>
+                  <language_code_2/>
+                  <language2/>
+                  <spoken_proficiency_2/>
+                  <reading_proficiency_2/>
+                  <language_representation_2/>
+                  <location_code>FJ6000000</location_code>
+                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>10</cost_of_living_adjustment>
+                  <differential_rate>15</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Sydney</rest_relaxation_point>
+                  <has_consumable_allowance>true</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>4</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1662</pos_id>
+                  <grade>01</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>130000</bureau_code>
+                  <bureau>BUREAU EAST ASIAN AND PACIFIC AFFAIRS  (EAP)</bureau>
+                  <org_code>332001</org_code>
+                  <organization>HANOI, VIETNAM</organization>
+                  <representation>[30008007]  CONSULAR OFFICER  (Hanoi, Vietnam )</representation>
+                  <position_number>30008007</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1>VS</language_code_1>
+                  <language1>Vietnamese-Std (VS)</language1>
+                  <spoken_proficiency_1>3</spoken_proficiency_1>
+                  <reading_proficiency_1>3</reading_proficiency_1>
+                  <language_representation_1>Vietnamese-Std (VS) 3/3</language_representation_1>
+                  <language_code_2/>
+                  <language2/>
+                  <spoken_proficiency_2/>
+                  <reading_proficiency_2/>
+                  <language_representation_2/>
+                  <location_code>VM3000000</location_code>
+                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>5</cost_of_living_adjustment>
+                  <differential_rate>20</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Sydney</rest_relaxation_point>
+                  <has_consumable_allowance>true</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>5</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1668</pos_id>
+                  <grade>03</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>120000</bureau_code>
+                  <bureau>BUR OF EUROPEAN AFF AND EURASIAN AFFAIRS  (EUR)</bureau>
+                  <org_code>326101</org_code>
+                  <organization>CHISINAU, MOLDOVA</organization>
+                  <representation>[30009005]  CONSULAR OFFICER  (Chisinau, Moldova )</representation>
+                  <position_number>30009005</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1>RQ</language_code_1>
+                  <language1>Romanian (RQ)</language1>
+                  <spoken_proficiency_1>3</spoken_proficiency_1>
+                  <reading_proficiency_1>3</reading_proficiency_1>
+                  <language_representation_1>Romanian (RQ) 3/3</language_representation_1>
+                  <language_code_2>RU</language_code_2>
+                  <language2>Russian (RU)</language2>
+                  <spoken_proficiency_2>3</spoken_proficiency_2>
+                  <reading_proficiency_2>3</reading_proficiency_2>
+                  <language_representation_2>Russian (RU) 3/3</language_representation_2>
+                  <location_code>MD7000000</location_code>
+                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
+                  <differential_rate>15</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Rome</rest_relaxation_point>
+                  <has_consumable_allowance>true</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>6</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1673</pos_id>
+                  <grade>03</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>150000</bureau_code>
+                  <bureau>BUREAU OF AFRICAN AFFAIRS  (AF)</bureau>
+                  <org_code>350601</org_code>
+                  <organization>LUANDA, ANGOLA</organization>
+                  <representation>[30009011]  CONSULAR OFFICER  (Luanda, Angola )</representation>
+                  <position_number>30009011</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1>PY</language_code_1>
+                  <language1>Portuguese (PY)</language1>
+                  <spoken_proficiency_1>3</spoken_proficiency_1>
+                  <reading_proficiency_1>3</reading_proficiency_1>
+                  <language_representation_1>Portuguese (PY) 3/3</language_representation_1>
+                  <language_code_2/>
+                  <language2/>
+                  <spoken_proficiency_2/>
+                  <reading_proficiency_2/>
+                  <language_representation_2/>
+                  <location_code>AO5000000</location_code>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <cost_of_living_adjustment>60</cost_of_living_adjustment>
+                  <differential_rate>25</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>London</rest_relaxation_point>
+                  <has_consumable_allowance>true</has_consumable_allowance>
+                  <has_service_needs_differential>true</has_service_needs_differential>
+                  <paginationStartKey>7</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1675</pos_id>
+                  <grade>01</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>110000</bureau_code>
+                  <bureau>BUREAU OF WESTERN HEMISPHERIC AFFAIRS  (WHA)</bureau>
+                  <org_code>311101</org_code>
+                  <organization>BRIDGETOWN, BARBADOS</organization>
+                  <representation>[30010000]  CONSULAR OFFICER                (Bridgetown, Barbados )</representation>
+                  <position_number>30010000</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1/>
+                  <language1/>
+                  <spoken_proficiency_1/>
+                  <reading_proficiency_1/>
+                  <language_representation_1/>
+                  <language_code_2/>
+                  <language2/>
+                  <spoken_proficiency_2/>
+                  <reading_proficiency_2/>
+                  <language_representation_2/>
+                  <location_code>BB2100000</location_code>
+                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>42</cost_of_living_adjustment>
+                  <differential_rate>5</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Miami</rest_relaxation_point>
+                  <has_consumable_allowance>false</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>8</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1678</pos_id>
+                  <grade>01</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>130000</bureau_code>
+                  <bureau>BUREAU EAST ASIAN AND PACIFIC AFFAIRS  (EAP)</bureau>
+                  <org_code>330502</org_code>
+                  <organization>GUANGZHOU, CHINA</organization>
+                  <representation>[30010006]  CONSULAR OFFICER  (Guangzhou, China )</representation>
+                  <position_number>30010006</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
+                  <language_code_1>CM</language_code_1>
+                  <language1>Chinese-Mandar (CM)</language1>
+                  <spoken_proficiency_1>3</spoken_proficiency_1>
+                  <reading_proficiency_1>3</reading_proficiency_1>
+                  <language_representation_1>Chinese-Mandar (CM) 3/3</language_representation_1>
+                  <language_code_2/>
+                  <language2/>
+                  <spoken_proficiency_2/>
+                  <reading_proficiency_2/>
+                  <language_representation_2/>
+                  <location_code>CH2500000</location_code>
+                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>30</cost_of_living_adjustment>
+                  <differential_rate>15</differential_rate>
+                  <danger_pay>0</danger_pay>
+                  <rest_relaxation_point>Sydney</rest_relaxation_point>
+                  <has_consumable_allowance>false</has_consumable_allowance>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>9</paginationStartKey>
+               </position>
+               <position>
+                  <pos_id>1679</pos_id>
+                  <grade>03</grade>
+                  <skill_code>3001</skill_code>
+                  <skill>CONSULAR AFFAIRS  (3001)</skill>
+                  <bureau_code>140000</bureau_code>
+                  <bureau>BUREAU NEAR EASTERN AFFAIRS  (NEA)</bureau>
+                  <org_code>340801</org_code>
+                  <organization>MANAMA, BAHRAIN</organization>
+                  <representation>[30010007]  CONSULAR OFFICER  (Manama, Bahrain )</representation>
+                  <position_number>30010007</position_number>
+                  <title>CONSULAR OFFICER</title>
+                  <is_overseas>true</is_overseas>
+                  <create_date>2006-09-20</create_date>
+                  <update_date>2018-02-21</update_date>
+                  <effective_date>2016-10-02</effective_date>
                   <language_code_1>AD</language_code_1>
                   <language1>Arabic-Modern (AD)</language1>
                   <spoken_proficiency_1>0</spoken_proficiency_1>
@@ -169,189 +353,15 @@
                   <spoken_proficiency_2/>
                   <reading_proficiency_2/>
                   <language_representation_2/>
-                  <location_code>EG3000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
-                  <differential_rate>20</differential_rate>
-                  <danger_pay>15</danger_pay>
+                  <location_code>BA3000000</location_code>
+                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <cost_of_living_adjustment>15</cost_of_living_adjustment>
+                  <differential_rate>15</differential_rate>
+                  <danger_pay>0</danger_pay>
                   <rest_relaxation_point>London</rest_relaxation_point>
                   <has_consumable_allowance>false</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>1271</pos_id>
-                  <grade>01</grade>
-                  <skill_code>6050</skill_code>
-                  <skill>POLITICAL AND ECONOMIC AFFAIRS  (6050)</skill>
-                  <bureau_code>150000</bureau_code>
-                  <bureau>BUREAU OF AFRICAN AFFAIRS  (AF)</bureau>
-                  <org_code>354801</org_code>
-                  <organization>MONROVIA, LIBERIA</organization>
-                  <representation>[14241001]  POLITICAL/ECONOMIC OFFICER  (Monrovia, Liberia )</representation>
-                  <position_number>14241001</position_number>
-                  <title>POLITICAL/ECONOMIC OFFICER</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2012-11-29</effective_date>
-                  <language_code_1/>
-                  <language1/>
-                  <spoken_proficiency_1/>
-                  <reading_proficiency_1/>
-                  <language_representation_1/>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>LI6000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>30</cost_of_living_adjustment>
-                  <differential_rate>30</differential_rate>
-                  <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Paris</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>128586</pos_id>
-                  <grade>01</grade>
-                  <skill_code>6218</skill_code>
-                  <skill>CONSTRUCTION ENGINEERING  (6218)</skill>
-                  <bureau_code>110000</bureau_code>
-                  <bureau>BUREAU OF WESTERN HEMISPHERIC AFFAIRS  (WHA)</bureau>
-                  <org_code>312804</org_code>
-                  <organization>MATAMOROS, MEXICO</organization>
-                  <representation>[58312817]  PROJECT DIRECTOR  (Matamoros, Mexico )</representation>
-                  <position_number>58312817</position_number>
-                  <title>PROJECT DIRECTOR</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2015-07-28</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2015-07-27</effective_date>
-                  <language_code_1/>
-                  <language1/>
-                  <spoken_proficiency_1/>
-                  <reading_proficiency_1/>
-                  <language_representation_1/>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>MX5000000</location_code>
-                  <tour_of_duty>2 YRS/TRANSFER</tour_of_duty>
-                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
-                  <differential_rate>30</differential_rate>
-                  <danger_pay>0</danger_pay>
-                  <rest_relaxation_point/>
-                  <has_consumable_allowance>false</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>13183</pos_id>
-                  <grade>01</grade>
-                  <skill_code>6115</skill_code>
-                  <skill>MEDICAL PROVIDER  (6115)</skill>
-                  <bureau_code>140000</bureau_code>
-                  <bureau>BUREAU NEAR EASTERN AFFAIRS  (NEA)</bureau>
-                  <org_code>341601</org_code>
-                  <organization>CAIRO, EGYPT</organization>
-                  <representation>[59033000]  MEDICAL PROVIDER  (Cairo, Egypt )</representation>
-                  <position_number>59033000</position_number>
-                  <title>MEDICAL PROVIDER</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2016-09-27</effective_date>
-                  <language_code_1/>
-                  <language1/>
-                  <spoken_proficiency_1/>
-                  <reading_proficiency_1/>
-                  <language_representation_1/>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>EG3000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
-                  <differential_rate>20</differential_rate>
-                  <danger_pay>15</danger_pay>
-                  <rest_relaxation_point>London</rest_relaxation_point>
-                  <has_consumable_allowance>false</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>13227</pos_id>
-                  <grade>01</grade>
-                  <skill_code>0020</skill_code>
-                  <skill>EXECUTIVE (CAREER)  (0020)</skill>
-                  <bureau_code>146000</bureau_code>
-                  <bureau>BUREAU OF SOUTH AND CENTRAL ASIAN AFFAIRS  (SCA)</bureau>
-                  <org_code>368901</org_code>
-                  <organization>DUSHANBE, TAJIKISTAN</organization>
-                  <representation>[00002028]  DEPUTY CHIEF OF MISSION  (Dushanbe, Tajikistan )</representation>
-                  <position_number>00002028</position_number>
-                  <title>DEPUTY CHIEF OF MISSION</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2006-09-20</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2012-11-28</effective_date>
-                  <language_code_1>RU</language_code_1>
-                  <language1>Russian (RU)</language1>
-                  <spoken_proficiency_1>3</spoken_proficiency_1>
-                  <reading_proficiency_1>3</reading_proficiency_1>
-                  <language_representation_1>Russian (RU) 3/3</language_representation_1>
-                  <language_code_2>TB</language_code_2>
-                  <language2>Persian - Tajiki (TB)</language2>
-                  <spoken_proficiency_2>3</spoken_proficiency_2>
-                  <reading_proficiency_2>3</reading_proficiency_2>
-                  <language_representation_2>Persian - Tajiki (TB) 3/3</language_representation_2>
-                  <location_code>TI4000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>0</cost_of_living_adjustment>
-                  <differential_rate>30</differential_rate>
-                  <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Rome</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
-               </position>
-               <position>
-                  <pos_id>134933</pos_id>
-                  <grade>01</grade>
-                  <skill_code>6110</skill_code>
-                  <skill>MEDICINE  (6110)</skill>
-                  <bureau_code>150000</bureau_code>
-                  <bureau>BUREAU OF AFRICAN AFFAIRS  (AF)</bureau>
-                  <org_code>354801</org_code>
-                  <organization>MONROVIA, LIBERIA</organization>
-                  <representation>[59236003]  MEDICAL OFFICER  (Monrovia, Liberia )</representation>
-                  <position_number>59236003</position_number>
-                  <title>MEDICAL OFFICER</title>
-                  <is_overseas>true</is_overseas>
-                  <create_date>2016-04-16</create_date>
-                  <update_date>2018-01-17</update_date>
-                  <effective_date>2016-04-15</effective_date>
-                  <language_code_1/>
-                  <language1/>
-                  <spoken_proficiency_1/>
-                  <reading_proficiency_1/>
-                  <language_representation_1/>
-                  <language_code_2/>
-                  <language2/>
-                  <spoken_proficiency_2/>
-                  <reading_proficiency_2/>
-                  <language_representation_2/>
-                  <location_code>LI6000000</location_code>
-                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
-                  <cost_of_living_adjustment>30</cost_of_living_adjustment>
-                  <differential_rate>30</differential_rate>
-                  <danger_pay>0</danger_pay>
-                  <rest_relaxation_point>Paris</rest_relaxation_point>
-                  <has_consumable_allowance>true</has_consumable_allowance>
-                  <has_service_needs_differential>true</has_service_needs_differential>
+                  <has_service_needs_differential>false</has_service_needs_differential>
+                  <paginationStartKey>10</paginationStartKey>
                </position>
             </positions>
          </IPMSDataWebServiceResult>

@@ -1,325 +1,135 @@
 MAP = {
-    "identifier": "urn:oasis:names:tc:SAML:2.0:attrname-format:basic",
+    "identifier": "urn:oasis:names:tc:SAML:2.0:attrname-format:uri",
     "fro": {
-        'urn:mace:dir:attribute-def:aRecord': 'aRecord',
-        'urn:mace:dir:attribute-def:aliasedEntryName': 'aliasedEntryName',
-        'urn:mace:dir:attribute-def:aliasedObjectName': 'aliasedObjectName',
-        'urn:mace:dir:attribute-def:associatedDomain': 'associatedDomain',
-        'urn:mace:dir:attribute-def:associatedName': 'associatedName',
-        'urn:mace:dir:attribute-def:audio': 'audio',
-        'urn:mace:dir:attribute-def:authorityRevocationList': 'authorityRevocationList',
-        'urn:mace:dir:attribute-def:buildingName': 'buildingName',
-        'urn:mace:dir:attribute-def:businessCategory': 'businessCategory',
-        'urn:mace:dir:attribute-def:c': 'c',
-        'urn:mace:dir:attribute-def:cACertificate': 'cACertificate',
-        'urn:mace:dir:attribute-def:cNAMERecord': 'cNAMERecord',
-        'urn:mace:dir:attribute-def:carLicense': 'carLicense',
-        'urn:mace:dir:attribute-def:certificateRevocationList': 'certificateRevocationList',
-        'urn:mace:dir:attribute-def:cn': 'cn',
-        'urn:mace:dir:attribute-def:co': 'co',
-        'urn:mace:dir:attribute-def:commonName': 'commonName',
-        'urn:mace:dir:attribute-def:countryName': 'countryName',
-        'urn:mace:dir:attribute-def:crossCertificatePair': 'crossCertificatePair',
-        'urn:mace:dir:attribute-def:dITRedirect': 'dITRedirect',
-        'urn:mace:dir:attribute-def:dSAQuality': 'dSAQuality',
-        'urn:mace:dir:attribute-def:dc': 'dc',
-        'urn:mace:dir:attribute-def:deltaRevocationList': 'deltaRevocationList',
-        'urn:mace:dir:attribute-def:departmentNumber': 'departmentNumber',
-        'urn:mace:dir:attribute-def:description': 'description',
-        'urn:mace:dir:attribute-def:destinationIndicator': 'destinationIndicator',
-        'urn:mace:dir:attribute-def:displayName': 'displayName',
-        'urn:mace:dir:attribute-def:distinguishedName': 'distinguishedName',
-        'urn:mace:dir:attribute-def:dmdName': 'dmdName',
-        'urn:mace:dir:attribute-def:dnQualifier': 'dnQualifier',
-        'urn:mace:dir:attribute-def:documentAuthor': 'documentAuthor',
-        'urn:mace:dir:attribute-def:documentIdentifier': 'documentIdentifier',
-        'urn:mace:dir:attribute-def:documentLocation': 'documentLocation',
-        'urn:mace:dir:attribute-def:documentPublisher': 'documentPublisher',
-        'urn:mace:dir:attribute-def:documentTitle': 'documentTitle',
-        'urn:mace:dir:attribute-def:documentVersion': 'documentVersion',
-        'urn:mace:dir:attribute-def:domainComponent': 'domainComponent',
-        'urn:mace:dir:attribute-def:drink': 'drink',
-        'urn:mace:dir:attribute-def:eduOrgHomePageURI': 'eduOrgHomePageURI',
-        'urn:mace:dir:attribute-def:eduOrgIdentityAuthNPolicyURI': 'eduOrgIdentityAuthNPolicyURI',
-        'urn:mace:dir:attribute-def:eduOrgLegalName': 'eduOrgLegalName',
-        'urn:mace:dir:attribute-def:eduOrgSuperiorURI': 'eduOrgSuperiorURI',
-        'urn:mace:dir:attribute-def:eduOrgWhitePagesURI': 'eduOrgWhitePagesURI',
-        'urn:mace:dir:attribute-def:eduPersonAffiliation': 'eduPersonAffiliation',
-        'urn:mace:dir:attribute-def:eduPersonEntitlement': 'eduPersonEntitlement',
-        'urn:mace:dir:attribute-def:eduPersonNickname': 'eduPersonNickname',
-        'urn:mace:dir:attribute-def:eduPersonOrgDN': 'eduPersonOrgDN',
-        'urn:mace:dir:attribute-def:eduPersonOrgUnitDN': 'eduPersonOrgUnitDN',
-        'urn:mace:dir:attribute-def:eduPersonPrimaryAffiliation': 'eduPersonPrimaryAffiliation',
-        'urn:mace:dir:attribute-def:eduPersonPrimaryOrgUnitDN': 'eduPersonPrimaryOrgUnitDN',
-        'urn:mace:dir:attribute-def:eduPersonPrincipalName': 'eduPersonPrincipalName',
-        'urn:mace:dir:attribute-def:eduPersonScopedAffiliation': 'eduPersonScopedAffiliation',
-        'urn:mace:dir:attribute-def:eduPersonTargetedID': 'eduPersonTargetedID',
-        'urn:mace:dir:attribute-def:email': 'email',
-        'urn:mace:dir:attribute-def:emailAddress': 'emailAddress',
-        'urn:mace:dir:attribute-def:employeeNumber': 'employeeNumber',
-        'urn:mace:dir:attribute-def:employeeType': 'employeeType',
-        'urn:mace:dir:attribute-def:enhancedSearchGuide': 'enhancedSearchGuide',
-        'urn:mace:dir:attribute-def:facsimileTelephoneNumber': 'facsimileTelephoneNumber',
-        'urn:mace:dir:attribute-def:favouriteDrink': 'favouriteDrink',
-        'urn:mace:dir:attribute-def:fax': 'fax',
-        'urn:mace:dir:attribute-def:federationFeideSchemaVersion': 'federationFeideSchemaVersion',
-        'urn:mace:dir:attribute-def:friendlyCountryName': 'friendlyCountryName',
-        'urn:mace:dir:attribute-def:generationQualifier': 'generationQualifier',
-        'urn:mace:dir:attribute-def:givenName': 'givenName',
-        'urn:mace:dir:attribute-def:gn': 'gn',
-        'urn:mace:dir:attribute-def:homePhone': 'homePhone',
-        'urn:mace:dir:attribute-def:homePostalAddress': 'homePostalAddress',
-        'urn:mace:dir:attribute-def:homeTelephoneNumber': 'homeTelephoneNumber',
-        'urn:mace:dir:attribute-def:host': 'host',
-        'urn:mace:dir:attribute-def:houseIdentifier': 'houseIdentifier',
-        'urn:mace:dir:attribute-def:info': 'info',
-        'urn:mace:dir:attribute-def:initials': 'initials',
-        'urn:mace:dir:attribute-def:internationaliSDNNumber': 'internationaliSDNNumber',
-        'urn:mace:dir:attribute-def:janetMailbox': 'janetMailbox',
-        'urn:mace:dir:attribute-def:jpegPhoto': 'jpegPhoto',
-        'urn:mace:dir:attribute-def:knowledgeInformation': 'knowledgeInformation',
-        'urn:mace:dir:attribute-def:l': 'l',
-        'urn:mace:dir:attribute-def:labeledURI': 'labeledURI',
-        'urn:mace:dir:attribute-def:localityName': 'localityName',
-        'urn:mace:dir:attribute-def:mDRecord': 'mDRecord',
-        'urn:mace:dir:attribute-def:mXRecord': 'mXRecord',
-        'urn:mace:dir:attribute-def:mail': 'mail',
-        'urn:mace:dir:attribute-def:mailPreferenceOption': 'mailPreferenceOption',
-        'urn:mace:dir:attribute-def:manager': 'manager',
-        'urn:mace:dir:attribute-def:member': 'member',
-        'urn:mace:dir:attribute-def:mobile': 'mobile',
-        'urn:mace:dir:attribute-def:mobileTelephoneNumber': 'mobileTelephoneNumber',
-        'urn:mace:dir:attribute-def:nSRecord': 'nSRecord',
-        'urn:mace:dir:attribute-def:name': 'name',
-        'urn:mace:dir:attribute-def:norEduOrgAcronym': 'norEduOrgAcronym',
-        'urn:mace:dir:attribute-def:norEduOrgNIN': 'norEduOrgNIN',
-        'urn:mace:dir:attribute-def:norEduOrgSchemaVersion': 'norEduOrgSchemaVersion',
-        'urn:mace:dir:attribute-def:norEduOrgUniqueIdentifier': 'norEduOrgUniqueIdentifier',
-        'urn:mace:dir:attribute-def:norEduOrgUniqueNumber': 'norEduOrgUniqueNumber',
-        'urn:mace:dir:attribute-def:norEduOrgUnitUniqueIdentifier': 'norEduOrgUnitUniqueIdentifier',
-        'urn:mace:dir:attribute-def:norEduOrgUnitUniqueNumber': 'norEduOrgUnitUniqueNumber',
-        'urn:mace:dir:attribute-def:norEduPersonBirthDate': 'norEduPersonBirthDate',
-        'urn:mace:dir:attribute-def:norEduPersonLIN': 'norEduPersonLIN',
-        'urn:mace:dir:attribute-def:norEduPersonNIN': 'norEduPersonNIN',
-        'urn:mace:dir:attribute-def:o': 'o',
-        'urn:mace:dir:attribute-def:objectClass': 'objectClass',
-        'urn:mace:dir:attribute-def:organizationName': 'organizationName',
-        'urn:mace:dir:attribute-def:organizationalStatus': 'organizationalStatus',
-        'urn:mace:dir:attribute-def:organizationalUnitName': 'organizationalUnitName',
-        'urn:mace:dir:attribute-def:otherMailbox': 'otherMailbox',
-        'urn:mace:dir:attribute-def:ou': 'ou',
-        'urn:mace:dir:attribute-def:owner': 'owner',
-        'urn:mace:dir:attribute-def:pager': 'pager',
-        'urn:mace:dir:attribute-def:pagerTelephoneNumber': 'pagerTelephoneNumber',
-        'urn:mace:dir:attribute-def:personalSignature': 'personalSignature',
-        'urn:mace:dir:attribute-def:personalTitle': 'personalTitle',
-        'urn:mace:dir:attribute-def:photo': 'photo',
-        'urn:mace:dir:attribute-def:physicalDeliveryOfficeName': 'physicalDeliveryOfficeName',
-        'urn:mace:dir:attribute-def:pkcs9email': 'pkcs9email',
-        'urn:mace:dir:attribute-def:postOfficeBox': 'postOfficeBox',
-        'urn:mace:dir:attribute-def:postalAddress': 'postalAddress',
-        'urn:mace:dir:attribute-def:postalCode': 'postalCode',
-        'urn:mace:dir:attribute-def:preferredDeliveryMethod': 'preferredDeliveryMethod',
-        'urn:mace:dir:attribute-def:preferredLanguage': 'preferredLanguage',
-        'urn:mace:dir:attribute-def:presentationAddress': 'presentationAddress',
-        'urn:mace:dir:attribute-def:protocolInformation': 'protocolInformation',
-        'urn:mace:dir:attribute-def:pseudonym': 'pseudonym',
-        'urn:mace:dir:attribute-def:registeredAddress': 'registeredAddress',
-        'urn:mace:dir:attribute-def:rfc822Mailbox': 'rfc822Mailbox',
-        'urn:mace:dir:attribute-def:roleOccupant': 'roleOccupant',
-        'urn:mace:dir:attribute-def:roomNumber': 'roomNumber',
-        'urn:mace:dir:attribute-def:sOARecord': 'sOARecord',
-        'urn:mace:dir:attribute-def:searchGuide': 'searchGuide',
-        'urn:mace:dir:attribute-def:secretary': 'secretary',
-        'urn:mace:dir:attribute-def:seeAlso': 'seeAlso',
-        'urn:mace:dir:attribute-def:serialNumber': 'serialNumber',
-        'urn:mace:dir:attribute-def:singleLevelQuality': 'singleLevelQuality',
-        'urn:mace:dir:attribute-def:sn': 'sn',
-        'urn:mace:dir:attribute-def:st': 'st',
-        'urn:mace:dir:attribute-def:stateOrProvinceName': 'stateOrProvinceName',
-        'urn:mace:dir:attribute-def:street': 'street',
-        'urn:mace:dir:attribute-def:streetAddress': 'streetAddress',
-        'urn:mace:dir:attribute-def:subtreeMaximumQuality': 'subtreeMaximumQuality',
-        'urn:mace:dir:attribute-def:subtreeMinimumQuality': 'subtreeMinimumQuality',
-        'urn:mace:dir:attribute-def:supportedAlgorithms': 'supportedAlgorithms',
-        'urn:mace:dir:attribute-def:supportedApplicationContext': 'supportedApplicationContext',
-        'urn:mace:dir:attribute-def:surname': 'surname',
-        'urn:mace:dir:attribute-def:telephoneNumber': 'telephoneNumber',
-        'urn:mace:dir:attribute-def:teletexTerminalIdentifier': 'teletexTerminalIdentifier',
-        'urn:mace:dir:attribute-def:telexNumber': 'telexNumber',
-        'urn:mace:dir:attribute-def:textEncodedORAddress': 'textEncodedORAddress',
-        'urn:mace:dir:attribute-def:title': 'title',
-        'urn:mace:dir:attribute-def:uid': 'uid',
-        'urn:mace:dir:attribute-def:uniqueIdentifier': 'uniqueIdentifier',
-        'urn:mace:dir:attribute-def:uniqueMember': 'uniqueMember',
-        'urn:mace:dir:attribute-def:userCertificate': 'userCertificate',
-        'urn:mace:dir:attribute-def:userClass': 'userClass',
-        'urn:mace:dir:attribute-def:userPKCS12': 'userPKCS12',
-        'urn:mace:dir:attribute-def:userPassword': 'userPassword',
-        'urn:mace:dir:attribute-def:userSMIMECertificate': 'userSMIMECertificate',
-        'urn:mace:dir:attribute-def:userid': 'userid',
-        'urn:mace:dir:attribute-def:x121Address': 'x121Address',
-        'urn:mace:dir:attribute-def:x500UniqueIdentifier': 'x500UniqueIdentifier',
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": "emailaddress",  # E-Mail Address, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname": "givenname",  # Given Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": "name",  # Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn": "upn",  # UPN, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/claims/CommonName": "CommonName",  # Common Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/claims/EmailAddress": "EmailAddress",  # AD FS 1.x E-Mail Address, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/claims/Group": "Group",  # Group, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/claims/UPN": "UPN",  # AD FS 1.x UPN, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": "role",  # Role, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname": "surname",  # Surname, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier": "privatepersonalidentifier",  # PPID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier": "nameidentifier",  # Name ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant": "authenticationinstant",  # Authentication time stamp, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationmethod": "authenticationmethod",  # Authentication method, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/denyonlysid": "denyonlysid",  # Deny only group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarysid": "denyonlyprimarysid",  # Deny only primary SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarygroupsid": "denyonlyprimarygroupsid",  # Deny only primary group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid": "groupsid",  # Group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/primarygroupsid": "primarygroupsid",  # Primary group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/primarysid": "primarysid",  # Primary SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname": "windowsaccountname",  # Windows account name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/isregistereduser": "isregistereduser",  # Is Registered User, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier": "identifier",  # Device Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/registrationid": "registrationid",  # Device Registration Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/displayname": "displayname",  # Device Registration DisplayName, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/ostype": "ostype",  # Device OS type, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/osversion": "osversion",  # Device OS Version, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/devicecontext/claims/ismanaged": "ismanaged",  # Is Managed Device, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-forwarded-client-ip": "x-ms-forwarded-client-ip",  # Forwarded Client IP, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-application": "x-ms-client-application",  # Client Application, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-user-agent": "x-ms-client-user-agent",  # Client User Agent, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-ip": "x-ms-client-ip",  # Client IP, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-endpoint-absolute-path": "x-ms-endpoint-absolute-path",  # Endpoint Path, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-proxy": "x-ms-proxy",  # Proxy, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/relyingpartytrustid": "relyingpartytrustid",  # Application Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/applicationpolicy": "applicationpolicy",  # Application policies, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/authoritykeyidentifier": "authoritykeyidentifier",  # Authority Key Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/basicconstraints": "basicconstraints",  # Basic Constraint, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/eku": "eku",  # Enhanced Key Usage, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/issuer": "issuer",  # Issuer, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/issuername": "issuername",  # Issuer Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/keyusage": "keyusage",  # Key Usage, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/notafter": "notafter",  # Not After, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/notbefore": "notbefore",  # Not Before, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatepolicy": "certificatepolicy",  # Certificate Policies, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/rsa": "rsa",  # Public Key, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/rawdata": "rawdata",  # Certificate Raw Data, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/san": "san",  # Subject Alternative Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/serialnumber": "serialnumber",  # Serial Number, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/signaturealgorithm": "signaturealgorithm",  # Signature Algorithm, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/subject": "subject",  # Subject, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/subjectkeyidentifier": "subjectkeyidentifier",  # Subject Key Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/subjectname": "subjectname",  # Subject Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatetemplateinformation": "certificatetemplateinformation",  # V2 Template Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatetemplatename": "certificatetemplatename",  # V1 Template Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/thumbprint": "thumbprint",  # Thumbprint, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/12/certificatecontext/field/x509version": "x509version",  # X.509 Version, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2012/01/insidecorporatenetwork": "insidecorporatenetwork",  # Inside Corporate Network, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2012/01/passwordexpirationtime": "passwordexpirationtime",  # Password Expiration Time, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2012/01/passwordexpirationdays": "passwordexpirationdays",  # Password Expiration Days, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2012/01/passwordchangeurl": "passwordchangeurl",  # Update Password URL, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/claims/authnmethodsreferences": "authnmethodsreferences",  # Authentication Methods References, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/2012/01/requestcontext/claims/client-request-id": "client-request-id",  # Client Request ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "http://schemas.microsoft.com/ws/2013/11/alternateloginid": "alternateloginid",  # Alternate Login ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
     },
     "to": {
-        'aRecord': 'urn:mace:dir:attribute-def:aRecord',
-        'aliasedEntryName': 'urn:mace:dir:attribute-def:aliasedEntryName',
-        'aliasedObjectName': 'urn:mace:dir:attribute-def:aliasedObjectName',
-        'associatedDomain': 'urn:mace:dir:attribute-def:associatedDomain',
-        'associatedName': 'urn:mace:dir:attribute-def:associatedName',
-        'audio': 'urn:mace:dir:attribute-def:audio',
-        'authorityRevocationList': 'urn:mace:dir:attribute-def:authorityRevocationList',
-        'buildingName': 'urn:mace:dir:attribute-def:buildingName',
-        'businessCategory': 'urn:mace:dir:attribute-def:businessCategory',
-        'c': 'urn:mace:dir:attribute-def:c',
-        'cACertificate': 'urn:mace:dir:attribute-def:cACertificate',
-        'cNAMERecord': 'urn:mace:dir:attribute-def:cNAMERecord',
-        'carLicense': 'urn:mace:dir:attribute-def:carLicense',
-        'certificateRevocationList': 'urn:mace:dir:attribute-def:certificateRevocationList',
-        'cn': 'urn:mace:dir:attribute-def:cn',
-        'co': 'urn:mace:dir:attribute-def:co',
-        'commonName': 'urn:mace:dir:attribute-def:commonName',
-        'countryName': 'urn:mace:dir:attribute-def:countryName',
-        'crossCertificatePair': 'urn:mace:dir:attribute-def:crossCertificatePair',
-        'dITRedirect': 'urn:mace:dir:attribute-def:dITRedirect',
-        'dSAQuality': 'urn:mace:dir:attribute-def:dSAQuality',
-        'dc': 'urn:mace:dir:attribute-def:dc',
-        'deltaRevocationList': 'urn:mace:dir:attribute-def:deltaRevocationList',
-        'departmentNumber': 'urn:mace:dir:attribute-def:departmentNumber',
-        'description': 'urn:mace:dir:attribute-def:description',
-        'destinationIndicator': 'urn:mace:dir:attribute-def:destinationIndicator',
-        'displayName': 'urn:mace:dir:attribute-def:displayName',
-        'distinguishedName': 'urn:mace:dir:attribute-def:distinguishedName',
-        'dmdName': 'urn:mace:dir:attribute-def:dmdName',
-        'dnQualifier': 'urn:mace:dir:attribute-def:dnQualifier',
-        'documentAuthor': 'urn:mace:dir:attribute-def:documentAuthor',
-        'documentIdentifier': 'urn:mace:dir:attribute-def:documentIdentifier',
-        'documentLocation': 'urn:mace:dir:attribute-def:documentLocation',
-        'documentPublisher': 'urn:mace:dir:attribute-def:documentPublisher',
-        'documentTitle': 'urn:mace:dir:attribute-def:documentTitle',
-        'documentVersion': 'urn:mace:dir:attribute-def:documentVersion',
-        'domainComponent': 'urn:mace:dir:attribute-def:domainComponent',
-        'drink': 'urn:mace:dir:attribute-def:drink',
-        'eduOrgHomePageURI': 'urn:mace:dir:attribute-def:eduOrgHomePageURI',
-        'eduOrgIdentityAuthNPolicyURI': 'urn:mace:dir:attribute-def:eduOrgIdentityAuthNPolicyURI',
-        'eduOrgLegalName': 'urn:mace:dir:attribute-def:eduOrgLegalName',
-        'eduOrgSuperiorURI': 'urn:mace:dir:attribute-def:eduOrgSuperiorURI',
-        'eduOrgWhitePagesURI': 'urn:mace:dir:attribute-def:eduOrgWhitePagesURI',
-        'eduPersonAffiliation': 'urn:mace:dir:attribute-def:eduPersonAffiliation',
-        'eduPersonEntitlement': 'urn:mace:dir:attribute-def:eduPersonEntitlement',
-        'eduPersonNickname': 'urn:mace:dir:attribute-def:eduPersonNickname',
-        'eduPersonOrgDN': 'urn:mace:dir:attribute-def:eduPersonOrgDN',
-        'eduPersonOrgUnitDN': 'urn:mace:dir:attribute-def:eduPersonOrgUnitDN',
-        'eduPersonPrimaryAffiliation': 'urn:mace:dir:attribute-def:eduPersonPrimaryAffiliation',
-        'eduPersonPrimaryOrgUnitDN': 'urn:mace:dir:attribute-def:eduPersonPrimaryOrgUnitDN',
-        'eduPersonPrincipalName': 'urn:mace:dir:attribute-def:eduPersonPrincipalName',
-        'eduPersonScopedAffiliation': 'urn:mace:dir:attribute-def:eduPersonScopedAffiliation',
-        'eduPersonTargetedID': 'urn:mace:dir:attribute-def:eduPersonTargetedID',
-        'email': 'urn:mace:dir:attribute-def:email',
-        'emailAddress': 'urn:mace:dir:attribute-def:emailAddress',
-        'employeeNumber': 'urn:mace:dir:attribute-def:employeeNumber',
-        'employeeType': 'urn:mace:dir:attribute-def:employeeType',
-        'enhancedSearchGuide': 'urn:mace:dir:attribute-def:enhancedSearchGuide',
-        'facsimileTelephoneNumber': 'urn:mace:dir:attribute-def:facsimileTelephoneNumber',
-        'favouriteDrink': 'urn:mace:dir:attribute-def:favouriteDrink',
-        'fax': 'urn:mace:dir:attribute-def:fax',
-        'federationFeideSchemaVersion': 'urn:mace:dir:attribute-def:federationFeideSchemaVersion',
-        'friendlyCountryName': 'urn:mace:dir:attribute-def:friendlyCountryName',
-        'generationQualifier': 'urn:mace:dir:attribute-def:generationQualifier',
-        'givenName': 'urn:mace:dir:attribute-def:givenName',
-        'gn': 'urn:mace:dir:attribute-def:gn',
-        'homePhone': 'urn:mace:dir:attribute-def:homePhone',
-        'homePostalAddress': 'urn:mace:dir:attribute-def:homePostalAddress',
-        'homeTelephoneNumber': 'urn:mace:dir:attribute-def:homeTelephoneNumber',
-        'host': 'urn:mace:dir:attribute-def:host',
-        'houseIdentifier': 'urn:mace:dir:attribute-def:houseIdentifier',
-        'info': 'urn:mace:dir:attribute-def:info',
-        'initials': 'urn:mace:dir:attribute-def:initials',
-        'internationaliSDNNumber': 'urn:mace:dir:attribute-def:internationaliSDNNumber',
-        'janetMailbox': 'urn:mace:dir:attribute-def:janetMailbox',
-        'jpegPhoto': 'urn:mace:dir:attribute-def:jpegPhoto',
-        'knowledgeInformation': 'urn:mace:dir:attribute-def:knowledgeInformation',
-        'l': 'urn:mace:dir:attribute-def:l',
-        'labeledURI': 'urn:mace:dir:attribute-def:labeledURI',
-        'localityName': 'urn:mace:dir:attribute-def:localityName',
-        'mDRecord': 'urn:mace:dir:attribute-def:mDRecord',
-        'mXRecord': 'urn:mace:dir:attribute-def:mXRecord',
-        'mail': 'urn:mace:dir:attribute-def:mail',
-        'mailPreferenceOption': 'urn:mace:dir:attribute-def:mailPreferenceOption',
-        'manager': 'urn:mace:dir:attribute-def:manager',
-        'member': 'urn:mace:dir:attribute-def:member',
-        'mobile': 'urn:mace:dir:attribute-def:mobile',
-        'mobileTelephoneNumber': 'urn:mace:dir:attribute-def:mobileTelephoneNumber',
-        'nSRecord': 'urn:mace:dir:attribute-def:nSRecord',
-        'name': 'urn:mace:dir:attribute-def:name',
-        'norEduOrgAcronym': 'urn:mace:dir:attribute-def:norEduOrgAcronym',
-        'norEduOrgNIN': 'urn:mace:dir:attribute-def:norEduOrgNIN',
-        'norEduOrgSchemaVersion': 'urn:mace:dir:attribute-def:norEduOrgSchemaVersion',
-        'norEduOrgUniqueIdentifier': 'urn:mace:dir:attribute-def:norEduOrgUniqueIdentifier',
-        'norEduOrgUniqueNumber': 'urn:mace:dir:attribute-def:norEduOrgUniqueNumber',
-        'norEduOrgUnitUniqueIdentifier': 'urn:mace:dir:attribute-def:norEduOrgUnitUniqueIdentifier',
-        'norEduOrgUnitUniqueNumber': 'urn:mace:dir:attribute-def:norEduOrgUnitUniqueNumber',
-        'norEduPersonBirthDate': 'urn:mace:dir:attribute-def:norEduPersonBirthDate',
-        'norEduPersonLIN': 'urn:mace:dir:attribute-def:norEduPersonLIN',
-        'norEduPersonNIN': 'urn:mace:dir:attribute-def:norEduPersonNIN',
-        'o': 'urn:mace:dir:attribute-def:o',
-        'objectClass': 'urn:mace:dir:attribute-def:objectClass',
-        'organizationName': 'urn:mace:dir:attribute-def:organizationName',
-        'organizationalStatus': 'urn:mace:dir:attribute-def:organizationalStatus',
-        'organizationalUnitName': 'urn:mace:dir:attribute-def:organizationalUnitName',
-        'otherMailbox': 'urn:mace:dir:attribute-def:otherMailbox',
-        'ou': 'urn:mace:dir:attribute-def:ou',
-        'owner': 'urn:mace:dir:attribute-def:owner',
-        'pager': 'urn:mace:dir:attribute-def:pager',
-        'pagerTelephoneNumber': 'urn:mace:dir:attribute-def:pagerTelephoneNumber',
-        'personalSignature': 'urn:mace:dir:attribute-def:personalSignature',
-        'personalTitle': 'urn:mace:dir:attribute-def:personalTitle',
-        'photo': 'urn:mace:dir:attribute-def:photo',
-        'physicalDeliveryOfficeName': 'urn:mace:dir:attribute-def:physicalDeliveryOfficeName',
-        'pkcs9email': 'urn:mace:dir:attribute-def:pkcs9email',
-        'postOfficeBox': 'urn:mace:dir:attribute-def:postOfficeBox',
-        'postalAddress': 'urn:mace:dir:attribute-def:postalAddress',
-        'postalCode': 'urn:mace:dir:attribute-def:postalCode',
-        'preferredDeliveryMethod': 'urn:mace:dir:attribute-def:preferredDeliveryMethod',
-        'preferredLanguage': 'urn:mace:dir:attribute-def:preferredLanguage',
-        'presentationAddress': 'urn:mace:dir:attribute-def:presentationAddress',
-        'protocolInformation': 'urn:mace:dir:attribute-def:protocolInformation',
-        'pseudonym': 'urn:mace:dir:attribute-def:pseudonym',
-        'registeredAddress': 'urn:mace:dir:attribute-def:registeredAddress',
-        'rfc822Mailbox': 'urn:mace:dir:attribute-def:rfc822Mailbox',
-        'roleOccupant': 'urn:mace:dir:attribute-def:roleOccupant',
-        'roomNumber': 'urn:mace:dir:attribute-def:roomNumber',
-        'sOARecord': 'urn:mace:dir:attribute-def:sOARecord',
-        'searchGuide': 'urn:mace:dir:attribute-def:searchGuide',
-        'secretary': 'urn:mace:dir:attribute-def:secretary',
-        'seeAlso': 'urn:mace:dir:attribute-def:seeAlso',
-        'serialNumber': 'urn:mace:dir:attribute-def:serialNumber',
-        'singleLevelQuality': 'urn:mace:dir:attribute-def:singleLevelQuality',
-        'sn': 'urn:mace:dir:attribute-def:sn',
-        'st': 'urn:mace:dir:attribute-def:st',
-        'stateOrProvinceName': 'urn:mace:dir:attribute-def:stateOrProvinceName',
-        'street': 'urn:mace:dir:attribute-def:street',
-        'streetAddress': 'urn:mace:dir:attribute-def:streetAddress',
-        'subtreeMaximumQuality': 'urn:mace:dir:attribute-def:subtreeMaximumQuality',
-        'subtreeMinimumQuality': 'urn:mace:dir:attribute-def:subtreeMinimumQuality',
-        'supportedAlgorithms': 'urn:mace:dir:attribute-def:supportedAlgorithms',
-        'supportedApplicationContext': 'urn:mace:dir:attribute-def:supportedApplicationContext',
-        'surname': 'urn:mace:dir:attribute-def:surname',
-        'telephoneNumber': 'urn:mace:dir:attribute-def:telephoneNumber',
-        'teletexTerminalIdentifier': 'urn:mace:dir:attribute-def:teletexTerminalIdentifier',
-        'telexNumber': 'urn:mace:dir:attribute-def:telexNumber',
-        'textEncodedORAddress': 'urn:mace:dir:attribute-def:textEncodedORAddress',
-        'title': 'urn:mace:dir:attribute-def:title',
-        'uid': 'urn:mace:dir:attribute-def:uid',
-        'uniqueIdentifier': 'urn:mace:dir:attribute-def:uniqueIdentifier',
-        'uniqueMember': 'urn:mace:dir:attribute-def:uniqueMember',
-        'userCertificate': 'urn:mace:dir:attribute-def:userCertificate',
-        'userClass': 'urn:mace:dir:attribute-def:userClass',
-        'userPKCS12': 'urn:mace:dir:attribute-def:userPKCS12',
-        'userPassword': 'urn:mace:dir:attribute-def:userPassword',
-        'userSMIMECertificate': 'urn:mace:dir:attribute-def:userSMIMECertificate',
-        'userid': 'urn:mace:dir:attribute-def:userid',
-        'x121Address': 'urn:mace:dir:attribute-def:x121Address',
-        'x500UniqueIdentifier': 'urn:mace:dir:attribute-def:x500UniqueIdentifier',
+        "emailaddress": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",  # E-Mail Address, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "givenname": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname",  # Given Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",  # Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "upn": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn",  # UPN, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "CommonName": "http://schemas.xmlsoap.org/claims/CommonName",  # Common Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "EmailAddress": "http://schemas.xmlsoap.org/claims/EmailAddress",  # AD FS 1.x E-Mail Address, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "Group": "http://schemas.xmlsoap.org/claims/Group",  # Group, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "UPN": "http://schemas.xmlsoap.org/claims/UPN",  # AD FS 1.x UPN, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "role": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",  # Role, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "surname": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname",  # Surname, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "privatepersonalidentifier": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier",  # PPID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "nameidentifier": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",  # Name ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "authenticationinstant": "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationinstant",  # Authentication time stamp, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "authenticationmethod": "http://schemas.microsoft.com/ws/2008/06/identity/claims/authenticationmethod",  # Authentication method, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "denyonlysid": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/denyonlysid",  # Deny only group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "denyonlyprimarysid": "http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarysid",  # Deny only primary SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "denyonlyprimarygroupsid": "http://schemas.microsoft.com/ws/2008/06/identity/claims/denyonlyprimarygroupsid",  # Deny only primary group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "groupsid": "http://schemas.microsoft.com/ws/2008/06/identity/claims/groupsid",  # Group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "primarygroupsid": "http://schemas.microsoft.com/ws/2008/06/identity/claims/primarygroupsid",  # Primary group SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "primarysid": "http://schemas.microsoft.com/ws/2008/06/identity/claims/primarysid",  # Primary SID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "windowsaccountname": "http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname",  # Windows account name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "isregistereduser": "http://schemas.microsoft.com/2012/01/devicecontext/claims/isregistereduser",  # Is Registered User, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "identifier": "http://schemas.microsoft.com/2012/01/devicecontext/claims/identifier",  # Device Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "registrationid": "http://schemas.microsoft.com/2012/01/devicecontext/claims/registrationid",  # Device Registration Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "displayname": "http://schemas.microsoft.com/2012/01/devicecontext/claims/displayname",  # Device Registration DisplayName, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "ostype": "http://schemas.microsoft.com/2012/01/devicecontext/claims/ostype",  # Device OS type, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "osversion": "http://schemas.microsoft.com/2012/01/devicecontext/claims/osversion",  # Device OS Version, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "ismanaged": "http://schemas.microsoft.com/2012/01/devicecontext/claims/ismanaged",  # Is Managed Device, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-forwarded-client-ip": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-forwarded-client-ip",  # Forwarded Client IP, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-client-application": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-application",  # Client Application, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-client-user-agent": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-user-agent",  # Client User Agent, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-client-ip": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-client-ip",  # Client IP, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-endpoint-absolute-path": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-endpoint-absolute-path",  # Endpoint Path, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x-ms-proxy": "http://schemas.microsoft.com/2012/01/requestcontext/claims/x-ms-proxy",  # Proxy, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "relyingpartytrustid": "http://schemas.microsoft.com/2012/01/requestcontext/claims/relyingpartytrustid",  # Application Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "applicationpolicy": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/applicationpolicy",  # Application policies, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "authoritykeyidentifier": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/authoritykeyidentifier",  # Authority Key Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "basicconstraints": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/basicconstraints",  # Basic Constraint, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "eku": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/eku",  # Enhanced Key Usage, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "issuer": "http://schemas.microsoft.com/2012/12/certificatecontext/field/issuer",  # Issuer, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "issuername": "http://schemas.microsoft.com/2012/12/certificatecontext/field/issuername",  # Issuer Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "keyusage": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/keyusage",  # Key Usage, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "notafter": "http://schemas.microsoft.com/2012/12/certificatecontext/field/notafter",  # Not After, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "notbefore": "http://schemas.microsoft.com/2012/12/certificatecontext/field/notbefore",  # Not Before, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "certificatepolicy": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatepolicy",  # Certificate Policies, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "rsa": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/rsa",  # Public Key, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "rawdata": "http://schemas.microsoft.com/2012/12/certificatecontext/field/rawdata",  # Certificate Raw Data, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "san": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/san",  # Subject Alternative Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "serialnumber": "http://schemas.microsoft.com/ws/2008/06/identity/claims/serialnumber",  # Serial Number, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "signaturealgorithm": "http://schemas.microsoft.com/2012/12/certificatecontext/field/signaturealgorithm",  # Signature Algorithm, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "subject": "http://schemas.microsoft.com/2012/12/certificatecontext/field/subject",  # Subject, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "subjectkeyidentifier": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/subjectkeyidentifier",  # Subject Key Identifier, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "subjectname": "http://schemas.microsoft.com/2012/12/certificatecontext/field/subjectname",  # Subject Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "certificatetemplateinformation": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatetemplateinformation",  # V2 Template Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "certificatetemplatename": "http://schemas.microsoft.com/2012/12/certificatecontext/extension/certificatetemplatename",  # V1 Template Name, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "thumbprint": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/thumbprint",  # Thumbprint, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "x509version": "http://schemas.microsoft.com/2012/12/certificatecontext/field/x509version",  # X.509 Version, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "insidecorporatenetwork": "http://schemas.microsoft.com/ws/2012/01/insidecorporatenetwork",  # Inside Corporate Network, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "passwordexpirationtime": "http://schemas.microsoft.com/ws/2012/01/passwordexpirationtime",  # Password Expiration Time, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "passwordexpirationdays": "http://schemas.microsoft.com/ws/2012/01/passwordexpirationdays",  # Password Expiration Days, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "passwordchangeurl": "http://schemas.microsoft.com/ws/2012/01/passwordchangeurl",  # Update Password URL, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "authnmethodsreferences": "http://schemas.microsoft.com/claims/authnmethodsreferences",  # Authentication Methods References, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "client-request-id": "http://schemas.microsoft.com/2012/01/requestcontext/claims/client-request-id",  # Client Request ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        "alternateloginid": "http://schemas.microsoft.com/ws/2013/11/alternateloginid",  # Alternate Login ID, urn:oasis:names:tc:SAML:2.0:attrname-format:uri
     }
 }

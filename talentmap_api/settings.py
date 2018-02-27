@@ -116,6 +116,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+
+    # Our middleware
+    'talentmap_api.common.middleware.IE11Middleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
@@ -159,12 +162,24 @@ SAML_CONFIG = {}
 
 # Lookup by email
 SAML_DJANGO_USER_MAIN_ATTRIBUTE = 'email'
+# Use their uid as their username
+SAML_USE_NAME_ID_AS_USERNAME = True
 # Create a new Django user if we have a saml2 user we don't know
 SAML_CREATE_UNKNOWN_USER = True
 
 if ENABLE_SAML2:
     # See https://github.com/knaperek/djangosaml2 for more information
+    SAML_ATTRIBUTE_MAPPING = {
+        'nameidentifier': ('username', ),
+        'EmailAddress': ('email', ),
+        'givenname': ('first_name', ),
+        'surname': ('last_name', ),
+    }
+
     SAML_CONFIG = {
+        "strict": False,
+        "allow_unsolicited": True,
+
         # full path to the xmlsec1 binary program
         'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
 
@@ -198,7 +213,7 @@ if ENABLE_SAML2:
                 },
 
                 # attributes that this project need to identify a user
-                'required_attributes': ['uid'],
+                'required_attributes': ['EmailAddress', 'nameidentifier', 'givenname', 'surname'],
 
                 # attributes that may be useful to have but not required
                 # TODO: What attributes are we getting back from DOS IdP?
