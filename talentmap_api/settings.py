@@ -100,7 +100,8 @@ INSTALLED_APPS = [
     'talentmap_api.bidding',
     'talentmap_api.permission',
     'talentmap_api.glossary',
-    'talentmap_api.integrations'
+    'talentmap_api.integrations',
+    'talentmap_api.feedback',
 ]
 
 MIDDLEWARE = [
