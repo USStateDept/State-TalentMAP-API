@@ -127,6 +127,7 @@ def mode_skills():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "skill",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<skills><skill></skill></skills>"
@@ -149,6 +150,7 @@ def mode_grade():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "grade",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<grades><grade></grade></grades>"
@@ -226,6 +228,7 @@ def mode_languages():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "language",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<languages><language></language></languages>"
@@ -254,6 +257,7 @@ def mode_countries():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "country",
+        "MaximumOutputRows": 10,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<countries><country></country></countries>"
@@ -402,6 +406,7 @@ def mode_skill_cones():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "jobcategoryskill",
+        "MaximumOutputRows": 1000,
         "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<jobCategories><jobCategory></jobCategory></jobCategories>"
@@ -425,6 +430,7 @@ def mode_cycles():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "cycle",
+        "MaximumOutputRows": 1000,
         "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
