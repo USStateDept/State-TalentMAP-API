@@ -36,6 +36,12 @@ export ENABLE_SAML2=False
 # SAML2 debug setting, 1 or 0
 export SAML2_DEBUG=1
 
+# Node settings
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+# Redirect url
+export SAML_LOGIN_REDIRECT_URL="https://somewhere"
+# Front end ACS binding for SAML redirects to ACS
+export FRONT_END_ACS_BINDING="https://somewhere"
 # This setting controls whether the session expires when the user closes the browser
 export SAML2_SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 # The location of the xmlsec1 binary
