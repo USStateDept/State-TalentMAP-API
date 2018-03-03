@@ -257,7 +257,7 @@ def mode_countries():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "country",
-        "MaximumOutputRows": 10,
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<countries><country></country></countries>"
@@ -337,7 +337,7 @@ def mode_capsule_descriptions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "positioncapsule",
-        "MaximumOutputRows": 1000,
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<positionCapsules><positionCapsule></positionCapsule></positionCapsules>"
