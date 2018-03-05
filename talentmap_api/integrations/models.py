@@ -92,9 +92,9 @@ class SynchronizationJob(models.Model):
                             # Prevents getting stuck in a loop on the last page
                             break
                         # Store this as the previous lpsk
-                        previous_lpsk = loader.last_pagination_start_key
+                        previous_lpsk = str(int(loader.last_pagination_start_key) + 1)
                         # Set the pagination start key to our last collision field; which should be the remote data's primary key
-                        soap_arguments['PaginationStartKey'] = loader.last_pagination_start_key
+                        soap_arguments['PaginationStartKey'] = previous_lpsk
                         logger.info(f"Requesting page from primary key: {loader.last_pagination_start_key}")
                     else:
                         logger.info(f"Requesting first page")
