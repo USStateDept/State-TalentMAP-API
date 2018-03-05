@@ -169,6 +169,8 @@ SAML_USE_NAME_ID_AS_USERNAME = True
 SAML_CREATE_UNKNOWN_USER = True
 
 if ENABLE_SAML2:
+    LOGIN_REDIRECT_URL = os.environ.get('SAML_LOGIN_REDIRECT_URL')
+
     # See https://github.com/knaperek/djangosaml2 for more information
     SAML_ATTRIBUTE_MAPPING = {
         'nameidentifier': ('username', ),
@@ -179,7 +181,6 @@ if ENABLE_SAML2:
 
     SAML_CONFIG = {
         "strict": False,
-        "allow_unsolicited": True,
 
         # full path to the xmlsec1 binary program
         'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
@@ -195,12 +196,13 @@ if ENABLE_SAML2:
             # We are a service provider
             'sp': {
                 'name': 'TalentMAP',
+                'allow_unsolicited': True,
                 'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
                 'endpoints': {
                     # url and binding to the assetion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/acs/",
+                        (f"{os.environ.get('FRONT_END_ACS_BINDING')}",
                             saml2.BINDING_HTTP_POST),
                     ],
                     # url and binding to the single logout service view
