@@ -19,4 +19,4 @@ class TokenView(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        return Token.objects.get_or_create(user=self.request.user)
+        return Token.objects.get_or_create(user=self.request.user)[0]  # Throw away created flag
