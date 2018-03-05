@@ -1,5 +1,3 @@
-from django.shortcuts import get_object_or_404
-
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
 
@@ -21,4 +19,4 @@ class TokenView(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        return get_object_or_404(Token, user=self.request.user)
+        return Token.objects.get_or_create(user=self.request.user)
