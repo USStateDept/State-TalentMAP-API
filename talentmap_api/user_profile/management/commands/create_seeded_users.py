@@ -17,13 +17,13 @@ class Command(BaseCommand):
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [
         ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, []),
-        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, []),
+        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["feedback_editors"]),
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, []),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, []),
         ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, []),
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, []),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, [])
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["feedback_editors"])
     ]
 
     def handle(self, *args, **options):
