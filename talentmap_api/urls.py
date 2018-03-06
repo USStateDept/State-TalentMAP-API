@@ -64,6 +64,9 @@ urlpatterns = [
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
+
+    # Feedback
+    url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns

@@ -14,7 +14,8 @@ class Command(BaseCommand):
 
         self.groups = [
             "bureau_ao",
-            "glossary_editors"
+            "glossary_editors",
+            "feedback_editors"
         ]
 
     def handle(self, *args, **options):
