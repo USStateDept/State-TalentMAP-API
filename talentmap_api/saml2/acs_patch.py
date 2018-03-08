@@ -43,7 +43,7 @@ from djangosaml2.conf import get_config
 from djangosaml2.overrides import Saml2Client
 from djangosaml2.signals import post_authenticated
 from djangosaml2.utils import (
-    fail_acs_response, get_custom_setting, is_safe_url_compat,
+    fail_acs_response, get_custom_setting
 )
 
 from djangosaml2.views import _set_subject_id
@@ -137,20 +137,10 @@ def assertion_consumer_service(request,
 
     # Get user's token
     token, _ = ExpiringToken.objects.get_or_create(user=user)
-    if token and token.is_expired():
+    if token and token.expired():
         token.delete()
         token = ExpiringToken.objects.create(user=user)
 
     token_redirect_url = f"{settings.LOGIN_REDIRECT_URL}?tmApiToken={token.key}"
 
-    # redirect the user to the view where he came from
-    default_relay_state = get_custom_setting('ACS_DEFAULT_REDIRECT_URL',
-                                             token_redirect_url)
-    relay_state = request.POST.get('RelayState', default_relay_state)
-    if not relay_state:
-        logger.warning('The RelayState parameter exists but is empty')
-        relay_state = default_relay_state
-    if not is_safe_url_compat(url=relay_state, allowed_hosts={request.get_host()}):
-        relay_state = token_redirect_url
-    logger.debug('Redirecting to the RelayState: %s', relay_state)
-    return HttpResponseRedirect(relay_state)
+    return HttpResponseRedirect(token_redirect_url)

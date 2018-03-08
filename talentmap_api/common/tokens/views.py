@@ -20,7 +20,7 @@ class TokenView(mixins.RetrieveModelMixin,
 
     def get_object(self):
         token, _ = ExpiringToken.objects.get_or_create(user=self.request.user)
-        if token and token.is_expired():
+        if token and token.expired():
             token.delete()
             token = ExpiringToken.objects.create(user=self.request.user)
         return token

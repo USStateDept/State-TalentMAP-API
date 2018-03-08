@@ -169,11 +169,6 @@ SAML_USE_NAME_ID_AS_USERNAME = True
 SAML_CREATE_UNKNOWN_USER = True
 
 if ENABLE_SAML2:
-    # Use our token redirectable ACS method
-    import djangosaml2
-    import talentmap_api.saml2.acs_patch as acs_patch
-    djangosaml2.view.assertion_consumer_service = acs_patch.assertion_consumer_service
-
     LOGIN_REDIRECT_URL = os.environ.get('SAML_LOGIN_REDIRECT_URL')
 
     # See https://github.com/knaperek/djangosaml2 for more information
