@@ -18,11 +18,6 @@ Monkeypatch for consumer service to provide redirect url with user's expiring to
 '''
 import logging
 
-try:
-    from xml.etree import ElementTree
-except ImportError:
-    from elementtree import ElementTree
-
 from django.conf import settings
 from django.contrib import auth
 try:
