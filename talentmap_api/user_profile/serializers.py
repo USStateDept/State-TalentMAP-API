@@ -24,10 +24,11 @@ class UserProfileShortSerializer(PrefetchedSerializer):
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
+    initials = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo"]
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials"]
 
 
 class ClientSerializer(PrefetchedSerializer):
@@ -36,6 +37,7 @@ class ClientSerializer(PrefetchedSerializer):
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
+    initials = serializers.ReadOnlyField()
 
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
@@ -45,7 +47,7 @@ class ClientSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications"]
+        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -96,6 +98,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
+    initials = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
 
@@ -164,7 +167,7 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number"]
+        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials"]
         writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 
