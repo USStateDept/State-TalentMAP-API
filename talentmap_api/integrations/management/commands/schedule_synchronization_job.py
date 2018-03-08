@@ -67,7 +67,8 @@ class Command(BaseCommand):
             return
 
         job.delta_synchronization = options['delta']
-        job.priority = options['priority']
+        if options['priority']:
+            job.priority = options['priority']
         job.save()
         job.refresh_from_db()
 
