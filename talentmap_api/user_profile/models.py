@@ -55,7 +55,7 @@ class UserProfile(StaticRepresentationModel):
             display_name = self.user.username
         else:
             display_name = self.user.email
-        
+
         return display_name
 
     @property
