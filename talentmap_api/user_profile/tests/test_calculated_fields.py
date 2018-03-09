@@ -7,14 +7,14 @@ from talentmap_api.position.models import Assignment
 
 @pytest.mark.django_db()
 def test_user_display_name():
-    user_1 = mommy.make('auth.User', first_name="Johnny", last_name="State", username="statej", email="StateJB@state.gov")
+    user_1 = mommy.make('auth.User', first_name="Johnny", last_name="State", email="StateJB@state.gov")
     user_2 = mommy.make('auth.User', username="statej", email="StateJB@state.gov")
     user_3 = mommy.make('auth.User', email="StateJB@state.gov")
 
     assert user_1.profile.display_name == "Johnny"
     assert user_2.profile.display_name == "statej"
     assert user_3.profile.display_name == "StateJB@state.gov"
-    
+
 
 @pytest.mark.django_db()
 def test_user_initials():
