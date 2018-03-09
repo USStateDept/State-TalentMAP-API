@@ -7,6 +7,15 @@ from talentmap_api.position.models import Assignment
 
 
 @pytest.mark.django_db()
+def test_user_initials():
+    user_1 = mommy.make('auth.User', first_name="Johnny", last_name="State")
+    user_2 = mommy.make('auth.User', first_name="", last_name="", email="StateJB@state.gov")
+
+    assert user_1.profile.initials == "JS"
+    assert user_2.profile.initials == "JS"
+
+
+@pytest.mark.django_db()
 def test_fairshare_differential_case():
     with freeze_time("1990-01-01T00:00:00Z") as frozen_time:
         user_1 = mommy.make('auth.User').profile
