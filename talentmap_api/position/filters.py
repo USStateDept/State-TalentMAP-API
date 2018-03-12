@@ -143,6 +143,8 @@ class PositionFilter(filters.FilterSet):
         model = Position
         fields = {
             "position_number": ALL_TEXT_LOOKUPS,
+            "status": ALL_TEXT_LOOKUPS,
+            "status_code": ALL_TEXT_LOOKUPS,
             "title": ALL_TEXT_LOOKUPS,
             "is_overseas": ["exact"],
             "create_date": DATE_LOOKUPS,
