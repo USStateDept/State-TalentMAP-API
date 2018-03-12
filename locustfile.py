@@ -1,5 +1,10 @@
 from locust import HttpLocust, TaskSet, task
 
+'''
+To run interavtively: locust --host=http://whatever
+To run headless: locust --host=http://whatever --no-web -c CLIENTS -r HATCHRATE -n num_requests
+'''
+
 
 class TalentMAPResearchTasks(TaskSet):
     @task(10)
