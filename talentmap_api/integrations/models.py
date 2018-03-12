@@ -38,12 +38,14 @@ class SynchronizationJob(models.Model):
 
     talentmap_model = models.TextField(unique=True, help_text="The talentmap model as a string; e.g. position.Position")
 
+    priority = models.IntegerField(default=0, help_text='The job priority, higher numbers run later. Default 0')
+
     @staticmethod
     def get_scheduled():
         '''
         Returns all SynchronizationJob who should be run (any job whose last sync + delta is in the past)
         '''
-        return SynchronizationJob.objects.filter(next_synchronization__lte=datetime.datetime.utcnow(), running=False)
+        return SynchronizationJob.objects.filter(next_synchronization__lte=datetime.datetime.utcnow(), running=False).order_by('priority')
 
     def synchronize(self, soap_function="IPMSDataWebService", test=False):
         '''
@@ -143,7 +145,7 @@ class SynchronizationJob(models.Model):
         status_string = f"Last@{self.last_synchronization} Next@+{self.next_synchronization} ∆[{d.years}y {d.months}mo {d.days}d {d.minutes}min {d.seconds}s]"
         if self.running:
             status_string = "IN PROGRESS"
-        return f"SynchronizationJob - {self.talentmap_model}: {status_string}"
+        return f"SynchronizationJob (Priority: {self.priority})- {self.talentmap_model}: {status_string}"
 
     class Meta:
         managed = True
