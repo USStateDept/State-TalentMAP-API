@@ -52,6 +52,9 @@ class Position(StaticRepresentationModel):
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
     effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
 
+    status_code = models.CharField(max_length=120, null=True, help_text="Cycle status code")
+    status = models.CharField(max_length=120, null=True, help_text="Cycle status text")
+
     # Values from the original XML/DB that are maintained but not displayed
     _seq_num = models.TextField(null=True)
     _title_code = models.TextField(null=True)
