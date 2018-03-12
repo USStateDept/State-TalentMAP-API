@@ -1,4 +1,4 @@
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from talentmap_api.common.cache.views import CachedViewSet
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
@@ -17,7 +17,7 @@ HistoricalTourOfDutyView = generate_historical_view(TourOfDuty, TourOfDutySerial
 
 
 class OrganizationListView(FieldLimitableSerializerMixin,
-                           ReadOnlyModelViewSet):
+                           CachedViewSet):
     """
     retrieve:
     Return the given organization.
@@ -34,7 +34,7 @@ class OrganizationListView(FieldLimitableSerializerMixin,
 
 
 class LocationView(FieldLimitableSerializerMixin,
-                   ReadOnlyModelViewSet):
+                   CachedViewSet):
     """
     retrieve:
     Return the given location.
@@ -51,7 +51,7 @@ class LocationView(FieldLimitableSerializerMixin,
 
 
 class CountryView(FieldLimitableSerializerMixin,
-                  ReadOnlyModelViewSet):
+                  CachedViewSet):
     """
     retrieve:
     Return the given country.
@@ -68,7 +68,7 @@ class CountryView(FieldLimitableSerializerMixin,
 
 
 class PostListView(FieldLimitableSerializerMixin,
-                   ReadOnlyModelViewSet):
+                   CachedViewSet):
     """
     retrieve:
     Return the given post.
@@ -85,7 +85,7 @@ class PostListView(FieldLimitableSerializerMixin,
 
 
 class TourOfDutyListView(FieldLimitableSerializerMixin,
-                         ReadOnlyModelViewSet):
+                         CachedViewSet):
     """
     retrieve:
     Return the given tour of duty.
