@@ -25,10 +25,11 @@ class UserProfileShortSerializer(PrefetchedSerializer):
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
     initials = serializers.ReadOnlyField()
+    display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials"]
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "display_name"]
 
 
 class ClientSerializer(PrefetchedSerializer):
@@ -38,6 +39,7 @@ class ClientSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     initials = serializers.ReadOnlyField()
+    display_name = serializers.ReadOnlyField()
 
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
@@ -47,7 +49,7 @@ class ClientSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials"]
+        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,

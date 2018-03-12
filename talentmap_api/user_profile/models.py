@@ -44,6 +44,21 @@ class UserProfile(StaticRepresentationModel):
         super(UserProfile, self).save(*args, **kwargs)
 
     @property
+    def display_name(self):
+        '''
+        Returns the user's display name, derived from first name, username or e-mail
+        '''
+        display_name = ""
+        if self.user.first_name:
+            display_name = self.user.first_name
+        elif self.user.username:
+            display_name = self.user.username
+        else:
+            display_name = self.user.email
+
+        return display_name
+
+    @property
     def initials(self):
         '''
         Returns the user's initials, derived from first name/last name or e-mail
