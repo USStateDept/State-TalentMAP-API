@@ -103,6 +103,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     initials = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
+    display_name = serializers.ReadOnlyField()
 
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
