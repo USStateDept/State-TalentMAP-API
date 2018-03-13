@@ -499,6 +499,14 @@ def mode_cycle_positions():
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
+        position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
+
+        if position:
+            position.status_code = data["STATUS_CODE"]
+            position.status = data["STATUS"]
+            position.effective_date = ensure_date(data["DATE_UPDATED"])
+            position.save()
+
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 
 
