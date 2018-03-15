@@ -127,6 +127,7 @@ def mode_skills():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "skill",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<skills><skill></skill></skills>"
@@ -149,6 +150,7 @@ def mode_grade():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "grade",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<grades><grade></grade></grades>"
@@ -226,6 +228,7 @@ def mode_languages():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "language",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<languages><language></language></languages>"
@@ -254,6 +257,7 @@ def mode_countries():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "country",
+        "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<countries><country></country></countries>"
@@ -333,7 +337,7 @@ def mode_capsule_descriptions():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "positioncapsule",
-        "MaximumOutputRows": 1000,
+        "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
         "InputParameters": "<positionCapsules><positionCapsule></positionCapsule></positionCapsules>"
@@ -402,6 +406,7 @@ def mode_skill_cones():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "jobcategoryskill",
+        "MaximumOutputRows": 1000,
         "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<jobCategories><jobCategory></jobCategory></jobCategories>"
@@ -425,6 +430,7 @@ def mode_cycles():
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "cycle",
+        "MaximumOutputRows": 1000,
         "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
@@ -492,6 +498,14 @@ def mode_cycle_positions():
         if bc:
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
+
+        position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
+
+        if position:
+            position.status_code = data["STATUS_CODE"]
+            position.status = data["STATUS"]
+            position.effective_date = ensure_date(data["DATE_UPDATED"])
+            position.save()
 
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 

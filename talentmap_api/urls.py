@@ -19,6 +19,7 @@ from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_expiring_authtoken import views as auth_views
 from djangosaml2.views import echo_attributes
+from talentmap_api.saml2.acs_patch import assertion_consumer_service
 
 urlpatterns = [
     url(r'^$', get_swagger_view(title='TalentMAP API')),
@@ -64,16 +65,21 @@ urlpatterns = [
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
+
+    # Feedback
+    url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
 urlpatterns += [
-    url(r'^api/v1/accounts/token/', auth_views.obtain_expiring_auth_token),
+    url(r'^api/v1/accounts/token/$', auth_views.obtain_expiring_auth_token),
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
+    url(r'^api/v1/accounts/token/view/$', include('talentmap_api.common.tokens.urls')),
 ]
 
 if settings.ENABLE_SAML2:  # pragma: no cover
     urlpatterns += [
+        url(r'^saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
         url(r'^saml2/', include('djangosaml2.urls')),
     ]
     if settings.DEBUG:

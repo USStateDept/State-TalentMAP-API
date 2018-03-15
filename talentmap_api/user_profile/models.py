@@ -44,6 +44,39 @@ class UserProfile(StaticRepresentationModel):
         super(UserProfile, self).save(*args, **kwargs)
 
     @property
+    def display_name(self):
+        '''
+        Returns the user's display name, derived from first name, username or e-mail
+        '''
+        display_name = ""
+        if self.user.first_name:
+            display_name = self.user.first_name
+        elif self.user.username:
+            display_name = self.user.username
+        else:
+            display_name = self.user.email
+
+        return display_name
+
+    @property
+    def initials(self):
+        '''
+        Returns the user's initials, derived from first name/last name or e-mail
+        '''
+        initials = ""
+        if self.user.first_name and self.user.last_name:
+            initials = f"{self.user.first_name[0]}{self.user.last_name[0]}"
+        if len(initials) == 0:
+            # No first name/last name on user object, derive from email
+            # Example email: StateJB@state.gov
+            # [x for x in self.user.email if x.isupper()] - get all capitals
+            # [:2] - get the first two
+            # [::-1] - reverse the list
+            initials = "".join([x for x in self.user.email if x.isupper()][:2][::-1])
+
+        return initials
+
+    @property
     def is_cdo(self):
         '''
         Represents if the user is a CDO (Career development officer) or not. If the user's direct_report
