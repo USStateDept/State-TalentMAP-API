@@ -342,3 +342,38 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
+
+
+@pytest.mark.django_db(transaction=True)
+def test_position_similar_list(client):
+    post = mommy.make_recipe('talentmap_api.organization.tests.post')
+    skill = mommy.make('position.Skill')
+    grade = mommy.make('position.Grade')
+    position = mommy.make('position.Position', post=post, skill=skill, grade=grade)
+
+    mommy.make('position.Position', post=post, skill=skill, grade=grade, _quantity=3)
+    mommy.make('position.Position', post=mommy.make_recipe('talentmap_api.organization.tests.post'), skill=skill, grade=grade, _quantity=3)
+    mommy.make('position.Position', post=mommy.make_recipe('talentmap_api.organization.tests.post'), skill=mommy.make('position.Skill'), grade=grade, _quantity=3)
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 3
+
+    position.post = None
+    position.save()
+    position.refresh_from_db()
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 6
+
+    position.skill = None
+    position.save()
+    position.refresh_from_db()
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 9
