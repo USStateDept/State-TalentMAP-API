@@ -9,6 +9,7 @@ from rest_framework import mixins
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from talentmap_api.common.cache.views import CachedViewSet
 from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
@@ -30,10 +31,8 @@ HistoricalPositionView = generate_historical_view(Position, PositionSerializer, 
 
 class PositionListView(FieldLimitableSerializerMixin,
                        ActionDependentSerializerMixin,
-                       mixins.ListModelMixin,
-                       mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,
-                       GenericViewSet):
+                       CachedViewSet):
     """
     retrieve:
     Return the given position.
