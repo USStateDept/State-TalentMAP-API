@@ -103,6 +103,27 @@ class PositionWaiverListView(FieldLimitableSerializerMixin,
         return queryset
 
 
+class PositionSimilarView(FieldLimitableSerializerMixin,
+                          mixins.ListModelMixin,
+                          GenericViewSet):
+    """
+    list:
+    Return a list of similar positions to the specified position.
+    """
+
+    serializer_class = PositionSerializer
+    filter_class = PositionFilter
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        # Get the position based on the PK from the url
+        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        # Get the position's similar positions
+        queryset = position.similar_positions
+        self.serializer_class.prefetch_model(Position, queryset)
+        return queryset
+
+
 class PositionWaiverActionView(GenericViewSet):
     '''
     Controls the status of a waiver
