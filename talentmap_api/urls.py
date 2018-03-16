@@ -74,7 +74,7 @@ urlpatterns = [
 urlpatterns += [
     url(r'^api/v1/accounts/token/$', auth_views.obtain_expiring_auth_token),
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
-    url(r'^api/v1/accounts/token/view/$', include('talentmap_api.common.tokens.urls')),
+    url(r'^api/v1/accounts/token/view/', include('talentmap_api.common.tokens.urls')),
 ]
 
 if settings.ENABLE_SAML2:  # pragma: no cover
