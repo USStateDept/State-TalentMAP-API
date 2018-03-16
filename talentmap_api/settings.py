@@ -173,8 +173,7 @@ if ENABLE_SAML2:
 
     # See https://github.com/knaperek/djangosaml2 for more information
     SAML_ATTRIBUTE_MAPPING = {
-        'nameidentifier': ('username', ),
-        'EmailAddress': ('email', ),
+        'EmailAddress': ('email', 'username', ),
         'givenname': ('first_name', ),
         'surname': ('last_name', ),
     }
