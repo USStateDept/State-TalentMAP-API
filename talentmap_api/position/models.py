@@ -82,6 +82,14 @@ class Position(StaticRepresentationModel):
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
 
+    @property
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
+
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
 
