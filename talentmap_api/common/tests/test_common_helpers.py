@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_mommy import mommy
 
-from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation
+from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation, order_dict
 from talentmap_api.position.models import Position
 
 
@@ -24,6 +24,45 @@ def test_ensure_date():
     # Now check it
     assert ensure_date("1000-01-01") == date
     assert ensure_date(date) == date
+
+
+@pytest.mark.django_db()
+def test_order_dict():
+    ordered_dict = {
+        "a": 1,
+        "b": 2,
+        "c": 3
+    }
+
+    unordered_dict = {
+        "b": 2,
+        "a": 1,
+        "c": 3
+    }
+
+    assert order_dict(unordered_dict) == ordered_dict
+
+    nested_ordered_dict = {
+        "a": 1,
+        "b": {
+            "a": 1,
+            "b": 2,
+            "c": 3
+        },
+        "c": 3
+    }
+
+    nested_unordered_dict = {
+        "b": {
+            "b": 2,
+            "a": 1,
+            "c": 3
+        },
+        "a": 1,
+        "c": 3
+    }
+
+    assert order_dict(nested_unordered_dict) == nested_ordered_dict
 
 
 @pytest.mark.django_db()
