@@ -30,14 +30,19 @@ class Command(BaseCommand):
         if options['model']:
             jobs = jobs.filter(talentmap_model=options['model'])
 
+        item_count = 0
         for job in list(jobs.all()):
             if options['test']:
                 self.logger.info("Running in test mode")
-                job.synchronize(test=True)
+                item_count += job.synchronize(test=True)
             else:  # pragma: no cover
-                job.synchronize()
+                item_count += job.synchronize()
 
-        self.logger.info("Now updating relationships...")
-        call_command('update_relationships')
-        self.logger.info("Updating string representations...")
-        call_command("update_string_representations")
+        self.logger.info(f"Updated or created {item_count} items")
+        if item_count != 0:
+            self.logger.info("Now updating relationships...")
+            call_command('update_relationships')
+            self.logger.info("Updating string representations...")
+            call_command("update_string_representations")
+            self.logger.info("Clearing cache...")
+            call_command('clear_cache')
