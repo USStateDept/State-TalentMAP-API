@@ -117,6 +117,8 @@ def validate_filters_exist(filter_list, filter_class):
                 value = filter_list[filter]
                 if isinstance(value, list) and len(value) == 1:
                     value = value[0]
+                elif filter[-2:] == "in" and not isinstance(value, list):
+                    value = value.split(",")
                 filter_class.Meta.model.objects.filter(Q(**{f"{filter}": value}))
             except FieldError:
                 # Filter is using a bad field, return False

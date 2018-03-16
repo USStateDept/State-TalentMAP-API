@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
@@ -27,7 +27,7 @@ class FeedbackUserView(FieldLimitableSerializerMixin,
     """
 
     serializer_class = FeedbackEntrySerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     filter_class = FeedbackEntryFilter
 
     def perform_create(self, serializer):
@@ -43,7 +43,7 @@ class FeedbackAdminView(FieldLimitableSerializerMixin,
                         mixins.DestroyModelMixin,
                         mixins.RetrieveModelMixin):
     """
-    Endpoint for creating a new feedback item, open to all authenticated users
+    Endpoint for viewing and managing feedback from all users.
 
     list:
     Lists all feedback.
