@@ -4,16 +4,16 @@ import json
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.language.models import Qualification
+from talentmap_api.language.models import Language, Proficiency
 
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
 def test_language_endpoints_fixture():
-    mommy.make('language.Language', code="FR", id=1)
+    mommy.make('language.Language', code="FR")
     # Create a specific language, proficiency, and qualification
     language = mommy.make('language.Language', code="DE", long_description="German", short_description="Ger")
-    proficiency = mommy.make('language.Proficiency', id=1, code="3+")
+    proficiency = mommy.make('language.Proficiency', code="3+")
 
     # Create a bunch of languages where we don't care about the structure
     mommy.make_recipe('talentmap_api.language.tests.language', _quantity=8)
@@ -55,10 +55,9 @@ def test_language_qualification_list(client):
 @pytest.mark.usefixtures("test_language_endpoints_fixture")
 def test_language_qualification_creation(authorized_user, authorized_client):
     resp = authorized_client.put('/api/v1/language_qualification/', data=json.dumps({
-        "language": 1,
-        "reading_proficiency": 1,
-        "spoken_proficiency": 1
+        "language": Language.objects.first().id,
+        "reading_proficiency": Proficiency.objects.first().id,
+        "spoken_proficiency": Proficiency.objects.first().id
     }), content_type="application/json")
 
     assert resp.status_code == status.HTTP_201_CREATED
-    assert Qualification.objects.filter(language_id=1, reading_proficiency_id=1, spoken_proficiency_id=1).count() == 1
