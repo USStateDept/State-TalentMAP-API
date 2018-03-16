@@ -58,6 +58,7 @@ class SynchronizationJob(models.Model):
         start = datetime.datetime.utcnow()
         self.running = True
         self.save()
+        self.job_item_count = 0
         try:
             logger = logging.getLogger('synchronization')
             logger.info(self)
@@ -125,16 +126,18 @@ class SynchronizationJob(models.Model):
                 post_load_function(model, new_ids, updated_ids)
 
             logger.info("Synchronization complete")
-            d = relativedelta(start, datetime.datetime.utcnow())
+            d = relativedelta(datetime.datetime.utcnow(), start)
             logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.minutes} min {d.seconds} s\t\t")
 
             # Successful, set the last synchronization
             self.last_synchronization = timezone.now()
+            self.job_item_count = len(updated_ids) + len(new_ids)
         except:  # pragma: no cover
             raise
         finally:
             self.running = False
             self.save()
+            return self.job_item_count
 
     def save(self, *args, **kwargs):
         self.next_synchronization = ensure_date(self.last_synchronization) + relativedelta(seconds=self.delta_synchronization)

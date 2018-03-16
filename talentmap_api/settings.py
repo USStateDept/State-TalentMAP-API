@@ -158,6 +158,20 @@ REST_FRAMEWORK = {
     ),
 }
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_USE_CACHE': 'default',
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 86400,  # 1 day
+    'DEFAULT_CACHE_KEY_FUNC': 'talentmap_api.common.cache.key_constructor.key_func'
+}
+
 # SAML Settings
 SAML_CONFIG = {}
 

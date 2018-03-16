@@ -1,5 +1,5 @@
 from rest_framework import mixins
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from talentmap_api.common.cache.views import CachedViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
@@ -11,7 +11,7 @@ from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, Qu
 
 
 class LanguageListView(FieldLimitableSerializerMixin,
-                       ReadOnlyModelViewSet):
+                       CachedViewSet):
     """
     retrieve:
     Return the given language.
@@ -28,7 +28,7 @@ class LanguageListView(FieldLimitableSerializerMixin,
 
 
 class LanguageProficiencyListView(FieldLimitableSerializerMixin,
-                                  ReadOnlyModelViewSet):
+                                  CachedViewSet):
     """
     retrieve:
     Return the given proficiency.
@@ -45,11 +45,9 @@ class LanguageProficiencyListView(FieldLimitableSerializerMixin,
 
 
 class LanguageQualificationListView(FieldLimitableSerializerMixin,
-                                    mixins.RetrieveModelMixin,
-                                    mixins.ListModelMixin,
                                     mixins.CreateModelMixin,
                                     ActionDependentSerializerMixin,
-                                    GenericViewSet):
+                                    CachedViewSet):
     """
     retrieve:
     Return the given qualification.

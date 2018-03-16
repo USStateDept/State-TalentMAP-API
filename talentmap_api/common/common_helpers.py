@@ -291,6 +291,14 @@ def xml_etree_to_dict(tree):
     return dictionary
 
 
+def order_dict(dictionary):
+    '''
+    Orders a dictionary by keys, including nested dictionaries
+    '''
+    return {k: order_dict(v) if isinstance(v, dict) else v
+            for k, v in sorted(dictionary.items())}
+
+
 def serialize_instance(instance, serializer_string, many=False):
     '''
     Used when performing some look-up logic in a serializer
