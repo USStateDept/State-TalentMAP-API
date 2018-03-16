@@ -213,17 +213,16 @@ def test_bidcycle_batch_actions(authorized_client, authorized_user):
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidcycle_fixture")
-def test_bidcycle_current_cycle_available_filter(authorized_client, authorized_user):
-    # Add a handshake bid
-    bidcycle = BidCycle.objects.first()
-    mommy.make('bidding.Bid', bidcycle=bidcycle, status=Bid.Status.handshake_offered, position=bidcycle.positions.first(), user=authorized_user.profile)
+def test_bidcycle_cycle_available_filter(authorized_client, authorized_user):
+    bc2 = mommy.make(BidCycle, id=2, name="Bidcycle 2", cycle_start_date="2017-01-01T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z")
+    bc2.positions.add(mommy.make('position.Position'))
 
-    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=true')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 4
-
-    response = authorized_client.get(f'/api/v1/position/?is_available_in_current_bidcycle=false')
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_bidcycle=1')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
+    assert len(response.data["results"]) == 5
+
+    response = authorized_client.get(f'/api/v1/position/?is_available_in_bidcycle=1,2')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 6

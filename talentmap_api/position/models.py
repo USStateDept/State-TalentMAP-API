@@ -104,6 +104,13 @@ class Position(StaticRepresentationModel):
 
         return queryset
 
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
+
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
 
