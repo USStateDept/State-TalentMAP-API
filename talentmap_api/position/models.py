@@ -83,6 +83,14 @@ class Position(StaticRepresentationModel):
     _occ_series_code = models.TextField(null=True)
 
     @property
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
+
+    @property
     def similar_positions(self):
         '''
         Returns a query set of similar positions, using the base criteria.
