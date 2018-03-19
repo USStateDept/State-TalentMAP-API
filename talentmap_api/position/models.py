@@ -90,6 +90,7 @@ class Position(StaticRepresentationModel):
     def latest_bidcycle(self):
         return self.bid_cycles.latest('cycle_start_date')
 
+    @property
     def similar_positions(self):
         '''
         Returns a query set of similar positions, using the base criteria.
