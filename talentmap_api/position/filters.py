@@ -115,18 +115,21 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
-    is_available_in_current_bidcycle = filters.BooleanFilter(name="bid_cycles", method="filter_available_in_current_bidcycle")
+    is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
 
-    def filter_available_in_current_bidcycle(self, queryset, name, value):
+    def filter_available_in_bidcycle(self, queryset, name, value):
         '''
-        Returns a queryset of all positions who are in the latest active bidcycle and do not have any
-        bids with handshake or above status
+        Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
-        # Get latest active bidcycle
-        bidcycle = BidCycle.objects.filter(active=True).latest('cycle_start_date')
-        accepting_bids_query = Subquery(bidcycle.annotated_positions.filter(accepting_bids=value).values_list('id', flat=True))
-        return queryset.filter(id__in=accepting_bids_query)
+        position_ids = []
+        q_obj = Q()
+        for bc_id in value.split(','):
+            q_obj = q_obj | Q(id=int(bc_id))
+        bidcycles = BidCycle.objects.filter(q_obj)
+        for bc in list(bidcycles):
+            position_ids += bc.positions.all().values_list("id", flat=True)
+        return queryset.filter(id__in=position_ids)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''

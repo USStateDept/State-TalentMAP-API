@@ -83,6 +83,14 @@ class Position(StaticRepresentationModel):
     _occ_series_code = models.TextField(null=True)
 
     @property
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
+
+    @property
     def similar_positions(self):
         '''
         Returns a query set of similar positions, using the base criteria.
@@ -103,6 +111,13 @@ class Position(StaticRepresentationModel):
             queryset = Position.objects.filter(q_obj).exclude(id=self.id)
 
         return queryset
+
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
 
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
