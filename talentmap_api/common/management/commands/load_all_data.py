@@ -8,7 +8,7 @@ from django.core.management import call_command
 
 class Command(BaseCommand):
     help = 'Loads all data using the load_xml command from files stored in a given folder'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

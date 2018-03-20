@@ -9,6 +9,9 @@ from talentmap_api.bidding.filters import WaiverFilter
 from talentmap_api.bidding.models import Waiver
 from talentmap_api.user_profile.models import UserProfile
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class WaiverClientView(mixins.ListModelMixin,
                        mixins.RetrieveModelMixin,

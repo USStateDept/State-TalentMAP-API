@@ -7,7 +7,7 @@ from talentmap_api.integrations.models import SynchronizationJob
 
 class Command(BaseCommand):
     help = 'Creates and updates synchronization jobs'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

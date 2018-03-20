@@ -289,9 +289,6 @@ if ENABLE_SAML2:
         "valid_for": 24  # Our metadata is valid for 24-hours
     }  # End SAML config
 
-# Logging Settings
-debug_log_destination = os.environ.get('DEBUG_LOG_DESTINATION', 'console')
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -300,7 +297,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(levelname)s %(asctime)s %(message)s'
         },
     },
     'filters': {
@@ -314,22 +311,90 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'auth': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_AUTH_NAME', 'auth.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_AUTH_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_AUTH_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
+        'access': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_ACCESS_NAME', 'access.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_ACCESS_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_ACCESS_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
+        'permission': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_PERM_NAME', 'permissions.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_PERM_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_PERM_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
+        'db': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_DB_NAME', 'db.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_DB_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_DB_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
+        'sync': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_SYNC_NAME', 'sync.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_SYNC_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_SYNC_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
+        'generic': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_GENERIC_NAME', 'talentmap.log'),
+            'maxBytes': int(os.environ.get('DJANGO_LOG_GENERIC_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(os.environ.get('DJANGO_LOG_GENERIC_NUM_BACKUPS', 5)),
+            'formatter': 'simple',
+        },
     },
     'loggers': {
-        'django': {
-            'handlers': [debug_log_destination],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
         'console': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
-        'synchronization': {
-            'handlers': ['console'],
+        'django': {
+            'handlers': ['console', 'access'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['console', 'db'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'talentmap_api': {
+            'handlers': ['console', 'generic'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'talentmap_api.permission': {
+            'handlers': ['console', 'permission'],
+            'level': 'INFO',
+            'propagate': False,  # Consume these logs
+        },
+        'talentmap_api.integrations': {
+            'handlers': ['console', 'sync'],
+            'level': 'INFO',
+            'propagate': False,  # Consume these logs
+        },
+        'talentmap_api.saml2': {
+            'handlers': ['console', 'auth'],
+            'level': 'DEBUG',
+            'propagate': False,  # Consume these logs
         },
         'zeep.transports': {
             'handlers': ['console'],
@@ -339,17 +404,6 @@ LOGGING = {
         },
     }
 }
-
-# Add our destination log file for debugging if we're logging to file
-if debug_log_destination == 'file':
-    LOGGING['handlers']['file'] = {
-        'level': 'DEBUG',
-        'class': 'logging.FileHandler',
-        'filters': ['require_debug_true'],
-        'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
-        'formatter': 'verbose'
-    }
-
 
 WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 

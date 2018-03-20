@@ -17,6 +17,9 @@ from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 HistoricalBidCycleView = generate_historical_view(BidCycle, BidCycleSerializer, BidCycleFilter)
 
@@ -53,7 +56,11 @@ class BidCyclePositionActionView(APIView):
         '''
         Adds a position to the bid cycle
         '''
-        get_object_or_404(BidCycle, id=url_arguments.get("pk")).positions.add(get_object_or_404(Position, id=url_arguments.get("pos_id")))
+        pid = url_arguments.get("pos_id")
+        bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
+        logger.info(f"User {self.request.user.id}:{self.request.user} adding position id {pid} to bidcycle {bidcycle}")
+        bidcycle.positions.add(get_object_or_404(Position, id=pid))
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, format=None, **url_arguments):
@@ -61,7 +68,9 @@ class BidCyclePositionActionView(APIView):
         Removes the position from the bid cycle
         '''
         position = get_object_or_404(Position, id=url_arguments.get("pos_id"))
-        get_object_or_404(BidCycle, id=url_arguments.get("pk")).positions.remove(position)
+        bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
+        logger.info(f"User {self.request.user.id}:{self.request.user} removing position id {position.id} from bidcycle {bidcycle}")
+        bidcycle.positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -74,7 +83,9 @@ class BidCycleBatchPositionActionView(APIView):
         queryset = search.get_queryset()
         if not isinstance(queryset.first(), Position):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        get_object_or_404(BidCycle, id=url_arguments.get("pk")).positions.add(*list(queryset))
+        bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
+        logger.info(f"User {self.request.user.id}:{self.request.user} batch-adding saved search {search.id} to bidcycle {bidcycle}")
+        bidcycle.positions.add(*list(queryset))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

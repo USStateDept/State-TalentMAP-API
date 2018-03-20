@@ -35,7 +35,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
         - client (Object) - The SOAP client
     '''
 
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     client = None
 

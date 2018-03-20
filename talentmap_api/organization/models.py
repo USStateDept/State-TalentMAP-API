@@ -48,20 +48,20 @@ class Organization(StaticRepresentationModel):
             if not self.is_bureau:
                 bureau = Organization.objects.filter(code=self._parent_bureau_code)
                 if bureau.count() != 1:
-                    logging.getLogger('console').warn(f"While setting organization relationships, got {bureau.count()} values for bureau code {self._parent_bureau_code}")
+                    logging.getLogger(__name__).warn(f"While setting organization relationships, got {bureau.count()} values for bureau code {self._parent_bureau_code}")
                 else:
                     self.bureau_organization = bureau.first()
         if self._parent_organization_code:
             org = Organization.objects.filter(code=self._parent_organization_code)
             if org.count() != 1:
-                logging.getLogger('console').warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
+                logging.getLogger(__name__).warn(f"While setting organization relationships, got {org.count()} values for org code {self._parent_organization_code}")
             else:
                 self.parent_organization = org.first()
 
         if self._location_code:
             loc = Location.objects.filter(code=self._location_code)
             if loc.count() != 1:
-                logging.getLogger('console').warn(f"While setting organization location, got {loc.count()} values for location code {self._location_code}")
+                logging.getLogger(__name__).warn(f"While setting organization location, got {loc.count()} values for location code {self._location_code}")
             else:
                 self.location = loc.first()
 
@@ -91,7 +91,7 @@ class Organization(StaticRepresentationModel):
         group, created = Group.objects.get_or_create(name=group_name)
 
         if created:
-            logging.getLogger('console').info(f"Created permission group {group_name}")
+            logging.getLogger(__name__).info(f"Created permission group {group_name}")
 
         # Highlight action
         permission_codename = f"can_highlight_positions_{self.code}"
@@ -103,7 +103,7 @@ class Organization(StaticRepresentationModel):
                                                                content_type=content_type)
 
         if created:
-            logging.getLogger('console').info(f"Created permission {permission}")
+            logging.getLogger(__name__).info(f"Created permission {permission}")
 
         # Add the highlight permission to the AO group
         group.permissions.add(permission)
@@ -190,7 +190,7 @@ class Location(StaticRepresentationModel):
                     # We're domestic
                     country = Country.objects.filter(code="USA").first()
                 else:
-                    logging.getLogger('console').info(f"Could not find country for {self._country}")
+                    logging.getLogger(__name__).info(f"Could not find country for {self._country}")
         else:
             country = country.first()
 
@@ -257,7 +257,7 @@ class Post(StaticRepresentationModel):
         group, created = Group.objects.get_or_create(name=group_name)
 
         if created:
-            logging.getLogger('console').info(f"Created permission group {group_name}")
+            logging.getLogger(__name__).info(f"Created permission group {group_name}")
 
         # Edit post capsule description action
         permission_codename = self.permission_edit_post_capsule_description_codename
@@ -269,7 +269,7 @@ class Post(StaticRepresentationModel):
                                                                content_type=content_type)
 
         if created:
-            logging.getLogger('console').info(f"Created permission {permission}")
+            logging.getLogger(__name__).info(f"Created permission {permission}")
 
         # Add the capsule edit permission to the post editors group
         group.permissions.add(permission)

@@ -20,7 +20,7 @@ from talentmap_api.user_profile.models import UserProfile
 
 class Command(BaseCommand):
     help = 'Creates demo environment - seeded users, default bidcycle'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

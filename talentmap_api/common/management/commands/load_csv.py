@@ -8,7 +8,7 @@ from talentmap_api.glossary.models import GlossaryEntry
 
 class Command(BaseCommand):
     help = 'Loads a CSV into a supported model'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
