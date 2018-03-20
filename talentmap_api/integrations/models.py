@@ -60,8 +60,7 @@ class SynchronizationJob(models.Model):
         self.save()
         self.job_item_count = 0
         try:
-            logger = logging.getLogger('synchronization')
-            logger.info(self)
+            logger = logging.getLogger(__name__)
 
             logger.info("Getting SOAP client")
 

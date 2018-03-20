@@ -7,7 +7,7 @@ import logging
 
 class Command(BaseCommand):
     help = 'Creates a user'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def add_arguments(self, parser):
         parser.add_argument('username', nargs=1, type=str, help="The username for the user")
