@@ -85,6 +85,7 @@ jobs:
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
             DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
+            DJANGO_LOG_DIRECTORY: ./
       - run: ./cc-test-reporter after-build -t coverage.py --exit-code $?
       - store_artifacts:
           path: coverage.xml
