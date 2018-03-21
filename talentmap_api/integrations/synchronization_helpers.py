@@ -121,7 +121,7 @@ def generate_soap_header(tag):
     )
 
 
-def mode_skills():
+def mode_skills(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -144,7 +144,7 @@ def mode_skills():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_grade():
+def mode_grade(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -166,7 +166,7 @@ def mode_grade():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_tods():
+def mode_tods(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -193,7 +193,7 @@ def mode_tods():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_organizations():
+def mode_organizations(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -222,7 +222,7 @@ def mode_organizations():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_languages():
+def mode_languages(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -251,7 +251,7 @@ def mode_languages():
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, None)
 
 
-def mode_countries():
+def mode_countries(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -277,7 +277,7 @@ def mode_countries():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_locations():
+def mode_locations(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -302,7 +302,7 @@ def mode_locations():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_posts():
+def mode_posts(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -331,7 +331,12 @@ def mode_posts():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_capsule_descriptions():
+def mode_capsule_descriptions(last_updated_date=None):
+    # Set the appropriate use_last_updated string
+    ulu_string = ""
+    if last_updated_date is not None:
+        ulu_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -340,7 +345,7 @@ def mode_capsule_descriptions():
         "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<positionCapsules><positionCapsule></positionCapsule></positionCapsules>"
+        "InputParameters": f"<positionCapsules><positionCapsule>{ulu_string}</positionCapsule></positionCapsules>"
     }
 
     # Response parsing data
@@ -356,7 +361,7 @@ def mode_capsule_descriptions():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_positions():
+def mode_positions(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -400,7 +405,7 @@ def mode_positions():
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, None)
 
 
-def mode_skill_cones():
+def mode_skill_cones(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -424,7 +429,7 @@ def mode_skill_cones():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_cycles():
+def mode_cycles(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -467,7 +472,7 @@ def mode_cycles():
     return (soap_arguments, instance_tag, tag_map, collision_field, None, override_loading_method)
 
 
-def mode_cycle_positions():
+def mode_cycle_positions(last_updated_date=None):
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",

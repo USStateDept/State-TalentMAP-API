@@ -76,6 +76,11 @@ def test_soap_job_functions():
     job.refresh_from_db()
     assert job.last_synchronization == ensure_date("1975-01-01T00:00:00Z")
 
+    call_command('schedule_synchronization_job', job.talentmap_model, '1000', '0', '--use-last-updated true')
+
+    job.refresh_from_db()
+    assert job.use_last_date_updated
+
     job.last_synchronization = "2011-01-01T00:00:00Z"
     job.save()
 
