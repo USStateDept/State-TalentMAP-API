@@ -4,7 +4,7 @@ from rest_framework import mixins
 
 from rest_framework_extensions.cache.decorators import CacheResponse as cache_response
 
-logger = logging.getLogger('console')
+logger = logging.getLogger(__name__)
 
 
 class CachedViewSet(mixins.ListModelMixin,
