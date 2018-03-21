@@ -59,7 +59,7 @@ class BidCycle(StaticRepresentationModel):
             try:
                 self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
             except:
-                logging.getLogger('console').info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
+                logging.getLogger(__name__).info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
 
     class Meta:
         managed = True
@@ -157,7 +157,7 @@ class Bid(StaticRepresentationModel):
     update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}#{self.position.position_number} ({self.status})"
+        return f"{self.id} {self.user}#{self.position.position_number} ({self.status})"
 
     @property
     def is_paneling_today(self):

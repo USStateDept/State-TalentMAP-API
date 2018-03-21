@@ -11,7 +11,7 @@ from talentmap_api.organization.models import Organization, Post, TourOfDuty, Lo
 
 class Command(BaseCommand):
     help = 'Loads an XML into a supported file'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

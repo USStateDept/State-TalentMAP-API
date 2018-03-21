@@ -8,7 +8,7 @@ from talentmap_api.common.models import StaticRepresentationModel
 
 class Command(BaseCommand):
     help = 'Updates all models static string representations if supported'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def handle(self, *args, **options):
         models = [x for x in apps.get_models() if issubclass(x, StaticRepresentationModel)]

@@ -14,9 +14,55 @@ export DJANGO_SECRET_KEY='secret_key'
 # This should be set to False when in deployment
 export DJANGO_DEBUG=True
 
-# The debug log destination; either 'console' or 'file'
-# The file output will be located in logs/debug.log; ensure proper permissions are set
-export DEBUG_LOG_DESTINATION='console'
+# Logging Configuration
+# Base logging directory
+# Ensure this directory is writable/creatable by the Apache process, and that new
+# files in that directory inherit that permission structure (chmod +s) or that it
+# is entirely owned by the Apache process. Don't forget the trailing slash
+export DJANGO_LOG_DIRECTORY='/var/log/talentmap/'
+
+# The following environment variables define the name and logging specifications for
+# each file. The defaults should be sufficient, but you may change them here if needed
+#  NAME - the name of the file
+#  MAX_SIZE - the max size of the file before rotating (in bytes)
+#  NUM_BACKUPS - the number of backups to keep before deletion
+
+# Auth Logging
+# Stores authentication requests
+export DJANGO_LOG_AUTH_NAME='auth.log'
+export DJANGO_LOG_AUTH_MAX_SIZE=5242880
+export DJANGO_LOG_AUTH_NUM_BACKUPS=5
+
+# Access logging
+# Stores all requests
+export DJANGO_LOG_ACCESS_NAME='access.log'
+export DJANGO_LOG_ACCESS_MAX_SIZE=5242880
+export DJANGO_LOG_ACCESS_NUM_BACKUPS=5
+
+# Generic logging
+# Stores all logging which lies outside of other specific logs, such as profile
+# modifications, saving favorites, etc...
+export DJANGO_LOG_GENERIC_NAME='talentmap.log'
+export DJANGO_LOG_GENERIC_MAX_SIZE=5242880
+export DJANGO_LOG_GENERIC_NUM_BACKUPS=5
+
+# Permission logging
+# Stores any permission changes
+export DJANGO_LOG_PERM_NAME='permissions.log'
+export DJANGO_LOG_PERM_MAX_SIZE=5242880
+export DJANGO_LOG_PERM_NUM_BACKUPS=5
+
+# Database logging
+# Stores every SQL command sent to the database; Please note this only functions with DEBUG set to true
+export DJANGO_LOG_DB_NAME='db.log'
+export DJANGO_LOG_DB_MAX_SIZE=5242880
+export DJANGO_LOG_DB_NUM_BACKUPS=5
+
+# Synchronization logging
+# Stores synchronization data
+export DJANGO_LOG_SYNC_NAME='sync.log'
+export DJANGO_LOG_SYNC_MAX_SIZE=5242880
+export DJANGO_LOG_SYNC_NUM_BACKUPS=5
 
 # Deployment location
 # The directory where manage.py is located; requires the trailing slash
