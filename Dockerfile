@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y postgresql-client
 
 RUN mkdir /app
 RUN mkdir /app/logs
+RUN mkdir /var/log/talentmap/ && chmod a+wrxs /var/log/talentmap/
 WORKDIR /app
 
 COPY talentmap_api /app/talentmap_api/
