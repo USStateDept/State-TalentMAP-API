@@ -32,6 +32,8 @@ def get_delineated_environment_variable(variable, default=None):
     if val is None:
         # Try with no env_name (this can be an issue when using runserver)
         val = os.environ.get(f'{variable}', None)
+    if val is None:
+        val = default
     return val
 
 
