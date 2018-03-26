@@ -81,7 +81,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
         session.headers.update(headers)
 
         # Attempt to get the cert location
-        cert = os.environ.get('WSDL_SSL_CERT', None)
+        cert = settings.get_delineated_environment_variable('WSDL_SSL_CERT', None)
 
         if cert:
             logger.info(f'Setting SSL verification cert to {cert}')
@@ -92,7 +92,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
         transport = Transport(session=session)
 
         # Get the WSDL location
-        wsdl_location = os.environ.get('WSDL_LOCATION')
+        wsdl_location = settings.get_delineated_environment_variable('WSDL_LOCATION')
         logger.info(f'Initializing client with WSDL: {wsdl_location}')
 
         client = zeep.Client(wsdl=wsdl_location, transport=transport)

@@ -31,7 +31,7 @@ def load_environment_script(file):
     try:
         with open(file) as f:
             for variable in re.finditer(r'export (.*?)=(.+)', f.read()):
-                print(f"Found setup_environment.sh variable: {variable.group(1)}={variable.group(2)}")
+                # print(f"Found setup_environment.sh variable: {variable.group(1)}={variable.group(2)}")
                 # Store the variable, and strip any extra apostrophes or quotation marks
                 environment_file[variable.group(1)] = variable.group(2).replace("\'", "").replace("\"", "")
     except:
@@ -48,8 +48,16 @@ url_scheme = 'https'
 if 'runserver' not in sys.argv:
     environment = load_environment_script(os.path.join(BASE_DIR, 'setup_environment.sh'))
 
+    env_name = ''
+    if "DJANGO_ENVIRONMENT_NAME" in environment:
+        print(f'Setting DJANGO_ENVIRONMENT_NAME to {environment["DJANGO_ENVIRONMENT_NAME"]}')
+        env_name = environment["DJANGO_ENVIRONMENT_NAME"]
+
+    # Explicitly set the environment name here to ensure our helper method can locate it
+    os.environ.setdefault("DJANGO_ENVIRONMENT_NAME", env_name)
+
     for environment_variable in environment.keys():
-        os.environ.setdefault(environment_variable, environment[environment_variable])
+        os.environ.setdefault(f"{env_name}{environment_variable}", environment[environment_variable])
 
     sys.path.append(environment["DEPLOYMENT_LOCATION"])
     sys.path.append(f'{environment["DEPLOYMENT_LOCATION"]}talentmap_api/')

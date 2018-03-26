@@ -17,13 +17,29 @@ import datetime
 import saml2
 import saml2.saml
 
+
 # This supports swagger https
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
+def get_delineated_environment_variable(variable, default=None):
+    '''
+    Returns an environment variable, using the DJANGO_ENVIRONMENT_NAME variable
+    as a prefix.
+    '''
+    env_name = os.environ.get('DJANGO_ENVIRONMENT_NAME', '')
+    val = os.environ.get(f'{env_name}{variable}', None)
+    if val is None:
+        # Try with no env_name (this can be an issue when using runserver)
+        val = os.environ.get(f'{variable}', None)
+    if val is None:
+        val = default
+    return val
+
+
 # Simple function to evaluate if an environment variable is truthy
 def bool_env_variable(name):
-    return os.environ.get(name) in ["1", "True", "true", True]
+    return get_delineated_environment_variable(name) in ["1", "True", "true", True]
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -33,7 +49,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+SECRET_KEY = get_delineated_environment_variable("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool_env_variable("DJANGO_DEBUG")
@@ -183,7 +199,7 @@ SAML_USE_NAME_ID_AS_USERNAME = True
 SAML_CREATE_UNKNOWN_USER = True
 
 if ENABLE_SAML2:
-    LOGIN_REDIRECT_URL = os.environ.get('SAML_LOGIN_REDIRECT_URL')
+    LOGIN_REDIRECT_URL = get_delineated_environment_variable('SAML_LOGIN_REDIRECT_URL')
 
     # See https://github.com/knaperek/djangosaml2 for more information
     SAML_ATTRIBUTE_MAPPING = {
@@ -196,10 +212,10 @@ if ENABLE_SAML2:
         "strict": False,
 
         # full path to the xmlsec1 binary program
-        'xmlsec_binary': os.environ.get('SAML2_XMLSEC1_PATH'),
+        'xmlsec_binary': get_delineated_environment_variable('SAML2_XMLSEC1_PATH'),
 
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/metadata/",
+        'entityid': f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/metadata/",
 
         # directory with attribute mapping
         'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
@@ -215,15 +231,15 @@ if ENABLE_SAML2:
                     # url and binding to the assetion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        (f"{os.environ.get('FRONT_END_ACS_BINDING')}",
+                        (f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}",
                             saml2.BINDING_HTTP_POST),
                     ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
-                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}saml2/ls/",
+                        (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/ls/",
                             saml2.BINDING_HTTP_REDIRECT),
-                        (f"{os.environ.get('SAML2_NETWORK_LOCATION')}ls/post",
+                        (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}ls/post",
                             saml2.BINDING_HTTP_POST),
                     ],
                 },
@@ -238,12 +254,12 @@ if ENABLE_SAML2:
                 # in this section the list of IdPs we talk to are defined
                 'idp': {
                     # the keys of this dictionary are entity ids
-                    os.environ.get('SAML2_IDP_METADATA_ENDPOINT'): {
+                    get_delineated_environment_variable('SAML2_IDP_METADATA_ENDPOINT'): {
                         'single_sign_on_service': {
-                            saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML2_IDP_SSO_LOGIN_ENDPOINT'),
+                            saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SSO_LOGIN_ENDPOINT'),
                         },
                         'single_logout_service': {
-                            saml2.BINDING_HTTP_REDIRECT: os.environ.get('SAML2_IDP_SLO_LOGOUT_ENDPOINT'),
+                            saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SLO_LOGOUT_ENDPOINT'),
                         },
                     },
                 },  # End IDP config
@@ -256,32 +272,32 @@ if ENABLE_SAML2:
         },
 
         # set to 1 to output debugging information
-        'debug': os.environ.get('SAML2_DEBUG'),
+        'debug': get_delineated_environment_variable('SAML2_DEBUG'),
 
         # Signing
-        'key_file': os.environ.get('SAML2_SIGNING_KEY'),  # private part
-        'cert_file': os.environ.get('SAML2_SIGNING_CERT'),  # public part
+        'key_file': get_delineated_environment_variable('SAML2_SIGNING_KEY'),  # private part
+        'cert_file': get_delineated_environment_variable('SAML2_SIGNING_CERT'),  # public part
 
         # Encryption
         'encryption_keypairs': [{
-            'key_file': os.environ.get('SAML2_ENCRYPTION_KEY'),  # private part
-            'cert_file': os.environ.get('SAML2_ENCRYPTION_CERT'),  # public part
+            'key_file': get_delineated_environment_variable('SAML2_ENCRYPTION_KEY'),  # private part
+            'cert_file': get_delineated_environment_variable('SAML2_ENCRYPTION_CERT'),  # public part
         }],
 
         # Our metadata
         'contact_person': [
             {
-                'given_name': os.environ.get('SAML2_TECHNICAL_POC_FIRST_NAME'),
-                'sur_name': os.environ.get('SAML2_TECHNICAL_POC_LAST_NAME'),
-                'company': os.environ.get('SAML2_TECHNICAL_POC_COMPANY'),
-                'email_address': os.environ.get('SAML2_TECHNICAL_POC_EMAIL'),
+                'given_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_FIRST_NAME'),
+                'sur_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_LAST_NAME'),
+                'company': get_delineated_environment_variable('SAML2_TECHNICAL_POC_COMPANY'),
+                'email_address': get_delineated_environment_variable('SAML2_TECHNICAL_POC_EMAIL'),
                 'contact_type': 'technical'
             },
             {
-                'given_name': os.environ.get('SAML2_ADMINISTRATIVE_POC_FIRST_NAME'),
-                'sur_name': os.environ.get('SAML2_ADMINISTRATIVE_POC_LAST_NAME'),
-                'company': os.environ.get('SAML2_ADMINISTRATIVE_POC_COMPANY'),
-                'email_address': os.environ.get('SAML2_ADMINISTRATIVE_POC_EMAIL'),
+                'given_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_FIRST_NAME'),
+                'sur_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_LAST_NAME'),
+                'company': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_COMPANY'),
+                'email_address': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_EMAIL'),
                 'contact_type': 'administrative'
             },
         ],
@@ -314,49 +330,49 @@ LOGGING = {
         'auth': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_AUTH_NAME', 'auth.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_AUTH_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_AUTH_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_AUTH_NAME', 'auth.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_AUTH_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_AUTH_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'access': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_ACCESS_NAME', 'access.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_ACCESS_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_ACCESS_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_ACCESS_NAME', 'access.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_ACCESS_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_ACCESS_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'permission': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_PERM_NAME', 'permissions.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_PERM_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_PERM_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_PERM_NAME', 'permissions.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_PERM_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_PERM_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'db': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_DB_NAME', 'db.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_DB_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_DB_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_DB_NAME', 'db.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_DB_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_DB_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'sync': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_SYNC_NAME', 'sync.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_SYNC_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_SYNC_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_SYNC_NAME', 'sync.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_SYNC_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_SYNC_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'generic': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.environ.get('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + os.environ.get('DJANGO_LOG_GENERIC_NAME', 'talentmap.log'),
-            'maxBytes': int(os.environ.get('DJANGO_LOG_GENERIC_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(os.environ.get('DJANGO_LOG_GENERIC_NUM_BACKUPS', 5)),
+            'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_GENERIC_NAME', 'talentmap.log'),
+            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_GENERIC_MAX_SIZE', 1024 * 1024 * 5)),
+            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_GENERIC_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
     },
