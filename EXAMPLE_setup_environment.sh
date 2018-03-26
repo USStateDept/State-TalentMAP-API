@@ -3,6 +3,8 @@
 # Note that this file is parsed by python (in wsgi.py) so do not use any
 # interpolated bash variables; like $HOME
 
+# This is used to ensure environment variables don't conflict when ready by WSGI
+export DJANGO_ENVIRONMENT_NAME='environment1'
 
 # The database to connect to
 export DATABASE_URL='postgres://username:password@hostname:5432/database_name'
