@@ -48,12 +48,19 @@ class LocationSerializer(PrefetchedSerializer):
 
 class PostSerializer(PrefetchedSerializer):
     code = serializers.CharField(source="_location_code", read_only=True)
-    location = StaticRepresentationField(read_only=True)
     tour_of_duty = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = Post
         fields = "__all__"
+        nested = {
+            "location": {
+                "class": LocationSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            }
+        }
 
 
 class TourOfDutySerializer(PrefetchedSerializer):
