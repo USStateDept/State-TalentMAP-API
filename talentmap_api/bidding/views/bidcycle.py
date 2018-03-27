@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from talentmap_api.common.common_helpers import in_group_or_403
+from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.position.serializers import PositionSerializer
@@ -56,6 +58,7 @@ class BidCyclePositionActionView(APIView):
         '''
         Adds a position to the bid cycle
         '''
+        in_group_or_403(self.request.user, 'bidcycle_admin')
         pid = url_arguments.get("pos_id")
         bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
         logger.info(f"User {self.request.user.id}:{self.request.user} adding position id {pid} to bidcycle {bidcycle}")
@@ -67,6 +70,7 @@ class BidCyclePositionActionView(APIView):
         '''
         Removes the position from the bid cycle
         '''
+        in_group_or_403(self.request.user, 'bidcycle_admin')
         position = get_object_or_404(Position, id=url_arguments.get("pos_id"))
         bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
         logger.info(f"User {self.request.user.id}:{self.request.user} removing position id {position.id} from bidcycle {bidcycle}")
@@ -79,6 +83,7 @@ class BidCycleBatchPositionActionView(APIView):
         '''
         Adds a batch of positions to the specified bidcycle using a saved search
         '''
+        in_group_or_403(self.request.user, 'bidcycle_admin')
         search = get_object_or_404(SavedSearch, id=url_arguments.get("saved_search_id"))
         queryset = search.get_queryset()
         if not isinstance(queryset.first(), Position):
@@ -112,7 +117,7 @@ class BidCycleView(mixins.ListModelMixin,
 
     serializer_class = BidCycleSerializer
     filter_class = BidCycleFilter
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('bidcycle_admin'))
 
     def get_queryset(self):
         queryset = BidCycle.objects.all()

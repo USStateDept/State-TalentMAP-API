@@ -53,6 +53,23 @@ def test_bidcycle_creation(authorized_client, authorized_user):
         }
     ), content_type='application/json')
 
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert BidCycle.objects.all().count() == 0
+
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
+
+    assert BidCycle.objects.all().count() == 0
+
+    response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
+        {
+            "name": "bidcycle",
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_deadline_date": "1988-02-02T00:00:00Z",
+            "cycle_end_date": "2088-01-01T00:00:00Z"
+        }
+    ), content_type='application/json')
+
     assert response.status_code == status.HTTP_201_CREATED
     assert BidCycle.objects.all().count() == 1
 
@@ -60,6 +77,8 @@ def test_bidcycle_creation(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 def test_bidcycle_creation_validation(authorized_client, authorized_user):
     assert BidCycle.objects.all().count() == 0
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
 
     # Test end date < start date
     response = authorized_client.post('/api/v1/bidcycle/', data=json.dumps(
@@ -113,6 +132,20 @@ def test_bidcycle_patch(authorized_client, authorized_user):
         }
     ), content_type='application/json')
 
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
+
+    response = authorized_client.patch('/api/v1/bidcycle/1/', data=json.dumps(
+        {
+            "name": "bidcycle",
+            "cycle_start_date": "1988-01-01T00:00:00Z",
+            "cycle_end_date": "2088-01-01T00:00:00Z",
+            "active": True
+        }
+    ), content_type='application/json')
+
     assert response.status_code == status.HTTP_200_OK
 
     assert BidCycle.objects.all().count() == 1
@@ -126,6 +159,9 @@ def test_bidcycle_patch(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidcycle_fixture")
 def test_bidcycle_patch_validation(authorized_client, authorized_user):
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
+
     response = authorized_client.patch('/api/v1/bidcycle/1/', data=json.dumps(
         {
             "cycle_end_date": "1088-01-01T00:00:00Z",
@@ -156,6 +192,8 @@ def test_bidcycle_list_positions(authorized_client, authorized_user):
 @pytest.mark.usefixtures("test_bidcycle_fixture")
 def test_bidcycle_actions(authorized_client, authorized_user):
     position = mommy.make('position.Position')
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
 
     # Check the position is in the bidcycle
     response = authorized_client.get(f'/api/v1/bidcycle/1/position/{position.id}/')
@@ -188,6 +226,13 @@ def test_bidcycle_actions(authorized_client, authorized_user):
 def test_bidcycle_batch_actions(authorized_client, authorized_user):
     mommy.make(BidCycle, id=2, name="Bidcycle 2", cycle_start_date="2017-01-01T00:00:00Z", cycle_end_date="2018-01-01T00:00:00Z")
     # Try to add a saved search batch that isn't positions
+    response = authorized_client.put(f'/api/v1/bidcycle/2/position/batch/2/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    group = mommy.make('auth.Group', name='bidcycle_admin')
+    group.user_set.add(authorized_user)
+
     response = authorized_client.put(f'/api/v1/bidcycle/2/position/batch/2/')
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
