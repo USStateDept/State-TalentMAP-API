@@ -18,6 +18,8 @@ from django.conf import settings
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
 
+from talentmap_api.settings import get_delineated_environment_variable
+
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
 
@@ -81,7 +83,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
         session.headers.update(headers)
 
         # Attempt to get the cert location
-        cert = settings.get_delineated_environment_variable('WSDL_SSL_CERT', None)
+        cert = get_delineated_environment_variable('WSDL_SSL_CERT', None)
 
         if cert:
             logger.info(f'Setting SSL verification cert to {cert}')
@@ -92,7 +94,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
         transport = Transport(session=session)
 
         # Get the WSDL location
-        wsdl_location = settings.get_delineated_environment_variable('WSDL_LOCATION')
+        wsdl_location = get_delineated_environment_variable('WSDL_LOCATION')
         logger.info(f'Initializing client with WSDL: {wsdl_location}')
 
         client = zeep.Client(wsdl=wsdl_location, transport=transport)
