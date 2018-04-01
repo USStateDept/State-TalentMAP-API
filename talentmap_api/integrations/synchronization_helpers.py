@@ -11,15 +11,18 @@ import re
 import zeep
 from zeep.transports import Transport
 
+from dateutil.relativedelta import relativedelta
+
 import defusedxml.lxml as ET
 
 from django.conf import settings
 
 from talentmap_api.common.common_helpers import ensure_date
-from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict
+from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nested_tag, xml_etree_to_dict, set_foreign_key_by_filters
 
 from talentmap_api.settings import get_delineated_environment_variable
 
+from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
 
@@ -322,6 +325,7 @@ def mode_posts(last_updated_date=None):
     tag_map = {
         "location_code": "_location_code",
         "tod_code": "_tod_code",
+        "tour_of_duty": set_foreign_key_by_filters("tour_of_duty", "long_description", "__icontains"),
         "cost_of_living_adjustment": "cost_of_living_adjustment",
         "differential_rate": "differential_rate",
         "rest_relaxation_point": "rest_relaxation_point",
@@ -387,6 +391,7 @@ def mode_positions(last_updated_date=None):
         "skill_code": "_skill_code",
         "is_overseas": parse_boolean("is_overseas", ['O']),
         "grade": "_grade_code",
+        "tour_of_duty": set_foreign_key_by_filters("tour_of_duty", "long_description", "__icontains"),
         "language_code_1": "_language_1_code",
         "language_code_2": "_language_2_code",
         "location_code": "_location_code",
@@ -513,6 +518,11 @@ def mode_cycle_positions(last_updated_date=None):
             position.status = data["STATUS"]
             position.effective_date = ensure_date(data["DATE_UPDATED"])
             position.save()
+            if "TED" in data.keys():
+                ted = ensure_date(data["TED"], utc_offset=-5)
+                start_date = ted - relativedelta(months=position.tour_of_duty.months)
+                if not position.current_assignment:
+                    Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=position.tour_of_duty, status="active")
 
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 

@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from dateutil import parser
+from dateutil import parser, tz
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -24,6 +24,10 @@ def test_ensure_date():
     # Now check it
     assert ensure_date("1000-01-01") == date
     assert ensure_date(date) == date
+
+    date = parser.parse("1000-01-01").astimezone(datetime.timezone(datetime.timedelta(hours=-5)))
+
+    assert ensure_date("1000-01-01", utc_offset=-5) == date
 
 
 @pytest.mark.django_db()
