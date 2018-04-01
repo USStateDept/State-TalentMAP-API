@@ -402,7 +402,7 @@ class Assignment(StaticRepresentationModel):
     curtailment_reason = models.TextField(null=True, choices=CurtailmentReason.choices)
 
     # Incumbent and position information
-    user = models.ForeignKey('user_profile.UserProfile', related_name='assignments')
+    user = models.ForeignKey('user_profile.UserProfile', null=True, related_name='assignments')
     position = models.ForeignKey('position.Position', related_name='assignments')
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
 
@@ -411,7 +411,7 @@ class Assignment(StaticRepresentationModel):
     start_date = models.DateTimeField(null=True, help_text='The date the assignment started')
     estimated_end_date = models.DateTimeField(null=True, help_text='The estimated end date based upon tour of duty')
     end_date = models.DateTimeField(null=True, help_text='The date this position was completed or curtailed')
-    bid_approval_date = models.DateTimeField(help_text='The date the bid for this assignment was approved')
+    bid_approval_date = models.DateTimeField(null=True, help_text='The date the bid for this assignment was approved')
     arrival_date = models.DateTimeField(null=True, help_text='The date the incumbent arrived at the position')
     service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
     update_date = models.DateTimeField(auto_now=True)
@@ -485,8 +485,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                (sd.year == today.year and sd.month < 11 and today.month > 11):
                 sd_post = sd_post.history.as_of(f"{sd.year}-11-01T00:00:00Z")
 
-            if bd.year < today.year or \
-               (bd.year == today.year and bd.month < 11 and today.month > 11):
+            if bd and (bd.year < today.year or (bd.year == today.year and bd.month < 11 and today.month > 11)):
                 bd_post = bd_post.history.as_of(f"{bd.year}-11-01T00:00:00Z")
 
             instance.combined_differential = max((sd_post.differential_rate + sd_post.danger_pay),

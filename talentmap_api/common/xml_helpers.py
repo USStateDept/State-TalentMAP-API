@@ -85,9 +85,8 @@ class XMLloader():
             # Call override method if it exists
             if self.override_loading_method:
                 self.override_loading_method(self, tag, new_instances, updated_instances)
-                continue
-
-            self.default_xml_action(tag, new_instances, updated_instances)
+            else:
+                self.default_xml_action(tag, new_instances, updated_instances)
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
@@ -300,4 +299,19 @@ def get_nested_tag(field, tag, many=False):
         else:
             data = [element.text for element in list(item.iter()) if element.tag == tag]
             setattr(instance, field, ",".join(data))
+    return process_function
+
+
+def set_foreign_key_by_filters(field, foreign_field, lookup="__iexact"):
+    '''
+    Creates a function which will search the model associated with the foreign key
+    specified by the foreign field parameter, matching on tag contents. Use this when
+    syncing reference data.
+    '''
+
+    def process_function(instance, item):
+        foreign_model = type(instance)._meta.get_field(field).related_model
+        search_parameter = {f"{foreign_field}{lookup}": item.text}
+        setattr(instance, field, foreign_model.objects.filter(**search_parameter).first())
+
     return process_function
