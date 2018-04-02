@@ -89,6 +89,7 @@ class PositionSerializer(PrefetchedSerializer):
     skill = StaticRepresentationField(read_only=True)
     bureau = serializers.SerializerMethodField()
     organization = serializers.SerializerMethodField()
+    tour_of_duty = StaticRepresentationField(read_only=True)
     classifications = StaticRepresentationField(read_only=True, many=True)
     representation = serializers.SerializerMethodField()
     is_highlighted = serializers.ReadOnlyField()
