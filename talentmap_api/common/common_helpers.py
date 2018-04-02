@@ -3,7 +3,7 @@ import datetime
 from pydoc import locate
 
 from dateutil.relativedelta import relativedelta
-from dateutil import parser
+from dateutil import parser, tz
 
 from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import resolve
@@ -72,7 +72,7 @@ def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
     return queryset
 
 
-def ensure_date(date):
+def ensure_date(date, utc_offset=0):
     '''
     Ensures the date given is a datetime object.
 
@@ -82,10 +82,12 @@ def ensure_date(date):
     Returns:
         - date (Object) - Datetime
     '''
-    if isinstance(date, str):
-        return parser.parse(date).astimezone(datetime.timezone.utc)
+    if not date:
+        return None
+    elif isinstance(date, str):
+        return parser.parse(date).astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
     elif isinstance(date, datetime.date):
-        return date.astimezone(datetime.timezone.utc)
+        return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
     else:
         raise Exception("Parameter must be a date object or string")
 
