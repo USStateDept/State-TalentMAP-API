@@ -339,9 +339,9 @@ def mode_posts(last_updated_date=None):
 
 def mode_capsule_descriptions(last_updated_date=None):
     # Set the appropriate use_last_updated string
-    ulu_string = ""
+    use_last_updated_string = ""
     if last_updated_date is not None:
-        ulu_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+        use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
 
     # Request data
     soap_arguments = {
@@ -351,7 +351,7 @@ def mode_capsule_descriptions(last_updated_date=None):
         "MaximumOutputRows": 100,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": f"<positionCapsules><positionCapsule>{ulu_string}</positionCapsule></positionCapsules>"
+        "InputParameters": f"<positionCapsules><positionCapsule>{use_last_updated_string}</positionCapsule></positionCapsules>"
     }
 
     # Response parsing data

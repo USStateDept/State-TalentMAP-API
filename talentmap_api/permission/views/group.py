@@ -75,9 +75,9 @@ class PermissionGroupControls(APIView):
         Adds the specified user to the specified group
         '''
         group = get_object_or_404(Group, id=url_arguments.get("pk"))
-        uid = url_arguments.get('user_id')
-        logger.info(f"User {self.request.user.id}:{self.request.user} adding user id {uid} to group {group}")
-        group.user_set.add(uid)
+        user_id = url_arguments.get('user_id')
+        logger.info(f"User {self.request.user.id}:{self.request.user} adding user id {user_id} to group {group}")
+        group.user_set.add(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -86,8 +86,8 @@ class PermissionGroupControls(APIView):
         Removes the specified user from the specified group
         '''
         group = get_object_or_404(Group, id=url_arguments.get("pk"))
-        uid = url_arguments.get("user_id")
-        logger.info(f"User id {self.request.user.id}, {self.request.user} removing user id {uid} from group {group}")
-        group.user_set.remove(uid)
+        user_id = url_arguments.get("user_id")
+        logger.info(f"User id {self.request.user.id}, {self.request.user} removing user id {user_id} from group {group}")
+        group.user_set.remove(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
