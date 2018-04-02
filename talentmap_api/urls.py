@@ -22,8 +22,6 @@ from djangosaml2.views import echo_attributes
 from talentmap_api.saml2.acs_patch import assertion_consumer_service
 
 urlpatterns = [
-    url(r'^$', get_swagger_view(title='TalentMAP API')),
-
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
     url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
@@ -91,4 +89,5 @@ if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^$', get_swagger_view(title='TalentMAP API')),
     ]

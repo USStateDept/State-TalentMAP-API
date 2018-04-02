@@ -138,8 +138,8 @@ class SynchronizationJob(models.Model):
             # Successful, set the last synchronization
             self.last_synchronization = timezone.now()
             self.job_item_count = len(updated_ids) + len(new_ids)
-        except:  # pragma: no cover
-            raise
+        except Exception as e:  # pragma: no cover
+            logger.exception(e)
         finally:
             self.running = False
             self.save()

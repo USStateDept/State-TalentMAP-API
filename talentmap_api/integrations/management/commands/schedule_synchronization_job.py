@@ -19,13 +19,13 @@ class Command(BaseCommand):
             ('position.SkillCone', SynchronizationJob.TIME_WEEK, 0, False),
             ('position.CapsuleDescription', SynchronizationJob.TIME_DAY, 10, True),
             ('organization.TourOfDuty', SynchronizationJob.TIME_WEEK, 0, False),
-            ('organization.Organization', SynchronizationJob.TIME_WEEK, 0, False),
+            ('organization.Organization', SynchronizationJob.TIME_WEEK, 1, False),
             ('organization.Country', SynchronizationJob.TIME_WEEK, 0, False),
             ('organization.Location', SynchronizationJob.TIME_WEEK, 0, False),
-            ('organization.Post', SynchronizationJob.TIME_WEEK, 0, False),
+            ('organization.Post', SynchronizationJob.TIME_WEEK, 2, False),
             ('language.Language', SynchronizationJob.TIME_WEEK, 0, False),
-            ('position.Position', SynchronizationJob.TIME_DAY, 0, False),
-            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 1, False),
+            ('position.Position', SynchronizationJob.TIME_DAY, 2, False),
+            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 9, False),
         ]
 
     def add_arguments(self, parser):
