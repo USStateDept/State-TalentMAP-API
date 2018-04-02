@@ -12,7 +12,7 @@ from talentmap_api.user_profile.models import UserProfile
 
 class Command(BaseCommand):
     help = 'Creates a set of users for testing purposes and seeds their skill codes and grades'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [

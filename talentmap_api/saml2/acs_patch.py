@@ -20,11 +20,6 @@ import logging
 
 from django.conf import settings
 from django.contrib import auth
-try:
-    from django.contrib.auth.views import LogoutView
-    django_logout = LogoutView.as_view()
-except ImportError:
-    from django.contrib.auth.views import logout as django_logout
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_POST
@@ -49,7 +44,7 @@ from djangosaml2.utils import (
 from djangosaml2.views import _set_subject_id
 from rest_framework_expiring_authtoken.models import ExpiringToken
 
-logger = logging.getLogger('console')
+logger = logging.getLogger(__name__)
 
 
 @require_POST
@@ -130,7 +125,7 @@ def assertion_consumer_service(request,
 
     auth.login(request, user)
     _set_subject_id(request.session, session_info['name_id'])
-    logger.debug("User %s authenticated via SSO.", user)
+    logger.info(f"User {user} authenticated via SSO")
 
     logger.debug('Sending the post_authenticated signal')
     post_authenticated.send_robust(sender=user, session_info=session_info)

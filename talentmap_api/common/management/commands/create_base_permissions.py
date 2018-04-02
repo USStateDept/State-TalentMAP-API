@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 
 class Command(BaseCommand):
     help = 'Creates application-wide permissions and groups'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
@@ -15,7 +15,8 @@ class Command(BaseCommand):
         self.groups = [
             "bureau_ao",
             "glossary_editors",
-            "feedback_editors"
+            "feedback_editors",
+            "bidcycle_admin"
         ]
 
     def handle(self, *args, **options):

@@ -33,3 +33,4 @@ exclude_paths:
   - "**/migrations/"
   - "**/saml2/*"
   - "**/commands/*"  # Management commands may have odd structures (due to lots of conditionals checking options)
+  - "**/cache/*"  # Cache bit constructors require many parameters

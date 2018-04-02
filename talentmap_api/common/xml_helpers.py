@@ -123,7 +123,7 @@ class XMLloader():
             self.last_tag_collision_field = getattr(instance, self.collision_field)
             collisions = type(instance).objects.filter(**q_kwargs)
             if collisions.count() > 1:
-                logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
+                logging.getLogger(__name__).warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
                 return
             elif collisions.count() == 1:
                 # We have exactly one collision, so handle it
@@ -208,7 +208,7 @@ class CSVloader():
                     q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
                     collisions = type(instance).objects.filter(**q_kwargs)
                     if collisions.count() > 1:
-                        logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
+                        logging.getLogger(__name__).warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
                         continue
                     elif collisions.count() == 1:
                         # We have exactly one collision, so handle it

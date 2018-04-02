@@ -17,3 +17,21 @@ def isDjangoGroupMember(group_name):
                 return False
 
     return IsDjangoGroupMember
+
+
+def isDjangoGroupMemberOrReadOnly(group_name):
+    '''
+    Dynamically creates a permission class for the specified group, for use
+    in class-based DRF views. Allows use if the user is either hitting a
+    read-only endpoint or is in the specified group.
+    '''
+
+    class IsDjangoGroupMemberOrReadOnly(permissions.BasePermission):
+        def has_permission(self, request, view):
+            try:
+                in_group_or_403(request.user, group_name)
+                return True
+            except:
+                return (request.method in permissions.SAFE_METHODS)
+
+    return IsDjangoGroupMemberOrReadOnly

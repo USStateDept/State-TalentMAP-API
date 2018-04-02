@@ -10,7 +10,7 @@ from talentmap_api.integrations.synchronization_helpers import get_soap_client
 
 class Command(BaseCommand):
     help = 'Tests the connection to the SOAP webservices'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

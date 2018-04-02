@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,6 +19,9 @@ from talentmap_api.permission.serializers import PermissionGroupSerializer, Perm
 from talentmap_api.permission.filters import GroupFilter
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
+
+
+logger = logging.getLogger(__name__)
 
 
 class PermissionGroupView(mixins.ListModelMixin,
@@ -69,7 +74,10 @@ class PermissionGroupControls(APIView):
         '''
         Adds the specified user to the specified group
         '''
-        get_object_or_404(Group, id=url_arguments.get("pk")).user_set.add(url_arguments.get("user_id"))
+        group = get_object_or_404(Group, id=url_arguments.get("pk"))
+        user_id = url_arguments.get('user_id')
+        logger.info(f"User {self.request.user.id}:{self.request.user} adding user id {user_id} to group {group}")
+        group.user_set.add(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -77,6 +85,9 @@ class PermissionGroupControls(APIView):
         '''
         Removes the specified user from the specified group
         '''
-        get_object_or_404(Group, id=url_arguments.get("pk")).user_set.remove(url_arguments.get("user_id"))
+        group = get_object_or_404(Group, id=url_arguments.get("pk"))
+        user_id = url_arguments.get("user_id")
+        logger.info(f"User id {self.request.user.id}, {self.request.user} removing user id {user_id} from group {group}")
+        group.user_set.remove(user_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)

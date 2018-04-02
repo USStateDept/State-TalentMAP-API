@@ -82,6 +82,36 @@ class Position(StaticRepresentationModel):
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
 
+    @property
+    def is_highlighted(self):
+        return (self.highlighted_by_org.count() > 0)
+
+    @property
+    def latest_bidcycle(self):
+        return self.bid_cycles.latest('cycle_start_date')
+
+    @property
+    def similar_positions(self):
+        '''
+        Returns a query set of similar positions, using the base criteria.
+        If there are not at least 3 results, the criteria is loosened.
+        '''
+        base_criteria = {
+            "post__location__country__id": safe_navigation(self, "post.location.country.id"),
+            "skill__code": safe_navigation(self, "skill.code"),
+            "grade__code": safe_navigation(self, "grade.code"),
+        }
+
+        q_obj = models.Q(**base_criteria)
+        queryset = Position.objects.filter(q_obj).exclude(id=self.id)
+
+        while queryset.count() < 3:
+            del base_criteria[list(base_criteria.keys())[0]]
+            q_obj = models.Q(**base_criteria)
+            queryset = Position.objects.filter(q_obj).exclude(id=self.id)
+
+        return queryset
+
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
 

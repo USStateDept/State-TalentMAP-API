@@ -39,6 +39,7 @@ class SynchronizationJob(models.Model):
     talentmap_model = models.TextField(unique=True, help_text="The talentmap model as a string; e.g. position.Position")
 
     priority = models.IntegerField(default=0, help_text='The job priority, higher numbers run later. Default 0')
+    use_last_date_updated = models.BooleanField(default=False, help_text='Denotes if the job should only pull newest records')
 
     @staticmethod
     def get_scheduled():
@@ -58,9 +59,9 @@ class SynchronizationJob(models.Model):
         start = datetime.datetime.utcnow()
         self.running = True
         self.save()
+        self.job_item_count = 0
         try:
-            logger = logging.getLogger('synchronization')
-            logger.info(self)
+            logger = logging.getLogger(__name__)
 
             logger.info("Getting SOAP client")
 
@@ -69,9 +70,15 @@ class SynchronizationJob(models.Model):
             logger.info(f"Using function {soap_function}")
 
             synchronization_tasks = get_synchronization_information(self.talentmap_model)
+
+            last_date_updated = None
+            if self.use_last_date_updated:
+                last_date_updated = self.last_synchronization.strftime("%Y/%m/%d %H:%M:%S")
+                logger.info(f"Using last updated date: {last_date_updated}")
+
             for task in synchronization_tasks:
                 logger.info(f"Running task {task.__name__}")
-                soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method = task()
+                soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method = task(last_updated_date=last_date_updated)
                 model = apps.get_model(self.talentmap_model)
 
                 logger.info("Intializing XML loader")
@@ -125,16 +132,18 @@ class SynchronizationJob(models.Model):
                 post_load_function(model, new_ids, updated_ids)
 
             logger.info("Synchronization complete")
-            d = relativedelta(start, datetime.datetime.utcnow())
+            d = relativedelta(datetime.datetime.utcnow(), start)
             logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.minutes} min {d.seconds} s\t\t")
 
             # Successful, set the last synchronization
             self.last_synchronization = timezone.now()
+            self.job_item_count = len(updated_ids) + len(new_ids)
         except:  # pragma: no cover
             raise
         finally:
             self.running = False
             self.save()
+            return self.job_item_count
 
     def save(self, *args, **kwargs):
         self.next_synchronization = ensure_date(self.last_synchronization) + relativedelta(seconds=self.delta_synchronization)
@@ -145,7 +154,7 @@ class SynchronizationJob(models.Model):
         status_string = f"Last@{self.last_synchronization} Next@+{self.next_synchronization} ∆[{d.years}y {d.months}mo {d.days}d {d.minutes}min {d.seconds}s]"
         if self.running:
             status_string = "IN PROGRESS"
-        return f"SynchronizationJob (Priority: {self.priority})- {self.talentmap_model}: {status_string}"
+        return f"SynchronizationJob (Priority: {self.priority}) (Use Last Updated: {self.use_last_date_updated}) - {self.talentmap_model}: {status_string}"
 
     class Meta:
         managed = True
