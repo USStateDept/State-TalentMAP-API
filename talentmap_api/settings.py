@@ -430,7 +430,7 @@ WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 # Set up the DB from a connection string in the environment variable, DATABASE_URL
 # see https://github.com/kennethreitz/dj-database-url for more info
 
-DATABASES = {'default': dj_database_url.config(conn_max_age=1)}
+DATABASES = {'default': dj_database_url.parse(get_delineated_environment_variable('DATABASE_URL'), conn_max_age=1)}
 
 
 # Password validation
