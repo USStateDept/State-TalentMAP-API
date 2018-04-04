@@ -49,7 +49,8 @@ class Command(BaseCommand):
             return
 
         if options['reset-all']:
-            SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", running=False)
+            # Update doesn't call the save mthod on objects, so we need to set the next_synchronization explicitly here
+            SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", next_synchronization="1975-01-01T00:00:00Z", running=False)
             return
 
         job, _ = SynchronizationJob.objects.get_or_create(talentmap_model=options['model'])
