@@ -404,7 +404,7 @@ class Assignment(StaticRepresentationModel):
     # Incumbent and position information
     user = models.ForeignKey('user_profile.UserProfile', null=True, related_name='assignments')
     position = models.ForeignKey('position.Position', related_name='assignments')
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', null=True, related_name='assignments')
 
     # Chronology information
     create_date = models.DateTimeField(auto_now_add=True, help_text='The date the assignment was created')
