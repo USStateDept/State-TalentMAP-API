@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
+from django.contrib.postgres.fields import ArrayField
 
 import logging
 
@@ -83,6 +84,9 @@ class Organization(StaticRepresentationModel):
         if self.is_bureau:
             self.create_permissions()
 
+        # Create our organization groups if they don't exist
+        OrganizationGroup.create_groups()
+
     def create_permissions(self):
         '''
         Creates this organization's permission set
@@ -115,6 +119,47 @@ class Organization(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["code"]
+
+
+class OrganizationGroup(StaticRepresentationModel):
+    '''
+    Represents a logical grouping of organizations
+    '''
+
+    name = models.TextField(null=False, help_text="The description of the organization grouping")
+    organizations = models.ManyToManyField('organization.Organization', related_name="groups")
+    _org_codes = ArrayField(models.TextField(), default=list)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    @staticmethod
+    def create_groups():
+        '''
+        Creates the baseline organization groups
+        '''
+        baseline_groups = {
+            'Arms Control and International Security': ['014540', '010164', '014000'],
+            'Civilian Security, Democracy, and Human Rights': ['013000', '033510', '018000', '031000', '010113', '011810'],
+            'Democratic Republic of Congo': ['010108', '010183', '010106', '010145'],
+            'Economic Growth, Energy, and the Environment': ['040700', '041600', '011701', '021250'],
+            'Management': ['201000', '041900', '170100', '010623', '016000', '241000', '012900', '012200'],
+            'Public Diplomacy and Public Affairs': ['100100'],
+            'Special Representatives, Envoys, Advisors & Coordinators': ['011210', '011702', '010173', '010114', '010135', '010170', '010163', '010140', '010182', '010179', '010160', '010181'],
+        }
+
+        for name, codes in baseline_groups.items():
+            group, _ = OrganizationGroup.objects.get_or_create(name=name)
+            group._org_codes = codes
+            group.save()
+
+    def update_relationships(self):
+        self.organizations.clear()
+        self.organizations.add(*list(Organization.objects.filter(code__in=list(self._org_codes))))
+
+    class Meta:
+        managed = True
+        ordering = ["id"]
 
 
 class TourOfDuty(StaticRepresentationModel):
