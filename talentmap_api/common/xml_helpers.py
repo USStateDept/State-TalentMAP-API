@@ -131,12 +131,12 @@ class XMLloader():
                     new_instances.append(instance)
                 elif self.collision_behavior == 'update':
                     # Update our collided instance
-                    update_dict = dict(instance.__dict__)
+                    update_dict = {k: v for k, v in instance.__dict__.items() if k in collisions.first().__dict__.keys()}
                     del update_dict["id"]
                     del update_dict["_state"]
                     collisions.update(**update_dict)
                     updated_instances.append(collisions.first().id)
-                    return instance, True
+                    return collisions.first(), True
                 elif self.collision_behavior == 'skip':
                     # Skip this instance, because it already exists
                     return None, False
@@ -310,8 +310,9 @@ def set_foreign_key_by_filters(field, foreign_field, lookup="__iexact"):
     '''
 
     def process_function(instance, item):
-        foreign_model = type(instance)._meta.get_field(field).related_model
-        search_parameter = {f"{foreign_field}{lookup}": item.text}
-        setattr(instance, field, foreign_model.objects.filter(**search_parameter).first())
+        if item is not None and item.text:
+            foreign_model = type(instance)._meta.get_field(field).related_model
+            search_parameter = {f"{foreign_field}{lookup}": item.text}
+            setattr(instance, field, foreign_model.objects.filter(**search_parameter).first())
 
     return process_function
