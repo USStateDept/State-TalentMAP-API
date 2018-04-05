@@ -1,7 +1,7 @@
 import rest_framework_filters as filters
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
-from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search
+from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search, NumberInFilter
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
@@ -10,6 +10,8 @@ class OrganizationFilter(filters.FilterSet):
     parent_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
     groups = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationGroupFilter', name='groups', queryset=OrganizationGroup.objects.all())
     location = filters.RelatedFilter('talentmap_api.organization.filters.LocationFilter', name='location', queryset=Location.objects.all())
+
+    has_groups = NumberInFilter(name='groups', lookup_expr='in')
 
     # Name here must be a valid field, but it is ignored when overriden by the method parameter
     is_available = filters.BooleanFilter(name="bureau_positions", method=multi_field_filter(fields=["bureau_positions", "organization_positions"], lookup_expr="isnull", exclude=True))
