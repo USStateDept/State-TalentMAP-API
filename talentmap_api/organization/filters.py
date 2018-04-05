@@ -1,6 +1,6 @@
 import rest_framework_filters as filters
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter, full_text_search
 from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -8,6 +8,7 @@ from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, INTEGER_LOOKUPS, FORE
 class OrganizationFilter(filters.FilterSet):
     bureau_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='bureau_organization', queryset=Organization.objects.all())
     parent_organization = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='parent_organization', queryset=Organization.objects.all())
+    groups = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationGroupFilter', name='groups', queryset=OrganizationGroup.objects.all())
     location = filters.RelatedFilter('talentmap_api.organization.filters.LocationFilter', name='location', queryset=Location.objects.all())
 
     # Name here must be a valid field, but it is ignored when overriden by the method parameter
@@ -23,7 +24,19 @@ class OrganizationFilter(filters.FilterSet):
             "is_regional": ['exact'],
             "bureau_organization": FOREIGN_KEY_LOOKUPS,
             "parent_organization": FOREIGN_KEY_LOOKUPS,
+            "groups": FOREIGN_KEY_LOOKUPS,
             "location": FOREIGN_KEY_LOOKUPS
+        }
+
+
+class OrganizationGroupFilter(filters.FilterSet):
+    organizations = filters.RelatedFilter('talentmap_api.organization.filters.OrganizationFilter', name='organizations', queryset=Organization.objects.all())
+
+    class Meta:
+        model = OrganizationGroup
+        fields = {
+            "organizations": FOREIGN_KEY_LOOKUPS,
+            "name": ALL_TEXT_LOOKUPS,
         }
 
 
