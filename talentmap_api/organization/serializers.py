@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
 
 
 class OrganizationSerializer(PrefetchedSerializer):
     bureau_organization = serializers.SerializerMethodField()
     parent_organization = serializers.SerializerMethodField()
+    groups = StaticRepresentationField(read_only=True, many=True)
     highlighted_positions = StaticRepresentationField(read_only=True, many=True)
     location = StaticRepresentationField(read_only=True)
 
@@ -28,6 +29,14 @@ class OrganizationSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Organization
+        fields = "__all__"
+
+
+class OrganizationGroupSerializer(PrefetchedSerializer):
+    organizations = StaticRepresentationField(read_only=True, many=True)
+
+    class Meta:
+        model = OrganizationGroup
         fields = "__all__"
 
 
