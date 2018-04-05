@@ -5,6 +5,8 @@ from django.contrib.postgres.search import SearchVector
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
+import rest_framework_filters as drff_filters
+
 from django.core.exceptions import FieldDoesNotExist
 
 # Common filters for string-type objects
@@ -54,6 +56,13 @@ class RelatedOrderingFilter(filters.OrderingFilter):
     def remove_invalid_fields(self, queryset, fields, ordering, view):
         return [term for term in fields
                 if self.is_valid_field(queryset.model, term.lstrip('-'))]
+
+
+class NumberInFilter(drff_filters.BaseInFilter, drff_filters.NumberFilter):
+    '''
+    Combines the in and number filter to support M2M in filtering
+    '''
+    pass
 
 
 def negate_boolean_filter(lookup_expr):
