@@ -51,6 +51,7 @@ class Position(StaticRepresentationModel):
     create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
     effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
+    posted_date = models.DateTimeField(null=True, help_text="The posted date of this position")
 
     status_code = models.CharField(max_length=120, null=True, help_text="Cycle status code")
     status = models.CharField(max_length=120, null=True, help_text="Cycle status text")
