@@ -153,6 +153,8 @@ class PositionFilter(filters.FilterSet):
             "is_overseas": ["exact"],
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
+            "effective_date": DATE_LOOKUPS,
+            "posted_date": DATE_LOOKUPS,
             "post": FOREIGN_KEY_LOOKUPS,
             "organization": FOREIGN_KEY_LOOKUPS,
             "bureau": FOREIGN_KEY_LOOKUPS,
