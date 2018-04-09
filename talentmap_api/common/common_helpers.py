@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from dateutil import parser, tz
 
 from django.contrib.auth.models import Group, Permission
-from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.http import QueryDict
 from django.utils.six.moves.urllib.parse import urlparse
 from django.utils.datastructures import MultiValueDict

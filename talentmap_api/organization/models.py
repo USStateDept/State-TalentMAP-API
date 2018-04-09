@@ -258,7 +258,7 @@ class Post(StaticRepresentationModel):
     Represents a post and its related fields
     '''
 
-    location = models.ForeignKey(Location, null=True, related_name="posts", help_text="The location of the post")
+    location = models.ForeignKey(Location, null=True, on_delete=models.DO_NOTHING, related_name="posts", help_text="The location of the post")
 
     cost_of_living_adjustment = models.IntegerField(null=False, default=0, help_text="Cost of living adjustment number")
     differential_rate = models.IntegerField(null=False, default=0, help_text="Differential rate number")
