@@ -21,18 +21,18 @@ class UserProfile(StaticRepresentationModel):
     mandatory_retirement_date = models.DateTimeField(null=True)
     phone_number = models.TextField(null=True)
 
-    cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
+    cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
     skills = models.ManyToManyField('position.Skill')
 
-    grade = models.ForeignKey('position.Grade', null=True)
+    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)
 
     favorite_positions = models.ManyToManyField('position.Position', related_name='favorited_by_users', help_text="Positions which this user has designated as a favorite")
 
-    primary_nationality = models.ForeignKey('organization.Country', null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
-    secondary_nationality = models.ForeignKey('organization.Country', null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
+    primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
+    secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -168,7 +168,7 @@ class SavedSearch(StaticRepresentationModel):
     '''
     Represents a saved search.
     '''
-    owner = models.ForeignKey(UserProfile, related_name="saved_searches")
+    owner = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, related_name="saved_searches")
 
     name = models.TextField(default="Saved Search", help_text="The name of the saved search")
     endpoint = models.TextField(help_text="The endpoint for this search and filter")
