@@ -516,6 +516,7 @@ def mode_cycle_positions(last_updated_date=None):
             position.status_code = data["STATUS_CODE"]
             position.status = data["STATUS"]
             position.effective_date = ensure_date(data["DATE_UPDATED"])
+            position.posted_date = ensure_date(data["CP_POST_DT"])
             position.save()
             if "TED" in data.keys():
                 ted = ensure_date(data["TED"], utc_offset=-5)
