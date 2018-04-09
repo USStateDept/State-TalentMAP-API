@@ -73,7 +73,7 @@ class StatusSurvey(StaticRepresentationModel):
     '''
 
     user = models.ForeignKey("user_profile.UserProfile", on_delete=models.CASCADE, related_name="status_surveys")
-    bidcycle = models.ForeignKey(BidCycle, related_name="status_surveys")
+    bidcycle = models.ForeignKey(BidCycle, on_delete=models.DO_NOTHING, related_name="status_surveys")
 
     is_differential_bidder = models.BooleanField(default=False)
     is_fairshare = models.BooleanField(default=False)
@@ -231,11 +231,11 @@ class Waiver(StaticRepresentationModel):
     type = models.TextField(default=Type.full, choices=Type.choices)
     status = models.TextField(default=Status.requested, choices=Status.choices)
 
-    bid = models.ForeignKey(Bid, related_name='waivers')
-    position = models.ForeignKey('position.Position', related_name='waivers')
-    user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
+    bid = models.ForeignKey(Bid, on_delete=models.DO_NOTHING, related_name='waivers')
+    position = models.ForeignKey('position.Position', on_delete=models.DO_NOTHING, related_name='waivers')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='waivers')
 
-    reviewer = models.ForeignKey('user_profile.UserProfile', null=True, related_name='reviewed_waivers')
+    reviewer = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='reviewed_waivers')
 
     description = models.TextField(null=True, help_text="Description of the waiver request")
 
