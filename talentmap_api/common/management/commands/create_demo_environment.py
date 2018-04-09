@@ -245,6 +245,9 @@ class Command(BaseCommand):
         bc.positions.add(*list(Position.objects.all()))
         self.logger.info(f"Created demo bidcycle with all positions: {bc.name}")
 
+        self.logger.info(f"Setting all position posted dates, and statuses")
+        Position.objects.all().update(posted_date="2006-05-20T15:00:00Z", status="Open", status_code="OP")
+
         # Give all positions without a current assignment an assignment from John Doe
         profile = UserProfile.objects.get(user__username="doej")
         unassigned_positions = Position.objects.filter(current_assignment__isnull=True)
@@ -285,6 +288,11 @@ class Command(BaseCommand):
             setattr(bid, f"{bid.status}_date", timezone.now())
             self.logger.info(f"Setting bid status: {bid}")
             bid.save()
+
+            if bid.status == Bid.Status.handshake_offered or bid.status == Bid.Status.handshake_accepted:
+                bid.position.status = "Handshake"
+                bid.position.status_code = "HS"
+                bid.position.save()
 
         # Move one bid through the entire process
         bid = Bid.objects.exclude(user__user__username='woodwardw').filter(status=Bid.Status.submitted).first()
