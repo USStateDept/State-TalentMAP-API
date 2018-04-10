@@ -105,10 +105,7 @@ def multi_field_filter(fields, lookup_expr='exact', exclude=False):
         for field in fields:
             lookup = LOOKUP_SEP.join([field, lookup_expr])
             q_obj = q_obj & Q(**{lookup: value})
-        if exclude:
-            return queryset.exclude(q_obj)
-        else:
-            return queryset.filter(q_obj)
+        return filter_or_exclude_queryset(queryset, q_obj, exclude)
     return filter_method
 
 
@@ -165,9 +162,16 @@ def array_field_filter(lookup_expr, exclude=False):
     def filter_method(queryset, name, value):
         lookup = LOOKUP_SEP.join([name, lookup_expr])
         q_obj = Q(**{lookup: value.split(',')})
-        if exclude:
-            return queryset.exclude(q_obj)
-        else:
-            return queryset.filter(q_obj)
+        return filter_or_exclude_queryset(queryset, q_obj, exclude)
 
     return filter_method
+
+
+def filter_or_exclude_queryset(queryset, filters, exclude=False):
+    '''
+    Filters or excludes a queryset based upon specified q_obj filters
+    '''
+    if exclude:
+        return queryset.exclude(filters)
+    else:
+        return queryset.filter(filters)
