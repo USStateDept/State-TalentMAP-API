@@ -30,7 +30,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>AS6000000</location_code>
-                  <tour_of_duty>3 YRS/TRANSFER</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>30</cost_of_living_adjustment>
                   <differential_rate>0</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -66,7 +67,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>IN6167000</location_code>
-                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>15</cost_of_living_adjustment>
                   <differential_rate>25</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -102,7 +104,8 @@
                   <reading_proficiency_2>3</reading_proficiency_2>
                   <language_representation_2>Kirghiz (KM) 3/3</language_representation_2>
                   <location_code>KG1000000</location_code>
-                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>D</tod_code>
                   <cost_of_living_adjustment>20</cost_of_living_adjustment>
                   <differential_rate>25</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -138,7 +141,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>FJ6000000</location_code>
-                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>F</tod_code>
                   <cost_of_living_adjustment>10</cost_of_living_adjustment>
                   <differential_rate>15</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -174,7 +178,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>VM3000000</location_code>
-                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>5</cost_of_living_adjustment>
                   <differential_rate>20</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -210,7 +215,8 @@
                   <reading_proficiency_2>3</reading_proficiency_2>
                   <language_representation_2>Russian (RU) 3/3</language_representation_2>
                   <location_code>MD7000000</location_code>
-                  <tour_of_duty>2 YRS (1 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>J</tod_code>
                   <cost_of_living_adjustment>0</cost_of_living_adjustment>
                   <differential_rate>15</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -247,6 +253,7 @@
                   <language_representation_2/>
                   <location_code>AO5000000</location_code>
                   <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>D</tod_code>
                   <cost_of_living_adjustment>60</cost_of_living_adjustment>
                   <differential_rate>25</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -282,7 +289,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>BB2100000</location_code>
-                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>42</cost_of_living_adjustment>
                   <differential_rate>5</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -318,7 +326,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>CH2500000</location_code>
-                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>30</cost_of_living_adjustment>
                   <differential_rate>15</differential_rate>
                   <danger_pay>0</danger_pay>
@@ -354,7 +363,8 @@
                   <reading_proficiency_2/>
                   <language_representation_2/>
                   <location_code>BA3000000</location_code>
-                  <tour_of_duty>3 YRS ( 2 R &amp; R )</tour_of_duty>
+                  <tour_of_duty>2 YRS (2 R &amp; R)</tour_of_duty>
+                  <tod_code>E</tod_code>
                   <cost_of_living_adjustment>15</cost_of_living_adjustment>
                   <differential_rate>15</differential_rate>
                   <danger_pay>0</danger_pay>

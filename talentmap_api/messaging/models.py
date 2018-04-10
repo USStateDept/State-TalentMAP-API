@@ -59,8 +59,8 @@ class Sharable(StaticRepresentationModel):
     is the string representation of the model, for example 'position.Position', and the
     sharable_id is the integer representation of the autofield primary key for that model
     '''
-    sharing_user = models.ForeignKey('user_profile.UserProfile', related_name="sent_shares")
-    receiving_user = models.ForeignKey('user_profile.UserProfile', related_name="received_shares")
+    sharing_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name="sent_shares")
+    receiving_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name="received_shares")
 
     # Sharable
     sharable_id = models.IntegerField(help_text="The ID of the model instance for this sharable")

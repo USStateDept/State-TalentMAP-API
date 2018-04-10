@@ -24,25 +24,25 @@ class Position(StaticRepresentationModel):
     '''
 
     position_number = models.TextField(null=True, help_text='The position number')
-    description = models.OneToOneField('position.CapsuleDescription', related_name='position', null=True, help_text="A plain text description of the position")
+    description = models.OneToOneField('position.CapsuleDescription', on_delete=models.DO_NOTHING, related_name='position', null=True, help_text="A plain text description of the position")
     title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
     languages = models.ManyToManyField('language.Qualification', related_name='positions')
 
     # Positions most often share their tour of duty with the post, but sometimes vary
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The tour of duty of the post')
 
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
-    current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
+    current_assignment = models.ForeignKey('position.Assignment', on_delete=models.DO_NOTHING, null=True, related_name='current_for_position')
 
-    grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
-    skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
+    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The job grade for this position')
+    skill = models.ForeignKey('position.Skill', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The job skill for this position')
 
-    organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
-    bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
-    post = models.ForeignKey('organization.Post', related_name='positions', null=True, help_text='The position post')
+    organization = models.ForeignKey('organization.Organization', on_delete=models.DO_NOTHING, related_name='organization_positions', null=True, help_text='The organization for this position')
+    bureau = models.ForeignKey('organization.Organization', on_delete=models.DO_NOTHING, related_name='bureau_positions', null=True, help_text='The bureau for this position')
+    post = models.ForeignKey('organization.Post', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
 
@@ -51,6 +51,7 @@ class Position(StaticRepresentationModel):
     create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
     effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
+    posted_date = models.DateTimeField(null=True, help_text="The posted date of this position")
 
     status_code = models.CharField(max_length=120, null=True, help_text="Cycle status code")
     status = models.CharField(max_length=120, null=True, help_text="Cycle status text")
@@ -226,7 +227,7 @@ class CapsuleDescription(StaticRepresentationModel):
     point_of_contact = models.TextField(null=True)
     website = models.TextField(null=True)
 
-    last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
+    last_editing_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
@@ -283,7 +284,7 @@ class Skill(StaticRepresentationModel):
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
-    cone = models.ForeignKey("position.SkillCone", related_name="skills", null=True)
+    cone = models.ForeignKey("position.SkillCone", on_delete=models.DO_NOTHING, related_name="skills", null=True)
     description = models.TextField(null=False, help_text="Text description of the job skill")
 
     def __str__(self):
@@ -395,16 +396,16 @@ class Assignment(StaticRepresentationModel):
     curtailment_reason = models.TextField(null=True, choices=CurtailmentReason.choices)
 
     # Incumbent and position information
-    user = models.ForeignKey('user_profile.UserProfile', related_name='assignments')
-    position = models.ForeignKey('position.Position', related_name='assignments')
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
+    position = models.ForeignKey('position.Position', on_delete=models.DO_NOTHING, related_name='assignments')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
 
     # Chronology information
     create_date = models.DateTimeField(auto_now_add=True, help_text='The date the assignment was created')
     start_date = models.DateTimeField(null=True, help_text='The date the assignment started')
     estimated_end_date = models.DateTimeField(null=True, help_text='The estimated end date based upon tour of duty')
     end_date = models.DateTimeField(null=True, help_text='The date this position was completed or curtailed')
-    bid_approval_date = models.DateTimeField(help_text='The date the bid for this assignment was approved')
+    bid_approval_date = models.DateTimeField(null=True, help_text='The date the bid for this assignment was approved')
     arrival_date = models.DateTimeField(null=True, help_text='The date the incumbent arrived at the position')
     service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
     update_date = models.DateTimeField(auto_now=True)
@@ -478,8 +479,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                (sd.year == today.year and sd.month < 11 and today.month > 11):
                 sd_post = sd_post.history.as_of(f"{sd.year}-11-01T00:00:00Z")
 
-            if bd.year < today.year or \
-               (bd.year == today.year and bd.month < 11 and today.month > 11):
+            if bd and (bd.year < today.year or (bd.year == today.year and bd.month < 11 and today.month > 11)):
                 bd_post = bd_post.history.as_of(f"{bd.year}-11-01T00:00:00Z")
 
             instance.combined_differential = max((sd_post.differential_rate + sd_post.danger_pay),

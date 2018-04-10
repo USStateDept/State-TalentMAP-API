@@ -14,7 +14,7 @@ from talentmap_api.language.models import Qualification
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS, NumberInFilter
 
 
 class GradeFilter(filters.FilterSet):
@@ -95,6 +95,7 @@ class PositionFilter(filters.FilterSet):
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
     is_highlighted = filters.BooleanFilter(name="highlighted_by_org", lookup_expr="isnull", exclude=True)
+    org_has_groups = NumberInFilter(name='organization__groups', lookup_expr='in')
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
@@ -152,6 +153,8 @@ class PositionFilter(filters.FilterSet):
             "is_overseas": ["exact"],
             "create_date": DATE_LOOKUPS,
             "update_date": DATE_LOOKUPS,
+            "effective_date": DATE_LOOKUPS,
+            "posted_date": DATE_LOOKUPS,
             "post": FOREIGN_KEY_LOOKUPS,
             "organization": FOREIGN_KEY_LOOKUPS,
             "bureau": FOREIGN_KEY_LOOKUPS,

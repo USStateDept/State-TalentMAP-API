@@ -19,13 +19,13 @@ class Command(BaseCommand):
             ('position.SkillCone', SynchronizationJob.TIME_WEEK, 0, False),
             ('position.CapsuleDescription', SynchronizationJob.TIME_DAY, 10, True),
             ('organization.TourOfDuty', SynchronizationJob.TIME_WEEK, 0, False),
-            ('organization.Organization', SynchronizationJob.TIME_WEEK, 0, False),
+            ('organization.Organization', SynchronizationJob.TIME_WEEK, 1, False),
             ('organization.Country', SynchronizationJob.TIME_WEEK, 0, False),
             ('organization.Location', SynchronizationJob.TIME_WEEK, 0, False),
-            ('organization.Post', SynchronizationJob.TIME_WEEK, 0, False),
+            ('organization.Post', SynchronizationJob.TIME_WEEK, 2, False),
             ('language.Language', SynchronizationJob.TIME_WEEK, 0, False),
-            ('position.Position', SynchronizationJob.TIME_DAY, 0, False),
-            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 1, False),
+            ('position.Position', SynchronizationJob.TIME_DAY, 2, False),
+            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 9, False),
         ]
 
     def add_arguments(self, parser):
@@ -49,7 +49,8 @@ class Command(BaseCommand):
             return
 
         if options['reset-all']:
-            SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", running=False)
+            # Update doesn't call the save method on objects, so we need to set the next_synchronization explicitly here
+            SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", next_synchronization="1975-01-01T00:00:00Z", running=False)
             return
 
         job, _ = SynchronizationJob.objects.get_or_create(talentmap_model=options['model'])

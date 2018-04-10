@@ -5,6 +5,8 @@ from django.contrib.postgres.search import SearchVector
 from rest_framework_filters.backends import DjangoFilterBackend
 
 from rest_framework import filters
+import rest_framework_filters as drff_filters
+
 from django.core.exceptions import FieldDoesNotExist
 
 # Common filters for string-type objects
@@ -56,6 +58,13 @@ class RelatedOrderingFilter(filters.OrderingFilter):
                 if self.is_valid_field(queryset.model, term.lstrip('-'))]
 
 
+class NumberInFilter(drff_filters.BaseInFilter, drff_filters.NumberFilter):
+    '''
+    Combines the in and number filter to support M2M in filtering
+    '''
+    pass
+
+
 def negate_boolean_filter(lookup_expr):
     '''
     Curries a function which executes a boolean filter, but negating the incoming value.
@@ -96,10 +105,7 @@ def multi_field_filter(fields, lookup_expr='exact', exclude=False):
         for field in fields:
             lookup = LOOKUP_SEP.join([field, lookup_expr])
             q_obj = q_obj & Q(**{lookup: value})
-        if exclude:
-            return queryset.exclude(q_obj)
-        else:
-            return queryset.filter(q_obj)
+        return filter_or_exclude_queryset(queryset, q_obj, exclude)
     return filter_method
 
 
@@ -156,9 +162,16 @@ def array_field_filter(lookup_expr, exclude=False):
     def filter_method(queryset, name, value):
         lookup = LOOKUP_SEP.join([name, lookup_expr])
         q_obj = Q(**{lookup: value.split(',')})
-        if exclude:
-            return queryset.exclude(q_obj)
-        else:
-            return queryset.filter(q_obj)
+        return filter_or_exclude_queryset(queryset, q_obj, exclude)
 
     return filter_method
+
+
+def filter_or_exclude_queryset(queryset, filters, exclude=False):
+    '''
+    Filters or excludes a queryset based upon specified q_obj filters
+    '''
+    if exclude:
+        return queryset.exclude(filters)
+    else:
+        return queryset.filter(filters)

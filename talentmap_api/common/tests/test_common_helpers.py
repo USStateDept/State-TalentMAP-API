@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from dateutil import parser
+from dateutil import parser, tz
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 
 from model_mommy import mommy
 
-from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation, order_dict
+from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation, order_dict, serialize_instance
 from talentmap_api.position.models import Position
 
 
@@ -24,6 +24,17 @@ def test_ensure_date():
     # Now check it
     assert ensure_date("1000-01-01") == date
     assert ensure_date(date) == date
+
+    date = parser.parse("1000-01-01").astimezone(datetime.timezone(datetime.timedelta(hours=-5)))
+
+    assert ensure_date("1000-01-01", utc_offset=-5) == date
+
+
+@pytest.mark.django_db()
+def test_serialize_instance():
+    # Try to get a permission without it existing
+    p = mommy.make('position.Position')
+    assert serialize_instance(p, 'talentmap_api.position.serializers.PositionSerializer').get('id') == p.id
 
 
 @pytest.mark.django_db()

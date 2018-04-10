@@ -85,9 +85,8 @@ class XMLloader():
             # Call override method if it exists
             if self.override_loading_method:
                 self.override_loading_method(self, tag, new_instances, updated_instances)
-                continue
-
-            self.default_xml_action(tag, new_instances, updated_instances)
+            else:
+                self.default_xml_action(tag, new_instances, updated_instances)
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
@@ -132,12 +131,12 @@ class XMLloader():
                     new_instances.append(instance)
                 elif self.collision_behavior == 'update':
                     # Update our collided instance
-                    update_dict = dict(instance.__dict__)
+                    update_dict = {k: v for k, v in instance.__dict__.items() if k in collisions.first().__dict__.keys()}
                     del update_dict["id"]
                     del update_dict["_state"]
                     collisions.update(**update_dict)
                     updated_instances.append(collisions.first().id)
-                    return instance, True
+                    return collisions.first(), True
                 elif self.collision_behavior == 'skip':
                     # Skip this instance, because it already exists
                     return None, False
@@ -300,4 +299,20 @@ def get_nested_tag(field, tag, many=False):
         else:
             data = [element.text for element in list(item.iter()) if element.tag == tag]
             setattr(instance, field, ",".join(data))
+    return process_function
+
+
+def set_foreign_key_by_filters(field, foreign_field, lookup="__iexact"):
+    '''
+    Creates a function which will search the model associated with the foreign key
+    specified by the foreign field parameter, matching on tag contents. Use this when
+    syncing reference data.
+    '''
+
+    def process_function(instance, item):
+        if item is not None and item.text:
+            foreign_model = type(instance)._meta.get_field(field).related_model
+            search_parameter = {f"{foreign_field}{lookup}": item.text}
+            setattr(instance, field, foreign_model.objects.filter(**search_parameter).first())
+
     return process_function
