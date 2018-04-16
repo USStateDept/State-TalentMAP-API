@@ -249,6 +249,20 @@ def has_permission_or_403(user, permission):
         raise PermissionDenied
 
 
+def in_superuser_group(user):
+    '''
+    This function checks whether or not the specified user is in the superuser group
+
+    Args:
+        - user (Object) - The user instance
+    '''
+    try:
+        group = get_group_by_name("superuser")
+        return group in user.groups.all()
+    except:
+        return False
+
+
 def month_diff(start_date, end_date):
     '''
     This function calculates the difference between two dates in months.
