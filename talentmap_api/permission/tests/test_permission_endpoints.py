@@ -40,7 +40,7 @@ def test_group_action_endpoints(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
     # Give us some AO permissions
-    ao_group = mommy.make('auth.Group', name="bureau_ao")
+    ao_group = mommy.make('auth.Group', name="superuser")
     ao_group.user_set.add(authorized_user)
 
     # Check if the user is in the group (no, so 404)
