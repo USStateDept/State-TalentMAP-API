@@ -54,7 +54,7 @@ class PermissionGroupControls(APIView):
     Controls a permission group's membership
     '''
 
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get(self, request, format=None, **url_arguments):
         '''

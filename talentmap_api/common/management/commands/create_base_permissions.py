@@ -16,7 +16,8 @@ class Command(BaseCommand):
             "bureau_ao",
             "glossary_editors",
             "feedback_editors",
-            "bidcycle_admin"
+            "bidcycle_admin",
+            "superuser"
         ]
 
     def handle(self, *args, **options):
