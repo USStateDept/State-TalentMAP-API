@@ -54,7 +54,7 @@ class PositionListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = Position.objects.all()
+        queryset = Position.objects.filter(status_code__in=["OP", "HS"])
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 
