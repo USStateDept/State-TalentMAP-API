@@ -12,7 +12,7 @@ from talentmap_api.language.models import Language, Proficiency
 def test_language_endpoints_fixture():
     mommy.make('language.Language', code="FR")
     # Create a specific language, proficiency, and qualification
-    language = mommy.make('language.Language', code="DE", long_description="German", short_description="Ger")
+    language = mommy.make('language.Language', code="DE", long_description="German", short_description="German")
     proficiency = mommy.make('language.Proficiency', code="3+")
 
     # Create a bunch of languages where we don't care about the structure
