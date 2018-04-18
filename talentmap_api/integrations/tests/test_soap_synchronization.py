@@ -6,6 +6,7 @@ from talentmap_api.bidding.models import BidCycle
 from talentmap_api.language.models import Language
 from talentmap_api.position.models import Grade, Skill, Position, SkillCone, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
+from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
 
 from talentmap_api.integrations.models import SynchronizationJob
 from talentmap_api.integrations.management.commands.schedule_synchronization_job import Command as SyncCommand
@@ -20,6 +21,7 @@ def test_soap_integrations():
     call_command('synchronize_data', '--test')
 
     assert Language.objects.count() == 10
+    assert Language.objects.first().formal_description == LANGUAGE_FORMAL_NAMES.get(Language.objects.first().short_description)
     assert Country.objects.count() == 10
     assert Location.objects.count() == 10
     assert CapsuleDescription.objects.count() == 10
