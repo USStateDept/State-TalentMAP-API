@@ -137,14 +137,15 @@ class OrganizationGroup(StaticRepresentationModel):
         '''
         Creates the baseline organization groups
         '''
+        OrganizationGroup.objects.all().delete()
+
         baseline_groups = {
-            'Arms Control and International Security': ['014540', '010164', '014000'],
-            'Civilian Security, Democracy, and Human Rights': ['013000', '033510', '018000', '031000', '010113', '011810'],
-            'Democratic Republic of Congo': ['010108', '010183', '010106', '010145'],
-            'Economic Growth, Energy, and the Environment': ['040700', '041600', '011701', '021250'],
-            'Management': ['201000', '041900', '170100', '010623', '016000', '241000', '012900', '012200'],
-            'Public Diplomacy and Public Affairs': ['100100'],
-            'Special Representatives, Envoys, Advisors & Coordinators': ['011210', '011702', '010173', '010114', '010135', '010170', '010163', '010140', '010182', '010179', '010160', '010181'],
+            'Arms Control and International Security': ['198000', '197000', '014000'],
+            'Civilian Security, Democracy, and Human Rights': ['013000', '033000', '018000', '019000', '030000'],
+            'Economic Growth, Energy, and the Environment': ['050000', '025000', '020000'],
+            'Management': ['200000', '088000', '280000', '080000', '210000', '170000', '260000', '180000', '016000', '240000', '400000'],
+            'Public Diplomacy and Public Affairs': ['230000', '250000', '100000'],
+            'Office of the Secretary': ['070000', '060000', '040000', '094000'],
         }
 
         for name, codes in baseline_groups.items():
