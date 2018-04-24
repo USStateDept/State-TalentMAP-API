@@ -523,15 +523,15 @@ def mode_cycle_positions(last_updated_date=None):
                 tod = position.tour_of_duty
                 if not tod:
                     tod = safe_navigation(position, "post.tour_of_duty")
-                if tod:
-                    start_date = ted - relativedelta(months=position.tour_of_duty.months)
+                if ted and tod and tod.months:
+                    start_date = ted - relativedelta(months=tod.months)
                     if not position.current_assignment:
-                        Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=position.tour_of_duty, status="active")
+                        Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
                     else:
                         position.current_assignment.start_date = start_date
-                        position.current_assignment.tour_of_duty = position.tour_of_duty
+                        position.current_assignment.tour_of_duty = tod
                         position.current_assignment.save()
-                else:
+                elif ted:
                     logger.warning(f"Attepting to set position {position} TED to {data['TED']} but no position or post TOD is available - start date will not be set")
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, estimated_end_date=ted, status="active")
@@ -540,6 +540,8 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.state_date = None
                         position.current_assignment.tour_of_duty = None
                         position.current_assignment.save()
+                else:
+                    logger.warning(f"Attempting to set position {position} TED, but TED is {ted}")
 
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 

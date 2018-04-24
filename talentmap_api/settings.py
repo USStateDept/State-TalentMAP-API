@@ -214,6 +214,9 @@ if ENABLE_SAML2:
         # full path to the xmlsec1 binary program
         'xmlsec_binary': get_delineated_environment_variable('SAML2_XMLSEC1_PATH'),
 
+        # acceptable time differential, in seconds
+        'accepted_time_diff': 60,
+
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/metadata/",
 
