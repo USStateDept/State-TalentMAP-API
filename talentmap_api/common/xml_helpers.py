@@ -82,11 +82,15 @@ class XMLloader():
             if last_pagination_key_item is not None:
                 self.last_pagination_start_key = last_pagination_key_item.text
 
-            # Call override method if it exists
-            if self.override_loading_method:
-                self.override_loading_method(self, tag, new_instances, updated_instances)
-            else:
-                self.default_xml_action(tag, new_instances, updated_instances)
+            # Try to parse and load this tag
+            try:
+                # Call override method if it exists
+                if self.override_loading_method:
+                    self.override_loading_method(self, tag, new_instances, updated_instances)
+                else:
+                    self.default_xml_action(tag, new_instances, updated_instances)
+            except Exception as e:
+                logging.getLogger(__name__).exception(e)
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
