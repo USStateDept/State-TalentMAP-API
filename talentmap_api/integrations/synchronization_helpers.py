@@ -507,12 +507,14 @@ def mode_cycle_positions(last_updated_date=None):
         # Find our matching bidcycle
         bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
         if bc:
+            updated_instances.append(bc)
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
         position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
 
         if position:
+            updated_instances.append(position)
             position.status_code = data["STATUS_CODE"]
             position.status = data["STATUS"]
             position.effective_date = ensure_date(data["DATE_UPDATED"])
