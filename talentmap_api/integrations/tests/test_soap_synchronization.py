@@ -2,7 +2,7 @@ import pytest
 
 from django.core.management import call_command
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, BiddingStatus
 from talentmap_api.language.models import Language
 from talentmap_api.position.models import Grade, Skill, Position, SkillCone, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
@@ -34,6 +34,7 @@ def test_soap_integrations():
     assert BidCycle.objects.count() == 8
     assert BidCycle.objects.get(_id="147").positions.count() == 4
     assert BidCycle.objects.get(_id="151").positions.count() == 6
+    assert BiddingStatus.objects.count() == 10
 
     call_command('synchronize_data', '--list')
 
