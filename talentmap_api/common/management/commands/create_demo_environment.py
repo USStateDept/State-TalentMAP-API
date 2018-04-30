@@ -246,7 +246,7 @@ class Command(BaseCommand):
         self.logger.info(f"Created demo bidcycle with all positions: {bc.name}")
 
         self.logger.info(f"Setting all position posted dates, and statuses")
-        Position.objects.all().update(posted_date="2006-05-20T15:00:00Z", status="Open", status_code="OP")
+        Position.objects.all().update(posted_date="2006-05-20T15:00:00Z")
 
         # Give all positions without a current assignment an assignment from John Doe
         profile = UserProfile.objects.get(user__username="doej")
