@@ -282,7 +282,7 @@ class PositionHighlightActionView(APIView):
         position = get_object_or_404(Position, id=pk)
 
         # Check for the bureau permission on the accessing user
-        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
+        in_group_or_403(self.request.user, "superuser")
         position.bureau.highlighted_positions.add(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -291,7 +291,7 @@ class PositionHighlightActionView(APIView):
         Removes the position from highlighted positions
         '''
         position = get_object_or_404(Position, id=pk)
-        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
+        in_group_or_403(self.request.user, "superuser")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
