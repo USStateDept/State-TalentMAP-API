@@ -32,8 +32,9 @@ class Command(BaseCommand):
                 search_terms = (line["description"] + line["aux"]).split(" ")
                 instance = model.objects.filter(_string_representation__search=line["description"])
                 if instance.count() != 1:
+                    instance = model.objects.all()
                     for term in search_terms:
-                        instance = model.objects.filter(_string_representation__icontains=term)
+                        instance = instance.filter(_string_representation__icontains=term)
                         if instance.count() == 1:
                             break
                 if instance.count() == 0:
