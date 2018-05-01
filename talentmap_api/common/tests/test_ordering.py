@@ -8,9 +8,9 @@ from rest_framework import status
 def test_ordering_position_fixture():
     post_1 = mommy.make('organization.Post', id=1, has_service_needs_differential=True)
     post_2 = mommy.make('organization.Post', id=2, has_service_needs_differential=False)
-
-    mommy.make('position.Position', id=1, post=post_1, position_number="1234")
-    mommy.make('position.Position', id=2, post=post_2, position_number="5678")
+    bc = mommy.make('bidding.BidCycle')
+    bc.positions.add(mommy.make('position.Position', id=1, post=post_1, position_number="1234"))
+    bc.positions.add(mommy.make('position.Position', id=2, post=post_2, position_number="5678"))
 
 
 @pytest.mark.django_db()

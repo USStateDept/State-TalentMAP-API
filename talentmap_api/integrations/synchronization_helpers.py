@@ -22,6 +22,7 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 
 from talentmap_api.settings import get_delineated_environment_variable
 
+from talentmap_api.bidding.models import BiddingStatus
 from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
@@ -515,8 +516,10 @@ def mode_cycle_positions(last_updated_date=None):
 
         if position:
             updated_instances.append(position)
-            position.status_code = data["STATUS_CODE"]
-            position.status = data["STATUS"]
+            bidding_status, _ = BiddingStatus.objects.get_or_create(bidcycle=bc, position=position)
+            bidding_status.status_code = data["STATUS_CODE"]
+            bidding_status.status = data["STATUS"]
+            bidding_status.save()
             position.effective_date = ensure_date(data["DATE_UPDATED"])
             position.posted_date = ensure_date(data["CP_POST_DT"])
             position.save()
