@@ -8,23 +8,24 @@ from rest_framework import status
 @pytest.fixture
 def test_position_fts_fixture():
     # Create some junk positions to add numbers
-    mommy.make('position.Position',
-               organization__long_description="German Embassy",
-               bureau__long_description="German Embassy",
-               skill__description="Doctor",
-               languages__language__long_description="German")
+    bc = mommy.make('bidding.BidCycle')
+    bc.positions.add(mommy.make('position.Position',
+                                organization__long_description="German Embassy",
+                                bureau__long_description="German Embassy",
+                                skill__description="Doctor",
+                                languages__language__long_description="German"))
 
-    mommy.make('position.Position',
-               organization__long_description="French Embassy",
-               bureau__long_description="French Embassy",
-               skill__description="Doctor",
-               languages__language__long_description="French")
+    bc.positions.add(mommy.make('position.Position',
+                                organization__long_description="French Embassy",
+                                bureau__long_description="French Embassy",
+                                skill__description="Doctor",
+                                languages__language__long_description="French"))
 
-    mommy.make('position.Position',
-               organization__long_description="French Attache",
-               bureau__long_description="French Attache",
-               skill__description="Colorguard",
-               languages__language__long_description="French")
+    bc.positions.add(mommy.make('position.Position',
+                                organization__long_description="French Attache",
+                                bureau__long_description="French Attache",
+                                skill__description="Colorguard",
+                                languages__language__long_description="French"))
 
 
 @pytest.mark.django_db()

@@ -6,8 +6,9 @@ from rest_framework import status
 
 @pytest.fixture
 def test_field_params_fixture():
+    bidcycle = mommy.make('bidding.BidCycle')
     description = mommy.make('position.CapsuleDescription')
-    mommy.make('position.Position', description=description)
+    bidcycle.positions.add(mommy.make('position.Position', description=description))
 
 
 @pytest.mark.django_db()

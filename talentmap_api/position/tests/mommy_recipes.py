@@ -2,6 +2,7 @@ from model_mommy import mommy
 from model_mommy.recipe import Recipe, seq, foreign_key
 
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.position.models import Position, Grade, Skill, Classification, Assignment
 from talentmap_api.organization.tests.mommy_recipes import post, orphaned_organization
 
@@ -22,6 +23,18 @@ position = Recipe(
     post=foreign_key(post),
     bureau=foreign_key(orphaned_organization)
 )
+
+
+def bidcycle_positions(*args, **kwargs):
+    pos = mommy.make(Position, *args, **kwargs)
+    bidcycle = BidCycle.objects.first()
+    if not bidcycle:
+        bidcycle = mommy.make(BidCycle)
+    if isinstance(pos, list):
+        bidcycle.positions.add(*pos)
+    else:
+        bidcycle.positions.add(pos)
+    return pos
 
 
 def favorite_position():
