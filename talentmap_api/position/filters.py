@@ -5,7 +5,7 @@ from django.db.models import Q, Subquery
 from django.utils import timezone
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, BiddingStatus
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
