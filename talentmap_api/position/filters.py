@@ -121,17 +121,19 @@ class PositionFilter(filters.FilterSet):
     is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
 
-    def filter_available_in_bidcycle(self, queryset, name, value):
+     def filter_available_in_bidcycle(self, queryset, name, value):
         '''
         Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
         position_ids = []
         q_obj = Q()
-        for bc_id in value.split(','):
-            q_obj = q_obj | Q(id=int(bc_id))
-        bidcycles = BidCycle.objects.filter(q_obj)
-        for bc in list(bidcycles):
-            position_ids += bc.positions.all().values_list("id", flat=True)
+        bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(',')).filter(status_code__in=["OP", "HS"])
+        position_ids = bidding_statuses.values_list("position_id", flat=True)
+        #for bc_id in value.split(','):
+        #    q_obj = q_obj | Q(id=int(bc_id))
+        #bidcycles = BidCycle.objects.filter(q_obj)
+        #for bc in list(bidcycles):
+        #    position_ids += bc.positions.all().values_list("id", flat=True)
         return queryset.filter(id__in=position_ids)
 
     def filter_vacancy_in_years(self, queryset, name, value):
