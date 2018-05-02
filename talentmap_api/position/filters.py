@@ -121,7 +121,7 @@ class PositionFilter(filters.FilterSet):
     is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
 
-     def filter_available_in_bidcycle(self, queryset, name, value):
+    def filter_available_in_bidcycle(self, queryset, name, value):
         '''
         Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
