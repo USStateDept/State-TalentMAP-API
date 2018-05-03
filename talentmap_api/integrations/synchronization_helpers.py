@@ -484,7 +484,7 @@ def mode_cycle_positions(last_updated_date=None):
     use_last_updated_string = ""
     if last_updated_date is not None:
         use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
- 
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",

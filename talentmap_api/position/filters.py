@@ -129,11 +129,6 @@ class PositionFilter(filters.FilterSet):
         q_obj = Q()
         bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(',')).filter(status_code__in=["OP", "HS"])
         position_ids = bidding_statuses.values_list("position_id", flat=True)
-        #for bc_id in value.split(','):
-        #    q_obj = q_obj | Q(id=int(bc_id))
-        #bidcycles = BidCycle.objects.filter(q_obj)
-        #for bc in list(bidcycles):
-        #    position_ids += bc.positions.all().values_list("id", flat=True)
         return queryset.filter(id__in=position_ids)
 
     def filter_vacancy_in_years(self, queryset, name, value):
