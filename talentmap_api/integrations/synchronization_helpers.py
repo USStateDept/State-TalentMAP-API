@@ -480,6 +480,11 @@ def mode_cycles(last_updated_date=None):
 
 
 def mode_cycle_positions(last_updated_date=None):
+    # Set the appropriate use_last_updated string
+    use_last_updated_string = ""
+    if last_updated_date is not None:
+        use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -488,7 +493,7 @@ def mode_cycle_positions(last_updated_date=None):
         "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<availablePositions><availablePosition></availablePosition></availablePositions>"
+        "InputParameters": f"<availablePositions><availablePosition>{use_last_updated_string}</availablePosition></availablePositions>"
     }
 
     # Response parsing data

@@ -25,7 +25,7 @@ class Command(BaseCommand):
             ('organization.Post', SynchronizationJob.TIME_WEEK, 2, False),
             ('language.Language', SynchronizationJob.TIME_WEEK, 0, False),
             ('position.Position', SynchronizationJob.TIME_DAY, 2, False),
-            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 9, False),
+            ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 9, True),
         ]
 
     def add_arguments(self, parser):

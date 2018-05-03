@@ -5,7 +5,7 @@ from django.db.models import Q, Subquery
 from django.utils import timezone
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, BiddingStatus
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
@@ -127,11 +127,8 @@ class PositionFilter(filters.FilterSet):
         '''
         position_ids = []
         q_obj = Q()
-        for bc_id in value.split(','):
-            q_obj = q_obj | Q(id=int(bc_id))
-        bidcycles = BidCycle.objects.filter(q_obj)
-        for bc in list(bidcycles):
-            position_ids += bc.positions.all().values_list("id", flat=True)
+        bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(',')).filter(status_code__in=["OP", "HS"])
+        position_ids = bidding_statuses.values_list("position_id", flat=True)
         return queryset.filter(id__in=position_ids)
 
     def filter_vacancy_in_years(self, queryset, name, value):
