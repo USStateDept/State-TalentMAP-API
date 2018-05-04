@@ -114,12 +114,12 @@ class SynchronizationJob(models.Model):
                     # Get the data
                     response_xml = None
                     attempts = 0
-                    max_attempts = get_delineated_environment_variable('SOAP_MAX_ATTEMPTS', 5)
+                    max_attempts = int(get_delineated_environment_variable('SOAP_MAX_ATTEMPTS', 5))
                     if not test:  # pragma: no cover
                         while not response_xml and attempts <= max_attempts:
                             attempts = attempts + 1
                             try:
-                                with client.options(timeout=get_delineated_environment_variable('SOAP_TIMEOUT', 180)):
+                                with client.options(timeout=int(get_delineated_environment_variable('SOAP_TIMEOUT', 180))):
                                     response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
                             except TimeoutException as e:
                                 logger.error(f"SOAP call for {task} timed out")
