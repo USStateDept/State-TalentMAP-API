@@ -106,7 +106,7 @@ class Position(StaticRepresentationModel):
         while queryset.count() < 3:
             del base_criteria[list(base_criteria.keys())[0]]
             q_obj = models.Q(**base_criteria)
-            queryset = Position.objects.filter(q_obj).exclude(id=self.id).filter(bid_cycle_statuses__status_code__in=["OP", "HS"])
+            queryset = Position.objects.filter(q_obj).exclude(id=self.id).filter(bid_cycle_statuses__status_code__in=["OP", "HS"]).distinct()
 
         return queryset
 
