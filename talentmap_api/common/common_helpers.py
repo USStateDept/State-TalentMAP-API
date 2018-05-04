@@ -171,7 +171,7 @@ def ensure_date(date, utc_offset=0):
     if not date:
         return None
     elif isinstance(date, str):
-        return parser.parse(date).astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
+        return parser.parse(date) - datetime.timedelta(hours=utc_offset)
     elif isinstance(date, datetime.date):
         return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
     else:
