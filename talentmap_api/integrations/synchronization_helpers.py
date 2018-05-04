@@ -469,10 +469,10 @@ def mode_cycles(last_updated_date=None):
         # Find the dates for this cycle
         for date in xml_dict["children"]:
             if date["DATA_TYPE"] == "CYCLE":
-                instance.cycle_start_date = ensure_date(date["BEGIN_DATE"])
-                instance.cycle_end_date = ensure_date(date["END_DATE"])
+                instance.cycle_start_date = ensure_date(date["BEGIN_DATE"], utc_offset=-5)
+                instance.cycle_end_date = ensure_date(date["END_DATE"], utc_offset=-5)
             elif date["DATA_TYPE"] == "BIDDUE":
-                instance.cycle_deadline_date = ensure_date(date["BEGIN_DATE"])
+                instance.cycle_deadline_date = ensure_date(date["BEGIN_DATE"], utc_offset=-5)
         if updated:
             instance.save()
 
@@ -525,8 +525,8 @@ def mode_cycle_positions(last_updated_date=None):
             bidding_status.status_code = data["STATUS_CODE"]
             bidding_status.status = data["STATUS"]
             bidding_status.save()
-            position.effective_date = ensure_date(data["DATE_UPDATED"])
-            position.posted_date = ensure_date(data["CP_POST_DT"])
+            position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+            position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
             if "TED" in data.keys():
                 ted = ensure_date(data["TED"], utc_offset=-5)
