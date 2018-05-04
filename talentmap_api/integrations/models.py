@@ -9,9 +9,12 @@ from django.db import models
 from django.apps import apps
 from django.utils import timezone
 
+from requests.exceptions import Timeout as TimeoutException
+
 from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client, generate_soap_header
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.settings import get_delineated_environment_variable
 
 
 class SynchronizationJob(models.Model):
@@ -109,8 +112,27 @@ class SynchronizationJob(models.Model):
                         logger.info(f"Requesting first page")
 
                     # Get the data
-                    response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
+                    response_xml = None
+                    attempts = 0
+                    max_attempts = get_delineated_environment_variable('SOAP_MAX_ATTEMPTS', 5)
+                    if not test:  # pragma: no cover
+                        while not response_xml and attempts <= max_attempts:
+                            attempts = attempts + 1
+                            try:
+                                with client.options(timeout=get_delineated_environment_variable('SOAP_TIMEOUT', 180)):
+                                    response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
+                            except TimeoutException as e:
+                                logger.error(f"SOAP call for {task} timed out")
+                                logger.exception(e)
+                                if attempts > max_attempts:
+                                    logger.error(f"SOAP call for {task} exceeded max attempts.")
+                                    break
+                    else:
+                        response_xml = ET.tostring(getattr(client.service, soap_function_name)(**soap_arguments), encoding="unicode")
 
+                    if not response_xml:
+                        logger.error(f"SOAP data for {task} is null, exiting {task}")
+                        break
                     newer_ids, updateder_ids = loader.create_models_from_xml(response_xml, raw_string=True)
 
                     # If there are no new or updated ids on this page, we've reached the end

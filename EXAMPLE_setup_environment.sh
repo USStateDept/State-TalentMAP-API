@@ -78,6 +78,8 @@ export WSDL_SSL_CERT=''
 export DJANGO_SYNCHRONIZATION_HEADER_ANY_STRING="x-key-here=value"
 # You may set any number of namespace overrides for the SOAP XML here (from=to format)
 export DJANGO_SOAP_NS_OVERRIDE_ANY_STRING="ns0=tem"
+export SOAP_TIMEOUT=180
+export SOAP_MAX_ATTEMPTS=5
 
 # SAML2 Configuration
 export ENABLE_SAML2=False
