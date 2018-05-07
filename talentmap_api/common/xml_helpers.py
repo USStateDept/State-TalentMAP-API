@@ -14,7 +14,7 @@ from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 
 class XMLloader():
 
-    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None, override_loading_method=None):
+    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None, override_loading_method=None, logger=None):
         '''
         Instantiates the XMLloader
 
@@ -34,6 +34,10 @@ class XMLloader():
         self.collision_field = collision_field
         self.override_loading_method = override_loading_method
         self.last_pagination_start_key = None
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(__name__)
 
     def create_models_from_xml(self, xml, raw_string=False):
         '''
@@ -76,7 +80,11 @@ class XMLloader():
         # For every instance tag, create a new instance and populate it
         self.last_tag_collision_field = None  # Used when loading piecemeal
         self.last_pagination_start_key = None  # Used when loading SOAP integrations
+        
+        self.logger.info(f"XML Loader found {len(instance_tags)} items")
+        processed = 0
         for tag in instance_tags:
+            self.logger.info(f"Processing... ({int(processed / len(instance_tags))})%"            
             # Update the last pagination start key
             last_pagination_key_item = tag.find("paginationStartKey", tag.nsmap)
             if last_pagination_key_item is not None:
@@ -90,7 +98,9 @@ class XMLloader():
                 else:
                     self.default_xml_action(tag, new_instances, updated_instances)
             except Exception as e:
-                logging.getLogger(__name__).exception(e)
+                self.logger.exception(e)
+            finally:
+                processed += 1
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
