@@ -86,7 +86,7 @@ class SynchronizationJob(models.Model):
 
                 logger.info("Intializing XML loader")
 
-                loader = XMLloader(model, instance_tag, tag_map, 'update', collision_field, override_loading_method)
+                loader = XMLloader(model, instance_tag, tag_map, 'update', collision_field, override_loading_method, logger)
 
                 logger.info("Loader initialized, pulling XML data")
 
@@ -114,6 +114,7 @@ class SynchronizationJob(models.Model):
                     # Get the data
                     response_xml = None
                     attempts = 0
+                    pre_data_time = datetime.datetime.now()
                     max_attempts = int(get_delineated_environment_variable('SOAP_MAX_ATTEMPTS', 5))
                     if not test:  # pragma: no cover
                         while not response_xml and attempts <= max_attempts:
@@ -133,6 +134,8 @@ class SynchronizationJob(models.Model):
                     if not response_xml:
                         logger.error(f"SOAP data for {task} is null, exiting {task}")
                         break
+                    data_elapsed_time = (datetime.datetime.now() - pre_data_time).total_seconds()
+                    logger.info(f"Retrieved SOAP response in {data_elapsed_time} seconds")
                     newer_ids, updateder_ids = loader.create_models_from_xml(response_xml, raw_string=True)
 
                     # If there are no new or updated ids on this page, we've reached the end
