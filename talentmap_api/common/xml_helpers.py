@@ -84,7 +84,7 @@ class XMLloader():
         self.logger.info(f"XML Loader found {len(instance_tags)} items")
         processed = 0
         for tag in instance_tags:
-            self.logger.info(f"Processing... ({int(processed / len(instance_tags))})%"            
+            self.logger.info(f"Processing... ({int(processed / len(instance_tags))})%")            
             # Update the last pagination start key
             last_pagination_key_item = tag.find("paginationStartKey", tag.nsmap)
             if last_pagination_key_item is not None:
