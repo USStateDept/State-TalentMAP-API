@@ -55,11 +55,8 @@ class BidCycle(StaticRepresentationModel):
 
     def update_relationships(self):
         # For each position in our _positions_seq_nums, find it and add it to our positions
-        for seq_num in self._positions_seq_nums:
-            try:
-                self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
-            except:
-                logging.getLogger(__name__).info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
+        pos = talentmap_api.position.models.Position.objects.filter(_seq_num__in=self._positions_seq_nums)
+        self.positions.add(*list(pos))
 
     class Meta:
         managed = True
