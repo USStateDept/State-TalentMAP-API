@@ -6,6 +6,7 @@ import defusedxml.lxml as ET
 import logging
 import re
 import csv
+import datetime
 
 from io import StringIO
 
@@ -80,11 +81,24 @@ class XMLloader():
         # For every instance tag, create a new instance and populate it
         self.last_tag_collision_field = None  # Used when loading piecemeal
         self.last_pagination_start_key = None  # Used when loading SOAP integrations
-        
+
         self.logger.info(f"XML Loader found {len(instance_tags)} items")
         processed = 0
+        start_time = datetime.datetime.now()
         for tag in instance_tags:
-            self.logger.info(f"Processing... ({int(processed / len(instance_tags))})%")            
+            print(processed)
+            if processed > 0:
+                tot_sec = (len(instance_tags) - processed) * ((datetime.datetime.now() - start_time).total_seconds() / processed)
+                days = int(tot_sec / 86400)
+                hours = int(tot_sec % 86400 / 3600)
+                minutes = int(tot_sec % 86400 % 3600 / 60)
+                seconds = int(tot_sec % 86400 % 3600 % 60)
+                etr = f"{days} d {hours} h {minutes} min {seconds} s"
+                pct = str(int(processed / len(instance_tags) * 100))
+            else:
+                etr = "Unknown"
+                pct = "0"
+            self.logger.info(f"Processing... ({pct})% Estimated Time Remaining: {etr}")
             # Update the last pagination start key
             last_pagination_key_item = tag.find("paginationStartKey", tag.nsmap)
             if last_pagination_key_item is not None:
@@ -92,6 +106,7 @@ class XMLloader():
 
             # Try to parse and load this tag
             try:
+                processed += 1
                 # Call override method if it exists
                 if self.override_loading_method:
                     self.override_loading_method(self, tag, new_instances, updated_instances)
@@ -99,8 +114,6 @@ class XMLloader():
                     self.default_xml_action(tag, new_instances, updated_instances)
             except Exception as e:
                 self.logger.exception(e)
-            finally:
-                processed += 1
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:

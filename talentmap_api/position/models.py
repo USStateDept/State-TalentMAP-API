@@ -395,7 +395,7 @@ class Assignment(StaticRepresentationModel):
 
     # Incumbent and position information
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
-    position = models.ForeignKey('position.Position', on_delete=models.DO_NOTHING, related_name='assignments')
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name='assignments')
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
 
     # Chronology information
