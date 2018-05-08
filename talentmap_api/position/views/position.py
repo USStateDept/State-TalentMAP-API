@@ -15,7 +15,7 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver
+from talentmap_api.bidding.models import Bid, Waiver, BiddingStatus
 from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
@@ -54,7 +54,8 @@ class PositionListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = Position.objects.filter(bid_cycle_statuses__status_code__in=["OP", "HS"]).distinct()
+        position_ids = BiddingStatus.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        queryset = Position.objects.filter(id__in=position_ids)
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 
