@@ -22,6 +22,7 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 
 from talentmap_api.settings import get_delineated_environment_variable
 
+from talentmap_api.bidding.models import BiddingStatus
 from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
@@ -468,10 +469,10 @@ def mode_cycles(last_updated_date=None):
         # Find the dates for this cycle
         for date in xml_dict["children"]:
             if date["DATA_TYPE"] == "CYCLE":
-                instance.cycle_start_date = ensure_date(date["BEGIN_DATE"])
-                instance.cycle_end_date = ensure_date(date["END_DATE"])
+                instance.cycle_start_date = ensure_date(date["BEGIN_DATE"], utc_offset=-5)
+                instance.cycle_end_date = ensure_date(date["END_DATE"], utc_offset=-5)
             elif date["DATA_TYPE"] == "BIDDUE":
-                instance.cycle_deadline_date = ensure_date(date["BEGIN_DATE"])
+                instance.cycle_deadline_date = ensure_date(date["BEGIN_DATE"], utc_offset=-5)
         if updated:
             instance.save()
 
@@ -479,6 +480,11 @@ def mode_cycles(last_updated_date=None):
 
 
 def mode_cycle_positions(last_updated_date=None):
+    # Set the appropriate use_last_updated string
+    use_last_updated_string = ""
+    if last_updated_date is not None:
+        use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -487,7 +493,7 @@ def mode_cycle_positions(last_updated_date=None):
         "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<availablePositions><availablePosition></availablePosition></availablePositions>"
+        "InputParameters": f"<availablePositions><availablePosition>{use_last_updated_string}</availablePosition></availablePositions>"
     }
 
     # Response parsing data
@@ -507,31 +513,35 @@ def mode_cycle_positions(last_updated_date=None):
         # Find our matching bidcycle
         bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
         if bc:
+            updated_instances.append(bc)
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
         position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
 
         if position:
-            position.status_code = data["STATUS_CODE"]
-            position.status = data["STATUS"]
-            position.effective_date = ensure_date(data["DATE_UPDATED"])
-            position.posted_date = ensure_date(data["CP_POST_DT"])
+            updated_instances.append(position)
+            bidding_status, _ = BiddingStatus.objects.get_or_create(bidcycle=bc, position=position)
+            bidding_status.status_code = data["STATUS_CODE"]
+            bidding_status.status = data["STATUS"]
+            bidding_status.save()
+            position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+            position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
             if "TED" in data.keys():
                 ted = ensure_date(data["TED"], utc_offset=-5)
                 tod = position.tour_of_duty
                 if not tod:
                     tod = safe_navigation(position, "post.tour_of_duty")
-                if tod:
-                    start_date = ted - relativedelta(months=position.tour_of_duty.months)
+                if ted and tod and tod.months:
+                    start_date = ted - relativedelta(months=tod.months)
                     if not position.current_assignment:
-                        Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=position.tour_of_duty, status="active")
+                        Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
                     else:
                         position.current_assignment.start_date = start_date
-                        position.current_assignment.tour_of_duty = position.tour_of_duty
+                        position.current_assignment.tour_of_duty = tod
                         position.current_assignment.save()
-                else:
+                elif ted:
                     logger.warning(f"Attepting to set position {position} TED to {data['TED']} but no position or post TOD is available - start date will not be set")
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, estimated_end_date=ted, status="active")
@@ -540,6 +550,8 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.state_date = None
                         position.current_assignment.tour_of_duty = None
                         position.current_assignment.save()
+                else:
+                    logger.warning(f"Attempting to set position {position} TED, but TED is {ted}")
 
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 

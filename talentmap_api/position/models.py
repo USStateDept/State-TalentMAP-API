@@ -53,9 +53,6 @@ class Position(StaticRepresentationModel):
     effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
     posted_date = models.DateTimeField(null=True, help_text="The posted date of this position")
 
-    status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
-    status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
-
     # Values from the original XML/DB that are maintained but not displayed
     _seq_num = models.TextField(null=True)
     _title_code = models.TextField(null=True)
@@ -104,13 +101,14 @@ class Position(StaticRepresentationModel):
         }
 
         q_obj = models.Q(**base_criteria)
-        queryset = Position.objects.filter(q_obj).exclude(id=self.id)
+        position_ids = talentmap_api.bidding.models.BiddingStatus.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        all_pos_queryset = Position.objects.filter(id__in=position_ids)
+        queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
 
         while queryset.count() < 3:
             del base_criteria[list(base_criteria.keys())[0]]
             q_obj = models.Q(**base_criteria)
-            queryset = Position.objects.filter(q_obj).exclude(id=self.id)
-
+            queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
         return queryset
 
     def __str__(self):
@@ -397,7 +395,7 @@ class Assignment(StaticRepresentationModel):
 
     # Incumbent and position information
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
-    position = models.ForeignKey('position.Position', on_delete=models.DO_NOTHING, related_name='assignments')
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name='assignments')
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
 
     # Chronology information

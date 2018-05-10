@@ -55,15 +55,27 @@ class BidCycle(StaticRepresentationModel):
 
     def update_relationships(self):
         # For each position in our _positions_seq_nums, find it and add it to our positions
-        for seq_num in self._positions_seq_nums:
-            try:
-                self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
-            except:
-                logging.getLogger(__name__).info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
+        pos = talentmap_api.position.models.Position.objects.filter(_seq_num__in=self._positions_seq_nums)
+        self.positions.add(*list(pos))
 
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
+
+
+class BiddingStatus(StaticRepresentationModel):
+    '''
+    The status of the bid in a given bid cycle
+    '''
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="statuses")
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bid_cycle_statuses")
+
+    status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
+    status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
 
 
 class StatusSurvey(StaticRepresentationModel):
@@ -263,9 +275,11 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
         # Create a new statistics item when a position is placed in the bid cycle
         for position_id in pk_set:
             talentmap_api.position.models.PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
+            BiddingStatus.objects.get_or_create(bidcycle=instance, position_id=position_id)
     elif action == "pre_remove":
         # Delete statistics items when removed from the bidcycle
         talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+        BiddingStatus.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")

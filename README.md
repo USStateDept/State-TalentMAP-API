@@ -13,7 +13,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for additional information.
 
 ## Local Setup
 
-To set up a local copy of the API, see [SETUP](SETUP.md).
+To set up a local copy of the API, see [the wiki](https://github.com/18F/State-TalentMAP/wiki/Deployment-Guide).
 
 ## Public domain
 

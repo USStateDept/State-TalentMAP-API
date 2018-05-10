@@ -15,7 +15,7 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver
+from talentmap_api.bidding.models import Bid, Waiver, BiddingStatus
 from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
@@ -54,7 +54,8 @@ class PositionListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = Position.objects.filter(status_code__in=["OP", "HS"])
+        position_ids = BiddingStatus.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        queryset = Position.objects.filter(id__in=position_ids)
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 
@@ -282,7 +283,7 @@ class PositionHighlightActionView(APIView):
         position = get_object_or_404(Position, id=pk)
 
         # Check for the bureau permission on the accessing user
-        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
+        in_group_or_403(self.request.user, "superuser")
         position.bureau.highlighted_positions.add(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -291,7 +292,7 @@ class PositionHighlightActionView(APIView):
         Removes the position from highlighted positions
         '''
         position = get_object_or_404(Position, id=pk)
-        has_permission_or_403(self.request.user, f"organization.can_highlight_positions_{position.bureau.code}")
+        in_group_or_403(self.request.user, "superuser")
         position.bureau.highlighted_positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)
 

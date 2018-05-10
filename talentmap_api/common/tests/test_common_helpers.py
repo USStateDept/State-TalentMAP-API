@@ -19,14 +19,9 @@ def test_ensure_date():
     with pytest.raises(Exception, match="Parameter must be a date object or string"):
         ensure_date(201225123)
 
-    date = parser.parse("1000-01-01").astimezone(datetime.timezone.utc)
+    date = parser.parse("1000-01-01T00:00:00-05:00")
 
     # Now check it
-    assert ensure_date("1000-01-01") == date
-    assert ensure_date(date) == date
-
-    date = parser.parse("1000-01-01").astimezone(datetime.timezone(datetime.timedelta(hours=-5)))
-
     assert ensure_date("1000-01-01", utc_offset=-5) == date
 
 
