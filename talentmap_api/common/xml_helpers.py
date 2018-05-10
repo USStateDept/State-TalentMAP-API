@@ -86,7 +86,6 @@ class XMLloader():
         processed = 0
         start_time = datetime.datetime.now()
         for tag in instance_tags:
-            print(processed)
             if processed > 0:
                 tot_sec = (len(instance_tags) - processed) * ((datetime.datetime.now() - start_time).total_seconds() / processed)
                 days = int(tot_sec / 86400)
