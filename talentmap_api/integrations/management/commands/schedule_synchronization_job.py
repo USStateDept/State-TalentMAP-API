@@ -24,7 +24,7 @@ class Command(BaseCommand):
             ('organization.Location', SynchronizationJob.TIME_WEEK, 0, False),
             ('organization.Post', SynchronizationJob.TIME_WEEK, 2, False),
             ('language.Language', SynchronizationJob.TIME_WEEK, 0, False),
-            ('position.Position', SynchronizationJob.TIME_DAY, 2, False),
+            ('position.Position', SynchronizationJob.TIME_DAY, 2, True),
             ('bidding.BidCycle', SynchronizationJob.TIME_HOUR, 9, True),
         ]
 

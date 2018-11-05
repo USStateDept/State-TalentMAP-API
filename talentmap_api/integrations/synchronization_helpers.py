@@ -368,6 +368,11 @@ def mode_capsule_descriptions(last_updated_date=None):
 
 
 def mode_positions(last_updated_date=None):
+    # Set the appropriate use_last_updated string
+    use_last_updated_string = ""
+    if last_updated_date is not None:
+        use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
@@ -376,7 +381,7 @@ def mode_positions(last_updated_date=None):
         "MaximumOutputRows": 1000,
         "Version": "0.01",
         "DataFormat": "XML",
-        "InputParameters": "<positions><position></position></positions>"
+        "InputParameters": f"<positions><position>{use_last_updated_string}</position></positions>"
     }
 
     # Response parsing data
