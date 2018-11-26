@@ -198,7 +198,7 @@ def test_position_bid_list(authorized_client, authorized_user):
     # Create valid permissions to view this position's bids
     group = mommy.make('auth.Group', name='bureau_ao')
     group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group = mommy.make('auth.Group', name=f'bureau_ao:{bureau.code}')
     group.user_set.add(authorized_user)
 
     response = authorized_client.get(f'/api/v1/position/{position.id}/bids/')
@@ -287,7 +287,7 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     # Create valid permissions to view this position's waivers
     group = mommy.make('auth.Group', name='bureau_ao')
     group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group = mommy.make('auth.Group', name=f'bureau_ao:{bureau.code}')
     group.user_set.add(authorized_user)
 
     assert waiver.status == waiver.Status.requested

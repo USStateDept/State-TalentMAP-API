@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     group = get_group_by_name(f"bureau_ao")
                     group.user_set.add(user)
 
-                    group = get_group_by_name(f"bureau_ao_150000")
+                    group = get_group_by_name(f"bureau_ao:150000")
                     group.user_set.add(user)
 
                 if data[6]:

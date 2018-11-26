@@ -75,7 +75,7 @@ class PositionBidListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         # Get the position based on the PK from the url
         position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        in_group_or_403(self.request.user, f"bureau_ao_{position.bureau.code}")
+        in_group_or_403(self.request.user, f"bureau_ao:{position.bureau.code}")
         # Get the position's bids
         queryset = position.bids
         self.serializer_class.prefetch_model(Bid, queryset)
@@ -97,7 +97,7 @@ class PositionWaiverListView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         # Get the position based on the PK from the url
         position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        in_group_or_403(self.request.user, f"bureau_ao_{position.bureau.code}")
+        in_group_or_403(self.request.user, f"bureau_ao:{position.bureau.code}")
         # Get the position's bids
         queryset = position.waivers
         self.serializer_class.prefetch_model(Waiver, queryset)
@@ -134,7 +134,7 @@ class PositionWaiverActionView(GenericViewSet):
 
     def get_waiver(self, user, position_pk, waiver_pk):
         position = get_object_or_404(Position, pk=position_pk)
-        in_group_or_403(user, f"bureau_ao_{position.bureau.code}")
+        in_group_or_403(user, f"bureau_ao:{position.bureau.code}")
         return get_object_or_404(position.waivers, pk=waiver_pk)
 
     def approve(self, request, format=None, **url_kwargs):

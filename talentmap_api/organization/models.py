@@ -91,7 +91,7 @@ class Organization(StaticRepresentationModel):
         Creates this organization's permission set
         '''
         # Create a group for AOs for this bureau
-        group_name = f"bureau_ao_{self.code}"
+        group_name = f"bureau_ao:{self.code}"
         group, created = Group.objects.get_or_create(name=group_name)
 
         if created:
