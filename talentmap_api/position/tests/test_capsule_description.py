@@ -30,7 +30,7 @@ def test_capsule_description_update(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
     # Give our user appropriate permissions
-    group = get_group_by_name("post_editors_1")
+    group = get_group_by_name("post_editors:1")
     group.user_set.add(authorized_user)
 
     # Re-get the user from the DB as permissions get cached

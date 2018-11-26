@@ -41,9 +41,9 @@ def test_position_endpoints_fixture():
     # Create some junk positions to add numbers
     for _ in range(0, 8):
         bc.positions.add(mommy.make('position.Position',
-                         organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
-                         bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
-                         is_overseas=cycle(is_overseas)))
+                                    organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+                                    bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+                                    is_overseas=cycle(is_overseas)))
 
 
 @pytest.mark.django_db()
@@ -235,7 +235,7 @@ def test_favorite_action_endpoints(authorized_client, authorized_user):
 def test_highlight_action_endpoints(authorized_client, authorized_user):
     bureau = mommy.make('organization.Organization', code="123456", short_description="Test Bureau")
     bureau.create_permissions()
-    permission = get_permission_by_name(f"organization.can_highlight_positions_{bureau.code}")
+    permission = get_permission_by_name(f"organization.can_highlight_positions:{bureau.code}")
 
     position = bidcycle_positions(bureau=bureau)
 
