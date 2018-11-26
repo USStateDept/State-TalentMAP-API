@@ -200,6 +200,11 @@ def test_bidcycle_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    # Try to remove the position from the bidcycle
+    response = authorized_client.delete(f'/api/v1/bidcycle/1/position/{position.id}/')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
     # Add the position to the bidcycle
     response = authorized_client.put(f'/api/v1/bidcycle/1/position/{position.id}/')
 
