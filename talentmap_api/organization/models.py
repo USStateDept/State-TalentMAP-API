@@ -8,6 +8,7 @@ from django.dispatch import receiver
 
 import logging
 
+import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel
 
 
@@ -337,6 +338,6 @@ def assignment_post_save(sender, instance, action, reverse, model, pk_set, **kwa
     '''
     if action in ["post_add", "post_remove"]:
         for position_id in pk_set:
-            pos = Position.objects.get(position_id)
+            pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
             pos.is_highlighted = pos.highlighted_by_org.count() > 0
             pos.save()
