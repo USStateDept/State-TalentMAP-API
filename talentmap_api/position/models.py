@@ -45,6 +45,9 @@ class Position(StaticRepresentationModel):
     post = models.ForeignKey('organization.Post', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
+    is_highlighted = models.BooleanField(default=False, help_text="Flag designating whether the position is highlighted by an organization")
+
+    latest_bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.DO_NOTHING, related_name='latest_cycle_for_positions', null=True, help_text="The latest bid cycle this position is in")
 
     history = HistoricalRecords()
 
@@ -79,14 +82,6 @@ class Position(StaticRepresentationModel):
     _update_id = models.TextField(null=True)
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
-
-    @property
-    def is_highlighted(self):
-        return (self.highlighted_by_org.count() > 0)
-
-    @property
-    def latest_bidcycle(self):
-        return self.bid_cycles.latest('cycle_start_date')
 
     @property
     def similar_positions(self):

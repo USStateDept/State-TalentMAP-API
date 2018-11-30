@@ -71,8 +71,8 @@ class BidCyclePositionActionView(APIView):
         Removes the position from the bid cycle
         '''
         in_group_or_403(self.request.user, 'bidcycle_admin')
-        position = get_object_or_404(Position, id=url_arguments.get("pos_id"))
         bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
+        position = get_object_or_404(bidcycle.positions.all(), id=url_arguments.get("pos_id"))
         logger.info(f"User {self.request.user.id}:{self.request.user} removing position id {position.id} from bidcycle {bidcycle}")
         bidcycle.positions.remove(position)
         return Response(status=status.HTTP_204_NO_CONTENT)

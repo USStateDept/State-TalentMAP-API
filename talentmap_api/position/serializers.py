@@ -102,7 +102,6 @@ class PositionSerializer(PrefetchedSerializer):
     tour_of_duty = StaticRepresentationField(read_only=True)
     classifications = StaticRepresentationField(read_only=True, many=True)
     representation = serializers.SerializerMethodField()
-    is_highlighted = serializers.ReadOnlyField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database

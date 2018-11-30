@@ -281,6 +281,15 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
         talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
         BiddingStatus.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
+    if action in ["post_add", "post_remove"]:
+        for position_id in pk_set:
+            pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
+            if pos.bid_cycles.count() > 0:
+                pos.latest_bidcycle = pos.bid_cycles.latest('cycle_start_date')
+            else:
+                pos.latest_bidcycle = None
+            pos.save()
+
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")
 def bid_status_changed(sender, instance, **kwargs):

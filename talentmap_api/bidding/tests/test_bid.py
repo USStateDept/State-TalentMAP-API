@@ -147,7 +147,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     # Give our user appropriate permissions
     group = mommy.make('auth.Group', name='bureau_ao')
     group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group = mommy.make('auth.Group', name=f'bureau_ao:{bureau.code}')
     group.user_set.add(authorized_user)
 
     # Assign the bid to us
