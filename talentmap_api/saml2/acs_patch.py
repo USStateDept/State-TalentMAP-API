@@ -81,9 +81,9 @@ def assertion_consumer_service(request,
         "outstanding_certs": None,
         "allow_unsolicited": client.allow_unsolicited,
         "want_assertions_signed": client.want_assertions_signed,
-        "want_assertions_or_response_signed": client.want_assertions_or_response_signed,
+        "want_assertions_or_response_signed": (client.want_assertions_signed or client.want_response_signed),
         "want_response_signed": client.want_response_signed,
-        "return_addrs": client.service_urls(binding=BINDING_HTTPS_POST),
+        "return_addrs": client.service_urls(binding=BINDING_HTTP_POST),
         "entity_id": client.config.entityid,
         "attribute_converters": client.config.attribute_converters,
         "allow_unknown_attributes": client.config.allow_unknown_attributes,
@@ -123,9 +123,9 @@ def assertion_consumer_service(request,
     logger.debug(f"Parse SAML response, available attributes: {available_attributes}")
     
     # Get the user
-    user, _ = User.objects.get_or_create(email=available_attributes['name']) # for some reason this comes back as name
-    user.first_name = available_attributes['givenname']
-    user.last_name = available_attributes['surname']
+    user, _ = User.objects.get_or_create(email=available_attributes['name'][0], username=available_attributes['name'][0]) # for some reason this comes back as name
+    user.first_name = available_attributes['givenname'][0]
+    user.last_name = available_attributes['surname'][0]
     user.save()
 
     logger.info(f"User {user} authenticated via SSO")
