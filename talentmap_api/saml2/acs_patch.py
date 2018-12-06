@@ -20,6 +20,7 @@ import logging
 
 from django.conf import settings
 from django.contrib import auth
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_POST
@@ -29,7 +30,7 @@ from saml2 import BINDING_HTTP_POST
 from saml2.sigver import MissingKey
 from saml2.response import (
     StatusError, StatusAuthnFailed, SignatureError, StatusRequestDenied,
-    UnsolicitedResponse,
+    UnsolicitedResponse, AuthnResponse
 )
 from saml2.validate import ResponseLifetimeExceed, ToEarly
 
@@ -74,9 +75,24 @@ def assertion_consumer_service(request,
 
     oq_cache = OutstandingQueriesCache(request.session)
     outstanding_queries = oq_cache.outstanding_queries()
+    
+    resp_kwargs = {
+        "outstanding_queries": outstanding_queries,
+        "outstanding_certs": None,
+        "allow_unsolicited": client.allow_unsolicited,
+        "want_assertions_signed": client.want_assertions_signed,
+        "want_assertions_or_response_signed": client.want_assertions_or_response_signed,
+        "want_response_signed": client.want_response_signed,
+        "return_addrs": client.service_urls(binding=BINDING_HTTPS_POST),
+        "entity_id": client.config.entityid,
+        "attribute_converters": client.config.attribute_converters,
+        "allow_unknown_attributes": client.config.allow_unknown_attributes,
+        "conv_info": None,
+    }
 
     try:
-        response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
+        response = client._parse_response(xmlstr, AuthnResponse, "assertion_consumer_service", BINDING_HTTP_POST, **resp_kwargs)
+        # response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     except (StatusError, ToEarly):
         logger.exception("Error processing SAML Assertion.")
         return fail_acs_response(request)
@@ -103,31 +119,15 @@ def assertion_consumer_service(request,
         logger.warning("Invalid SAML Assertion received (unknown error).")
         return fail_acs_response(request, status=400, exc_class=SuspiciousOperation)
 
-    session_id = response.session_id()
-    oq_cache.delete(session_id)
+    available_attributes = resposne.ava
+    logger.debug(f"Parse SAML response, available attributes: {available_attributes}")
+    
+    # Get the user
+    user, _ = User.objects.get_or_create(email=available_attributes['name']) # for some reason this comes back as name
+    user.first_name = available_attributes['givenname']
+    user.last_name = available_attributes['surname']
+    user.save()
 
-    # authenticate the remote user
-    session_info = response.session_info()
-
-    if callable(attribute_mapping):
-        attribute_mapping = attribute_mapping()
-    if callable(create_unknown_user):
-        create_unknown_user = create_unknown_user()
-
-    logger.debug('Trying to authenticate the user. Session info: %s', session_info)
-    user = auth.authenticate(request=request,
-                             session_info=session_info,
-                             attribute_mapping=attribute_mapping,
-                             create_unknown_user=create_unknown_user)
-    if user is None:
-        logger.warning("Could not authenticate user received in SAML Assertion. Session info: %s", session_info)
-        raise PermissionDenied
-    if user.username == "":
-        user.username = user.email
-        user.save()
-
-    auth.login(request, user)
-    _set_subject_id(request.session, session_info['name_id'])
     logger.info(f"User {user} authenticated via SSO")
 
     logger.debug('Sending the post_authenticated signal')
