@@ -131,7 +131,8 @@ class BidSerializer(PrefetchedSerializer):
                         "post__id",
                         "post__location",
                         "update_date",
-                        "create_date"
+                        "create_date",
+                        "bid_statistics"
                     ],
                     "read_only": True
                 }
