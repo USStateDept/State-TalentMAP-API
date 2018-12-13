@@ -119,7 +119,7 @@ def assertion_consumer_service(request,
         logger.warning("Invalid SAML Assertion received (unknown error).")
         return fail_acs_response(request, status=400, exc_class=SuspiciousOperation)
 
-    available_attributes = resposne.ava
+    available_attributes = response.ava
     logger.debug(f"Parse SAML response, available attributes: {available_attributes}")
     
     # Get the user
