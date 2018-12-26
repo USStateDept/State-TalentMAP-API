@@ -27,10 +27,10 @@ def test_can_accept_new_bids_function(authorized_client, authorized_user, test_b
     in_cycle_position = active_cycle.positions.first()
     out_of_cycle_position = mommy.make('position.Position')
 
-    assert in_cycle_position.can_accept_new_bids(active_cycle)
-    assert not out_of_cycle_position.can_accept_new_bids(active_cycle)
+    assert in_cycle_position.can_accept_new_bids(active_cycle)[0]
+    assert not out_of_cycle_position.can_accept_new_bids(active_cycle)[0]
 
-    assert not in_cycle_position.can_accept_new_bids(nonactive_cycle)
+    assert not in_cycle_position.can_accept_new_bids(nonactive_cycle)[0]
 
 
 @pytest.mark.django_db(transaction=True)
