@@ -109,6 +109,23 @@ class Position(StaticRepresentationModel):
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
 
+    @property
+    def availability(self):
+        '''
+        Evaluates if this position can accept new bids in it's latest bidcycle
+        '''
+        if self.latest_bidcycle:
+            available, reason = self.can_accept_new_bids(self.latest_bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
+
     def can_accept_new_bids(self, bidcycle):
         '''
         Evaluates if this position can accept new bids for the given bidcycle
@@ -118,20 +135,29 @@ class Position(StaticRepresentationModel):
 
         Returns:
             - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
         '''
-        if not bidcycle.active:
-            # We must be looking at an active bidcycle
-            return False
+        # Commenting this out for now - we don't appear to be synchronizing this boolean
+        # if not bidcycle.active:
+        #     # We must be looking at an active bidcycle
+        #     return False, "Bid cycle is not open"
         if not bidcycle.positions.filter(id=self.id).exists():
             # We must be in the bidcycle's position list
-            return False
+            return False, "Position not in specified bid cycle"
 
         # Filter this positions bid by bidcycle and our Q object
         q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
-        if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
-            return False
+        fulfilling_bids = self.bids.filter(bidcycle=bidcycle).filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                Bid.Status.in_panel: "This position is currently due for paneling",
+                Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
 
-        return True
+        return True, ""
 
     def update_relationships(self):
         '''
