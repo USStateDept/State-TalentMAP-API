@@ -98,9 +98,7 @@ class PositionListSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     skill = StaticRepresentationField(read_only=True)
     bureau = serializers.SerializerMethodField()
-    organization = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
-    representation = serializers.SerializerMethodField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -120,8 +118,8 @@ class PositionListSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Position
-        fields = ["grade", "skill", "bureau", "tour_of_duty", "languages", "post",
-                  "current_assignment", "organization", "representation", "position_number",
+        fields = ["id", "grade", "skill", "bureau", "tour_of_duty", "languages", "post",
+                  "current_assignment", "position_number",
                   "posted_date", "title"]
         nested = {
             "bid_cycle_statuses": {
