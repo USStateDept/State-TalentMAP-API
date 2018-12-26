@@ -150,7 +150,8 @@ class PositionListSerializer(PrefetchedSerializer):
                     "override_fields": [
                         "differential_rate",
                         "danger_pay",
-                        "location"
+                        "location",
+                        "tour_of_duty",
                     ],
                     "many": False,
                     "read_only": True
