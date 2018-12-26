@@ -150,10 +150,10 @@ class Position(StaticRepresentationModel):
         fulfilling_bids = self.bids.filter(bidcycle=bidcycle).filter(q_obj)
         if fulfilling_bids.exists():
             messages = {
-                Bid.Status.handshake_offered: "This position has an outstanding handshake",
-                Bid.Status.handshake_accepted: "This position has an accepted handshake",
-                Bid.Status.in_panel: "This position is currently due for paneling",
-                Bid.Status.approved: "This position has been filled",
+                bidding.Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                bidding.Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                bidding.Bid.Status.in_panel: "This position is currently due for paneling",
+                bidding.Bid.Status.approved: "This position has been filled",
             }
             return False, messages[fulfilling_bids.first().status]
 
