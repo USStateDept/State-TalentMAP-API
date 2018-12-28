@@ -37,7 +37,8 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             IMAGE_NAME="talentmap/${CIRCLE_PROJECT_REPONAME}:${TAG}"
             LOWERCASE_IMAGE_NAME=$(echo "$IMAGE_NAME" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -100,7 +101,8 @@ jobs:
       - run:
           name: Replace placeholders in Compose file
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
             sed -i "s#@@REPO_NAME@@#${LOWERCASE_REPO_NAME}#g" $COMPOSE_FILE_NAME
@@ -143,10 +145,11 @@ jobs:
       - run:
           name:
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
-            LOWERCASE_BRANCH_NAME=$(echo "$CIRCLE_BRANCH" | awk '{print tolower($0)}')
+            LOWERCASE_BRANCH_NAME=$(echo "$BRANCH" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
             docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
