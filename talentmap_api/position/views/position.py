@@ -21,7 +21,7 @@ from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
 from talentmap_api.position.filters import PositionFilter, AssignmentFilter
-from talentmap_api.position.serializers import PositionSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
+from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
@@ -46,6 +46,7 @@ class PositionListView(FieldLimitableSerializerMixin,
 
     serializers = {
         "default": PositionSerializer,
+        "list": PositionListSerializer,
         "partial_update": PositionWritableSerializer,
     }
 

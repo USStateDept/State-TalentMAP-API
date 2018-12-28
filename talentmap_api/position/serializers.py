@@ -94,14 +94,11 @@ class PositionBidStatisticsSerializer(PrefetchedSerializer):
         exclude = ("position",)
 
 
-class PositionSerializer(PrefetchedSerializer):
+class PositionListSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     skill = StaticRepresentationField(read_only=True)
     bureau = serializers.SerializerMethodField()
-    organization = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
-    classifications = StaticRepresentationField(read_only=True, many=True)
-    representation = serializers.SerializerMethodField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -118,6 +115,97 @@ class PositionSerializer(PrefetchedSerializer):
             return obj.organization._string_representation
         else:
             return obj._org_code
+
+    class Meta:
+        model = Position
+        fields = ["id", "grade", "skill", "bureau", "tour_of_duty", "languages", "post",
+                  "current_assignment", "position_number",
+                  "posted_date", "title"]
+        nested = {
+            "bid_cycle_statuses": {
+                "class": BiddingStatusSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "bid_statistics": {
+                "class": PositionBidStatisticsSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "languages": {
+                "class": LanguageQualificationSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "post": {
+                "class": PostSerializer,
+                "field": "post",
+                "kwargs": {
+                    "override_fields": [
+                        "differential_rate",
+                        "danger_pay",
+                        "location",
+                        "tour_of_duty",
+                    ],
+                    "many": False,
+                    "read_only": True
+                }
+            },
+            "latest_bidcycle": {
+                "class": "talentmap_api.bidding.serializers.serializers.BidCycleSerializer",
+                "field": "latest_bidcycle",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "current_assignment": {
+                "class": CurrentAssignmentSerializer,
+                "field": "current_assignment",
+                "kwargs": {
+                    "override_fields": [
+                        "user",
+                        "estimated_end_date"
+                    ],
+                    "read_only": True
+                }
+            }
+        }
+
+
+class PositionSerializer(PrefetchedSerializer):
+    grade = StaticRepresentationField(read_only=True)
+    skill = StaticRepresentationField(read_only=True)
+    bureau = serializers.SerializerMethodField()
+    organization = serializers.SerializerMethodField()
+    tour_of_duty = StaticRepresentationField(read_only=True)
+    classifications = StaticRepresentationField(read_only=True, many=True)
+    representation = serializers.SerializerMethodField()
+    availability = serializers.SerializerMethodField()
+
+    # This method returns the string representation of the bureau, or the code
+    # if it doesn't currently exist in the database
+    def get_bureau(self, obj):
+        if obj.bureau:
+            return obj.bureau._string_representation
+        else:
+            return obj._bureau_code
+
+    # This method returns the string representation of the parent org, or the code
+    # if it doesn't currently exist in the database
+    def get_organization(self, obj):
+        if obj.organization:
+            return obj.organization._string_representation
+        else:
+            return obj._org_code
+
+    def get_availability(self, obj):
+        return obj.availability
 
     class Meta:
         model = Position
