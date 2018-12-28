@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 import logging
+import pprint
 
 import defusedxml.lxml as ET
 
@@ -21,6 +22,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         client = get_soap_client()
+        pp = pprint.PrettyPrinter(indent=2)
 
         if not options['command']:
             self.logger.info('No command specified, dumping wsdl information')
@@ -38,4 +40,4 @@ class Command(BaseCommand):
         self.logger.info(f'SOAP call response:')
         self.logger.info(response.decode('unicode_escape'))
 
-        self.logger.info(f'Dictionary parsed response: {dict_response}')
+        self.logger.info(f'Dictionary parsed response: {pp.pformat(dict_response)}')
