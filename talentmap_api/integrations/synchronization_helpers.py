@@ -394,7 +394,7 @@ def mode_positions(last_updated_date=None):
         "org_code": "_org_code",
         "bureau_code": "_bureau_code",
         "skill_code": "_skill_code",
-        "is_overseas": parse_boolean("is_overseas", ['O']),
+        "is_overseas": parse_boolean("is_overseas"),
         "grade": "_grade_code",
         "tod_code": set_foreign_key_by_filters("tour_of_duty", "code", "__icontains"),
         "language_code_1": "_language_1_code",

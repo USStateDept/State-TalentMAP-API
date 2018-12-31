@@ -36,6 +36,9 @@ def test_soap_integrations():
     assert BidCycle.objects.get(_id="151").positions.count() == 6
     assert BiddingStatus.objects.count() == 10
 
+    # Assert is_overseas
+    assert Position.objects.get(_seq_num="1640").is_overseas == True
+
     call_command('synchronize_data', '--list')
 
     first_skill = Skill.objects.first()
