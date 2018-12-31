@@ -123,12 +123,12 @@ class BidListPositionActionView(APIView):
 
     def delete(self, request, pk, format=None):
         '''
-        Removes the position from the user's bid list, if that bid is still in draft status
+        Removes the position from the user's bid list, if that bid is still in draft, submitted, or handshake-offered status
         '''
         bid = get_object_or_404(Bid,
                                 user=UserProfile.objects.get(user=self.request.user),
                                 position__id=pk,
-                                status=Bid.Status.draft)
-        logger.info(f"User {self.request.user.id}:{self.request.user} deleting draft bid {bid}")
+                                status__in=[Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered])
+        logger.info(f"User {self.request.user.id}:{self.request.user} deleting bid {bid}")
         bid.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
