@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Make a single call to the position webserivce - source your venv and setup_environment.sh
+python manage.py soap_api_test IPMSDataWebService "RequestorID"="TalentMAP" "Action"="GET" "RequestName"="position" "MaximumOutputRows"=1 "Version"="0.01" "DataFormat"="XML" "InputParameters"="<positions><position></position></positions>"
