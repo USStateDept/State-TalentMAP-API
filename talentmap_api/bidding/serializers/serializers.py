@@ -112,6 +112,7 @@ class BidSerializer(PrefetchedSerializer):
     position = StaticRepresentationField(read_only=True)
     waivers = StaticRepresentationField(read_only=True, many=True)
     is_paneling_today = serializers.BooleanField(read_only=True)
+    can_delete = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Bid
