@@ -175,6 +175,11 @@ class Bid(StaticRepresentationModel):
     def is_paneling_today(self):
         return timezone.now().date() == self.scheduled_panel_date.date()
 
+    @property
+    def can_delete(self):
+        ''' Whether or not a bid can be deleted '''
+        return self.status in [Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered]
+
     @staticmethod
     def get_approval_statuses():
         '''

@@ -175,6 +175,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     in_bureau_bid.refresh_from_db()
     assert in_bureau_bid.status == Bid.Status.handshake_offered
     assert in_bureau_bid.handshake_offered_date.date() == timezone.now().date()
+    assert in_bureau_bid.can_delete
 
     # Accept the handshakes
     in_bureau_bid.status = Bid.Status.handshake_accepted
@@ -196,6 +197,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.in_panel_date.date() == timezone.now().date()
     assert in_bureau_bid.scheduled_panel_date == panel_date.astimezone(datetime.timezone.utc)
     assert not in_bureau_bid.is_paneling_today
+    assert not in_bureau_bid.can_delete
     assert in_bureau_bid.is_priority
     assert in_bureau_bid.panel_reschedule_count == 0
 
@@ -211,6 +213,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.in_panel_date.date() == timezone.now().date()
     assert in_bureau_bid.scheduled_panel_date == today.astimezone(datetime.timezone.utc)
     assert in_bureau_bid.is_paneling_today
+    assert not in_bureau_bid.can_delete
     assert in_bureau_bid.panel_reschedule_count == 1
 
     # Patch an out-of-bureau bid
@@ -231,6 +234,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.approved
     assert in_bureau_bid.approved_date.date() == timezone.now().date()
     assert in_bureau_bid.is_priority
+    assert not in_bureau_bid.can_delete
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/approve/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -243,6 +247,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.declined
     assert in_bureau_bid.declined_date.date() == timezone.now().date()
     assert not in_bureau_bid.is_priority
+    assert not in_bureau_bid.can_delete
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/decline/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
