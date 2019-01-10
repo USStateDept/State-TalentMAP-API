@@ -175,6 +175,11 @@ class Bid(StaticRepresentationModel):
     def is_paneling_today(self):
         return timezone.now().date() == self.scheduled_panel_date.date()
 
+    @property
+    def can_delete(self):
+        ''' Whether or not a bid can be deleted '''
+        return self.status in [Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered]
+
     @staticmethod
     def get_approval_statuses():
         '''
@@ -280,6 +285,15 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
         # Delete statistics items when removed from the bidcycle
         talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
         BiddingStatus.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+
+    if action in ["post_add", "post_remove"]:
+        for position_id in pk_set:
+            pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
+            if pos.bid_cycles.count() > 0:
+                pos.latest_bidcycle = pos.bid_cycles.latest('cycle_start_date')
+            else:
+                pos.latest_bidcycle = None
+            pos.save()
 
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")

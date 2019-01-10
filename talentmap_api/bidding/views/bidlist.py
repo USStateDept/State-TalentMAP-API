@@ -102,7 +102,7 @@ class BidListPositionActionView(APIView):
         position = get_object_or_404(bidcycle.positions.all(), id=pk)
 
         # Position must not already have a handshake or greater bid status
-        if not position.can_accept_new_bids(bidcycle):
+        if not position.can_accept_new_bids(bidcycle)[0]:
             return Response("Cannot bid on a position that already has a qualifying bid", status=status.HTTP_400_BAD_REQUEST)
 
         # For now, we use whatever the latest active bidcycle is
@@ -123,12 +123,12 @@ class BidListPositionActionView(APIView):
 
     def delete(self, request, pk, format=None):
         '''
-        Removes the position from the user's bid list, if that bid is still in draft status
+        Removes the position from the user's bid list, if that bid is still in draft, submitted, or handshake-offered status
         '''
         bid = get_object_or_404(Bid,
                                 user=UserProfile.objects.get(user=self.request.user),
                                 position__id=pk,
-                                status=Bid.Status.draft)
-        logger.info(f"User {self.request.user.id}:{self.request.user} deleting draft bid {bid}")
+                                status__in=[Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered])
+        logger.info(f"User {self.request.user.id}:{self.request.user} deleting bid {bid}")
         bid.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
