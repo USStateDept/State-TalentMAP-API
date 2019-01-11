@@ -45,6 +45,9 @@ class Position(StaticRepresentationModel):
     post = models.ForeignKey('organization.Post', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
+    is_highlighted = models.BooleanField(default=False, help_text="Flag designating whether the position is highlighted by an organization")
+
+    latest_bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.DO_NOTHING, related_name='latest_cycle_for_positions', null=True, help_text="The latest bid cycle this position is in")
 
     history = HistoricalRecords()
 
@@ -81,14 +84,6 @@ class Position(StaticRepresentationModel):
     _occ_series_code = models.TextField(null=True)
 
     @property
-    def is_highlighted(self):
-        return (self.highlighted_by_org.count() > 0)
-
-    @property
-    def latest_bidcycle(self):
-        return self.bid_cycles.latest('cycle_start_date')
-
-    @property
     def similar_positions(self):
         '''
         Returns a query set of similar positions, using the base criteria.
@@ -114,6 +109,23 @@ class Position(StaticRepresentationModel):
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
 
+    @property
+    def availability(self):
+        '''
+        Evaluates if this position can accept new bids in it's latest bidcycle
+        '''
+        if self.latest_bidcycle:
+            available, reason = self.can_accept_new_bids(self.latest_bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
+
     def can_accept_new_bids(self, bidcycle):
         '''
         Evaluates if this position can accept new bids for the given bidcycle
@@ -123,20 +135,29 @@ class Position(StaticRepresentationModel):
 
         Returns:
             - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
         '''
-        if not bidcycle.active:
-            # We must be looking at an active bidcycle
-            return False
+        # Commenting this out for now - we don't appear to be synchronizing this boolean
+        # if not bidcycle.active:
+        #     # We must be looking at an active bidcycle
+        #     return False, "Bid cycle is not open"
         if not bidcycle.positions.filter(id=self.id).exists():
             # We must be in the bidcycle's position list
-            return False
+            return False, "Position not in specified bid cycle"
 
         # Filter this positions bid by bidcycle and our Q object
         q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
-        if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
-            return False
+        fulfilling_bids = self.bids.filter(bidcycle=bidcycle).filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                talentmap_api.bidding.models.Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                talentmap_api.bidding.models.Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                talentmap_api.bidding.models.Bid.Status.in_panel: "This position is currently due for paneling",
+                talentmap_api.bidding.models.Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
 
-        return True
+        return True, ""
 
     def update_relationships(self):
         '''
