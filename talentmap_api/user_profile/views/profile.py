@@ -11,7 +11,7 @@ from talentmap_api.position.models import Assignment
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.serializers import AssignmentSerializer
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
-                                                    UserProfileShortSerializer,
+                                                    UserProfilePublicSerializer,
                                                     UserProfileWritableSerializer)
 
 from talentmap_api.position.filters import AssignmentFilter
@@ -48,7 +48,7 @@ class UserPublicProfileView(FieldLimitableSerializerMixin,
     Return a specific user profile
     """
 
-    serializer_class = UserProfileShortSerializer
+    serializer_class = UserProfilePublicSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
