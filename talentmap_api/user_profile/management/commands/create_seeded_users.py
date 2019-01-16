@@ -50,6 +50,10 @@ class Command(BaseCommand):
 
                 assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=timezone.now(), status="active", bid_approval_date="1975-01-01T00:00:00Z")
 
+                # Add user to the bidder group
+                group = get_group_by_name("bidder")
+                group.user_set.add(user)
+
                 # Add the user to the editing group for their position
                 group = get_group_by_name(f"post_editors:{position.post.id}")
                 group.user_set.add(user)

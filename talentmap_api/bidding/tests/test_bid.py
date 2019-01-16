@@ -17,8 +17,14 @@ def test_bidlist_fixture():
         bidcycle.positions.add(mommy.make('position.Position'))
 
 
+@pytest.fixture
+def test_bidder_fixture(authorized_user):
+    group = mommy.make('auth.Group', name='bidder')
+    group.user_set.add(authorized_user)
+
+
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bid_bidder_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
 
@@ -90,7 +96,7 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bid_bidder_priority_restrictions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
 
@@ -254,7 +260,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bidlist_max_submissions(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
     position = mommy.make('position.Position')

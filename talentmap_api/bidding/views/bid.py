@@ -106,7 +106,7 @@ class BidListBidderActionView(GenericViewSet):
     Supports all bidder actions for a bid
     '''
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
 
     def submit(self, request, pk, format=None):
         '''
