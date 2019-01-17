@@ -18,6 +18,32 @@ class UserSerializer(PrefetchedSerializer):
         fields = ["username", "email", "first_name", "last_name"]
 
 
+class UserProfilePublicSerializer(PrefetchedSerializer):
+    current_assignment = serializers.SerializerMethodField()
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
+    
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
+
+    class Meta:
+        model = UserProfile
+        fields = ["first_name", "last_name", "email", "current_assignment", "skills"]
+        nested = {
+            "skills": {
+                "class": SkillSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            }
+        }
+
+
 class UserProfileShortSerializer(PrefetchedSerializer):
     is_cdo = serializers.ReadOnlyField()
     username = serializers.CharField(source="user.username")
