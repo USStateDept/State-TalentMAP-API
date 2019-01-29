@@ -3,6 +3,7 @@ import logging
 import os
 
 from dateutil.relativedelta import relativedelta
+from dateutil import tz
 import defusedxml.lxml as ET
 
 from django.db import models
@@ -76,7 +77,10 @@ class SynchronizationJob(models.Model):
 
             last_date_updated = None
             if self.use_last_date_updated:
-                last_date_updated = self.last_synchronization.strftime("%Y/%m/%d %H:%M:%S")
+                # TalentMAP uses UTC, but some integrations do not
+                to_local = tz.gettz('America/New_York')
+                last_date_updated = self.last_synchronization.replace(tzinfo=tz.tzutc())
+                last_date_updated = last_date_updated.astimezone(to_local).strftime('%Y/%m/%d %H:%M:%S')
                 logger.info(f"Using last updated date: {last_date_updated}")
 
             for task in synchronization_tasks:
