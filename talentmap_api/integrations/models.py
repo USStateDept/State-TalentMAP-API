@@ -50,7 +50,7 @@ class SynchronizationJob(models.Model):
         '''
         Returns all SynchronizationJob who should be run (any job whose last sync + delta is in the past)
         '''
-        return SynchronizationJob.objects.filter(next_synchronization__lte=datetime.datetime.utcnow(), running=False).order_by('priority')
+        return SynchronizationJob.objects.filter(next_synchronization__lte=timezone.now(), running=False).order_by('priority')
 
     def synchronize(self, soap_function="IPMSDataWebService", test=False):
         '''
