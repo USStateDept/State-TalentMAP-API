@@ -162,7 +162,7 @@ class SynchronizationJob(models.Model):
 
             logger.info("Synchronization complete")
             d = relativedelta(datetime.datetime.utcnow(), start)
-            logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.minutes} min {d.seconds} s\t\t")
+            logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.hours} hr {d.minutes} min {d.seconds} s\t\t")
 
             # Successful, set the last synchronization
             self.last_synchronization = timezone.now()
@@ -180,7 +180,7 @@ class SynchronizationJob(models.Model):
 
     def __str__(self):
         d = relativedelta(seconds=self.delta_synchronization)
-        status_string = f"Last@{self.last_synchronization} Next@+{self.next_synchronization} ∆[{d.years}y {d.months}mo {d.days}d {d.minutes}min {d.seconds}s]"
+        status_string = f"Last@{self.last_synchronization} Next@+{self.next_synchronization} ∆[{d.years}y {d.months}mo {d.days}d {d.hours}hr {d.minutes}min {d.seconds}s]"
         if self.running:
             status_string = "IN PROGRESS"
         return f"SynchronizationJob (Priority: {self.priority}) (Use Last Updated: {self.use_last_date_updated}) - {self.talentmap_model}: {status_string}"
