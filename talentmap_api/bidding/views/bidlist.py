@@ -17,6 +17,7 @@ from talentmap_api.bidding.models import Bid, BidCycle
 from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
+from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class BidListView(mixins.ListModelMixin,
     '''
     serializer_class = BidSerializer
     filter_class = BidFilter
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
 
     def destroy(self, request, *args, **kwargs):
         '''

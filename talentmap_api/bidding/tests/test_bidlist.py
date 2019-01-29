@@ -19,6 +19,12 @@ def test_bidlist_fixture():
         bidcycle.positions.add(mommy.make('position.Position', post=post))
 
 
+@pytest.fixture
+def test_bidder_fixture(authorized_user):
+    group = mommy.make('auth.Group', name='bidder')
+    group.user_set.add(authorized_user)
+
+
 @pytest.mark.django_db(transaction=True)
 def test_can_accept_new_bids_function(authorized_client, authorized_user, test_bidlist_fixture):
     active_cycle = BidCycle.objects.first()
@@ -34,7 +40,7 @@ def test_can_accept_new_bids_function(authorized_client, authorized_user, test_b
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bidlist_position_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
     out_of_cycle_position = mommy.make('position.Position')
@@ -113,7 +119,7 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bidlist_date_based_deletion(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
 

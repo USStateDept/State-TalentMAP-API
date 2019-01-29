@@ -13,6 +13,7 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
         self.groups = [
+            "bidder",
             "bureau_ao",
             "glossary_editors",
             "feedback_editors",
