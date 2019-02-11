@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -9,6 +11,7 @@ from talentmap_api.position.models import Assignment
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.serializers import AssignmentSerializer
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
+                                                    UserProfilePublicSerializer,
                                                     UserProfileWritableSerializer)
 
 from talentmap_api.position.filters import AssignmentFilter
@@ -37,6 +40,19 @@ class UserProfileView(FieldLimitableSerializerMixin,
     def get_object(self):
         return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, user=self.request.user).first()
 
+class UserPublicProfileView(FieldLimitableSerializerMixin,
+                            mixins.RetrieveModelMixin,
+                            GenericViewSet):
+    """
+    retrieve:
+    Return a specific user profile
+    """
+
+    serializer_class = UserProfilePublicSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return get_object_or_404(UserProfile, pk=self.request.parser_context.get("kwargs").get("pk"))
 
 class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
                                 GenericViewSet,

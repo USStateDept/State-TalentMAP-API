@@ -50,11 +50,13 @@ class AssignmentSerializer(CurrentAssignmentSerializer):
                 "field": "position",
                 "kwargs": {
                     "override_fields": [
+                        "id",
                         "position_number",
                         "bureau",
                         "skill",
                         "title",
                         "post__location",
+                        "languages",
                     ],
                     "read_only": True
                 }
