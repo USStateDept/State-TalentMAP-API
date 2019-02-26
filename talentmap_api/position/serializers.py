@@ -30,17 +30,13 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
         writable_fields = ("content", "point_of_contact", "website",)
 
 
-class UserProfileLastNameSerializer(serializers.RelatedField):
-    '''
-        Get the last_name from the User on UserProfile
-    '''
-    def to_representation(self, value):
-        return value.user.last_name
-
-
 class CurrentAssignmentSerializer(PrefetchedSerializer):
-    user = UserProfileLastNameSerializer(read_only=True)
+    user = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
+
+    def get_user(self, obj):
+        return obj.user.user.last_name
+
 
     class Meta:
         model = Assignment
