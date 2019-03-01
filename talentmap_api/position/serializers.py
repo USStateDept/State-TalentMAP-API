@@ -132,8 +132,7 @@ class PositionListSerializer(PrefetchedSerializer):
     class Meta:
         model = Position
         fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
-                  "current_assignment", "position_number",
-                  "posted_date", "title", "availability"]
+                  "current_assignment", "position_number",  "posted_date", "title", "availability"]
         nested = {
             "bid_cycle_statuses": {
                 "class": BiddingStatusSerializer,
