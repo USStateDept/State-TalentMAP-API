@@ -31,8 +31,12 @@ class CapsuleDescriptionSerializer(PrefetchedSerializer):
 
 
 class CurrentAssignmentSerializer(PrefetchedSerializer):
-    user = StaticRepresentationField(read_only=True)
+    user = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
+
+    def get_user(self, obj):
+        return obj.user.user.last_name
+
 
     class Meta:
         model = Assignment
@@ -50,11 +54,13 @@ class AssignmentSerializer(CurrentAssignmentSerializer):
                 "field": "position",
                 "kwargs": {
                     "override_fields": [
+                        "id",
                         "position_number",
                         "bureau",
                         "skill",
                         "title",
                         "post__location",
+                        "languages",
                     ],
                     "read_only": True
                 }
