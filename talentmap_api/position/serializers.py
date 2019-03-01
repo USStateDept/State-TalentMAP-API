@@ -105,6 +105,7 @@ class PositionListSerializer(PrefetchedSerializer):
     skill = StaticRepresentationField(read_only=True)
     bureau = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
+    organization = serializers.SerializerMethodField()
     availability = serializers.SerializerMethodField()
 
     # This method returns the string representation of the bureau, or the code
@@ -115,12 +116,14 @@ class PositionListSerializer(PrefetchedSerializer):
         else:
             return obj._bureau_code
 
-    # This method returns the string representation of the parent org, or the code
-    # if it doesn't currently exist in the database
+    # This method returns org info for domestic positions.
+    # Positions that are in Washington, DC return the short_description
+    # Non-DC positions return the org_code
     def get_organization(self, obj):
-        if obj.organization:
-            return obj.organization._string_representation
-        else:
+        location = obj.post.location if obj.post is not None else None
+        if location and location.country and location.country.code == 'USA':
+            if location.state == 'DC' and location.city == 'Washington':
+                return obj.organization.short_description
             return obj._org_code
 
     def get_availability(self, obj):
@@ -128,9 +131,8 @@ class PositionListSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "grade", "skill", "bureau", "tour_of_duty", "languages", "post",
-                  "current_assignment", "position_number",
-                  "posted_date", "title", "availability"]
+        fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
+                  "current_assignment", "position_number",  "posted_date", "title", "availability"]
         nested = {
             "bid_cycle_statuses": {
                 "class": BiddingStatusSerializer,
