@@ -106,6 +106,7 @@ class PositionListSerializer(PrefetchedSerializer):
     bureau = serializers.SerializerMethodField()
     tour_of_duty = StaticRepresentationField(read_only=True)
     organization = serializers.SerializerMethodField()
+    availability = serializers.SerializerMethodField()
 
     # This method returns the string representation of the bureau, or the code
     # if it doesn't currently exist in the database
@@ -125,10 +126,14 @@ class PositionListSerializer(PrefetchedSerializer):
                 return obj.organization.short_description
             return obj._org_code
 
+    def get_availability(self, obj):
+        return obj.availability
+
     class Meta:
         model = Position
         fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
-                  "current_assignment", "position_number", "posted_date", "title"]
+                  "current_assignment", "position_number",
+                  "posted_date", "title", "availability"]
         nested = {
             "bid_cycle_statuses": {
                 "class": BiddingStatusSerializer,
