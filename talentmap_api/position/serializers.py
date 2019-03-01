@@ -35,8 +35,10 @@ class CurrentAssignmentSerializer(PrefetchedSerializer):
     tour_of_duty = StaticRepresentationField(read_only=True)
 
     def get_user(self, obj):
-        return obj.user.user.last_name
-
+        if obj.user and obj.user.user:
+            return obj.user.user.last_name
+        else:
+            return ""
 
     class Meta:
         model = Assignment
