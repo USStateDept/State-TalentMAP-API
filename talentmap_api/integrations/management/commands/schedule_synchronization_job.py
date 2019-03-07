@@ -38,6 +38,7 @@ class Command(BaseCommand):
         parser.add_argument('--reset', dest='reset', action='store_true', help='Resets the last synchronization date on the model')
         parser.add_argument('--reset-all', dest='reset-all', action='store_true', help='Resets the last synchronization date on all models')
         parser.add_argument('--set-defaults', dest='set-defaults', action='store_true', help='Creates any missing baseline synchronization jobs')
+        parser.add_argument('--stop-running', dest='stop-running', action='store_true', help='Resets all jobs marked as running')
 
     def handle(self, *args, **options):
         if options['list']:
@@ -51,6 +52,10 @@ class Command(BaseCommand):
         if options['reset-all']:
             # Update doesn't call the save method on objects, so we need to set the next_synchronization explicitly here
             SynchronizationJob.objects.update(last_synchronization="1975-01-01T00:00:00Z", next_synchronization="1975-01-01T00:00:00Z", running=False)
+            return
+
+        if options['stop-running']:
+            SynchronizationJob.objects.update(running=False)
             return
 
         job, _ = SynchronizationJob.objects.get_or_create(talentmap_model=options['model'])
