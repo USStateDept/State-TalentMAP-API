@@ -131,7 +131,7 @@ class PositionFilter(filters.FilterSet):
         query = Q(languages__language__code__in=langs)
         if 'NONE' in value:
             query = query | Q(languages__isnull=True)
-        return queryset.filter(query)
+        return queryset.filter(query).distinct()
 
     def filter_available_in_bidcycle(self, queryset, name, value):
         '''
