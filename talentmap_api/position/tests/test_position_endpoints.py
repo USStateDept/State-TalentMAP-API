@@ -62,6 +62,10 @@ def test_position_filtering(client):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
+    response = client.get('/api/v1/position/?language_codes=DE')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 2
+
     response = client.get('/api/v1/position/?languages__spoken_proficiency__at_least=3')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
