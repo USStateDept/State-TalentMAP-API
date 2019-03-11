@@ -349,7 +349,7 @@ def mode_capsule_descriptions(last_updated_date=None):
         "Action": "GET",
         "RequestName": "positioncapsule",
         "MaximumOutputRows": 100,
-        "Version": "0.01",
+        "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": f"<positionCapsules><positionCapsule>{use_last_updated_string}</positionCapsule></positionCapsules>"
     }
@@ -379,7 +379,7 @@ def mode_positions(last_updated_date=None):
         "Action": "GET",
         "RequestName": "position",
         "MaximumOutputRows": 1000,
-        "Version": "0.01",
+        "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": f"<positions><position>{use_last_updated_string}</position></positions>"
     }
