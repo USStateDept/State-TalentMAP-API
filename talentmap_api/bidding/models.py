@@ -178,7 +178,7 @@ class Bid(StaticRepresentationModel):
     @property
     def can_delete(self):
         ''' Whether or not a bid can be deleted '''
-        return self.status in [Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered]
+        return self.status == Bid.Status.draft or (self.status == Bid.Status.submitted and self.bidcycle.active)
 
     @staticmethod
     def get_approval_statuses():
