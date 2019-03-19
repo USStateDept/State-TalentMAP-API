@@ -200,7 +200,7 @@ class Bid(StaticRepresentationModel):
         Returns a Q object which will return bids which are unavailable for bids (i.e. at or further than handshake status)
         '''
         # We must not have a status of a handshake; or any status further in the process
-        qualified_statuses = Bid.get_approval_statuses()
+        qualified_statuses = Bid.get_priority_statuses()
 
         q_obj = Q()
         # Here we construct a Q object looking for statuses matching any of the qualified statuses
