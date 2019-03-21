@@ -381,6 +381,8 @@ class Command(BaseCommand):
             user.save()
 
             user.profile.cdo = User.objects.get(username="shadtrachl").profile
+            user.profile.emp_id = f"{fname}_{lname}"
+
             user.profile.save()
 
         self.logger.info("Updating string representations...")
