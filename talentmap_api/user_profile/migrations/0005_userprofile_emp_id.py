@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-import randrange from random
+from random import randrange
 
 class Migration(migrations.Migration):
 

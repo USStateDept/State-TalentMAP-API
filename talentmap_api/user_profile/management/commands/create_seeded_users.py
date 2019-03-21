@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 import logging
-import randrange from random
+import random import randrange
 
 from django.contrib.auth.models import User
 from django.utils import timezone
