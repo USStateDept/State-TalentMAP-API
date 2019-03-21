@@ -181,7 +181,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     in_bureau_bid.refresh_from_db()
     assert in_bureau_bid.status == Bid.Status.handshake_offered
     assert in_bureau_bid.handshake_offered_date.date() == timezone.now().date()
-    assert in_bureau_bid.can_delete
+    assert not in_bureau_bid.can_delete
 
     # Accept the handshakes
     in_bureau_bid.status = Bid.Status.handshake_accepted

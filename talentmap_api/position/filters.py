@@ -84,6 +84,7 @@ class PositionBidStatisticsFilter(filters.FilterSet):
 
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
+    language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -120,6 +121,17 @@ class PositionFilter(filters.FilterSet):
 
     is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
+
+    def filter_language_codes(self, queryset, name, value):
+        '''
+        Returns a queryset of all languages that match the codes provided.
+        If NONE is provided, all positions with no language requirement will also be returned
+        '''
+        langs = value.split(',')
+        query = Q(languages__language__code__in=langs)
+        if 'NONE' in value:
+            query = query | Q(languages__isnull=True)
+        return queryset.filter(query).distinct()
 
     def filter_available_in_bidcycle(self, queryset, name, value):
         '''

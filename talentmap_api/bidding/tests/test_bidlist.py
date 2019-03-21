@@ -17,7 +17,7 @@ def test_bidlist_fixture():
     bidcycle = mommy.make(BidCycle, id=1, name="Bidcycle 1", active=True)
     for i in range(5):
         bidcycle.positions.add(mommy.make('position.Position', post=post))
-
+    
 
 @pytest.fixture
 def test_bidder_fixture(authorized_user):
@@ -94,7 +94,7 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
     # Try to make a bid on a position with a handshake
     response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
     bid.status = Bid.Status.handshake_accepted
     bid.save()
@@ -197,6 +197,14 @@ def test_bidlist_date_based_deletion(authorized_client, authorized_user):
 
     # Create a new bid for us
     our_bid = mommy.make(Bid, status=Bid.Status.submitted, user=authorized_user.profile, position=position, bidcycle=bidcycle)
+
+    # Try to delete it, we should get a 403
+    response = authorized_client.delete(f'/api/v1/bidlist/{our_bid.id}/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    # Create a new bid for us in handshake_offered
+    our_bid = mommy.make(Bid, status=Bid.Status.handshake_offered, user=authorized_user.profile, position=position, bidcycle=bidcycle)
 
     # Try to delete it, we should get a 403
     response = authorized_client.delete(f'/api/v1/bidlist/{our_bid.id}/')
