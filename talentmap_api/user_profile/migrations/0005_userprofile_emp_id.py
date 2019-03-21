@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-import random
+import randrange from random
 
 class Migration(migrations.Migration):
 
@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='emp_id',
-            field=models.TextField(default=f"{random.randint(1000, 10000)}", help_text="The user's employee id"),
+            field=models.TextField(default=f"{randrange(1000, 10000)}", help_text="The user's employee id"),
             preserve_default=False,
         ),
     ]

@@ -381,7 +381,7 @@ class Command(BaseCommand):
             user.save()
 
             user.profile.cdo = User.objects.get(username="shadtrachl").profile
-            user.profile.emp_id = f"{random.randint(1000,10000)}"
+            user.profile.emp_id = f"{random.randrange(1000,10000)}"
 
             user.profile.save()
 
