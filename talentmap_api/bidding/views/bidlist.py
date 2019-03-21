@@ -128,8 +128,10 @@ class BidListPositionActionView(APIView):
         '''
         bid = get_object_or_404(Bid,
                                 user=UserProfile.objects.get(user=self.request.user),
-                                position__id=pk,
-                                status__in=[Bid.Status.draft, Bid.Status.submitted, Bid.Status.handshake_offered])
+                                position__id=pk)
+
+        if not bid.can_delete:
+            return Response("Only draft bids and submitted bids in an active bid cycle can be deleted", status=status.HTTP_400_BAD_REQUEST)
         logger.info(f"User {self.request.user.id}:{self.request.user} deleting bid {bid}")
         bid.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

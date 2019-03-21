@@ -118,14 +118,10 @@ class PositionListSerializer(PrefetchedSerializer):
         else:
             return obj._bureau_code
 
-    # This method returns org info for domestic positions.
-    # Positions that are in Washington, DC return the short_description
-    # Non-DC positions return the org_code
+    # This method returns org info for domestic positions
     def get_organization(self, obj):
         location = obj.post.location if obj.post is not None else None
         if location and location.country and location.country.code == 'USA':
-            if location.state == 'DC' and location.city == 'Washington':
-                return obj.organization.short_description
             return obj._org_code
 
     def get_availability(self, obj):
