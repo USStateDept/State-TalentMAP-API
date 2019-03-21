@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='emp_id',
-            field=models.TextField(default=f"{randrange(1000, 10000)}", help_text="The user's employee id"),
+            field=models.TextField(default="TEST_EMP_ID", help_text="The user's employee id"),
             preserve_default=False,
         ),
     ]
