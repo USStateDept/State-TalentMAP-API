@@ -34,6 +34,8 @@ class UserProfile(StaticRepresentationModel):
     primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
     secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
 
+    emp_id = models.TextField(null=False, help_text="The user's employee id")
+
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 

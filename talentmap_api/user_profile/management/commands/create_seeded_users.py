@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 import logging
+import random
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -46,6 +47,7 @@ class Command(BaseCommand):
                 profile.primary_nationality = Country.objects.get(code="USA")
                 profile.date_of_birth = "1975-01-01T00:00:00Z"
                 profile.phone_number = "555-555-5555"
+                profile.emp_id = f"{random.randint(1000,10000)}"
                 profile.save()
 
                 assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=timezone.now(), status="active", bid_approval_date="1975-01-01T00:00:00Z")
