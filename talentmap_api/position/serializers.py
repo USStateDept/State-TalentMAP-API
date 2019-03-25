@@ -122,7 +122,7 @@ class PositionListSerializer(PrefetchedSerializer):
     def get_organization(self, obj):
         location = obj.post.location if obj.post is not None else None
         if location and location.country and location.country.code == 'USA':
-            return obj._org_code
+            return obj.organization.short_description
 
     def get_availability(self, obj):
         return obj.availability
