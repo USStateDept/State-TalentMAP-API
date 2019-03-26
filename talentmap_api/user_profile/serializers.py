@@ -23,7 +23,7 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
-    
+
     def get_current_assignment(self, obj):
         if obj.assignments.count() > 0:
             return str(obj.assignments.latest('start_date'))
