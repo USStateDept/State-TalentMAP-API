@@ -108,7 +108,6 @@ class PositionFilter(filters.FilterSet):
             "skill__code",
             "languages__language__long_description",
             "languages__language__code",
-            "languages__language__formal_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",

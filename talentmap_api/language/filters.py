@@ -23,8 +23,7 @@ class LanguageFilter(filters.FilterSet):
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
-            "short_description": ALL_TEXT_LOOKUPS,
-            "formal_description": ALL_TEXT_LOOKUPS
+            "short_description": ALL_TEXT_LOOKUPS
         }
 
 
