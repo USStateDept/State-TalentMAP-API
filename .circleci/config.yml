@@ -154,11 +154,24 @@ jobs:
             docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
             docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
             docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
+  deploy:
+    docker:
+      - *default-python-node
+    steps:
+      - add_ssh_keys
+      - run:
+          command: ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-175-193-118.compute-1.amazonaws.com ./deploy.sh          
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
+      - deploy:
+          requires:
+            - pytest
+          filters:
+            branches:
+              only: dev
       - docker-build:
           requires:
             - build

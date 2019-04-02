@@ -41,7 +41,7 @@ python manage.py migrate
 # Stop the server
 pkill -f runserver
 
-python manage.py runserver 0.0.0.0:8000 &
+python manage.py runserver 0.0.0.0:8000 &>/dev/null &
 
 echo "Deployment complete"
 
