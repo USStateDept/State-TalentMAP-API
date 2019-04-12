@@ -34,6 +34,7 @@ class BidCycle(StaticRepresentationModel):
     _id = models.TextField(null=True)
     _positions_seq_nums = ArrayField(models.TextField(), default=list)
     _category_code = models.TextField(null=True)
+    _cycle_status = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.name}"
