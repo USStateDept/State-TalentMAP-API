@@ -460,7 +460,7 @@ def mode_cycles(last_updated_date=None):
         "id": "_id",
         "name": "name",
         "category_code": "_category_code",
-        "cycle_status": "_cycle_status"
+        "status": "_cycle_status"
     }
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
