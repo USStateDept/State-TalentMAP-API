@@ -42,7 +42,21 @@ class CurrentAssignmentSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Assignment
-        exclude = ("position",)
+        fields = "__all__"
+        nested = {
+            "position": {
+                "class": "talentmap_api.position.serializers.AssignmentPositionSerializer",
+                "field": "position",
+                "kwargs": {
+                    "override_fields": [
+                        "id",
+                        "post__location",
+                        "current_assignment"
+                    ],
+                    "read_only": True
+                }
+            }
+        }
 
 
 class AssignmentSerializer(CurrentAssignmentSerializer):
@@ -115,6 +129,8 @@ class PositionListSerializer(PrefetchedSerializer):
     def get_bureau(self, obj):
         if obj.bureau:
             return obj.bureau._string_representation
+        elif obj.organization:
+            return obj.organization._string_representation
         else:
             return obj._bureau_code
 
@@ -203,6 +219,8 @@ class PositionSerializer(PrefetchedSerializer):
     def get_bureau(self, obj):
         if obj.bureau:
             return obj.bureau._string_representation
+        elif obj.organization:
+            return obj.organization._string_representation
         else:
             return obj._bureau_code
 
@@ -275,6 +293,85 @@ class PositionSerializer(PrefetchedSerializer):
                         "tour_of_duty",
                         "estimated_end_date"
                     ],
+                    "read_only": True
+                }
+            }
+        }
+
+
+class AssignmentPositionSerializer(PrefetchedSerializer):
+    grade = StaticRepresentationField(read_only=True)
+    skill = StaticRepresentationField(read_only=True)
+    bureau = serializers.SerializerMethodField()
+    organization = serializers.SerializerMethodField()
+    tour_of_duty = StaticRepresentationField(read_only=True)
+    classifications = StaticRepresentationField(read_only=True, many=True)
+    representation = serializers.SerializerMethodField()
+    availability = serializers.SerializerMethodField()
+
+    # This method returns the string representation of the bureau, or the code
+    # if it doesn't currently exist in the database
+    def get_bureau(self, obj):
+        if obj.bureau:
+            return obj.bureau._string_representation
+        else:
+            return obj._bureau_code
+
+    # This method returns the string representation of the parent org, or the code
+    # if it doesn't currently exist in the database
+    def get_organization(self, obj):
+        if obj.organization:
+            return obj.organization._string_representation
+        else:
+            return obj._org_code
+
+    def get_availability(self, obj):
+        return obj.availability
+
+    class Meta:
+        model = Position
+        fields = "__all__"
+        nested = {
+            "bid_cycle_statuses": {
+                "class": BiddingStatusSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "bid_statistics": {
+                "class": PositionBidStatisticsSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "languages": {
+                "class": LanguageQualificationSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "post": {
+                "class": PostSerializer,
+                "field": "post",
+                "kwargs": {
+                    "many": False,
+                    "read_only": True
+                }
+            },
+            "description": {
+                "class": CapsuleDescriptionSerializer,
+                "field": "description",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "latest_bidcycle": {
+                "class": "talentmap_api.bidding.serializers.serializers.BidCycleSerializer",
+                "field": "latest_bidcycle",
+                "kwargs": {
                     "read_only": True
                 }
             }
