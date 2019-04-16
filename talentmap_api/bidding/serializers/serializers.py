@@ -109,6 +109,7 @@ class SurveySerializer(PrefetchedSerializer):
 class BidSerializer(PrefetchedSerializer):
     bidcycle = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)
+    emp_id = StaticRepresentationField(read_only=True)
     position = StaticRepresentationField(read_only=True)
     waivers = StaticRepresentationField(read_only=True, many=True)
     is_paneling_today = serializers.BooleanField(read_only=True)

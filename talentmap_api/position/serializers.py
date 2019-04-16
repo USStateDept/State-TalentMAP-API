@@ -61,6 +61,8 @@ class CurrentAssignmentSerializer(PrefetchedSerializer):
 
 class AssignmentSerializer(CurrentAssignmentSerializer):
 
+    emp_id = StaticRepresentationField(read_only=True)
+
     class Meta:
         model = Assignment
         fields = "__all__"
