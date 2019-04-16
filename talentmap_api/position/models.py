@@ -442,6 +442,10 @@ class Assignment(StaticRepresentationModel):
 
     history = HistoricalRecords()
 
+    @property
+    def emp_id(self):
+        return self.user.emp_id
+
     @staticmethod
     def create_from_bid(bid):
         '''
