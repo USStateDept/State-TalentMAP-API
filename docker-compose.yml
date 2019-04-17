@@ -27,7 +27,7 @@ services:
       - POSTGRES_USER=talentmap-user
   mock_fsbid:
     build:
-      context: ../test-microservice
+      context: ../mock-fsbid
     ports:
       - 3333:3333
     command: npm start
