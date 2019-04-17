@@ -41,8 +41,8 @@ class BidCycleSerializer(PrefetchedSerializer):
 
     class Meta:
         model = BidCycle
-        fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
-        writable_fields = ("name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active")
+        fields = ("id", "name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active", "_cycle_status")
+        writable_fields = ("name", "cycle_start_date", "cycle_deadline_date", "cycle_end_date", "active", "_cycle_status")
 
 
 class BidCycleStatisticsSerializer(PrefetchedSerializer):

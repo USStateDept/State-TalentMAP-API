@@ -55,7 +55,7 @@ class PositionListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        position_ids = BiddingStatus.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        position_ids = BiddingStatus.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
         queryset = Position.objects.filter(id__in=position_ids)
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
