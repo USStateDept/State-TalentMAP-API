@@ -19,6 +19,7 @@ import talentmap_api.fsbid.services as services
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidListView(APIView):
 
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
@@ -33,6 +34,7 @@ class FSBidListView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         return Response(services.user_bids(user.emp_id))
+
 
 class FSBidListPositionActionView(APIView):
     '''
@@ -51,7 +53,7 @@ class FSBidListPositionActionView(APIView):
         if len(services.user_bids(user.emp_id, pk)) > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)   
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def put(self, request, pk, format=None):
         '''
@@ -60,7 +62,7 @@ class FSBidListPositionActionView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
         services.bid_on_position(self.request.user.id, user.emp_id, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     def delete(self, request, pk, format=None):
         '''
         Closes or deletes specified bid on a cycle position
