@@ -32,7 +32,7 @@ services:
       - 3333:3333
     command: npm start
     volumes:
-      - ../test-microservice/:/app:delegated
+      - ../mock-fsbid/:/app:delegated
     environment:
       - PORT=3333
 volumes:
