@@ -39,7 +39,7 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
 
     # Give users some bids
     position = mommy.make('position.Position')
-    bidcycle = mommy.make('bidding.Bidcycle')
+    bidcycle = mommy.make('bidding.Bidcycle', active=True)
     bidcycle.positions.add(position)
     mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[1], status="submitted")
 

@@ -110,6 +110,9 @@ missing_coverage.sh
 # MacOS
 .DS_Store
 
+# PyCharm
+.idea/
+
 #Environment setup script
 setup_environment.sh
 

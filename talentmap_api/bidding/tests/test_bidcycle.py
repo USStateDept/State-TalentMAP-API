@@ -275,4 +275,4 @@ def test_bidcycle_cycle_available_filter(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/position/?is_available_in_bidcycle=1,2')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 6
+    assert len(response.data["results"]) == 5

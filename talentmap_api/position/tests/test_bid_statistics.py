@@ -11,7 +11,7 @@ def test_statistics_filter():
     mommy.make('position.Grade', id=1)
     mommy.make('position.Skill', id=1)
     position = mommy.make('position.Position', grade_id=1, skill_id=1)
-    bidcycle = mommy.make('bidding.BidCycle', cycle_start_date="1900-01-01T00:00:00Z", cycle_deadline_date='9999-01-01T00:00:00Z', cycle_end_date='9999-01-01T00:00:00Z')
+    bidcycle = mommy.make('bidding.BidCycle', active=True, cycle_start_date="1900-01-01T00:00:00Z", cycle_deadline_date='9999-01-01T00:00:00Z', cycle_end_date='9999-01-01T00:00:00Z')
     bidcycle.positions.add(position)
 
 
