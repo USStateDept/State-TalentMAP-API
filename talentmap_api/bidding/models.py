@@ -34,6 +34,7 @@ class BidCycle(StaticRepresentationModel):
     _id = models.TextField(null=True)
     _positions_seq_nums = ArrayField(models.TextField(), default=list)
     _category_code = models.TextField(null=True)
+    _cycle_status = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -179,6 +180,10 @@ class Bid(StaticRepresentationModel):
     def can_delete(self):
         ''' Whether or not a bid can be deleted '''
         return self.status == Bid.Status.draft or (self.status == Bid.Status.submitted and self.bidcycle.active)
+
+    @property
+    def emp_id(self):
+        return self.user.emp_id
 
     @staticmethod
     def get_approval_statuses():

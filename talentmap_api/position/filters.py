@@ -16,6 +16,9 @@ from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS, NumberInFilter
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GradeFilter(filters.FilterSet):
     is_available = filters.BooleanFilter(name="positions", lookup_expr="isnull", exclude=True)
@@ -138,7 +141,7 @@ class PositionFilter(filters.FilterSet):
         '''
         position_ids = []
         q_obj = Q()
-        bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(',')).filter(status_code__in=["OP", "HS"])
+        bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(','), bidcycle__active=True).filter(status_code__in=["OP", "HS"])
         position_ids = bidding_statuses.values_list("position_id", flat=True)
         return queryset.filter(id__in=position_ids)
 

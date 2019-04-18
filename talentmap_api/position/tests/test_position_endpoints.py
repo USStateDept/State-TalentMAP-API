@@ -32,7 +32,7 @@ def test_position_endpoints_fixture():
     skill_2 = mommy.make('position.Skill', code="0020")
     mommy.make_recipe('talentmap_api.position.tests.skill', _quantity=8)
 
-    bc = mommy.make('bidding.BidCycle')
+    bc = mommy.make('bidding.BidCycle', active=True)
     # Create a position with the specific qualification
     bc.positions.add(mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill))
     bc.positions.add(mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2))
@@ -195,7 +195,7 @@ def test_position_bid_list(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
     position = mommy.make('position.Position', bureau=bureau)
-    bidcycle = mommy.make('bidding.BidCycle')
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
     mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle, _quantity=5)
 
@@ -284,7 +284,7 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
     position = bidcycle_positions(bureau=bureau)
-    bidcycle = mommy.make('bidding.BidCycle')
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
     bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle)
     waiver = mommy.make('bidding.Waiver', user=authorized_user.profile, position=position, bid=bid)
 

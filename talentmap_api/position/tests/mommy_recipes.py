@@ -29,7 +29,7 @@ def bidcycle_positions(*args, **kwargs):
     pos = mommy.make(Position, *args, **kwargs)
     bidcycle = BidCycle.objects.first()
     if not bidcycle:
-        bidcycle = mommy.make(BidCycle)
+        bidcycle = mommy.make(BidCycle, active=True)
     if isinstance(pos, list):
         bidcycle.positions.add(*pos)
     else:

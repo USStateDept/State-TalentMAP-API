@@ -13,7 +13,8 @@ class BidCycleFilter(filters.FilterSet):
         fields = {
             "name": ALL_TEXT_LOOKUPS,
             "cycle_start_date": DATE_LOOKUPS,
-            "cycle_end_date": DATE_LOOKUPS
+            "cycle_end_date": DATE_LOOKUPS,
+            "active": ["exact"]
         }
 
 
