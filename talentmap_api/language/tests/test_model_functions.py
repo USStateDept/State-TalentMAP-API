@@ -2,7 +2,8 @@ import pytest
 
 from model_mommy import mommy
 
-from talentmap_api.language.models import Qualification
+from talentmap_api.language.models import Language, Qualification
+from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
 
 
 @pytest.fixture
@@ -12,6 +13,21 @@ def test_language_model_fixture():
     mommy.make('language.Proficiency', code="3+")
     mommy.make('language.Proficiency', code="3")
 
+@pytest.mark.django_db()
+def test_model_save():
+    lang = Language.objects.create(code="AD", short_description="Arabic-Mod")
+    lang.save()
+
+    assert lang.formal_description != None
+    assert lang.formal_description == LANGUAGE_FORMAL_NAMES.get("Arabic-Mod")
+
+    lang.refresh_from_db()
+    lang.short_description = "Serbo-Croa"
+    lang.save()
+
+    assert lang.formal_description != None
+    assert lang.formal_description == LANGUAGE_FORMAL_NAMES.get("Serbo-Croa")
+    assert lang.formal_description == "Serbo-Croatian (Croatian)"
 
 @pytest.mark.django_db()
 def test_proficiency_comparisons():

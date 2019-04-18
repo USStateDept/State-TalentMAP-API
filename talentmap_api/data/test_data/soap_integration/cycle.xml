@@ -7,6 +7,7 @@
                   <id>138</id>
                   <name>Details/Training 2016</name>
                   <category_code>O</category_code>
+                  <status>C</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -25,6 +26,7 @@
                   <id>147</id>
                   <name>Details/Training 2017</name>
                   <category_code>O</category_code>
+                  <status>M</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -43,6 +45,7 @@
                   <id>151</id>
                   <name>Now &amp; Winter 2017/2018</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -61,6 +64,7 @@
                   <id>152</id>
                   <name>Details/Training 2018</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -79,6 +83,7 @@
                   <id>153</id>
                   <name>PSP Now &amp; 2018</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -97,6 +102,7 @@
                   <id>154</id>
                   <name>ELSPEC Summer 2018</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -115,6 +121,7 @@
                   <id>155</id>
                   <name>2018 DCM/PO Cycle</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>
@@ -133,6 +140,7 @@
                   <id>156</id>
                   <name>Summer 2018</name>
                   <category_code>O</category_code>
+                  <status>A</status>
                   <cycleDates>
                      <cycleDate>
                         <DATA_TYPE>CYCLE</DATA_TYPE>

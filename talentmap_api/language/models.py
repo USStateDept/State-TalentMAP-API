@@ -16,18 +16,17 @@ class Language(StaticRepresentationModel):
     code = models.TextField(db_index=True, unique=True, null=False, help_text="The code representation of the language")
     long_description = models.TextField(null=False, help_text="Long-format description of the language, typically the name")
     short_description = models.TextField(null=False, help_text="Short-format description of the language, typically the name")
-    formal_description = models.TextField(null=True, help_text="The formal description of the language")
     effective_date = models.DateTimeField(null=True, help_text="The date after which the language is in effect")
 
     def __str__(self):
         return f"{self.formal_description} ({self.code})"
 
-    def update_formal_name(self):
-        self.formal_description = LANGUAGE_FORMAL_NAMES.get(self.short_description, self.short_description)
-
-    def save(self, *args, **kwargs):
-        self.update_formal_name()
-        super().save(*args, **kwargs)
+    @property
+    def formal_description(self):
+        '''
+        Read-only field for user-friendly name field
+        '''
+        return LANGUAGE_FORMAL_NAMES.get(self.short_description, self.short_description)
 
     class Meta:
         managed = True
@@ -142,4 +141,4 @@ class Qualification(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["language__code"]
-        unique_together = (('language', 'reading_proficiency', 'spoken_proficiency'))
+        unique_together = ('language', 'reading_proficiency', 'spoken_proficiency')

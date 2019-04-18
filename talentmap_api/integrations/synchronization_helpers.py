@@ -459,17 +459,22 @@ def mode_cycles(last_updated_date=None):
     tag_map = {
         "id": "_id",
         "name": "name",
-        "category_code": "_category_code"
+        "category_code": "_category_code",
+        "status": "_cycle_status"
     }
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         # If our cycle exists, clear its position numbers
         xml_dict = xml_etree_to_dict(tag)
         extant_cycle = loader.model.objects.filter(_id=xml_dict['id']).first()
+        new_status = xml_dict['status']
         if extant_cycle:
             extant_cycle._positions_seq_nums.clear()
 
         instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
+
+        # Set active state based on cycle_status
+        instance.active = instance._cycle_status == 'A'
 
         # Find the dates for this cycle
         for date in xml_dict["children"]:

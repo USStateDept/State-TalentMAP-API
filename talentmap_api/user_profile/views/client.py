@@ -92,9 +92,8 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
         self.serializer_class.prefetch_model(StatusSurvey, queryset)
         return queryset
 
-class CdoClientAssignmentView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
+
+class CdoClientAssignmentView(FieldLimitableSerializerMixin, mixins.ListModelMixin, GenericViewSet):
     """
     list:
     Lists all of the specified client's assignments
@@ -109,6 +108,7 @@ class CdoClientAssignmentView(FieldLimitableSerializerMixin,
         queryset = client.assignments.all()
         self.serializer_class.prefetch_model(StatusSurvey, queryset)
         return queryset
+
 
 class CdoClientBidView(FieldLimitableSerializerMixin,
                        ActionDependentSerializerMixin,
@@ -144,9 +144,7 @@ class CdoClientBidView(FieldLimitableSerializerMixin,
         return get_object_or_404(queryset, id=self.request.parser_context.get("kwargs").get("bid_id"))
 
 
-class CdoClientWaiverView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
+class CdoClientWaiverView(FieldLimitableSerializerMixin, mixins.ListModelMixin, GenericViewSet):
     """
     list:
     Lists all of the specified client's waivers

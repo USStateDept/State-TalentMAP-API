@@ -8,7 +8,7 @@ from rest_framework import status
 @pytest.fixture
 def test_position_fts_fixture():
     # Create some junk positions to add numbers
-    bc = mommy.make('bidding.BidCycle')
+    bc = mommy.make('bidding.BidCycle', active=True)
     bc.positions.add(mommy.make('position.Position',
                                 organization__long_description="German Embassy",
                                 bureau__long_description="German Embassy",
