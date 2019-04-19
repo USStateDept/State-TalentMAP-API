@@ -3,7 +3,6 @@ import logging
 
 from django.conf import settings
 
-
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
