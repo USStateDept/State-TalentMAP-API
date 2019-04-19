@@ -34,6 +34,15 @@ def test_bidder_fixture(authorized_user):
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
+def test_bidlist_actions(authorized_client, authorized_user):
+   with patch('talentmap_api.fsbid.services.requests.get') as mock_get:
+      mock_get.return_value = Mock(ok=True)
+      mock_get.return_value.json.return_value = [bid]
+      response = authorized_client.get(f'/api/v1/fsbid/')
+      assert response.json()[0]['emp_id'] == [bid][0]['employee']['perdet_seq_num']
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidder_fixture")
 def test_bidlist_position_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.requests.get') as mock_get:
       # returns 404 when no position is found
