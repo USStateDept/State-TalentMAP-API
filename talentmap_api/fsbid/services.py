@@ -24,6 +24,9 @@ def bid_on_position(userId, employeeId, cyclePositionId):
 
 
 def remove_bid(employeeId, cyclePositionId):
+    '''
+    Removes a bid from the users bid list
+    '''
     return requests.delete(f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}")
 
 

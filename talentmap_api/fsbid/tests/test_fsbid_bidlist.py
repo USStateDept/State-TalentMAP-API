@@ -38,7 +38,7 @@ def test_bidlist_actions(authorized_client, authorized_user):
    with patch('talentmap_api.fsbid.services.requests.get') as mock_get:
       mock_get.return_value = Mock(ok=True)
       mock_get.return_value.json.return_value = [bid]
-      response = authorized_client.get(f'/api/v1/fsbid/')
+      response = authorized_client.get(f'/api/v1/fsbid/bidlist/')
       assert response.json()[0]['emp_id'] == [bid][0]['employee']['perdet_seq_num']
 
 @pytest.mark.django_db(transaction=True)
@@ -48,20 +48,20 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
       # returns 404 when no position is found
       mock_get.return_value = Mock(ok=True)
       mock_get.return_value.json.return_value = []
-      response = authorized_client.get(f'/api/v1/fsbid/position/1/')
+      response = authorized_client.get(f'/api/v1/fsbid/bidlist/position/1/')
       assert response.status_code == status.HTTP_404_NOT_FOUND
       # returns 204 when position is found
       mock_get.return_value = Mock(ok=True)
       mock_get.return_value.json.return_value = [bid]
-      response = authorized_client.get(f'/api/v1/fsbid/position/1/')
+      response = authorized_client.get(f'/api/v1/fsbid/bidlist/position/1/')
       assert response.status_code == status.HTTP_204_NO_CONTENT
     
     with patch('talentmap_api.fsbid.services.requests.post') as mock_post:
       mock_post.return_value = Mock(ok=True)
-      response = authorized_client.put(f'/api/v1/fsbid/position/1/')
+      response = authorized_client.put(f'/api/v1/fsbid/bidlist/position/1/')
       assert response.status_code == status.HTTP_204_NO_CONTENT
     
     with patch('talentmap_api.fsbid.services.requests.delete') as mock_del:
       mock_del.return_value = Mock(ok=True)
-      response = authorized_client.delete(f'/api/v1/fsbid/position/1/')
+      response = authorized_client.delete(f'/api/v1/fsbid/bidlist/position/1/')
       assert response.status_code == status.HTTP_204_NO_CONTENT
