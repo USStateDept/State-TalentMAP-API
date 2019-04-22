@@ -69,3 +69,77 @@ def fsbid_bid_to_talentmap_bid(data):
         }
       }
     }
+
+def get_projected_vacancies():
+  projected_vacancies = requests.get(f"{API_ROOT}/projectedVacancies").json()
+  return  map(fsbid_pv_to_talentmap_pv, projected_vacancies)
+
+def fsbid_pv_to_talentmap_pv(pv):
+  return {
+    "id": pv["pos_id"],
+    "grade": pv["grade"],
+    "skill": pv["skill"],
+    "bureau": pv["bureau"],
+    "organization": pv["organization"],
+    "tour_of_duty": pv["tour_of_duty"],
+    "languages": [
+      {
+        "language": pv["language1"],
+        "reading_proficiency": pv["reading_proficiency_1"],
+        "spoken_proficiency": pv["spoken_proficiency_1"],
+        "representation": pv["language_representation_1"]
+      }
+    ],
+    "post": {
+      "tour_of_duty": pv["tour_of_duty"],
+      "differential_rate": pv["differential_rate"],
+      "danger_pay": pv["danger_pay"],
+      "location": {
+        "id": 7,
+        "country": "United States",
+        "code": "171670031",
+        "city": "Chicago",
+        "state": "IL"
+      }
+    },
+    "current_assignment": {
+      "user": pv["incumbent"],
+      "estimated_end_date": pv["ted"]
+    },
+    "position_number": pv["position_number"],
+    "posted_date": pv["createDate"],
+    "title": pv["title"],
+    "availability": {
+      "availability": True,
+      "reason": ""
+    },
+    "bid_cycle_statuses": [
+      {
+        "id": pv["pos_id"],
+        "bidcycle": pv["bsn_descr_text"],
+        "position": "[D0144910] SPECIAL AGENT (Chicago, IL)",
+        "status_code": "OP",
+        "status": "Open"
+      }
+    ],
+    "bid_statistics": [
+      {
+        "id": pv["pos_id"],
+        "bidcycle": pv["bsn_descr_text"],
+        "total_bids": 0,
+        "in_grade": 0,
+        "at_skill": 0,
+        "in_grade_at_skill": 0,
+        "has_handshake_offered": False,
+        "has_handshake_accepted": False
+      }
+    ],
+    "latest_bidcycle": {
+      "id": 1,
+      "name": pv["bsn_descr_text"],
+      "cycle_start_date": "2018-08-15T19:17:30.065379Z",
+      "cycle_deadline_date": "2019-03-27T00:00:00Z",
+      "cycle_end_date": "2019-05-16T00:00:00Z",
+      "active": True
+    }
+  }
