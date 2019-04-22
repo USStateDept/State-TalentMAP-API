@@ -198,3 +198,17 @@ def fsbid_pv_to_talentmap_pv(pv):
       "active": True
     }
   }
+
+def get_bid_seasons(bsn_future_vacancy_ind):
+  url = f"{API_ROOT}/bidSeasons?=bsn_future_vacancy_ind={bsn_future_vacancy_ind}" if bsn_future_vacancy_ind else f"{API_ROOT}/bidSeasons" 
+  bid_seasons = requests.get(f"{API_ROOT}/bidSeasons").json()
+  return map(fsbid_bid_season_to_talentmap_bid_season, bid_seasons)
+
+def fsbid_bid_season_to_talentmap_bid_season(bs):
+  return {
+    "id": bs["bsn_id"],
+    "description": bs["bsn_descr_text"],
+    "start_date": bs["bsn_start_date"],
+    "end_date": bs["bsn_end_date"],
+    "panel_cut_off_date": bs["bsn_panel_cutoff_date"]
+  }
