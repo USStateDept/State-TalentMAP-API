@@ -1,6 +1,8 @@
 import requests
 import logging
 
+from urllib.parse import urlencode
+
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -70,9 +72,24 @@ def fsbid_bid_to_talentmap_bid(data):
       }
     }
 
-def get_projected_vacancies():
-  projected_vacancies = requests.get(f"{API_ROOT}/projectedVacancies").json()
+def get_projected_vacancies(query):
+  projected_vacancies = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
   return  map(fsbid_pv_to_talentmap_pv, projected_vacancies)
+
+def convert_pv_query(query):
+  values = {
+    "bsn_id": query.get("is_available_in_bidseason"),
+    "bureauCode": query.get("bureau__code__in"),
+    "dangerPay": query.get("post__danger_pay__in"),
+    "gradeCode": query.get("grade__code__in"),
+    "languageCode": query.get("language_codes"),
+    # "organizationCode": "",
+    # "positionNumber": "",
+    "postDifferential": query.get("post__differential_rate__in"),
+    "skillCode": query.get("skill__code__in"),
+    "tourOfDutyCode": query.get("post__tour_of_duty__code__in")
+  }
+  return urlencode({i:j for i,j in values.items() if j is not None})
 
 def fsbid_pv_to_talentmap_pv(pv):
   return {
