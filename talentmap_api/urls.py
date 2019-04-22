@@ -38,6 +38,12 @@ urlpatterns = [
     # FSBId
     url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
     url(r'^api/v1/fsbid/projected_vacancies', include('talentmap_api.fsbid.urls.projected_vacancies')),
+<<<<<<< HEAD
+=======
+    url(r'^api/v1/fsbid/bid_seasons', include('talentmap_api.fsbid.urls.bid_seasons')),
+    url(r'^api/v1/fsbid/', include('talentmap_api.fsbid.urls.fsbid')),
+    
+>>>>>>> feature: get bid seasons end point
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
