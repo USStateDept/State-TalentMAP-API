@@ -1,6 +1,8 @@
 import requests
 import logging
 
+from datetime import datetime
+
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -121,10 +123,10 @@ def fsbid_pv_to_talentmap_pv(pv):
     },
     "current_assignment": {
       "user": pv["incumbent"],
-      "estimated_end_date": pv["ted"]
+      "estimated_end_date": datetime.strptime(pv["ted"], "%m/%Y")
     },
     "position_number": pv["position_number"],
-    "posted_date": pv["createDate"],
+    "posted_date": datetime.strptime(pv["createDate"], "%m-%d-%Y"),
     "title": pv["title"],
     "availability": {
       "availability": True,

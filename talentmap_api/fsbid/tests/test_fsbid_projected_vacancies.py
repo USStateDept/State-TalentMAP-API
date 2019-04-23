@@ -22,9 +22,9 @@ pv = {
   "differential_rate": "0",
   "danger_pay": "N",
   "incumbent": "Test Incumbent",
-  "ted": "01/01/1000",
+  "ted": "01/1000",
   "position_number": "Test Position Number",
-  "createDate": "01/01/2000",
+  "createDate": "01-01-2000",
   "title": "Test Title",
   "bsn_descr_text": "Test Bid Season",
 
