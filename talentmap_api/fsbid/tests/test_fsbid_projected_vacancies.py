@@ -24,7 +24,7 @@ pv = {
   "incumbent": "Test Incumbent",
   "ted": "01/1000",
   "position_number": "Test Position Number",
-  "createDate": "01-01-2000",
+  "createDate": "2000-01-01",
   "title": "Test Title",
   "bsn_descr_text": "Test Bid Season",
 
@@ -40,6 +40,6 @@ def test_bidder_fixture(authorized_user):
 def test_projected_vacancies_actions(authorized_client, authorized_user):
    with patch('talentmap_api.fsbid.services.requests.get') as mock_get:
       mock_get.return_value = Mock(ok=True)
-      mock_get.return_value.json.return_value = [pv]
+      mock_get.return_value.json.return_value = { "positions": [pv], "pagination": { "count": 0, "limit": 0 } }
       response = authorized_client.get(f'/api/v1/fsbid/projected_vacancies')
-      assert response.json()[0]['id'] == [pv][0]['pos_id']
+      assert response.json()["results"][0]['id'] == [pv][0]['pos_id']

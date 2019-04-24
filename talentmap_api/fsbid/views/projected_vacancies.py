@@ -30,4 +30,4 @@ class FSBidProjectedVacanciesListView(APIView):
         '''
         Gets all projected vacancies
         '''
-        return Response(services.get_projected_vacancies(request.query_params))
+        return Response(services.get_projected_vacancies(request.query_params, f"{request.scheme}://{request.get_host()}"))

@@ -74,26 +74,62 @@ def fsbid_bid_to_talentmap_bid(data):
       }
     }
 
-def get_projected_vacancies(query):
-  projected_vacancies = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
-  return  map(fsbid_pv_to_talentmap_pv, projected_vacancies)
+def get_projected_vacancies(query, host):
+  '''
+  Gets projected vacancies from FSBid
+  '''
+  response = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
+  projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["positions"])
+  return { 
+    **get_pagination(query, response["pagination"]["count"], f"{host}/api/v1/fsbid/projected_vacancies/"),
+    "results": projected_vacancies
+  }
+
+def get_pagination(query, count, base_url):
+  '''
+  Figures out all the pagination
+  '''
+  page = int(query.get("page", 0))
+  limit = int(query.get("limit", 25))
+  next_query = query.copy()
+  next_query.__setitem__("page", page + 1)
+  prev_query = query.copy()
+  prev_query.__setitem__("page", page - 1)
+  previous_url = f"{base_url}{prev_query.urlencode()}" if page > 1 else None
+  next_url = f"{base_url}{next_query.urlencode()}" if page * limit < count else None
+  return {
+    "count": count,
+    "next": next_url,
+    "previous": previous_url
+  }
 
 def convert_pv_query(query):
+  '''
+  Converts TalentMap filters into FSBid filters
+
+  The TalentMap filters align with the position search filter naming
+  '''
   values = {
     "bsn_id": query.get("is_available_in_bidseason"),
     "bureauCode": query.get("bureau__code__in"),
     "dangerPay": query.get("post__danger_pay__in"),
     "gradeCode": query.get("grade__code__in"),
     "languageCode": query.get("language_codes"),
-    # "organizationCode": "",
-    # "positionNumber": "",
     "postDifferential": query.get("post__differential_rate__in"),
     "skillCode": query.get("skill__code__in"),
-    "tourOfDutyCode": query.get("post__tour_of_duty__code__in")
+    "tourOfDutyCode": query.get("post__tour_of_duty__code__in"),
+    "limit": query.get("limit", None),
+    "page": query.get("page", None),
+    # These filters are supported by FSBid but not TalentMap
+    "organizationCode": None,
+    "positionNumber": None
   }
   return urlencode({i:j for i,j in values.items() if j is not None})
 
 def fsbid_pv_to_talentmap_pv(pv):
+  '''
+  Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
+  '''
   return {
     "id": pv["pos_id"],
     "grade": pv["grade"],
@@ -126,7 +162,7 @@ def fsbid_pv_to_talentmap_pv(pv):
       "estimated_end_date": datetime.strptime(pv["ted"], "%m/%Y")
     },
     "position_number": pv["position_number"],
-    "posted_date": datetime.strptime(pv["createDate"], "%m-%d-%Y"),
+    "posted_date": datetime.strptime(pv["createDate"], "%Y-%m-%d"),
     "title": pv["title"],
     "availability": {
       "availability": True,
