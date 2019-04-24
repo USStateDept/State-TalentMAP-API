@@ -8,9 +8,9 @@ import talentmap_api.fsbid.services as services
 bs = {
   "bsn_id": "1",
   "bsn_descr_text": "Test Bid Season",
-  "bsn_start_date": "01/01/2020",
-  "bsn_end_date": "03/31/2020",
-  "bsn_panel_cutoff_date": "04/15/2020"
+  "bsn_start_date": "2020/01/01",
+  "bsn_end_date": "2020/03/31",
+  "bsn_panel_cutoff_date": "2020/04/15"
 }
 
 @pytest.fixture

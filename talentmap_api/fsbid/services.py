@@ -208,7 +208,7 @@ def fsbid_bid_season_to_talentmap_bid_season(bs):
   return {
     "id": bs["bsn_id"],
     "description": bs["bsn_descr_text"],
-    "start_date": bs["bsn_start_date"],
-    "end_date": bs["bsn_end_date"],
-    "panel_cut_off_date": bs["bsn_panel_cutoff_date"]
+    "start_date": datetime.strptime(bs["bsn_start_date"], "%Y/%m/%d"),
+    "end_date": datetime.strptime(bs["bsn_end_date"], "%Y/%m/%d"),
+    "panel_cut_off_date": datetime.strptime(bs["bsn_panel_cutoff_date"], "%Y/%m/%d")
   }
