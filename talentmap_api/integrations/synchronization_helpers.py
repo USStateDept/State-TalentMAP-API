@@ -448,7 +448,7 @@ def mode_cycles(last_updated_date=None):
         "Action": "GET",
         "RequestName": "cycle",
         "MaximumOutputRows": 1000,
-        "Version": "0.02",
+        "Version": "0.03",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
     }
