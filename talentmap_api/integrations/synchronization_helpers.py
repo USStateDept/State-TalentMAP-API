@@ -448,7 +448,7 @@ def mode_cycles(last_updated_date=None):
         "Action": "GET",
         "RequestName": "cycle",
         "MaximumOutputRows": 1000,
-        "Version": "0.02",
+        "Version": "0.03",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
     }
@@ -470,6 +470,17 @@ def mode_cycles(last_updated_date=None):
         new_status = xml_dict['status']
         if extant_cycle:
             extant_cycle._positions_seq_nums.clear()
+
+            if extant_cycle._cycle_status != new_status:
+                bidding_status = BiddingStatus.objects.filter(bidcycle_id=extant_cycle.id)
+                if new_status == 'A':
+                    bidding_status.status_code = 'OP'
+                    bidding_status.status = 'OP'
+                elif new_status == 'C':
+                    bidding_status.status_code = 'MC'
+                    bidding_status.status = 'MC'
+                bidding_status.save()
+
 
         instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
 
