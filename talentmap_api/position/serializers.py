@@ -157,6 +157,13 @@ class PositionListSerializer(PrefetchedSerializer):
                     "read_only": True
                 }
             },
+            "description": {
+                "class": CapsuleDescriptionSerializer,
+                "field": "description",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
                 "kwargs": {
