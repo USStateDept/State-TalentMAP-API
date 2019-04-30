@@ -32,39 +32,27 @@ export DJANGO_LOG_DIRECTORY='/var/log/talentmap/'
 # Auth Logging
 # Stores authentication requests
 export DJANGO_LOG_AUTH_NAME='auth.log'
-export DJANGO_LOG_AUTH_MAX_SIZE=5242880
-export DJANGO_LOG_AUTH_NUM_BACKUPS=5
 
 # Access logging
 # Stores all requests
 export DJANGO_LOG_ACCESS_NAME='access.log'
-export DJANGO_LOG_ACCESS_MAX_SIZE=5242880
-export DJANGO_LOG_ACCESS_NUM_BACKUPS=5
 
 # Generic logging
 # Stores all logging which lies outside of other specific logs, such as profile
 # modifications, saving favorites, etc...
 export DJANGO_LOG_GENERIC_NAME='talentmap.log'
-export DJANGO_LOG_GENERIC_MAX_SIZE=5242880
-export DJANGO_LOG_GENERIC_NUM_BACKUPS=5
 
 # Permission logging
 # Stores any permission changes
 export DJANGO_LOG_PERM_NAME='permissions.log'
-export DJANGO_LOG_PERM_MAX_SIZE=5242880
-export DJANGO_LOG_PERM_NUM_BACKUPS=5
 
 # Database logging
 # Stores every SQL command sent to the database; Please note this only functions with DEBUG set to true
 export DJANGO_LOG_DB_NAME='db.log'
-export DJANGO_LOG_DB_MAX_SIZE=5242880
-export DJANGO_LOG_DB_NUM_BACKUPS=5
 
 # Synchronization logging
 # Stores synchronization data
 export DJANGO_LOG_SYNC_NAME='sync.log'
-export DJANGO_LOG_SYNC_MAX_SIZE=5242880
-export DJANGO_LOG_SYNC_NUM_BACKUPS=5
 
 # Deployment location
 # The directory where manage.py is located; requires the trailing slash
