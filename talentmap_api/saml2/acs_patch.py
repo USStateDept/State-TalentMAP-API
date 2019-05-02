@@ -130,8 +130,8 @@ def assertion_consumer_service(request,
 
     logger.info(f"User {user} authenticated via SSO")
 
-    logger.debug('Sending the post_authenticated signal')
-    post_authenticated.send_robust(sender=user, session_info=session_info)
+    # logger.debug('Sending the post_authenticated signal')
+    # post_authenticated.send_robust(sender=user, session_info=session_info)
 
     # Get user's token
     token, _ = ExpiringToken.objects.get_or_create(user=user)
