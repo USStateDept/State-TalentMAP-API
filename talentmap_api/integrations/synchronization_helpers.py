@@ -472,15 +472,12 @@ def mode_cycles(last_updated_date=None):
             extant_cycle._positions_seq_nums.clear()
 
             if extant_cycle._cycle_status != new_status:
-                bidding_status = BiddingStatus.objects.filter(bidcycle_id=extant_cycle.id)
-                if new_status == 'A':
-                    bidding_status.status_code = 'OP'
-                    bidding_status.status = 'OP'
-                elif new_status == 'C':
-                    bidding_status.status_code = 'MC'
-                    bidding_status.status = 'MC'
-                bidding_status.save()
-
+                bidding_status = BiddingStatus.objects.filter(bidcycle=extant_cycle)
+                if bidding_status:
+                    if new_status == 'A':
+                        bidding_status.update(status_code='OP', status='OP')
+                    elif new_status == 'C':
+                        bidding_status.update(status_code='MC', status='MC')
 
         instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
 
