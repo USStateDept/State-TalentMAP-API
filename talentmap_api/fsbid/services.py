@@ -74,16 +74,16 @@ def fsbid_bid_to_talentmap_bid(data):
       }
     }
 
-def get_projected_vacancies(query, host):
+def get_projected_vacancies(query, host = None):
   '''
   Gets projected vacancies from FSBid
   '''
   response = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
   projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["positions"])
-  return { 
-    **get_pagination(query, response["pagination"]["count"], f"{host}/api/v1/fsbid/projected_vacancies/"),
-    "results": projected_vacancies
-  }
+  result = { "results": projected_vacancies }
+  if host is not None:
+    result.update(**get_pagination(query, response["pagination"]["count"], f"{host}/api/v1/fsbid/projected_vacancies/"),)
+  return result
 
 def get_pagination(query, count, base_url):
   '''

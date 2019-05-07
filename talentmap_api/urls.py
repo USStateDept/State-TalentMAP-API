@@ -40,6 +40,9 @@ urlpatterns = [
     url(r'^api/v1/fsbid/projected_vacancies', include('talentmap_api.fsbid.urls.projected_vacancies')),
     url(r'^api/v1/fsbid/bid_seasons', include('talentmap_api.fsbid.urls.bid_seasons')),
 
+    # Projected Vacancies
+    url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
+
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
     url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
