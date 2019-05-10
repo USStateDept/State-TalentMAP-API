@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import QueryDict
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -7,22 +8,26 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.projected_vacancies.filters import ProjectedVacancyFilter
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
-from talentmap_api.projected_vacancies.serializers import ProjectedVacancySerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
-class ProjectedVacancyFavoriteListView(FieldLimitableSerializerMixin,
-                                       ReadOnlyModelViewSet):
-    """
-    list:
-    Return a list of all of the user's favorite projected vacancies.
-    """
-    serializer_class = ProjectedVacancySerializer
-    filter_class = ProjectedVacancyFilter
+import talentmap_api.fsbid.services as services
+
+class ProjectedVacancyFavoriteListView(APIView):
+    
     permission_classes = (IsAuthenticated,)
 
+    def get(self, request, *args, **kwargs):
+        """
+        get:
+        Return a list of all of the user's favorite projected vacancies.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user).all()
+        pos_nums = ','.join(map(lambda x: x.position_number, pvs))
+        return Response(services.get_projected_vacancies(QueryDict("position_number=f{pos_nums}")))
+    
     def get_queryset(self):
         user = UserProfile.objects.get(user=self.request.user)
         queryset = ProjectedVacancyFavorite.objects.filter(user=user).all()
