@@ -47,7 +47,7 @@ class CdoClientView(ActionDependentSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, cdo=self.request.user.profile)
+        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, cdo=self.request.user.profile).order_by("id")
 
 
 class CdoClientStatisticsView(APIView):
