@@ -24,15 +24,9 @@ class ProjectedVacancyFavoriteListView(APIView):
         Return a list of all of the user's favorite projected vacancies.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        pvs = ProjectedVacancyFavorite.objects.filter(user=user).all()
-        pos_nums = ','.join(map(lambda x: x.position_number, pvs))
-        return Response(services.get_projected_vacancies(QueryDict("position_number=f{pos_nums}")))
-    
-    def get_queryset(self):
-        user = UserProfile.objects.get(user=self.request.user)
-        queryset = ProjectedVacancyFavorite.objects.filter(user=user).all()
-        queryset = self.serializer_class.prefetch_model(ProjectedVacancyFavorite, queryset)
-        return queryset
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("position_number", flat=True)
+        pos_nums = ','.join(pvs)
+        return Response(services.get_projected_vacancies(QueryDict(f"position_number__in={pos_nums}")))
 
 
 class ProjectedVacancyFavoriteActionView(APIView):

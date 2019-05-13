@@ -121,8 +121,7 @@ def convert_pv_query(query):
     "limit": query.get("limit", None),
     "page": query.get("page", None),
     "organizationCode": query.get("post__in"),
-    # Filters are supported by FSBid but not TalentMap
-    "positionNumber": None
+    "positionNumber": query.get("position_number__in")
   }
   return urlencode({i:j for i,j in values.items() if j is not None})
 
