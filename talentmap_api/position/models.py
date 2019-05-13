@@ -226,6 +226,10 @@ class PositionBidStatistics(StaticRepresentationModel):
     has_handshake_offered = models.BooleanField(default=False)
     has_handshake_accepted = models.BooleanField(default=False)
 
+    is_urgent_vacancy = models.BooleanField(default=False)
+    is_volunteer = models.BooleanField(default=False)
+    is_hard_to_fill = models.BooleanField(default=False)
+
     def update_statistics(self):
         bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
         self.total_bids = bidcycle_bids.count()
@@ -240,7 +244,6 @@ class PositionBidStatistics(StaticRepresentationModel):
         managed = True
         ordering = ["bidcycle__cycle_start_date"]
         unique_together = (("bidcycle", "position",),)
-
 
 class CapsuleDescription(StaticRepresentationModel):
     '''

@@ -10,8 +10,10 @@ router.register(r'^(?P<instance_id>[0-9]+)/history', views.HistoricalBidCycleVie
 urlpatterns = [
     url(r'^$', views.BidCycleView.as_view({**get_list, **post_create})),
     url(r'^(?P<pk>[0-9]+)/$', views.BidCycleView.as_view({**get_retrieve, **patch_update}), name="bidding.BidCycle-details"),
+    url(r'^(?P<pk>[0-9]+)/position/(?P<pos_id>[0-9]+)/designation/$', views.BidCyclePositionDesignationActionView.as_view({ **get_retrieve, **patch_update }), name='bidding.BidCycle-position-designation-actions'),
     url(r'^(?P<pk>[0-9]+)/position/(?P<pos_id>[0-9]+)/$', views.BidCyclePositionActionView.as_view(), name='bidding.BidCycle-position-actions'),
     url(r'^(?P<pk>[0-9]+)/positions/$', views.BidCycleListPositionView.as_view(get_list), name="bidding.BidCycle-list-positions"),
+    url(r'^(?P<pk>[0-9]+)/position/designation/$', views.BidCycleListPositionDesignationView.as_view(get_list), name='bidding.BidCycle-list-position-designations'),
     url(r'^(?P<pk>[0-9]+)/position/batch/(?P<saved_search_id>[0-9]+)/$', views.BidCycleBatchPositionActionView.as_view(), name="bidding.BidCycle-position-batch"),
 
     url(r'^statistics/$', views.BidCycleStatisticsView.as_view({**get_list})),
