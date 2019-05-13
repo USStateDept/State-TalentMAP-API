@@ -74,18 +74,18 @@ def fsbid_bid_to_talentmap_bid(data):
       }
     }
 
-def get_projected_vacancies(query, host):
+def get_projected_vacancies(query, host = None):
   '''
   Gets projected vacancies from FSBid
   '''
   response = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
   projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["positions"])
   return { 
-    **get_pagination(query, response["pagination"]["count"], f"{host}/api/v1/fsbid/projected_vacancies/"),
+    **get_pagination(query, response["pagination"]["count"], "/api/v1/fsbid/projected_vacancies/", host),
     "results": projected_vacancies
   }
 
-def get_pagination(query, count, base_url):
+def get_pagination(query, count, base_url, host=None, ):
   '''
   Figures out all the pagination
   '''
@@ -95,8 +95,8 @@ def get_pagination(query, count, base_url):
   next_query.__setitem__("page", page + 1)
   prev_query = query.copy()
   prev_query.__setitem__("page", page - 1)
-  previous_url = f"{base_url}{prev_query.urlencode()}" if page > 1 else None
-  next_url = f"{base_url}{next_query.urlencode()}" if page * limit < count else None
+  previous_url = f"{host}{base_url}{prev_query.urlencode()}" if host and page > 1 else None
+  next_url = f"{host}{base_url}{next_query.urlencode()}" if host and page * limit < count else None
   return {
     "count": count,
     "next": next_url,
@@ -121,8 +121,7 @@ def convert_pv_query(query):
     "limit": query.get("limit", None),
     "page": query.get("page", None),
     "organizationCode": query.get("post__in"),
-    # Filters are supported by FSBid but not TalentMap
-    "positionNumber": None
+    "positionNumber": query.get("position_number__in")
   }
   return urlencode({i:j for i,j in values.items() if j is not None})
 
