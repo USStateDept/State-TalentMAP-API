@@ -162,8 +162,8 @@ class BidCyclePositionDesignationActionView(mixins.RetrieveModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        position = Position.objects.get(id=self.kwargs['pos_id'])
-        bidcycle = BidCycle.objects.get(id=self.kwargs['pk'])
+        position = get_object_or_404(Position, id=self.kwargs['pos_id'])
+        bidcycle = get_object_or_404(BidCycle, id=self.kwargs['pk'])
         queryset = PositionBidStatistics.objects.filter(position=position, bidcycle=bidcycle)
         queryset = self.serializer_class.prefetch_model(PositionBidStatistics, queryset)
         return queryset
@@ -179,8 +179,7 @@ class BidCycleListPositionDesignationView(mixins.ListModelMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        position = Position.objects.get(id=self.kwargs['pos_id'])
-        bidcycle = BidCycle.objects.get(id=self.kwargs['pk'])
-        queryset = PositionBidStatistics.objects.filter(postion=position, bidcycle=bidcycle)
+        bidcycle = get_object_or_404(BidCycle, id=self.kwargs['pk'])
+        queryset = PositionBidStatistics.objects.filter(bidcycle=bidcycle)
         queryset = self.serializer_class.prefetch_model(PositionBidStatistics, queryset)
         return queryset
