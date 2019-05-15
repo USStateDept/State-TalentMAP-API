@@ -9,9 +9,12 @@ from django.utils import timezone
 import talentmap_api.fsbid.services as services
 
 bid = { 
-  "submittedDate": "01/01/2019",
+  "submittedDate": "2019/01/01",
+  "statusCode": "A",
+  "handshakeCode": "N",
   "cycle": { 
-    "description" : ""
+    "description" : "",
+    "status": "A",
   }, 
   "employee": {
     "perdet_seq_num" : "1"
@@ -25,6 +28,7 @@ bid = {
      "inConeBidders": 0,
      "inBothBidders": 0,
   }
+
 }
 
 @pytest.fixture
