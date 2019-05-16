@@ -7,7 +7,10 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     url(r'^position/(?P<pk>[0-9]+)/$', views.FSBidListPositionActionView.as_view(), name='bidding.FSBid-position-actions'),
+<<<<<<< HEAD
     url(r'^position/(?P<pk>[0-9]+)/submit/$', views.FSBidListBidActionView.as_view(), name='bidding.FSBid-bid-actions'),
+=======
+>>>>>>> origin/staging
     url(r'', views.FSBidListView.as_view(), name="bidding-FSBid-bid-actions"),
 ]
 
