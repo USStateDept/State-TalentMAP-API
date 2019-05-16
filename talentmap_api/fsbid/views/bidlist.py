@@ -67,7 +67,7 @@ class FSBidListPositionActionView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-ß
+
     def put(self, request, pk, format=None):
         '''
         Adds a cycle position to the user's bid list
