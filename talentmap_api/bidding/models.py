@@ -294,8 +294,8 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
     if action in ["post_add", "post_remove"]:
         for position_id in pk_set:
             pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
-            if pos.bid_cycles.count() > 0:
-                pos.latest_bidcycle = pos.bid_cycles.latest('cycle_start_date')
+            if pos.bid_cycles.filter(active=True).count() > 0:
+                pos.latest_bidcycle = pos.bid_cycles.filter(active=True).latest('cycle_start_date')
             else:
                 pos.latest_bidcycle = None
             pos.save()
