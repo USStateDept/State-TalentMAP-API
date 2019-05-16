@@ -36,6 +36,19 @@ class FSBidListView(APIView):
         return Response(services.user_bids(user.emp_id))
 
 
+class FSBidListBidActionView(APIView):
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
+
+    def put(self, request, pk, format=None):
+        '''
+        Submits a bid (sets status to A)
+        '''
+        user = UserProfile.objects.get(user=self.request.user)
+        services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A')
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class FSBidListPositionActionView(APIView):
     '''
     list:
