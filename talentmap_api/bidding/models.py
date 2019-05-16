@@ -300,6 +300,18 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
                 pos.latest_bidcycle = None
             pos.save()
 
+@receiver(post_save, sender=BidCycle, dispatch_uid="bidcycle_active_changed")
+def bidcycle_active_changed(sender, instance, **kwargs):
+    '''
+    Update positions latest_active_bidcycle field to latest acive bidcycle
+    '''
+    positions = talentmap_api.position.models.Position.objects.filter(id__in=instance.positions.values_list('id', flat=True))
+    for pos in positions:
+        if pos.bid_cycles.filter(active=True).count() > 0:
+            pos.latest_bidcycle = pos.bid_cycles.filter(active=True).latest('cycle_start_date')
+        else:
+            pos.latest_bidcycle = None
+        pos.save()
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")
 def bid_status_changed(sender, instance, **kwargs):
