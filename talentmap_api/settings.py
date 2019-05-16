@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     'talentmap_api.glossary',
     'talentmap_api.integrations',
     'talentmap_api.feedback',
+    'talentmap_api.projected_vacancies',
 ]
 
 MIDDLEWARE = [
