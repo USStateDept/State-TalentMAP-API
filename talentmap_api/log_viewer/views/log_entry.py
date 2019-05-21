@@ -1,17 +1,7 @@
-from django.shortcuts import get_object_or_404
-
 from rest_framework.views import APIView
-
 from rest_framework.permissions import IsAuthenticated
-
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-
-from talentmap_api.common.history_helpers import generate_historical_view
-from talentmap_api.common.common_helpers import has_permission_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
-
 from talentmap_api.log_viewer.models import LogEntry
-
 import talentmap_api.log_viewer.services as services
 from rest_framework.response import Response
 from rest_framework import status
