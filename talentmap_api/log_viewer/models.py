@@ -9,6 +9,6 @@ class LogEntry(models.Model):
     
 
     class Meta:
-        managed = True
+        managed = False
         ordering = ["text"]
 
