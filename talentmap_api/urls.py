@@ -74,6 +74,9 @@ urlpatterns = [
 
     # Feedback
     url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
+
+    # Log viewing
+    url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
