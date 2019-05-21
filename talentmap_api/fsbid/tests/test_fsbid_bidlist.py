@@ -28,7 +28,6 @@ bid = {
      "inConeBidders": 0,
      "inBothBidders": 0,
   }
-
 }
 
 @pytest.fixture
