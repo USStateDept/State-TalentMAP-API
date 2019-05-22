@@ -10,6 +10,7 @@ from django.utils import timezone
 from talentmap_api.common.common_helpers import get_permission_by_name
 from talentmap_api.position.tests.mommy_recipes import bidcycle_positions
 
+from talentmap_api.bidding.models import CyclePosition
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
@@ -34,16 +35,19 @@ def test_position_endpoints_fixture():
 
     bc = mommy.make('bidding.BidCycle', active=True)
     # Create a position with the specific qualification
-    bc.positions.add(mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill))
-    bc.positions.add(mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2))
+    pos1 = mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill)
+    bc.positions.add(pos1)
+    pos2 = mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2)
+    bc.positions.add(pos2)
 
     is_overseas = [True, False]
     # Create some junk positions to add numbers
     for _ in range(0, 8):
-        bc.positions.add(mommy.make('position.Position',
+        pos = (mommy.make('position.Position',
                                     organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
                                     bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
                                     is_overseas=cycle(is_overseas)))
+        bc.positions.add(pos)
 
 
 @pytest.mark.django_db()
@@ -58,27 +62,27 @@ def test_position_list(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_position_filtering(client):
-    response = client.get('/api/v1/position/?languages__language__name=German')
+    response = client.get('/api/v1/position/?position__languages__language__name=German')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
-    response = client.get('/api/v1/position/?language_codes=DE')
+    response = client.get('/api/v1/position/?position__language_codes=DE')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_least=3')
+    response = client.get('/api/v1/position/?position__languages__spoken_proficiency__at_least=3')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=3')
+    response = client.get('/api/v1/position/?position__languages__spoken_proficiency__at_most=3')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
 
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_least=4')
+    response = client.get('/api/v1/position/?position__languages__spoken_proficiency__at_least=4')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
 
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=4')
+    response = client.get('/api/v1/position/?position__languages__spoken_proficiency__at_most=4')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
@@ -86,12 +90,12 @@ def test_position_filtering(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_position_grade_skill_filters(client):
-    response = client.get('/api/v1/position/?grade__code=00')
+    response = client.get('/api/v1/position/?position__grade__code=00')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
 
-    response = client.get('/api/v1/position/?skill__code=0010')
+    response = client.get('/api/v1/position/?position__skill__code=0010')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
@@ -197,7 +201,8 @@ def test_position_bid_list(authorized_client, authorized_user):
     position = mommy.make('position.Position', bureau=bureau)
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
-    mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle, _quantity=5)
+    cp = CyclePosition.objects.get(bidcycle=bidcycle, position=position)
+    mommy.make('bidding.Bid', user=authorized_user.profile, position=cp, bidcycle=bidcycle, _quantity=5)
 
     # Create valid permissions to view this position's bids
     group = mommy.make('auth.Group', name='bureau_ao')
@@ -285,7 +290,8 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     bureau = mommy.make('organization.Organization', code='12345')
     position = bidcycle_positions(bureau=bureau)
     bidcycle = mommy.make('bidding.BidCycle', active=True)
-    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle)
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
+    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=cp, bidcycle=bidcycle)
     waiver = mommy.make('bidding.Waiver', user=authorized_user.profile, position=position, bid=bid)
 
     # Create valid permissions to view this position's waivers
@@ -331,17 +337,17 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
     mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
     mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
 
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
+    response = authorized_client.get('/api/v1/position/?position__vacancy_in_years=1')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
 
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=2')
+    response = authorized_client.get('/api/v1/position/?position__vacancy_in_years=2')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=3')
+    response = authorized_client.get('/api/v1/position/?position__vacancy_in_years=3')
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3

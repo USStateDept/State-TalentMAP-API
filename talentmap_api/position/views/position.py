@@ -15,12 +15,12 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver, BiddingStatus
-from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
+from talentmap_api.bidding.models import Bid, Waiver, CyclePosition
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
-from talentmap_api.position.filters import PositionFilter, AssignmentFilter
+from talentmap_api.position.filters import PositionFilter, AssignmentFilter, CyclePositionFilter
 from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
 
 from talentmap_api.user_profile.models import UserProfile
@@ -45,19 +45,18 @@ class PositionListView(FieldLimitableSerializerMixin,
     """
 
     serializers = {
-        "default": PositionSerializer,
+        "default": CyclePositionSerializer,
         "list": PositionListSerializer,
         "partial_update": PositionWritableSerializer,
     }
 
-    serializer_class = PositionSerializer
-    filter_class = PositionFilter
+    serializer_class = CyclePositionSerializer
+    filter_class = CyclePositionFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        position_ids = BiddingStatus.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
-        queryset = Position.objects.filter(id__in=position_ids)
-        queryset = self.serializer_class.prefetch_model(Position, queryset)
+        queryset = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"])
+        queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
 
 
@@ -75,10 +74,11 @@ class PositionBidListView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         # Get the position based on the PK from the url
-        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
+        cp = get_object_or_404(CyclePosition, position_id=self.request.parser_context.get("kwargs").get("pk"))
+        position = cp.position
         in_group_or_403(self.request.user, f"bureau_ao:{position.bureau.code}")
         # Get the position's bids
-        queryset = position.bids
+        queryset = cp.bids
         self.serializer_class.prefetch_model(Bid, queryset)
         return queryset
 

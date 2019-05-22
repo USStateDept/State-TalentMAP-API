@@ -81,7 +81,7 @@ def test_saved_search_create_in_array_filters(authorized_client, authorized_user
             "name": "Banana search",
             "endpoint": "/api/v1/position/",
             "filters": {
-                "grade__code__in": ["05", "06"]
+                "position__grade__code__in": ["05", "06"]
             }
         }
     ), content_type='application/json')
@@ -97,23 +97,7 @@ def test_saved_search_create_in_string_filters(authorized_client, authorized_use
             "name": "Banana search",
             "endpoint": "/api/v1/position/",
             "filters": {
-                "post__in": "254,123"
-            }
-        }
-    ), content_type='application/json')
-
-    assert response.status_code == status.HTTP_201_CREATED
-
-
-@pytest.mark.django_db()
-def test_saved_search_create_declared_filters(authorized_client, authorized_user):
-    # Test a valid endpoint with declared (i.e. manual) filters
-    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
-        {
-            "name": "Banana search",
-            "endpoint": "/api/v1/position/",
-            "filters": {
-                "q": ["german security"]
+                "position__post__in": "254,123"
             }
         }
     ), content_type='application/json')
@@ -129,9 +113,9 @@ def test_saved_search_create_valid_filters(authorized_client, authorized_user):
             "name": "Banana search",
             "endpoint": "/api/v1/position/",
             "filters": {
-                "position_number__startswith": ["56"],
-                "title__in": ["SPECIAL AGENT", "OFFICE MANAGER"],
-                "post__tour_of_duty__months__gt": ["6"]
+                "position__position_number__startswith": ["56"],
+                "position__title__in": ["SPECIAL AGENT", "OFFICE MANAGER"],
+                "position__post__tour_of_duty__months__gt": ["6"]
             }
         }
     ), content_type='application/json')
@@ -196,7 +180,7 @@ def test_saved_search_counts(authorized_client, authorized_user):
                               owner=authorized_user.profile,
                               endpoint='/api/v1/position/',
                               filters={
-                                  "title__contains": "OMS",
+                                  "position__title__contains": "OMS",
                               })
 
     oms_exact = mommy.make('user_profile.SavedSearch',
@@ -204,11 +188,11 @@ def test_saved_search_counts(authorized_client, authorized_user):
                            owner=authorized_user.profile,
                            endpoint='/api/v1/position/',
                            filters={
-                               "title": "OMS",
+                               "position__title": "OMS",
                            })
-
-    mommy.make('position.Position', title="OMS", _quantity=5)
-    mommy.make('position.Position', title="OMS banana", _quantity=5)
+    
+    mommy.make('bidding.CyclePosition', position__title="OMS", _quantity=5)
+    mommy.make('bidding.CyclePosition', position__title="OMS banana", _quantity=5)
 
     assert oms_contains.count == 0
     assert oms_exact.count == 0
@@ -221,7 +205,7 @@ def test_saved_search_counts(authorized_client, authorized_user):
     assert oms_contains.count == 10
     assert oms_exact.count == 5
 
-    mommy.make('position.Position', title="OMS", _quantity=5)
+    mommy.make('bidding.CyclePosition', position__title="OMS", _quantity=5)
 
     SavedSearch.update_counts_for_endpoint()
     oms_contains.refresh_from_db()

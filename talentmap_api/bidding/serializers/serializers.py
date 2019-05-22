@@ -4,9 +4,9 @@ from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.position.serializers import PositionSerializer
-from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver
-
+from talentmap_api.position.serializers import PositionSerializer, PositionBidStatisticsSerializer, LanguageQualificationSerializer, PostSerializer, CapsuleDescriptionSerializer, CurrentAssignmentSerializer
+from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
+from talentmap_api.position.models import Position
 
 class BidCycleSerializer(PrefetchedSerializer):
 
@@ -106,6 +106,75 @@ class SurveySerializer(PrefetchedSerializer):
         writable_fields = ("bidcycle", "is_differential_bidder", "is_fairshare", "is_six_eight")
 
 
+class CyclePositionSerializer(PrefetchedSerializer):
+    status = StaticRepresentationField(read_only=True)
+    status_code = StaticRepresentationField(read_only=True)
+    ted = StaticRepresentationField(read_only=True)
+    
+    class Meta:
+        model = CyclePosition
+        fields = "__all__"
+        nested = {
+            "position": {
+                "class": PositionSerializer,
+                "field": "position",
+                "kwargs": {
+                    "many": False,
+                    "read_only": True
+                }
+            },
+            "bid_statistics": {
+                "class": PositionBidStatisticsSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "languages": {
+                "class": LanguageQualificationSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "post": {
+                "class": PostSerializer,
+                "field": "post",
+                "kwargs": {
+                    "many": False,
+                    "read_only": True
+                }
+            },
+            "description": {
+                "class": CapsuleDescriptionSerializer,
+                "field": "description",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "bidcycle": {
+                "class": "talentmap_api.bidding.serializers.serializers.BidCycleSerializer",
+                "field": "bidcycle",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "current_assignment": {
+                "class": CurrentAssignmentSerializer,
+                "field": "current_assignment",
+                "kwargs": {
+                    "override_fields": [
+                        "user",
+                        "status",
+                        "start_date",
+                        "tour_of_duty",
+                        "estimated_end_date"
+                    ],
+                    "read_only": True
+                }
+            }
+        }
+
+
 class BidSerializer(PrefetchedSerializer):
     bidcycle = StaticRepresentationField(read_only=True)
     user = StaticRepresentationField(read_only=True)
@@ -120,22 +189,9 @@ class BidSerializer(PrefetchedSerializer):
         fields = "__all__"
         nested = {
             "position": {
-                "class": PositionSerializer,
+                "class": CyclePositionSerializer,
                 "field": "position",
                 "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "position_number",
-                        "bureau",
-                        "title",
-                        "skill",
-                        "grade",
-                        "post__id",
-                        "post__location",
-                        "update_date",
-                        "create_date",
-                        "bid_statistics"
-                    ],
                     "read_only": True
                 }
             },

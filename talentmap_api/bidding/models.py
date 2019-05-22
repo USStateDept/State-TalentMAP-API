@@ -15,6 +15,24 @@ from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
+class CyclePosition(StaticRepresentationModel):
+    '''
+    Maps a position to a bid cycle with additional fields
+    '''
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="cycle_position_cycle")
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="cycle_position_position")
+
+    ted = models.DateTimeField(null=True, help_text="The ted date for the cycle position")
+    created = models.DateTimeField(null=True, help_text="The created date for the cycle positon")
+    updated = models.DateTimeField(null=True, help_text="The updated date for the cycle positon")
+    status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
+    status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
+    
+    _cp_id = models.TextField(null=True)
+    
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
 
 class BidCycle(StaticRepresentationModel):
     '''
@@ -62,22 +80,6 @@ class BidCycle(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
-
-
-class BiddingStatus(StaticRepresentationModel):
-    '''
-    The status of the bid in a given bid cycle
-    '''
-    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="statuses")
-    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bid_cycle_statuses")
-
-    status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
-    status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
-
-    class Meta:
-        managed = True
-        ordering = ["bidcycle__cycle_start_date"]
-
 
 class StatusSurvey(StaticRepresentationModel):
     '''
@@ -160,7 +162,7 @@ class Bid(StaticRepresentationModel):
 
     bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="bids", help_text="The bidcycle for this bid")
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
-    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
+    position = models.ForeignKey('bidding.CyclePosition', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
     is_priority = models.BooleanField(default=False, help_text="Flag indicating if this bid is the bidder's priority bid")
     panel_reschedule_count = models.IntegerField(default=0, help_text="The number of times this bid's panel date has been rescheduled")
 
@@ -170,7 +172,7 @@ class Bid(StaticRepresentationModel):
     update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.id} {self.user}#{self.position.position_number} ({self.status})"
+        return f"{self.id} {self.user}#{self.position.position.position_number} ({self.status})"
 
     @property
     def is_paneling_today(self):
@@ -284,12 +286,12 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
     if action == "pre_add":
         # Create a new statistics item when a position is placed in the bid cycle
         for position_id in pk_set:
-            talentmap_api.position.models.PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
-            BiddingStatus.objects.get_or_create(bidcycle=instance, position_id=position_id)
+            cp = CyclePosition.objects.create(bidcycle=instance, position_id=position_id)
+            talentmap_api.position.models.PositionBidStatistics.objects.create(position=cp)
     elif action == "pre_remove":
         # Delete statistics items when removed from the bidcycle
-        talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
-        BiddingStatus.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+        talentmap_api.position.models.PositionBidStatistics.objects.filter(position__bidcycle=instance, position_id__in=pk_set).delete()
+        CyclePosition.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
     if action in ["post_add", "post_remove"]:
         for position_id in pk_set:
@@ -363,7 +365,7 @@ def bid_panel_date_changed(sender, instance, **kwargs):
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(bidcycle=instance.bidcycle, position=instance.position)
+    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(position=instance.position)
     statistics.update_statistics()
 
     # Update the user's bid statistics

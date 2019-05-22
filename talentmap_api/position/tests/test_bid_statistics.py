@@ -1,7 +1,7 @@
 import pytest
 
 from talentmap_api.position.models import Position, Skill
-from talentmap_api.bidding.models import Bid, BidCycle
+from talentmap_api.bidding.models import Bid, BidCycle, CyclePosition
 
 from model_mommy import mommy
 
@@ -34,10 +34,12 @@ def test_bid_statistics(authorized_client, authorized_user):
 
     assert Position.objects.count() == 1
     assert BidCycle.objects.count() == 1
+    assert CyclePosition.objects.count() == 1
 
     position = Position.objects.all().first()
     bidcycle = BidCycle.objects.all().first()
-    statistics = position.bid_statistics.first()
+    cp = CyclePosition.objects.all().first()
+    statistics = cp.bid_statistics
 
     assert statistics.total_bids == 0
     assert statistics.in_grade == 0
@@ -45,7 +47,7 @@ def test_bid_statistics(authorized_client, authorized_user):
     assert statistics.in_grade_at_skill == 0
 
     # Add a bid from a user in grade
-    Bid.objects.create(user=in_grade, bidcycle=bidcycle, position=position)
+    Bid.objects.create(user=in_grade, bidcycle=bidcycle, position=cp)
     statistics.refresh_from_db()
 
     assert statistics.total_bids == 1
@@ -54,7 +56,7 @@ def test_bid_statistics(authorized_client, authorized_user):
     assert statistics.in_grade_at_skill == 0
 
     # Add a bid from a user at skill
-    Bid.objects.create(user=at_skill, bidcycle=bidcycle, position=position)
+    Bid.objects.create(user=at_skill, bidcycle=bidcycle, position=cp)
     statistics.refresh_from_db()
 
     assert statistics.total_bids == 2
@@ -63,7 +65,7 @@ def test_bid_statistics(authorized_client, authorized_user):
     assert statistics.in_grade_at_skill == 0
 
     # Add a bid from a user at skill and in grade
-    bid = Bid.objects.create(user=in_grade_at_skill, bidcycle=bidcycle, position=position)
+    bid = Bid.objects.create(user=in_grade_at_skill, bidcycle=bidcycle, position=cp)
     statistics.refresh_from_db()
 
     assert statistics.total_bids == 3

@@ -14,7 +14,7 @@ from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.position.filters import PositionFilter
 
 from talentmap_api.position.models import Position
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, CyclePosition
 from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
@@ -86,11 +86,11 @@ class BidCycleBatchPositionActionView(APIView):
         in_group_or_403(self.request.user, 'bidcycle_admin')
         search = get_object_or_404(SavedSearch, id=url_arguments.get("saved_search_id"))
         queryset = search.get_queryset()
-        if not isinstance(queryset.first(), Position):
+        if not isinstance(queryset.first(), CyclePosition):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         bidcycle = get_object_or_404(BidCycle, id=url_arguments.get("pk"))
         logger.info(f"User {self.request.user.id}:{self.request.user} batch-adding saved search {search.id} to bidcycle {bidcycle}")
-        bidcycle.positions.add(*list(queryset))
+        bidcycle.positions.add(*list(queryset.values_list("position", flat=True)))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

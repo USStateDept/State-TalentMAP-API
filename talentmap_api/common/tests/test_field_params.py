@@ -8,44 +8,46 @@ from rest_framework import status
 def test_field_params_fixture():
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     post = mommy.make('organization.Post')
-    bidcycle.positions.add(mommy.make('position.Position', post=post))
+    position = mommy.make('position.Position', post=post)
+    bidcycle.positions.add(position)
+    cp = mommy.make('bidding.CyclePosition', position=position, bidcycle=bidcycle)
 
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_field_params_fixture")
 def test_field_inclusion(client):
-    response = client.get('/api/v1/position/?include=post')
+    response = client.get('/api/v1/position/?include=position__post')
 
     assert response.status_code == status.HTTP_200_OK
-    assert list(response.data["results"][0].keys()) == ["post"]
-    assert len(list(response.data["results"][0]["post"].keys())) > 1
+    assert list(response.data["results"][0]["position"].keys()) == ["post"]
+    assert len(list(response.data["results"][0]["position"]["post"].keys())) > 1
 
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_field_params_fixture")
 def test_field_child_inclusion(client):
-    response = client.get('/api/v1/position/?include=post__id')
+    response = client.get('/api/v1/position/?include=position__post__id')
 
     assert response.status_code == status.HTTP_200_OK
-    assert list(response.data["results"][0].keys()) == ["post"]
-    assert list(response.data["results"][0]["post"].keys()) == ["id"]
+    assert list(response.data["results"][0]["position"].keys()) == ["post"]
+    assert list(response.data["results"][0]["position"]["post"].keys()) == ["id"]
 
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_field_params_fixture")
 def test_field_exclusion(client):
-    response = client.get('/api/v1/position/?exclude=post')
+    response = client.get('/api/v1/position/?exclude=position__post')
 
     assert response.status_code == status.HTTP_200_OK
-    assert "post" not in list(response.data["results"][0].keys())
+    assert "post" not in list(response.data["results"][0]["position"].keys())
 
 
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_field_params_fixture")
 def test_field_child_exclusion(client):
-    response = client.get('/api/v1/position/?exclude=post__id')
+    response = client.get('/api/v1/position/?exclude=position__post__id')
 
     assert response.status_code == status.HTTP_200_OK
-    assert "post" in list(response.data["results"][0].keys())
-    assert "id" not in list(response.data["results"][0]["post"].keys())
-    assert list(response.data["results"][0]["post"].keys()) != []
+    assert "post" in list(response.data["results"][0]["position"].keys())
+    assert "id" not in list(response.data["results"][0]["position"]["post"].keys())
+    assert list(response.data["results"][0]["position"]["post"].keys()) != []
