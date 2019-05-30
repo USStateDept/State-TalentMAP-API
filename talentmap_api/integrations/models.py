@@ -9,13 +9,27 @@ import defusedxml.lxml as ET
 from django.db import models
 from django.apps import apps
 from django.utils import timezone
+from django.contrib.postgres.fields import JSONField
 
 from requests.exceptions import Timeout as TimeoutException
 
 from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client, generate_soap_header
 from talentmap_api.common.xml_helpers import XMLloader
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 from talentmap_api.settings import get_delineated_environment_variable
+
+class ImportModel(models.Model):
+    '''
+    Represents a staging area for imported data consisting of a JSON representation of the XML returned
+    by a SOAP endpoint, the endpoint from which we are pulling the data, and a flag stating whether or not
+    the data has been imported.
+    '''
+    import_data = JSONField(default=dict, help_text="JSON object containing raw import data")
+    source_endpoint = models.TextField(help_text="The endpoint from which the data originated")
+    imported = models.BooleanField(default=False, help_text="Whether the the data has been imported")
+
+    class Meta:
+        managed = True
 
 
 class SynchronizationJob(models.Model):
@@ -140,6 +154,13 @@ class SynchronizationJob(models.Model):
                         break
                     data_elapsed_time = (datetime.datetime.now() - pre_data_time).total_seconds()
                     logger.info(f"Retrieved SOAP response in {data_elapsed_time} seconds")
+
+                    # Save response_xml into temp tables
+                    xml_tree = ET.fromstring(response_xml)
+                    xml_dict = xml_etree_to_dict(xml_tree)
+                    importIn = ImportModel(import_data=xml_dict, source_endpoint=soap_function_name, imported=False)
+                    importIn.save()
+
                     newer_ids, updateder_ids = loader.create_models_from_xml(response_xml, raw_string=True)
 
                     # If there are no new or updated ids on this page, we've reached the end
