@@ -18,6 +18,7 @@ from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 from talentmap_api.settings import get_delineated_environment_variable
 
+
 class ImportModel(models.Model):
     '''
     Represents a staging area for imported data consisting of a JSON representation of the XML returned
