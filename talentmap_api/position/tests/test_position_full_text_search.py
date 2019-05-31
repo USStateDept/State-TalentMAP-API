@@ -42,6 +42,6 @@ def test_position_fts_fixture():
     ("french doctor", 1),
 ])
 def test_available_filtering(client, term, expected_count):
-    response = client.get(f'/api/v1/position/?position__q={term}')
+    response = client.get(f'/api/v1/position/?q={term}')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == expected_count

@@ -12,6 +12,7 @@ from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel
+from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
@@ -30,6 +31,29 @@ class CyclePosition(StaticRepresentationModel):
     
     _cp_id = models.TextField(null=True)
     
+    @property
+    def similar_positions(self):
+        '''
+        Returns a query set of similar positions, using the base criteria.
+        If there are not at least 3 results, the criteria is loosened.
+        '''
+        base_criteria = {
+            "position__post__location__country__id": safe_navigation(self, "position.post.location.country.id"),
+            "position__skill__code": safe_navigation(self, "position.skill.code"),
+            "position__grade__code": safe_navigation(self, "position.grade.code"),
+        }
+
+        q_obj = models.Q(**base_criteria)
+        position_ids = CyclePosition.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        all_pos_queryset = CyclePosition.objects.filter(position_id__in=position_ids)
+        queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+
+        while queryset.count() < 3:
+            del base_criteria[list(base_criteria.keys())[0]]
+            q_obj = models.Q(**base_criteria)
+            queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+        return queryset
+
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date"]

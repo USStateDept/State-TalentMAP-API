@@ -83,18 +83,6 @@ class PositionBidStatisticsFilter(filters.FilterSet):
             "in_grade_at_skill": INTEGER_LOOKUPS
         }
 
-class CyclePositionFilter(filters.FilterSet):
-    position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
-    is_available_in_current_bidcycle = filters.Filter(name="no_handshake", method="filter_no_handshake")
-
-    def filter_no_handshake(self, queryset, name, value):
-        return queryset.filter(status_code="OP")
-
-    class Meta:
-        model = CyclePosition
-        fields = "__all__"
-
-
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
@@ -114,24 +102,23 @@ class PositionFilter(filters.FilterSet):
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
         fields=[
-            "position__title",
-            "position__organization__long_description",
-            "position__bureau__long_description",
-            "position__skill__description",
-            "position__skill__code",
-            "position__languages__language__long_description",
-            "position__languages__language__code",
-            "position__post__location__code",
-            "position__post__location__country__name",
-            "position__post__location__country__code",
-            "position__post__location__city",
-            "position__post__location__state",
-            "position__description__content",
-            "position__position_number"
+            "title",
+            "organization__long_description",
+            "bureau__long_description",
+            "skill__description",
+            "skill__code",
+            "languages__language__long_description",
+            "languages__language__code",
+            "post__location__code",
+            "post__location__country__name",
+            "post__location__country__code",
+            "post__location__city",
+            "post__location__state",
+            "description__content",
+            "position_number"
         ]
     ))
 
-    is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
 
     def filter_language_codes(self, queryset, name, value):
@@ -140,20 +127,10 @@ class PositionFilter(filters.FilterSet):
         If NONE is provided, all positions with no language requirement will also be returned
         '''
         langs = value.split(',')
-        query = Q(position__languages__language__code__in=langs)
+        query = Q(languages__language__code__in=langs)
         if 'NONE' in value:
-            query = query | Q(position__languages__isnull=True)
+            query = query | Q(languages__isnull=True)
         return queryset.filter(query).distinct()
-
-    def filter_available_in_bidcycle(self, queryset, name, value):
-        '''
-        Returns a queryset of all positions who are in the specified bidcycle(s)
-        '''
-        position_ids = []
-        q_obj = Q()
-        bidding_statuses = CyclePosition.objects.filter(bidcycle_id__in=value.split(','), bidcycle__active=True).filter(status_code__in=["OP", "HS"])
-        position_ids = bidding_statuses.values_list("position_id", flat=True)
-        return queryset.filter(id__in=position_ids)
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''

@@ -4,7 +4,6 @@ from django.db.models import Q
 
 from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.bidding.filters import BidCycleFilter
 
 
 from talentmap_api.language.models import Qualification, Proficiency, Language

@@ -264,3 +264,39 @@ class WaiverClientSerializer(PrefetchedSerializer):
         model = Waiver
         fields = "__all__"
         writable_fields = ("bid", "position", "type", "category", "description")
+
+class CyclePositionListSerializer(PrefetchedSerializer):
+    status = StaticRepresentationField(read_only=True)
+    status_code = StaticRepresentationField(read_only=True)
+    ted = StaticRepresentationField(read_only=True)
+
+    class Meta:
+        model = CyclePosition
+        fields = ["id", "status", "status_code", "ted"]
+        nested = {
+            "position": {
+                "class": "talentmap_api.position.serializers.PositionSerializer",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "bidcycle": {
+                "class": "talentmap_api.bidding.serializers.serializers.BidCycleSerializer",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "bid_statistics": {
+                "class": "talentmap_api.position.serializers.PositionBidStatisticsSerializer",
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "bid_cycle_statuses": {
+                "class": CyclePositionSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            }
+        }
