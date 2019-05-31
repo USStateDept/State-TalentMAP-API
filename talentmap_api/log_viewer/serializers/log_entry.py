@@ -10,4 +10,3 @@ class LogEntrySerializer(PrefetchedSerializer):
     class Meta:
         model = LogEntry
         fields = "__all__"
-        

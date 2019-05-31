@@ -7,7 +7,7 @@ class LogEntry(models.Model):
     '''
 
     text = models.TextField(null=True)
-    
+
     class Meta:
         managed = False
         ordering = ["text"]

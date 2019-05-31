@@ -21,7 +21,7 @@ class LogEntryListView(APIView):
         return Response(services.get_log_list())
 
 
-class LogEntryView(APIView):  
+class LogEntryView(APIView):
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     @classmethod
