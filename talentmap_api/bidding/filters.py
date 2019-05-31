@@ -91,6 +91,8 @@ class WaiverFilter(filters.FilterSet):
 
 class CyclePositionFilter(filters.FilterSet):
     position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
+    language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
+
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
         fields=[
@@ -112,6 +114,17 @@ class CyclePositionFilter(filters.FilterSet):
     ))
     is_available_in_current_bidcycle = filters.Filter(name="no_handshake", method="filter_no_handshake")
     is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
+
+    def filter_language_codes(self, queryset, name, value):
+        '''
+        Returns a queryset of all languages that match the codes provided.
+        If NONE is provided, all positions with no language requirement will also be returned
+        '''
+        langs = value.split(',')
+        query = Q(position__languages__language__code__in=langs)
+        if 'NONE' in value:
+            query = query | Q(position__languages__isnull=True)
+        return queryset.filter(query).distinct()
 
     def filter_no_handshake(self, queryset, name, value):
         return queryset.filter(status_code="OP")
