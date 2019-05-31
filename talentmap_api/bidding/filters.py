@@ -5,7 +5,7 @@ import rest_framework_filters as filters
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.models import Position
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS, NumberInFilter
 
 class BidCycleFilter(filters.FilterSet):
 
@@ -92,6 +92,7 @@ class WaiverFilter(filters.FilterSet):
 class CyclePositionFilter(filters.FilterSet):
     position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
     language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
+    has_id = NumberInFilter(name='id', lookup_expr='in')
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
