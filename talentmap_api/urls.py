@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
     url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
+    url(r'^api/v1/cycleposition/', include('talentmap_api.bidding.urls.cycleposition')),
 
     # FSBId
     url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
