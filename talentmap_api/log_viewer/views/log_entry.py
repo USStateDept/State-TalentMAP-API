@@ -6,8 +6,8 @@ import talentmap_api.log_viewer.services as services
 from rest_framework.response import Response
 from rest_framework import status
 
+
 class LogEntryListView(APIView):
-    
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     @classmethod
@@ -20,8 +20,8 @@ class LogEntryListView(APIView):
         '''
         return Response(services.get_log_list())
 
-class LogEntryView(APIView):
-    
+
+class LogEntryView(APIView):  
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     @classmethod
@@ -38,4 +38,3 @@ class LogEntryView(APIView):
             return Response(services.get_log(log_name))
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
-

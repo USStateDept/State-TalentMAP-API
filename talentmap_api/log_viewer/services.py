@@ -5,14 +5,16 @@ import os
 from talentmap_api.settings import get_delineated_environment_variable
 log_dir = get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/')
 
+
 def get_log_list():
     files = []
     for file in os.listdir(log_dir):
         files.append(file)
 
     return {
-        "data" : files
+        "data": files
     }
+
 
 def get_log(log_name):
     lines = ""
@@ -23,5 +25,5 @@ def get_log(log_name):
         return None
 
     return {
-        "data" : lines
+        "data": lines
     }
