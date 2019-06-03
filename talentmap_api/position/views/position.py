@@ -15,8 +15,8 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver, BiddingStatus
-from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
+from talentmap_api.bidding.models import Bid, Waiver, CyclePosition
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
@@ -54,32 +54,10 @@ class PositionListView(FieldLimitableSerializerMixin,
     filter_class = PositionFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):
-        position_ids = BiddingStatus.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+    def get_queryset(self):	   
+        position_ids = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
         queryset = Position.objects.filter(id__in=position_ids)
-        queryset = self.serializer_class.prefetch_model(Position, queryset)
-        return queryset
-
-
-class PositionBidListView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
-    """
-    list:
-    Return a list of all of the position's bids.
-    """
-
-    serializer_class = BidSerializer
-    filter_class = BidFilter
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
-
-    def get_queryset(self):
-        # Get the position based on the PK from the url
-        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        in_group_or_403(self.request.user, f"bureau_ao:{position.bureau.code}")
-        # Get the position's bids
-        queryset = position.bids
-        self.serializer_class.prefetch_model(Bid, queryset)
+        queryset = self.serializer_class.prefetch_model(Position, queryset)	
         return queryset
 
 

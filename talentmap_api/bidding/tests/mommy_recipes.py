@@ -1,7 +1,12 @@
 from model_mommy import mommy
+from model_mommy.recipe import Recipe
 
 from talentmap_api.bidding.models import BidCycle
 
+bidcycle = Recipe(
+    BidCycle,
+    active=True
+)
 
 def tz_aware_bidcycle():
     # Make a bidcycle with proper datetimes for TZ comparison
