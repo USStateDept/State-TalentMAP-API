@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.bidding.serializers.serializers import BidSerializer
-from talentmap_api.bidding.models import Bid, BidCycle
+from talentmap_api.bidding.models import Bid, BidCycle, CyclePosition
 from talentmap_api.bidding.filters import BidFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
@@ -100,10 +100,10 @@ class BidListPositionActionView(APIView):
         Adds a position to the user's bid list
         '''
         bidcycle = BidCycle.objects.filter(active=True).latest("cycle_start_date")
-        position = get_object_or_404(bidcycle.positions.all(), id=pk)
+        position = get_object_or_404(CyclePosition, id=pk)
 
         # Position must not already have a handshake or greater bid status
-        if not position.can_accept_new_bids(bidcycle)[0]:
+        if not position.position.can_accept_new_bids(bidcycle)[0]:
             return Response("Cannot bid on a position that already has a qualifying bid", status=status.HTTP_400_BAD_REQUEST)
 
         # For now, we use whatever the latest active bidcycle is
@@ -113,8 +113,8 @@ class BidListPositionActionView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
 
         # User cannot be retiring during the position's tour of duty
-        current_assignment = bid.position.current_assignment
-        if current_assignment and current_assignment.estimated_end_date + relativedelta(months=bid.position.post.tour_of_duty.months) > user.mandatory_retirement_date:
+        current_assignment = bid.position.position.current_assignment
+        if current_assignment and current_assignment.estimated_end_date + relativedelta(months=bid.position.position.post.tour_of_duty.months) > user.mandatory_retirement_date:
             return Response("Cannot bid on a position during which the user will retire", status=status.HTTP_400_BAD_REQUEST)
 
         logger.info(f"User {self.request.user.id}:{self.request.user} creating draft bid {bid}")

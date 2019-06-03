@@ -22,7 +22,7 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 
 from talentmap_api.settings import get_delineated_environment_variable
 
-from talentmap_api.bidding.models import BiddingStatus
+from talentmap_api.bidding.models import CyclePosition
 from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
@@ -472,7 +472,7 @@ def mode_cycles(last_updated_date=None):
             extant_cycle._positions_seq_nums.clear()
 
             if extant_cycle._cycle_status != new_status:
-                bidding_status = BiddingStatus.objects.filter(bidcycle=extant_cycle)
+                bidding_status = CyclePosition.objects.filter(bidcycle=extant_cycle)
                 if bidding_status:
                     if new_status == 'A':
                         bidding_status.update(status_code='OP', status='OP')
@@ -539,7 +539,7 @@ def mode_cycle_positions(last_updated_date=None):
 
         if position:
             updated_instances.append(position)
-            bidding_status, _ = BiddingStatus.objects.get_or_create(bidcycle=bc, position=position)
+            bidding_status, _ = CyclePosition.objects.get_or_create(bidcycle=bc, position=position, _cp_id=data["CP_ID"])
             bidding_status.status_code = data["STATUS_CODE"]
             bidding_status.status = data["STATUS"]
             bidding_status.save()

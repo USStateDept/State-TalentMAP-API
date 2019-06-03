@@ -10,7 +10,9 @@ from talentmap_api.bidding.models import Waiver
 @pytest.mark.django_db(transaction=True)
 def test_waiver_edit_methods(authorized_client, authorized_user):
     position = mommy.make("position.Position", id=1)
-    bid = mommy.make("bidding.Bid", user=authorized_user.profile, position=position, status="draft")
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    cp = mommy.make('bidding.CyclePosition', position=position, bidcycle=bidcycle)
+    bid = mommy.make("bidding.Bid", user=authorized_user.profile, position=cp, status="draft", bidcycle=bidcycle)
     assert Waiver.objects.all().count() == 0
 
     response = authorized_client.post('/api/v1/waiver/', data=json.dumps(
@@ -42,7 +44,9 @@ def test_waiver_edit_methods(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 def test_waiver_list_retrieve(authorized_client, authorized_user):
     position = mommy.make("position.Position", id=1)
-    bid = mommy.make("bidding.Bid", user=authorized_user.profile, position=position, status="draft")
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    cp = mommy.make('bidding.CyclePosition', position=position, bidcycle=bidcycle)
+    bid = mommy.make("bidding.Bid", user=authorized_user.profile, position=cp, status="draft", bidcycle=bidcycle)
     mommy.make('bidding.Waiver', bid=bid, position=position, user=authorized_user.profile, _quantity=3)
     response = authorized_client.get('/api/v1/waiver/')
 
@@ -70,7 +74,9 @@ def test_waiver_notifications(status, message_key, owner, authorized_client, aut
         profile.save()
 
     position = mommy.make("position.Position", id=1)
-    bid = mommy.make("bidding.Bid", user=profile, position=position, status="draft")
+    bc = mommy.make('bidding.BidCycle')
+    cp = mommy.make('bidding.CyclePosition', position=position, bidcycle=bc)
+    bid = mommy.make("bidding.Bid", user=profile, position=cp, bidcycle=bc, status="draft")
     waiver = mommy.make('bidding.Waiver', bid=bid, position=position, user=profile)
 
     waiver.status = status
