@@ -169,6 +169,7 @@ class PositionListSerializer(PrefetchedSerializer):
                         "danger_pay",
                         "location",
                         "tour_of_duty",
+                        "obc_id",
                     ],
                     "many": False,
                     "read_only": True
