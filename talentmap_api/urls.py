@@ -74,6 +74,9 @@ urlpatterns = [
 
     # Feedback
     url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
+
+    # Data sync services
+    url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
