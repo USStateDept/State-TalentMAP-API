@@ -31,7 +31,9 @@ class HomepageBannerView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gen
         Updates the HomepageBanner
         '''
         hpb = HomepageBanner.objects.first()
-        hpb.text = request.data.get('text')
-        hpb.is_visible = request.data.get('is_visible')
-        hpb.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = self.serializer_class(hpb, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
