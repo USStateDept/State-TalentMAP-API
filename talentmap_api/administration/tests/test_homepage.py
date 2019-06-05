@@ -25,6 +25,9 @@ def test_get_homepage_banner(authorized_client, authorized_user):
 @pytest.mark.usefixtures("test_homepage_banner_fixture")
 @pytest.mark.django_db(transaction=True)
 def test_patch_homepage_banner(authorized_client, authorized_user):
+  group = mommy.make('auth.Group', name='superuser')
+  group.user_set.add(authorized_user)
+
   homepage_banner = HomepageBanner.objects.first()
   
   data = {

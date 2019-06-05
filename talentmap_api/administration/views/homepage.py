@@ -14,7 +14,7 @@ from talentmap_api.administration.serializers.homepage import HomepageBannerSeri
 class HomepageBannerView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet, APIView):
 
     serializer_class = HomepageBannerSerializer
-    # permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
     
     def get_queryset(self):
         return HomepageBanner.objects.first()
