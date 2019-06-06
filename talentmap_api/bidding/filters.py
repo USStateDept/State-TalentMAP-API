@@ -134,19 +134,7 @@ class CyclePositionFilter(filters.FilterSet):
         '''
         Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
-        position_ids = []
-        q_obj = Q()
-        position_ids = CyclePosition.objects.filter(bidcycle_id__in=value.split(','), bidcycle__active=True, status_code__in=["OP", "HS"]).values_list("position_id", flat=True)
-        return queryset.filter(position_id__in=position_ids)
-
-    def filter_available_in_bidcycle(self, queryset, name, value):
-        '''
-        Returns a queryset of all positions who are in the specified bidcycle(s)
-        '''
-        position_ids = []
-        q_obj = Q()
-        position_ids = CyclePosition.objects.filter(bidcycle_id__in=value.split(','), bidcycle__active=True, status_code__in=["OP", "HS"]).values_list("position_id", flat=True)
-        return queryset.filter(position_id__in=position_ids)
+        return queryset.filter(bidcycle_id__in=value.split(','), bidcycle__active=True, status_code__in=["OP", "HS"])
 
     class Meta:
         model = CyclePosition
