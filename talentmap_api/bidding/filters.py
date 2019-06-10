@@ -93,6 +93,7 @@ class CyclePositionFilter(filters.FilterSet):
     position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
     language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
     has_id = NumberInFilter(name='id', lookup_expr='in')
+    is_domestic = filters.Filter(name='is_domestic', method='filter_is_domestic')
 
     # Full text search across multiple fields
     q = filters.CharFilter(name="position_number", method=full_text_search(
@@ -135,6 +136,9 @@ class CyclePositionFilter(filters.FilterSet):
         Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
         return queryset.filter(bidcycle_id__in=value.split(','), bidcycle__active=True, status_code__in=["OP", "HS"])
+    
+    def filter_is_domestic(self, queryset, name, value):
+        return queryset.filter(position__is_overseas=not value)
 
     class Meta:
         model = CyclePosition
