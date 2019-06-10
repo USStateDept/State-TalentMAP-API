@@ -110,7 +110,8 @@ class CyclePositionSerializer(PrefetchedSerializer):
     status = StaticRepresentationField(read_only=True)
     status_code = StaticRepresentationField(read_only=True)
     ted = StaticRepresentationField(read_only=True)
-    
+    posted_date = StaticRepresentationField(read_only=True)
+
     class Meta:
         model = CyclePosition
         fields = "__all__"
@@ -269,10 +270,11 @@ class CyclePositionListSerializer(PrefetchedSerializer):
     status = StaticRepresentationField(read_only=True)
     status_code = StaticRepresentationField(read_only=True)
     ted = StaticRepresentationField(read_only=True)
+    posted_date = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = CyclePosition
-        fields = ["id", "status", "status_code", "ted"]
+        fields = ["id", "status", "status_code", "ted", "posted_date"]
         nested = {
             "position": {
                 "class": "talentmap_api.position.serializers.PositionSerializer",
