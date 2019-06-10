@@ -524,7 +524,7 @@ def mode_cycle_positions(last_updated_date=None):
     def post_load_function(model, new_ids, updated_ids):
         # If we have any new or updated positions, update saved search counts
         if len(new_ids) + len(updated_ids) > 0:
-            SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
+            SavedSearch.update_counts_for_endpoint(endpoint='cycleposition', contains=True)
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         data = xml_etree_to_dict(tag)
@@ -542,8 +542,9 @@ def mode_cycle_positions(last_updated_date=None):
             cycle_position, _ = CyclePosition.objects.get_or_create(bidcycle=bc, position=position, _cp_id=data["CP_ID"])
             cycle_position.status_code = data["STATUS_CODE"]
             cycle_position.status = data["STATUS"]
-            cycle_position.created = data["DATE_CREATED"]
-            cycle.updated = data["DATE_UPDATED"]
+            cycle_position.created = ensure_date(data["DATE_CREATED"], utc_offset=-5)
+            cycle_position.updated = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+            cycle_position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
             position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
@@ -553,6 +554,7 @@ def mode_cycle_positions(last_updated_date=None):
                 if not tod:
                     tod = safe_navigation(position, "post.tour_of_duty")
                 if ted and tod and tod.months:
+                    cycle_position.ted = ted
                     start_date = ted - relativedelta(months=tod.months)
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
