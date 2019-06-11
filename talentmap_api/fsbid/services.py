@@ -56,7 +56,7 @@ def get_bid_status(statusCode, handshakeCode):
     if statusCode == 'C':
         return Bid.Status.closed
     if statusCode == 'P':
-        return Bid.Status.in_panel
+        return Bid.Status.approved
     if statusCode == 'W':
         return Bid.Status.draft
     if statusCode == 'A':
