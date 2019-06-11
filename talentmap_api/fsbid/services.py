@@ -26,7 +26,9 @@ def bid_on_position(userId, employeeId, cyclePositionId):
     '''
     Submits a bid on a position
     '''
-    return requests.post(f"{API_ROOT}/bids", data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId})
+    response = requests.post(f"{API_ROOT}/bids", data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId})
+    response.raise_for_status()
+    return response
 
 
 def remove_bid(employeeId, cyclePositionId):
