@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
+from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer, SkillSerializer, CurrentAssignmentSerializer
@@ -178,7 +178,7 @@ class UserProfileSerializer(PrefetchedSerializer):
                 }
             },
             "favorite_positions": {
-                "class": PositionSerializer,
+                "class": CyclePositionSerializer,
                 "kwargs": {
                     "override_fields": [
                         "id",

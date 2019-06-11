@@ -53,9 +53,10 @@ def favorite_position():
     pos = mommy.make(Position)
     pos.classifications.add(mommy.make(Classification))
     up = UserProfile.objects.last()
-    up.favorite_positions.add(pos)
+    cp = mommy.make(CyclePosition, position=pos)
+    up.favorite_positions.add(cp)
     up.save()
-    return pos
+    return cp
 
 
 def highlighted_position():
