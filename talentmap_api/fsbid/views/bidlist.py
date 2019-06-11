@@ -45,9 +45,11 @@ class FSBidListBidActionView(APIView):
         Submits a bid (sets status to A)
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A')
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+        try:
+            services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A')
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
 
 class FSBidListPositionActionView(APIView):
     '''
