@@ -105,3 +105,53 @@ class CyclePositionHighlightListView(FieldLimitableSerializerMixin,
         queryset = CyclePosition.objects.annotate(highlight_count=Count('position__highlighted_by_org')).filter(highlight_count__gt=0, bidcycle__active=True, status_code__in=["HS", "OP"])
         queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
+
+class CyclePositionFavoriteListView(FieldLimitableSerializerMixin,
+                               ReadOnlyModelViewSet):
+    """
+    list:
+    Return a list of all of the user's favorite cycle positions.
+    """
+
+    serializer_class = CyclePositionSerializer
+    filter_class = CyclePositionFilter
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
+        queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
+        return queryset
+
+class CyclePositionFavoriteActionView(APIView):
+    '''
+    Controls the favorite status of a cycle position
+
+    Responses adapted from Github gist 'stars' https://developer.github.com/v3/gists/#star-a-gist
+    '''
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, pk, format=None):
+        '''
+        Indicates if the cycle position is a favorite
+
+        Returns 204 if the cycle position is a favorite, otherwise, 404
+        '''
+        if UserProfile.objects.get(user=self.request.user).favorite_positions.filter(id=pk).exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk, format=None):
+        '''
+        Marks the cycle position as a favorite
+        '''
+        UserProfile.objects.get(user=self.request.user).favorite_positions.add(CyclePosition.objects.get(id=pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, pk, format=None):
+        '''
+        Removes the cycle position from favorites
+        '''
+        UserProfile.objects.get(user=self.request.user).favorite_positions.remove(CyclePosition.objects.get(id=pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)

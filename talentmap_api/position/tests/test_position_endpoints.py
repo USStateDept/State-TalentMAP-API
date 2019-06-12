@@ -189,31 +189,6 @@ def test_position_assignment_list(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data['results']) == 5
 
-
-@pytest.mark.django_db()
-def test_favorite_action_endpoints(authorized_client, authorized_user):
-    position = mommy.make_recipe('talentmap_api.position.tests.position')
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    response = authorized_client.put(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.delete(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
 @pytest.mark.django_db(transaction=True)
 def test_highlight_action_endpoints(authorized_client, authorized_user):
     bureau = mommy.make('organization.Organization', code="123456", short_description="Test Bureau")
