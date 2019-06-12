@@ -102,7 +102,7 @@ class CyclePositionHighlightListView(FieldLimitableSerializerMixin,
     filter_class = CyclePositionFilter
 
     def get_queryset(self):
-        queryset = CyclePosition.objects.annotate(highlight_count=Count('position__highlighted_by_org')).filter(highlight_count__gt=0)
+        queryset = CyclePosition.objects.annotate(highlight_count=Count('position__highlighted_by_org')).filter(highlight_count__gt=0, bidcycle__active=True, status_code__in=["HS", "OP"])
         queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
 
