@@ -221,7 +221,6 @@ def fsbid_pv_to_talentmap_pv(pv):
             "estimated_end_date": datetime.strptime(pv["ted"], "%m/%Y")
         },
         "position_number": pv["position_number"],
-        "posted_date": datetime.strptime(pv["createDate"], "%Y-%m-%d"),
         "title": pv["title"],
         "availability": {
             "availability": True,
