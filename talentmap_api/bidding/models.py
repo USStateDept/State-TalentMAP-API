@@ -26,6 +26,7 @@ class CyclePosition(StaticRepresentationModel):
     ted = models.DateTimeField(null=True, help_text="The ted date for the cycle position")
     created = models.DateTimeField(null=True, help_text="The created date for the cycle positon")
     updated = models.DateTimeField(null=True, help_text="The updated date for the cycle positon")
+    posted_date = models.DateTimeField(null=True, help_text="The posted date for the cycle positon")
     status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
     status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
     

@@ -21,13 +21,13 @@ parameterized_data = [
     # Bidcycle Endpoints
     ('/api/v1/bidcycle/', 'bidding.BidCycle', None, True),
     ('/api/v1/bidcycle/statistics/', 'bidding.BidCycle', tz_aware_bidcycle, False),
-
+    ('/api/v1/cycleposition/favorites/', 'bidding.CyclePosition', favorite_position, False),
+    
     # Position Endpoints
     ('/api/v1/position/', 'bidding.CyclePosition', cycle_position, False),
     ('/api/v1/skill/', 'position.Skill', 'talentmap_api.position.tests.skill', True),
     ('/api/v1/skill/cone/', 'position.SkillCone', None, True),
     ('/api/v1/grade/', 'position.Grade', 'talentmap_api.position.tests.grade', True),
-    ('/api/v1/position/favorites/', 'position.Position', favorite_position, False),
     ('/api/v1/position/highlighted/', 'position.Position', highlighted_position, False),
     ('/api/v1/capsule_description/', 'position.CapsuleDescription', None, True),
     ('/api/v1/position/classification/', 'position.Classification', None, True),
