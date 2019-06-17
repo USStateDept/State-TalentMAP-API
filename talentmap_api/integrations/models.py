@@ -159,7 +159,7 @@ class SynchronizationJob(models.Model):
                     # Save response_xml into temp tables
                     xml_tree = ET.fromstring(response_xml)
                     xml_dict = xml_etree_to_dict(xml_tree)
-                    importIn = ImportModel(import_data=xml_dict, source_endpoint=soap_function_name, imported=False)
+                    importIn = ImportModel(import_data=xml_dict, source_endpoint=self.talentmap_model, imported=False)
                     importIn.save()
 
                     newer_ids, updateder_ids = loader.create_models_from_xml(response_xml, raw_string=True)
