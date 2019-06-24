@@ -12,3 +12,11 @@ class HomepageBanner(StaticRepresentationModel):
     class Meta:
         managed = True
 
+class AboutPage(StaticRepresentationModel):
+    '''
+    About page content
+    '''
+    content = models.TextField(help_text="The content of the about page")
+
+    class Meta:
+        managed = True
