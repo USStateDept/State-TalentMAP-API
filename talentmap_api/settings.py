@@ -107,7 +107,6 @@ INSTALLED_APPS = [
     'simple_history',
 
     # TalentMap Apps
-    'talentmap_api.administration',
     'talentmap_api.common',
     'talentmap_api.position',
     'talentmap_api.language',

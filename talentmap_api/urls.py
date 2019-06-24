@@ -22,9 +22,6 @@ from djangosaml2.views import echo_attributes
 from talentmap_api.saml2.acs_patch import assertion_consumer_service
 
 urlpatterns = [
-    # Administration related resources
-    url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
-
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
     url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
