@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 
+from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.bidding.models import Bid
 
 logger = logging.getLogger(__name__)
@@ -135,15 +136,21 @@ def get_projected_vacancies(query, host=None):
     '''
     Gets projected vacancies from FSBid
     '''
-    response = requests.get(f"{API_ROOT}/projectedVacancies?{convert_pv_query(query)}").json()
-    projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["positions"])
+    response = requests.get(f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}").json()
+    projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
     return {
-       **get_pagination(query, response["pagination"]["count"], "/api/v1/fsbid/projected_vacancies/", host),
+       **get_pagination(query, get_projected_vacancies_count(query)['count'], "/api/v1/fsbid/projected_vacancies/", host),
        "results": projected_vacancies
     }
 
+def get_projected_vacancies_count(query, host=None):
+    '''
+    Gets the total number of PVs for a filterset
+    '''
+    response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
+    return { "count": response["Data"][0]["count(1)"] }
 
-def get_pagination(query, count, base_url, host=None, ):
+def get_pagination(query, count, base_url, host=None):
     '''
     Figures out all the pagination
     '''
@@ -169,18 +176,19 @@ def convert_pv_query(query):
     The TalentMap filters align with the position search filter naming
     '''
     values = {
-        "bsn_id": query.get("is_available_in_bidseason"),
-        "bureauCode": query.get("bureau__code__in"),
-        "dangerPay": query.get("post__danger_pay__in"),
-        "gradeCode": query.get("grade__code__in"),
-        "languageCode": query.get("language_codes"),
-        "postDifferential": query.get("post__differential_rate__in"),
-        "skillCode": query.get("skill__code__in"),
-        "tourOfDutyCode": query.get("post__tour_of_duty__code__in"),
-        "limit": query.get("limit", None),
-        "page": query.get("page", None),
-        "organizationCode": query.get("post__in"),
-        "positionNumber": query.get("position_number__in")
+        "fv_request_params.page_index": int(query.get("page", 0)) + 1,
+        "fv_request_params.page_size": query.get("limit", 25),
+        "fv_request_params.bid_seasons": query.get("is_available_in_bidseason"),
+        "fv_request_params.bureaus": query.get("bureau__code__in"),
+        "fv_request_params.danger_pays": query.get("post__danger_pay__in"),
+        "fv_request_params.grades": query.get("grade__code__in"),
+        "fv_request_params.languages": query.get("language_codes"),
+        "fv_request_params.differential_pays": query.get("post__differential_rate__in"),
+        "fv_request_params.skills": query.get("skill__code__in"),
+        "fv_request_params.tod_codes": query.get("post__tour_of_duty__code__in"),
+        "fv_request_params.location_codes": query.get("post__in"),
+        "fv_request_params.pos_numbers": query.get("position_number__in"),
+        "fv_request_params.freeText": query.get("q")
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
 
@@ -190,69 +198,63 @@ def fsbid_pv_to_talentmap_pv(pv):
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
     return {
-        "id": pv["pos_id"],
-        "grade": pv["grade"],
-        "skill": pv["skill"],
-        "bureau": pv["bureau"],
-        "organization": pv["organization"],
-        "tour_of_duty": pv["tour_of_duty"],
+        "id": pv["fv_seq_number"],
+        "grade": pv["pos_crade_code"],
+        "skill": pv["pos_skill_desc"],
+        "bureau": pv["bureau_desc"],
+        "organization": pv["post_org_country_state"],
+        "tour_of_duty": pv["tod"],
         "languages": [
             {
-                "language": pv["language1"],
-                "reading_proficiency": pv["reading_proficiency_1"],
-                "spoken_proficiency": pv["spoken_proficiency_1"],
-                "representation": pv["language_representation_1"]
-            }
+                "language": pv["lang1"],
+                "reading_proficiency": "",
+                "spoken_proficiency": "",
+                "representation": ""
+            },
+            {
+                "language": pv["lang2"],
+                "reading_proficiency": "",
+                "spoken_proficiency": "",
+                "representation": ""
+            },
         ],
         "post": {
-            "tour_of_duty": pv["tour_of_duty"],
-            "differential_rate": pv["differential_rate"],
-            "danger_pay": pv["danger_pay"],
+            "tour_of_duty": pv["tod"],
+            "differential_rate": pv["bt_differential_rate_num"],
+            "danger_pay": pv["bt_danger_pay_num"],
             "location": {
                 "id": 7,
-                "country": "United States",
-                "code": "171670031",
-                "city": "Chicago",
-                "state": "IL"
+                "country": "",
+                "code": "",
+                "city": "",
+                "state": ""
             }
         },
         "current_assignment": {
             "user": pv["incumbent"],
-            "estimated_end_date": datetime.strptime(pv["ted"], "%m/%Y")
+            "estimated_end_date": ensure_date(pv["ted"], utc_offset=-5)
         },
-        "position_number": pv["position_number"],
-        "title": pv["title"],
+        "position_number": pv["position"],
+        "title": pv["post_title_desc"],
         "availability": {
             "availability": True,
             "reason": ""
         },
         "bid_cycle_statuses": [
             {
-                "id": pv["pos_id"],
+                "id": pv["fv_seq_number"],
                 "bidcycle": pv["bsn_descr_text"],
-                "position": "[D0144910] SPECIAL AGENT (Chicago, IL)",
-                "status_code": "OP",
-                "status": "Open"
-            }
-        ],
-        "bid_statistics": [
-            {
-                "id": pv["pos_id"],
-                "bidcycle": pv["bsn_descr_text"],
-                "total_bids": 0,
-                "in_grade": 0,
-                "at_skill": 0,
-                "in_grade_at_skill": 0,
-                "has_handshake_offered": False,
-                "has_handshake_accepted": False
+                "position": pv["post_title_desc"],
+                "status_code": "",
+                "status": ""
             }
         ],
         "latest_bidcycle": {
             "id": 1,
             "name": pv["bsn_descr_text"],
-            "cycle_start_date": "2018-08-15T19:17:30.065379Z",
-            "cycle_deadline_date": "2019-03-27T00:00:00Z",
-            "cycle_end_date": "2019-05-16T00:00:00Z",
+            "cycle_start_date": "",
+            "cycle_deadline_date": "",
+            "cycle_end_date": "",
             "active": True
         }
     }
