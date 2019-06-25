@@ -516,7 +516,7 @@ def mode_cycle_positions(last_updated_date=None):
 
     # Response parsing data
     instance_tag = "availablePosition"
-    collision_field = ""
+    collision_field = "_cp_id"
     tag_map = {
 
     }
@@ -529,13 +529,13 @@ def mode_cycle_positions(last_updated_date=None):
     def override_loading_method(loader, tag, new_instances, updated_instances):
         data = xml_etree_to_dict(tag)
         # Find our matching bidcycle
-        bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
+        bc = loader.model.bidcycle.field.related_model.objects.filter(_id=data["CYCLE_ID"]).first()
         if bc:
             updated_instances.append(bc)
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
-        position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
+        position = loader.model.position.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
 
         if position:
             updated_instances.append(position)
@@ -591,7 +591,8 @@ MODEL_HELPER_MAP = {
     "organization.Post": [mode_posts],
     "language.Language": [mode_languages],
     "position.Position": [mode_positions],
-    "bidding.BidCycle": [mode_cycles, mode_cycle_positions],
+    "bidding.BidCycle": [mode_cycles],
+    "bidding.CyclePosition": [mode_cycle_positions],
 }
 
 
