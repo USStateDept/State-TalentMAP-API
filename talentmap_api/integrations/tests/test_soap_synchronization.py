@@ -33,13 +33,9 @@ def test_soap_integrations():
     assert Skill.objects.count() == 71
     assert SkillCone.objects.count() == 10
     assert Position.objects.count() == 10
-    assert BidCycle.objects.count() == 8
     assert BidCycle.objects.first().active == False
     assert BidCycle.objects.first()._cycle_status == 'C'
     assert BidCycle.objects.get(_id="151").active == True
-    assert BidCycle.objects.get(_id="147").positions.count() == 4
-    assert BidCycle.objects.get(_id="151").positions.count() == 6
-    assert CyclePosition.objects.count() == 20
 
     # Assert is_overseas
     assert Position.objects.get(_seq_num="1640").is_overseas == True

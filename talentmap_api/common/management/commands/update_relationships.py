@@ -23,7 +23,6 @@ class Command(BaseCommand):
             Post,
             Grade,
             SkillCone,
-            BidCycle,
         ]
 
     def handle(self, *args, **options):

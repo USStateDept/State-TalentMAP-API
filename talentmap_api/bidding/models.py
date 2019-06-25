@@ -97,11 +97,6 @@ class BidCycle(StaticRepresentationModel):
 
         return positions
 
-    def update_relationships(self):
-        # For each position in our _positions_seq_nums, find it and add it to our positions
-        pos = talentmap_api.position.models.Position.objects.filter(_seq_num__in=self._positions_seq_nums)
-        self.positions.add(*list(pos))
-
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
