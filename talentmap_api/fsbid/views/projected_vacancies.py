@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.fsbid.filters import ProjectedVacancyFilter
 
 import talentmap_api.fsbid.services as services
 
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 class FSBidProjectedVacanciesListView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
 
     @classmethod
     def get_extra_actions(cls):
