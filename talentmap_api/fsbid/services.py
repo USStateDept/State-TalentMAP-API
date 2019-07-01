@@ -1,5 +1,6 @@
 import requests
 import logging
+import re
 
 from datetime import datetime
 
@@ -176,8 +177,9 @@ def convert_pv_query(query):
     The TalentMap filters align with the position search filter naming
     '''
     values = {
-        "fv_request_params.page_index": int(query.get("page", 0)) + 1,
+        "fv_request_params.page_index": int(query.get("page", 1)),
         "fv_request_params.page_size": query.get("limit", 25),
+        "fv_request_params.freeText": query.get("q", None),
         "fv_request_params.bid_seasons": query.get("is_available_in_bidseason"),
         "fv_request_params.bureaus": query.get("bureau__code__in"),
         "fv_request_params.danger_pays": query.get("post__danger_pay__in"),
@@ -188,10 +190,26 @@ def convert_pv_query(query):
         "fv_request_params.tod_codes": query.get("post__tour_of_duty__code__in"),
         "fv_request_params.location_codes": query.get("post__in"),
         "fv_request_params.pos_numbers": query.get("position_number__in"),
-        "fv_request_params.freeText": query.get("q")
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
 
+# Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
+LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
+
+def parseLanguage(lang):
+    '''
+    Parses a language string from FSBid and turns it into what we want
+    The lang param comes in as something like "Spanish (3/3)"
+    '''
+    if lang:
+        match = LANG_PATTERN.search(lang)
+        if match:
+            language = {}
+            language["language"] = match.group(1)
+            language["reading_proficiency"] = match.group(2)
+            language["spoken_proficiency"] = match.group(3)
+            language["representation"] = match.group(0)
+            return language
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
@@ -199,24 +217,14 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     return {
         "id": pv["fv_seq_number"],
-        "grade": pv["pos_crade_code"],
+        "grade": pv["pos_grade_code"],
         "skill": pv["pos_skill_desc"],
         "bureau": pv["bureau_desc"],
         "organization": pv["post_org_country_state"],
         "tour_of_duty": pv["tod"],
         "languages": [
-            {
-                "language": pv["lang1"],
-                "reading_proficiency": "",
-                "spoken_proficiency": "",
-                "representation": ""
-            },
-            {
-                "language": pv["lang2"],
-                "reading_proficiency": "",
-                "spoken_proficiency": "",
-                "representation": ""
-            },
+            parseLanguage(pv["lang1"]),
+            parseLanguage(pv["lang2"]),
         ],
         "post": {
             "tour_of_duty": pv["tod"],
