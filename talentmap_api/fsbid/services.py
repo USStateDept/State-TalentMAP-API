@@ -222,10 +222,10 @@ def fsbid_pv_to_talentmap_pv(pv):
         "bureau": pv["bureau_desc"],
         "organization": pv["post_org_country_state"],
         "tour_of_duty": pv["tod"],
-        "languages": [
+        "languages": list(filter(None, [
             parseLanguage(pv["lang1"]),
             parseLanguage(pv["lang2"]),
-        ],
+        ]),
         "post": {
             "tour_of_duty": pv["tod"],
             "differential_rate": pv["bt_differential_rate_num"],
