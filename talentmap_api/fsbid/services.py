@@ -208,7 +208,7 @@ def parseLanguage(lang):
             language["language"] = match.group(1)
             language["reading_proficiency"] = match.group(2)
             language["spoken_proficiency"] = match.group(3)
-            language["representation"] = match.group(0)
+            language["representation"] = match.group(0).rstrip()
             return language
 
 def fsbid_pv_to_talentmap_pv(pv):
