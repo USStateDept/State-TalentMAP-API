@@ -22,7 +22,7 @@ pv = {
   "pos_job_category_desc":  "Management",
   "pos_grade_code": "OC",
   "bureau_desc": "(A)BUREAU OF ADMINISTRATION",
-  "lang1": "French (1/2)",
+  "lang1": "French(XX) 1/2",
   "lang2": "",
   "tod": "",
   "bt_differential_rate_num": "",
