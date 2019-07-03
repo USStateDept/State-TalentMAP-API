@@ -29,7 +29,7 @@ class ProjectedVacancyFavoriteListView(APIView):
             pos_nums = ','.join(pvs)
             return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}")))
         else:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({ "count":0, "next":None, "previous":None, "results":[] })
 
 
 class ProjectedVacancyFavoriteActionView(APIView):
