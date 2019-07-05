@@ -43,7 +43,7 @@ class CyclePositionListView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        queryset = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"])
+        queryset = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"], posted_date__isnull=False)
         queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
 
