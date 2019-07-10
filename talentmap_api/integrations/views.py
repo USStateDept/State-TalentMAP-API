@@ -1,10 +1,17 @@
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import mixins
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.core.management import call_command
 from talentmap_api.integrations.models import SynchronizationJob
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
+from talentmap_api.integrations.serializers import SynchronizationJobSerializer
+from talentmap_api.integrations.filters import SynchronizationJobFilter
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
@@ -110,3 +117,46 @@ class UpdateRelationshipsActionView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST, data=str(e))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DataSyncScheduleResetView(APIView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMember('superuser'))
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def post(self, request, format=None, **url_arguments):
+        '''
+        Resets schedule of data sync job if present, otherwise 404
+        '''
+        sync_job = get_object_or_404(SynchronizationJob, id=url_arguments.get("pk"))
+        tm_model = ""
+        if sync_job:
+            tm_model = sync_job.talentmap_model
+        logger.info(f"User {self.request.user.id}:{self.request.user} resetting data sync for {tm_model}")
+
+        call_command('schedule_synchronization_job', tm_model, '--reset')
+
+        return Response(data=tm_model)
+
+
+class DataSyncScheduleActionView(FieldLimitableSerializerMixin,
+                                 GenericViewSet,
+                                 mixins.UpdateModelMixin):
+
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMember('superuser'))
+    serializer_class = SynchronizationJobSerializer
+    filter_class = SynchronizationJobFilter
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def get_queryset(self):
+        return get_prefetched_filtered_queryset(SynchronizationJob, self.serializer_class)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        logger.info(f"User {self.request.user.id}:{self.request.user} updating sync job entry {instance}")
