@@ -11,7 +11,6 @@ from django.core.management import call_command
 from talentmap_api.integrations.models import SynchronizationJob
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.integrations.serializers import SynchronizationJobSerializer
-from talentmap_api.integrations.filters import SynchronizationJobFilter
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
@@ -148,7 +147,6 @@ class DataSyncScheduleActionView(FieldLimitableSerializerMixin,
 
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMember('superuser'))
     serializer_class = SynchronizationJobSerializer
-    # filter_class = SynchronizationJobFilter
 
     @classmethod
     def get_extra_actions(cls):
