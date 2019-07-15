@@ -148,7 +148,7 @@ class DataSyncScheduleActionView(FieldLimitableSerializerMixin,
 
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMember('superuser'))
     serializer_class = SynchronizationJobSerializer
-    filter_class = SynchronizationJobFilter
+    # filter_class = SynchronizationJobFilter
 
     @classmethod
     def get_extra_actions(cls):
