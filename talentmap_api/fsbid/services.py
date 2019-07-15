@@ -211,6 +211,7 @@ def convert_pv_query(query):
         "fv_request_params.tod_codes": query.get("post__tour_of_duty__code__in"),
         "fv_request_params.location_codes": query.get("post__in"),
         "fv_request_params.pos_numbers": query.get("position_number__in", None),
+        "fv_request_params.fv_seq_number": query.get("id", None),
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
 
