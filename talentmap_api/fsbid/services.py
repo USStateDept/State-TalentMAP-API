@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.bidding.models import Bid
-from talentmap_api.organization.models import Organization, OrganizationGroup
+from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 
 logger = logging.getLogger(__name__)
 
@@ -184,10 +184,28 @@ def bureau_values(query):
         func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
         results = results + list(func_bureau_codes)
     # Regional bureau filter
-    if query.get("bureau__code__in"):
-        regional_bureaus = query.get("bureau__code__in").split(",")
+    if query.get("position__bureau__code__in"):
+        regional_bureaus = query.get("position__bureau__code__in").split(",")
         reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
         results = results + list(reg_org_codes)
+    if len(results) > 0:
+        return ",".join(results)
+
+def post_values(query):
+    '''
+    Handles mapping locations and groups of locations to FSBid expected params
+    '''
+    results = []
+    if query.get("is_domestic") == "true":
+        domestic_codes = Post.objects.filter(location__country__code="USA").values_list("_location_code", flat=True)
+        results = results + list(domestic_codes)
+    if query.get("is_domestic") == "false":
+        overseas_codes = Post.objects.exclude(location__country__code="USA").values_list("_location_code", flat=True)
+        results = results + list(overseas_codes)
+    if query.get("position__post__in"):
+        post_ids = query.get("position__post__in")
+        location_codes = Post.objects.filter(id_in=post_ids).values_list("_location_code", flat=True)
+        results = results + list(location_codes)
     if len(results) > 0:
         return ",".join(results)
 
@@ -203,14 +221,14 @@ def convert_pv_query(query):
         "fv_request_params.freeText": query.get("q", None),
         "fv_request_params.bid_seasons": query.get("is_available_in_bidseason"),
         "fv_request_params.bureaus": bureau_values(query),
-        "fv_request_params.danger_pays": query.get("post__danger_pay__in"),
-        "fv_request_params.grades": query.get("grade__code__in"),
+        "fv_request_params.danger_pays": query.get("position__post__danger_pay__in"),
+        "fv_request_params.grades": query.get("position__grade__code__in"),
         "fv_request_params.languages": query.get("language_codes"),
-        "fv_request_params.differential_pays": query.get("post__differential_rate__in"),
-        "fv_request_params.skills": query.get("skill__code__in"),
-        "fv_request_params.tod_codes": query.get("post__tour_of_duty__code__in"),
-        "fv_request_params.location_codes": query.get("post__in"),
-        "fv_request_params.pos_numbers": query.get("position_number__in", None),
+        "fv_request_params.differential_pays": query.get("position__post__differential_rate__in"),
+        "fv_request_params.skills": query.get("position__skill__code__in"),
+        "fv_request_params.tod_codes": query.get("position__post__tour_of_duty__code__in"),
+        "fv_request_params.location_codes": post_values(query),
+        "fv_request_params.pos_numbers": query.get("position__position_number__in", None),
         "fv_request_params.fv_seq_number": query.get("id", None),
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
