@@ -1,7 +1,17 @@
 from model_mommy import mommy
+from model_mommy.recipe import Recipe, foreign_key
 
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, CyclePosition
 
+bidcycle = Recipe(
+    BidCycle,
+    active=True
+)
+
+cycleposition = Recipe(
+    CyclePosition,
+    bidcycle=foreign_key('bidcycle'),
+)
 
 def tz_aware_bidcycle():
     # Make a bidcycle with proper datetimes for TZ comparison

@@ -34,7 +34,7 @@ class BidUpdateView(mixins.UpdateModelMixin,
 
     def get_object(self):
         bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"), status__in=[Bid.Status.handshake_accepted, Bid.Status.in_panel])
-        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.bureau.code}')
+        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.position.bureau.code}')
         return bid
 
 
@@ -51,7 +51,7 @@ class BidListAOActionView(GenericViewSet):
         if prereq_status:
             bid = get_object_or_404(Bid, id=bid_id, status=prereq_status)
         # We must be an AO for the bureau for the bid's position
-        in_group_or_403(user, f'bureau_ao:{bid.position.bureau.code}')
+        in_group_or_403(user, f'bureau_ao:{bid.position.position.bureau.code}')
 
         logger.info(f"User {self.request.user.id}:{self.request.user} setting bid status for {bid} to {status}")
         bid.status = status
@@ -93,7 +93,7 @@ class BidListAOActionView(GenericViewSet):
         '''
         bid = get_object_or_404(Bid, id=pk)
         # We must be an AO for the bureau for the bid's position
-        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.bureau.code}')
+        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.position.bureau.code}')
 
         logger.info(f"User {self.request.user.id}:{self.request.user} self-assigning to bid {bid}")
         bid.reviewer = self.request.user.profile

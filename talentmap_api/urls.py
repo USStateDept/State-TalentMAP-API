@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
 
-
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
     url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
@@ -39,6 +38,7 @@ urlpatterns = [
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
     url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
+    url(r'^api/v1/cycleposition/', include('talentmap_api.bidding.urls.cycleposition')),
 
     # FSBId
     url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
