@@ -2,7 +2,9 @@ from model_mommy import mommy
 from model_mommy.recipe import Recipe, seq, foreign_key
 
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.bidding.models import BidCycle, CyclePosition
+from talentmap_api.bidding.tests.mommy_recipes import bidcycle
+
 from talentmap_api.position.models import Position, Grade, Skill, Classification, Assignment
 from talentmap_api.organization.tests.mommy_recipes import post, orphaned_organization
 
@@ -24,6 +26,12 @@ position = Recipe(
     bureau=foreign_key(orphaned_organization)
 )
 
+cyclePosition = Recipe(
+    CyclePosition,
+    position=foreign_key('position'),
+    bidcycle=foreign_key(bidcycle)
+)
+
 
 def bidcycle_positions(*args, **kwargs):
     pos = mommy.make(Position, *args, **kwargs)
@@ -36,14 +44,19 @@ def bidcycle_positions(*args, **kwargs):
         bidcycle.positions.add(pos)
     return pos
 
+def cycle_position(*args, **kwargs):
+    pos = mommy.make(Position, *args, **kwargs)
+    cycle = mommy.make(BidCycle, active=True)
+    return mommy.make(CyclePosition, position=pos, bidcycle=cycle)
 
 def favorite_position():
     pos = mommy.make(Position)
     pos.classifications.add(mommy.make(Classification))
     up = UserProfile.objects.last()
-    up.favorite_positions.add(pos)
+    cp = mommy.make(CyclePosition, position=pos)
+    up.favorite_positions.add(cp)
     up.save()
-    return pos
+    return cp
 
 
 def highlighted_position():

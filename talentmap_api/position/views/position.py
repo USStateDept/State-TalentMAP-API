@@ -15,8 +15,8 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDep
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver, BiddingStatus
-from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer
+from talentmap_api.bidding.models import Bid, Waiver, CyclePosition
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
 from talentmap_api.position.models import Position, Classification, Assignment
@@ -54,32 +54,10 @@ class PositionListView(FieldLimitableSerializerMixin,
     filter_class = PositionFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):
-        position_ids = BiddingStatus.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+    def get_queryset(self):	   
+        position_ids = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
         queryset = Position.objects.filter(id__in=position_ids)
-        queryset = self.serializer_class.prefetch_model(Position, queryset)
-        return queryset
-
-
-class PositionBidListView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
-    """
-    list:
-    Return a list of all of the position's bids.
-    """
-
-    serializer_class = BidSerializer
-    filter_class = BidFilter
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
-
-    def get_queryset(self):
-        # Get the position based on the PK from the url
-        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        in_group_or_403(self.request.user, f"bureau_ao:{position.bureau.code}")
-        # Get the position's bids
-        queryset = position.bids
-        self.serializer_class.prefetch_model(Bid, queryset)
+        queryset = self.serializer_class.prefetch_model(Position, queryset)	
         return queryset
 
 
@@ -187,24 +165,6 @@ class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
         self.serializer_class.prefetch_model(Assignment, queryset)
         return queryset
 
-
-class PositionFavoriteListView(FieldLimitableSerializerMixin,
-                               ReadOnlyModelViewSet):
-    """
-    list:
-    Return a list of all of the user's favorite positions.
-    """
-
-    serializer_class = PositionSerializer
-    filter_class = PositionFilter
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
-        queryset = self.serializer_class.prefetch_model(Position, queryset)
-        return queryset
-
-
 class PositionHighlightListView(FieldLimitableSerializerMixin,
                                 ReadOnlyModelViewSet):
     """
@@ -219,42 +179,6 @@ class PositionHighlightListView(FieldLimitableSerializerMixin,
         queryset = Position.objects.annotate(highlight_count=Count('highlighted_by_org')).filter(highlight_count__gt=0)
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
-
-
-class PositionFavoriteActionView(APIView):
-    '''
-    Controls the favorite status of a position
-
-    Responses adapted from Github gist 'stars' https://developer.github.com/v3/gists/#star-a-gist
-    '''
-
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, pk, format=None):
-        '''
-        Indicates if the position is a favorite
-
-        Returns 204 if the position is a favorite, otherwise, 404
-        '''
-        if UserProfile.objects.get(user=self.request.user).favorite_positions.filter(id=pk).exists():
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, pk, format=None):
-        '''
-        Marks the position as a favorite
-        '''
-        UserProfile.objects.get(user=self.request.user).favorite_positions.add(Position.objects.get(id=pk))
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    def delete(self, request, pk, format=None):
-        '''
-        Removes the position from favorites
-        '''
-        UserProfile.objects.get(user=self.request.user).favorite_positions.remove(Position.objects.get(id=pk))
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class PositionHighlightActionView(APIView):
     '''
