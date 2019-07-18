@@ -239,53 +239,65 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     return {
         "id": pv["fv_seq_number"],
-        "grade": pv["pos_grade_code"],
-        "skill": pv["pos_skill_desc"],
-        "bureau": pv["bureau_desc"],
-        "organization": pv["post_org_country_state"],
-        "tour_of_duty": pv["tod"],
-        "languages": list(filter(None, [
-            parseLanguage(pv["lang1"]),
-            parseLanguage(pv["lang2"]),
-        ])),
-        "post": {
-            "tour_of_duty": pv["tod"],
-            "differential_rate": pv["bt_differential_rate_num"],
-            "danger_pay": pv["bt_danger_pay_num"],
-            "location": {
-                "id": 7,
-                "country": "",
-                "code": "",
-                "city": "",
-                "state": ""
-            }
-        },
-        "current_assignment": {
-            "user": pv["incumbent"],
-            "estimated_end_date": ensure_date(pv["ted"], utc_offset=-5)
-        },
-        "position_number": pv["position"],
-        "title": pv["post_title_desc"],
-        "availability": {
-            "availability": True,
-            "reason": ""
-        },
-        "bid_cycle_statuses": [
-            {
-                "id": pv["fv_seq_number"],
-                "bidcycle": pv["bsn_descr_text"],
-                "position": pv["post_title_desc"],
-                "status_code": "",
-                "status": ""
-            }
-        ],
-        "latest_bidcycle": {
-            "id": 1,
+        "ted": ensure_date(pv["ted"], utc_offset=-5),
+        "bidcycle": {
+            "id": pv["bsn_id"],
             "name": pv["bsn_descr_text"],
             "cycle_start_date": "",
             "cycle_deadline_date": "",
             "cycle_end_date": "",
             "active": True
+        },
+        "position": {
+            
+            "grade": pv["pos_grade_code"],
+            "skill": pv["pos_skill_desc"],
+            "bureau": pv["bureau_desc"],
+            "organization": pv["post_org_country_state"],
+            "tour_of_duty": pv["tod"],
+            "languages": list(filter(None, [
+                parseLanguage(pv["lang1"]),
+                parseLanguage(pv["lang2"]),
+            ])),
+            "post": {
+                "tour_of_duty": pv["tod"],
+                "differential_rate": pv["bt_differential_rate_num"],
+                "danger_pay": pv["bt_danger_pay_num"],
+                "location": {
+                    "id": 7,
+                    "country": "",
+                    "code": "",
+                    "city": "",
+                    "state": ""
+                }
+            },
+            "current_assignment": {
+                "user": pv["incumbent"],
+                "estimated_end_date": ensure_date(pv["ted"], utc_offset=-5)
+            },
+            "position_number": pv["position"],
+            "title": pv["post_title_desc"],
+            "availability": {
+                "availability": True,
+                "reason": ""
+            },
+            "bid_cycle_statuses": [
+                {
+                    "id": pv["fv_seq_number"],
+                    "bidcycle": pv["bsn_descr_text"],
+                    "position": pv["post_title_desc"],
+                    "status_code": "",
+                    "status": ""
+                }
+            ],
+            "latest_bidcycle": {
+                "id": pv["bsn_id"],
+                "name": pv["bsn_descr_text"],
+                "cycle_start_date": "",
+                "cycle_deadline_date": "",
+                "cycle_end_date": "",
+                "active": True
+            }
         }
     }
 
