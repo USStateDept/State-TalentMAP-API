@@ -36,11 +36,11 @@ class DataSyncListView(APIView):
         for job in job_list:
             j = {}
             j['id'] = job.id
-            j['last_sync'] = job.last_synchronization
-            j['delta_sync'] = job.delta_synchronization
+            j['last_synchronization'] = job.last_synchronization
+            j['delta_synchronization'] = job.delta_synchronization
             j['running'] = job.running
             j['talentmap_model'] = job.talentmap_model
-            j['next_sync'] = job.next_synchronization
+            j['next_synchronization'] = job.next_synchronization
             j['priority'] = job.priority
             j['use_last_date_updated'] = job.use_last_date_updated
             str_jobs.append(j)
