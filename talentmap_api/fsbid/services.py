@@ -203,7 +203,7 @@ def post_values(query):
         overseas_codes = Post.objects.exclude(location__country__code="USA").values_list("_location_code", flat=True)
         results = results + list(overseas_codes)
     if query.get("position__post__in"):
-        post_ids = query.get("position__post__in")
+        post_ids = query.get("position__post__in").split(",")
         location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
         results = results + list(location_codes)
     if len(results) > 0:
