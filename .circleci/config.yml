@@ -137,24 +137,7 @@ jobs:
           command: docker cp zap:/zap/wrk/zap_results.md zap_results.md
       - store_artifacts:
           path: zap_results.md
-          destination: zap/zap_results.md
-  push-stable:
-    docker:
-      - *default-python-node
-    steps:
-      - setup_remote_docker
-      - run:
-          name:
-          command: |
-            BRANCH=${CIRCLE_BRANCH//\//-}
-            TAG=$BRANCH-$CIRCLE_SHA1
-            LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
-            LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
-            LOWERCASE_BRANCH_NAME=$(echo "$BRANCH" | awk '{print tolower($0)}')
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
-            docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
-            docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME         
+          destination: zap/zap_results.md        
 workflows:
   version: 2
   build_and_test:
@@ -177,9 +160,3 @@ workflows:
               only: /^zap.*/
             branches:
               ignore: /.*/
-      - push-stable:
-          requires:
-            - docker-build
-            - pytest
-            - bandit
-            - zap
