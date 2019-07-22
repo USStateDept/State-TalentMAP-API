@@ -17,8 +17,14 @@ def test_bidlist_fixture():
         bidcycle.positions.add(mommy.make('position.Position'))
 
 
+@pytest.fixture
+def test_bidder_fixture(authorized_user):
+    group = mommy.make('auth.Group', name='bidder')
+    group.user_set.add(authorized_user)
+
+
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bid_bidder_actions(authorized_client, authorized_user):
     in_cycle_position = BidCycle.objects.first().positions.first()
 
@@ -90,9 +96,9 @@ def test_bid_bidder_actions(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bid_bidder_priority_restrictions(authorized_client, authorized_user):
-    in_cycle_position = BidCycle.objects.first().positions.first()
+    in_cycle_position = mommy.make('bidding.CyclePosition', bidcycle=BidCycle.objects.first(), position=BidCycle.objects.first().positions.first())
 
     # Put the position into the bidlist
     response = authorized_client.put(f'/api/v1/bidlist/position/{in_cycle_position.id}/')
@@ -106,7 +112,7 @@ def test_bid_bidder_priority_restrictions(authorized_client, authorized_user):
 
     bid = Bid.objects.get(id=response.data["results"][0]["id"])
     assert bid.status == Bid.Status.draft
-    assert bid.position.id == in_cycle_position.id
+    assert bid.position.position.id == in_cycle_position.position.id
     assert bid.draft_date.date() == timezone.now().date()
     assert bid.submitted_date is None
     assert not bid.is_priority
@@ -135,11 +141,13 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
     bureau = mommy.make('organization.Organization', code='12345')
 
-    in_bureau_position = mommy.make('position.Position', bureau=bureau)
-    out_of_bureau_position = mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
+    in_bureau_pos = mommy.make('position.Position', bureau=bureau)
+    in_bureau_position = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=in_bureau_pos)
+    out_of_bureau_pos= mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
+    out_of_bureau_position = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=out_of_bureau_pos)
 
-    bidcycle.positions.add(in_bureau_position)
-    bidcycle.positions.add(out_of_bureau_position)
+    bidcycle.positions.add(in_bureau_pos)
+    bidcycle.positions.add(out_of_bureau_pos)
 
     in_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=in_bureau_position, bidcycle=bidcycle, status=Bid.Status.draft)
     out_of_bureau_bid = mommy.make(Bid, user=mommy.make('auth.User').profile, position=out_of_bureau_position, bidcycle=bidcycle, status=Bid.Status.submitted)
@@ -147,7 +155,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     # Give our user appropriate permissions
     group = mommy.make('auth.Group', name='bureau_ao')
     group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group = mommy.make('auth.Group', name=f'bureau_ao:{bureau.code}')
     group.user_set.add(authorized_user)
 
     # Assign the bid to us
@@ -175,6 +183,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     in_bureau_bid.refresh_from_db()
     assert in_bureau_bid.status == Bid.Status.handshake_offered
     assert in_bureau_bid.handshake_offered_date.date() == timezone.now().date()
+    assert not in_bureau_bid.can_delete
 
     # Accept the handshakes
     in_bureau_bid.status = Bid.Status.handshake_accepted
@@ -196,6 +205,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.in_panel_date.date() == timezone.now().date()
     assert in_bureau_bid.scheduled_panel_date == panel_date.astimezone(datetime.timezone.utc)
     assert not in_bureau_bid.is_paneling_today
+    assert not in_bureau_bid.can_delete
     assert in_bureau_bid.is_priority
     assert in_bureau_bid.panel_reschedule_count == 0
 
@@ -211,6 +221,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.in_panel_date.date() == timezone.now().date()
     assert in_bureau_bid.scheduled_panel_date == today.astimezone(datetime.timezone.utc)
     assert in_bureau_bid.is_paneling_today
+    assert not in_bureau_bid.can_delete
     assert in_bureau_bid.panel_reschedule_count == 1
 
     # Patch an out-of-bureau bid
@@ -231,6 +242,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.approved
     assert in_bureau_bid.approved_date.date() == timezone.now().date()
     assert in_bureau_bid.is_priority
+    assert not in_bureau_bid.can_delete
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/approve/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -243,20 +255,22 @@ def test_bid_ao_actions(authorized_client, authorized_user):
     assert in_bureau_bid.status == Bid.Status.declined
     assert in_bureau_bid.declined_date.date() == timezone.now().date()
     assert not in_bureau_bid.is_priority
+    assert not in_bureau_bid.can_delete
 
     response = authorized_client.get(f'/api/v1/bid/{out_of_bureau_bid.id}/decline/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.usefixtures("test_bidlist_fixture")
+@pytest.mark.usefixtures("test_bidlist_fixture", "test_bidder_fixture")
 def test_bidlist_max_submissions(authorized_client, authorized_user):
     bidcycle = BidCycle.objects.get(id=1)
     position = mommy.make('position.Position')
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
     bidcycle.positions.add(position)
-    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, position=position, _quantity=10)
+    mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.submitted, position=cp, _quantity=10)
 
-    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft, position=position)
+    bid = mommy.make(Bid, user=authorized_user.profile, bidcycle=bidcycle, status=Bid.Status.draft, position=cp)
 
     # Submit our bid - this should fail as we will exceed the amount of allowable submissions!
     response = authorized_client.get(f'/api/v1/bid/{bid.id}/submit/')

@@ -3,7 +3,7 @@ version: 2.0
 default-python-node: &default-python-node
   image: circleci/python:3.6.1
   environment:
-    CC_TEST_REPORTER_ID: 61cf394238222f3d820e702a4679e5bac871cf7fd9395ee614d3d4e4afcd5a4f
+    CC_TEST_REPORTER_ID: b267008efa014a2c3a1ed266efebeb68bad762a948a54a443b4de581a92c45b0
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
 default-postgres-node: &default-postgres-node
   image: circleci/postgres:9.6.2
@@ -37,7 +37,8 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             IMAGE_NAME="talentmap/${CIRCLE_PROJECT_REPONAME}:${TAG}"
             LOWERCASE_IMAGE_NAME=$(echo "$IMAGE_NAME" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -100,7 +101,8 @@ jobs:
       - run:
           name: Replace placeholders in Compose file
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
             sed -i "s#@@REPO_NAME@@#${LOWERCASE_REPO_NAME}#g" $COMPOSE_FILE_NAME
@@ -143,19 +145,33 @@ jobs:
       - run:
           name:
           command: |
-            TAG=$CIRCLE_BRANCH-$CIRCLE_SHA1
+            BRANCH=${CIRCLE_BRANCH//\//-}
+            TAG=$BRANCH-$CIRCLE_SHA1
             LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
             LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
-            LOWERCASE_BRANCH_NAME=$(echo "$CIRCLE_BRANCH" | awk '{print tolower($0)}')
+            LOWERCASE_BRANCH_NAME=$(echo "$BRANCH" | awk '{print tolower($0)}')
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
             docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
             docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
+  deploy:
+    docker:
+      - *default-python-node
+    steps:
+      - add_ssh_keys
+      - run:
+          command: ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-175-193-118.compute-1.amazonaws.com ./deploy.sh          
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
+      - deploy:
+          requires:
+            - pytest
+          filters:
+            branches:
+              only: dev
       - docker-build:
           requires:
             - build

@@ -31,7 +31,6 @@ djangosaml2==0.16.11
 drf-extensions==0.3.1
 freezegun==0.3.10
 future==0.16.0
-gevent==1.2.2
 gitdb2==2.0.3
 GitPython==2.1.7
 greenlet==0.4.13
@@ -63,7 +62,6 @@ pytest-cov==2.5.1
 pytest-django==3.1.2
 python-dateutil==2.7.2
 pytz==2018.3
-PyYAML==3.12
 pyzmq==17.0.0
 repoze.who==2.3
 requests==2.18.4

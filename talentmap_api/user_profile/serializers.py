@@ -2,10 +2,10 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
+from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
+from talentmap_api.position.serializers import PositionSerializer, SkillSerializer, CurrentAssignmentSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 
 from django.contrib.auth.models import User
@@ -16,6 +16,32 @@ class UserSerializer(PrefetchedSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "first_name", "last_name"]
+
+
+class UserProfilePublicSerializer(PrefetchedSerializer):
+    current_assignment = serializers.SerializerMethodField()
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
+
+    def get_current_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
+
+    class Meta:
+        model = UserProfile
+        fields = ["first_name", "last_name", "email", "current_assignment", "skills"]
+        nested = {
+            "skills": {
+                "class": SkillSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            }
+        }
 
 
 class UserProfileShortSerializer(PrefetchedSerializer):
@@ -47,9 +73,15 @@ class ClientSerializer(PrefetchedSerializer):
         else:
             return None
 
+    def get_assignment(self, obj):
+        if obj.assignments.count() > 0:
+            return str(obj.assignments.latest('start_date'))
+        else:
+            return None
+
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
+        fields = ["id", "current_assignment", "assignments", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -77,6 +109,13 @@ class ClientSerializer(PrefetchedSerializer):
             },
             "skills": {
                 "class": SkillSerializer,
+                "kwargs": {
+                    "many": True,
+                    "read_only": True
+                }
+            },
+            "assignments": {
+                "class": CurrentAssignmentSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -139,7 +178,7 @@ class UserProfileSerializer(PrefetchedSerializer):
                 }
             },
             "favorite_positions": {
-                "class": PositionSerializer,
+                "class": CyclePositionSerializer,
                 "kwargs": {
                     "override_fields": [
                         "id",
