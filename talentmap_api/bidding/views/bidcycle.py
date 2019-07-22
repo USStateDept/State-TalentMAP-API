@@ -10,7 +10,7 @@ from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.position.serializers import PositionSerializer, Position
+from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.position.filters import PositionFilter
 
 from talentmap_api.position.models import Position

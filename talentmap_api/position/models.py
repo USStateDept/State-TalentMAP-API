@@ -239,6 +239,7 @@ class PositionBidStatistics(StaticRepresentationModel):
     class Meta:
         managed = True
 
+
 class CapsuleDescription(StaticRepresentationModel):
     '''
     Represents a capsule description, describing the associated object in plain English

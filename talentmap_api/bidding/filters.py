@@ -55,6 +55,7 @@ class UserBidStatisticsFilter(filters.FilterSet):
             "bidcycle": FOREIGN_KEY_LOOKUPS
         }
 
+
 class StatusSurveyFilter(filters.FilterSet):
     bidcycle = filters.RelatedFilter(BidCycleFilter, name='bidcycle', queryset=BidCycle.objects.all())
 
