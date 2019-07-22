@@ -5,6 +5,7 @@ default-python-node: &default-python-node
   environment:
     CC_TEST_REPORTER_ID: b267008efa014a2c3a1ed266efebeb68bad762a948a54a443b4de581a92c45b0
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
+    DJANGO_SECRET_KEY: ci_secret_key
 default-postgres-node: &default-postgres-node
   image: circleci/postgres:9.6.2
   environment:
@@ -28,22 +29,6 @@ jobs:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - "venv"
-  docker-build:
-    docker:
-      - *default-python-node
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run:
-          name: Docker Build
-          command: |
-            BRANCH=${CIRCLE_BRANCH//\//-}
-            TAG=$BRANCH-$CIRCLE_SHA1
-            IMAGE_NAME="talentmap/${CIRCLE_PROJECT_REPONAME}:${TAG}"
-            LOWERCASE_IMAGE_NAME=$(echo "$IMAGE_NAME" | awk '{print tolower($0)}')
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker build -t $LOWERCASE_IMAGE_NAME .
-            docker push $LOWERCASE_IMAGE_NAME
   bandit:
     docker:
       - *default-python-node
@@ -95,18 +80,8 @@ jobs:
     docker:
       - *default-python-node
     steps:
-      - setup_remote_docker
       - checkout
       - run: chmod +x wait-for-postgres.sh
-      - run:
-          name: Replace placeholders in Compose file
-          command: |
-            BRANCH=${CIRCLE_BRANCH//\//-}
-            TAG=$BRANCH-$CIRCLE_SHA1
-            LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
-            LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
-            sed -i "s#@@REPO_NAME@@#${LOWERCASE_REPO_NAME}#g" $COMPOSE_FILE_NAME
-            sed -i "s#@@LABEL@@#${LOWERCASE_TAG}#g" $COMPOSE_FILE_NAME
       - run:
           name: Initialize Dummy Data Container
           command: |
@@ -136,45 +111,12 @@ jobs:
           command: docker cp zap:/zap/wrk/zap_results.md zap_results.md
       - store_artifacts:
           path: zap_results.md
-          destination: zap/zap_results.md
-  push-stable:
-    docker:
-      - *default-python-node
-    steps:
-      - setup_remote_docker
-      - run:
-          name:
-          command: |
-            BRANCH=${CIRCLE_BRANCH//\//-}
-            TAG=$BRANCH-$CIRCLE_SHA1
-            LOWERCASE_TAG=$(echo "$TAG" | awk '{print tolower($0)}')
-            LOWERCASE_REPO_NAME=$(echo "$CIRCLE_PROJECT_REPONAME" | awk '{print tolower($0)}')
-            LOWERCASE_BRANCH_NAME=$(echo "$BRANCH" | awk '{print tolower($0)}')
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker pull talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG
-            docker tag talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_TAG talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
-            docker push talentmap/$LOWERCASE_REPO_NAME:$LOWERCASE_BRANCH_NAME
-  deploy:
-    docker:
-      - *default-python-node
-    steps:
-      - add_ssh_keys
-      - run:
-          command: ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-175-193-118.compute-1.amazonaws.com ./deploy.sh          
+          destination: zap/zap_results.md        
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
-      - deploy:
-          requires:
-            - pytest
-          filters:
-            branches:
-              only: dev
-      - docker-build:
-          requires:
-            - build
       - bandit:
           requires:
             - build
@@ -182,16 +124,8 @@ workflows:
           requires:
             - build
       - zap:
-          requires:
-            - docker-build
           filters:
             tags:
               only: /^zap.*/
             branches:
               ignore: /.*/
-      - push-stable:
-          requires:
-            - docker-build
-            - pytest
-            - bandit
-            - zap
