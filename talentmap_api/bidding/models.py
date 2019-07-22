@@ -29,7 +29,11 @@ class CyclePosition(StaticRepresentationModel):
     posted_date = models.DateTimeField(null=True, help_text="The posted date for the cycle positon")
     status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
     status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
-    
+
+    is_urgent_vacancy = models.BooleanField(default=False)
+    is_volunteer = models.BooleanField(default=False)
+    is_hard_to_fill = models.BooleanField(default=False)
+
     _cp_id = models.TextField(null=True)
     
     @property

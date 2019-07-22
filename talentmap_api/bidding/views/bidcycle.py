@@ -10,12 +10,12 @@ from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.position.serializers import PositionSerializer, Position, PositionDesignationSerializer
+from talentmap_api.position.serializers import PositionSerializer, Position
 from talentmap_api.position.filters import PositionFilter
 
-from talentmap_api.position.models import Position, PositionBidStatistics
+from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle, CyclePosition
-from talentmap_api.bidding.filters import BidCycleFilter, PositionDesignationFilter
+from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
 
@@ -145,41 +145,4 @@ class BidCycleStatisticsView(mixins.ListModelMixin,
     def get_queryset(self):
         queryset = BidCycle.objects.all()
         queryset = self.serializer_class.prefetch_model(BidCycle, queryset)
-        return queryset
-
-class BidCyclePositionDesignationActionView(mixins.RetrieveModelMixin,
-                                            mixins.UpdateModelMixin,
-                                            FieldLimitableSerializerMixin,
-                                            GenericViewSet):
-    '''
-    retrieve:
-    Returns a specific bid cycle position designation
-
-    partial_update:
-    Updates a bid cycle's position designation
-    '''
-    serializer_class = PositionDesignationSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        position = get_object_or_404(Position, id=self.kwargs['pos_id'])
-        bidcycle = get_object_or_404(BidCycle, id=self.kwargs['pk'])
-        queryset = PositionBidStatistics.objects.filter(position=position, bidcycle=bidcycle)
-        queryset = self.serializer_class.prefetch_model(PositionBidStatistics, queryset)
-        return queryset
-
-class BidCycleListPositionDesignationView(mixins.ListModelMixin,
-                                          GenericViewSet):
-    '''
-    list:
-    Returns all bid cycle position designations
-    '''
-    serializer_class = PositionDesignationSerializer
-    filter_class = PositionDesignationFilter
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        bidcycle = get_object_or_404(BidCycle, id=self.kwargs['pk'])
-        queryset = PositionBidStatistics.objects.filter(bidcycle=bidcycle)
-        queryset = self.serializer_class.prefetch_model(PositionBidStatistics, queryset)
         return queryset

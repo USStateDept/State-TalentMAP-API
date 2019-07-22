@@ -107,15 +107,6 @@ class PositionBidStatisticsSerializer(PrefetchedSerializer):
         exclude = ("position",)
 
 
-class PositionDesignationSerializer(PrefetchedSerializer):
-    bidcycle = StaticRepresentationField(read_only=True)
-    position = StaticRepresentationField(read_only=True)
-
-    class Meta:
-        model = PositionBidStatistics
-        fields = "__all__"
-        writable_fields = ("is_urgent_vacancy", "is_volunteer", "is_hard_to_fill")
-
 class PositionListSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     skill = StaticRepresentationField(read_only=True)

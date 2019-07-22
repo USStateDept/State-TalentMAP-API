@@ -4,7 +4,7 @@ import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.position.models import Position, PositionBidStatistics
+from talentmap_api.position.models import Position
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS, NumberInFilter
 
 class BidCycleFilter(filters.FilterSet):
@@ -52,20 +52,6 @@ class UserBidStatisticsFilter(filters.FilterSet):
             "approved": INTEGER_LOOKUPS,
             "declined": INTEGER_LOOKUPS,
             "closed": INTEGER_LOOKUPS,
-            "bidcycle": FOREIGN_KEY_LOOKUPS
-        }
-
-class PositionDesignationFilter(filters.FilterSet):
-    bidcycle = filters.RelatedFilter(BidCycleFilter, name='bidcycle', queryset=BidCycle.objects.all())
-    position = filters.RelatedFilter('talentmap_api.position.filters.PositionFilter', name='position', queryset=Position.objects.all())
-
-    class Meta:
-        model = PositionBidStatistics
-        fields = {
-            "is_urgent_vacancy": ["exact"],
-            "is_volunteer": ["exact"],
-            "is_hard_to_fill": ["exact"],
-            "position": FOREIGN_KEY_LOOKUPS,
             "bidcycle": FOREIGN_KEY_LOOKUPS
         }
 
