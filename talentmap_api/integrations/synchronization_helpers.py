@@ -22,7 +22,7 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 
 from talentmap_api.settings import get_delineated_environment_variable
 
-from talentmap_api.bidding.models import BiddingStatus
+from talentmap_api.bidding.models import CyclePosition
 from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
@@ -349,7 +349,7 @@ def mode_capsule_descriptions(last_updated_date=None):
         "Action": "GET",
         "RequestName": "positioncapsule",
         "MaximumOutputRows": 100,
-        "Version": "0.01",
+        "Version": "0.02",
         "DataFormat": "XML",
         "InputParameters": f"<positionCapsules><positionCapsule>{use_last_updated_string}</positionCapsule></positionCapsules>"
     }
@@ -368,15 +368,20 @@ def mode_capsule_descriptions(last_updated_date=None):
 
 
 def mode_positions(last_updated_date=None):
+    # Set the appropriate use_last_updated string
+    use_last_updated_string = ""
+    if last_updated_date is not None:
+        use_last_updated_string = f"<LAST_DATE_UPDATED>{last_updated_date}</LAST_DATE_UPDATED>"
+
     # Request data
     soap_arguments = {
         "RequestorID": "TalentMAP",
         "Action": "GET",
         "RequestName": "position",
         "MaximumOutputRows": 1000,
-        "Version": "0.01",
+        "Version": "0.02",
         "DataFormat": "XML",
-        "InputParameters": "<positions><position></position></positions>"
+        "InputParameters": f"<positions><position>{use_last_updated_string}</position></positions>"
     }
 
     # Response parsing data
@@ -389,7 +394,7 @@ def mode_positions(last_updated_date=None):
         "org_code": "_org_code",
         "bureau_code": "_bureau_code",
         "skill_code": "_skill_code",
-        "is_overseas": parse_boolean("is_overseas", ['O']),
+        "is_overseas": parse_boolean("is_overseas"),
         "grade": "_grade_code",
         "tod_code": set_foreign_key_by_filters("tour_of_duty", "code", "__icontains"),
         "language_code_1": "_language_1_code",
@@ -443,7 +448,7 @@ def mode_cycles(last_updated_date=None):
         "Action": "GET",
         "RequestName": "cycle",
         "MaximumOutputRows": 1000,
-        "Version": "0.02",
+        "Version": "0.03",
         "DataFormat": "XML",
         "InputParameters": "<cycles><cycle></cycle></cycles>"
     }
@@ -454,17 +459,30 @@ def mode_cycles(last_updated_date=None):
     tag_map = {
         "id": "_id",
         "name": "name",
-        "category_code": "_category_code"
+        "category_code": "_category_code",
+        "status": "_cycle_status"
     }
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         # If our cycle exists, clear its position numbers
         xml_dict = xml_etree_to_dict(tag)
         extant_cycle = loader.model.objects.filter(_id=xml_dict['id']).first()
+        new_status = xml_dict['status']
         if extant_cycle:
             extant_cycle._positions_seq_nums.clear()
 
+            if extant_cycle._cycle_status != new_status:
+                cycle_position = CyclePosition.objects.filter(bidcycle=extant_cycle)
+                if cycle_position:
+                    if new_status == 'A':
+                        cycle_position.update(status_code='OP', status='OP')
+                    elif new_status == 'C':
+                        cycle_position.update(status_code='MC', status='MC')
+
         instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
+
+        # Set active state based on cycle_status
+        instance.active = instance._cycle_status == 'A'
 
         # Find the dates for this cycle
         for date in xml_dict["children"]:
@@ -498,7 +516,7 @@ def mode_cycle_positions(last_updated_date=None):
 
     # Response parsing data
     instance_tag = "availablePosition"
-    collision_field = ""
+    collision_field = "_cp_id"
     tag_map = {
 
     }
@@ -506,25 +524,27 @@ def mode_cycle_positions(last_updated_date=None):
     def post_load_function(model, new_ids, updated_ids):
         # If we have any new or updated positions, update saved search counts
         if len(new_ids) + len(updated_ids) > 0:
-            SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
+            SavedSearch.update_counts_for_endpoint(endpoint='cycleposition', contains=True)
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         data = xml_etree_to_dict(tag)
         # Find our matching bidcycle
-        bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
+        bc = loader.model.bidcycle.field.related_model.objects.filter(_id=data["CYCLE_ID"]).first()
         if bc:
             updated_instances.append(bc)
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
-        position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
+        position = loader.model.position.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
 
         if position:
             updated_instances.append(position)
-            bidding_status, _ = BiddingStatus.objects.get_or_create(bidcycle=bc, position=position)
-            bidding_status.status_code = data["STATUS_CODE"]
-            bidding_status.status = data["STATUS"]
-            bidding_status.save()
+            cycle_position, _ = CyclePosition.objects.get_or_create(bidcycle=bc, position=position, _cp_id=data["CP_ID"])
+            cycle_position.status_code = data["STATUS_CODE"]
+            cycle_position.status = data["STATUS"]
+            cycle_position.created = ensure_date(data["DATE_CREATED"], utc_offset=-5)
+            cycle_position.updated = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+            cycle_position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
             position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
@@ -534,6 +554,7 @@ def mode_cycle_positions(last_updated_date=None):
                 if not tod:
                     tod = safe_navigation(position, "post.tour_of_duty")
                 if ted and tod and tod.months:
+                    cycle_position.ted = ted
                     start_date = ted - relativedelta(months=tod.months)
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
@@ -542,6 +563,7 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.tour_of_duty = tod
                         position.current_assignment.save()
                 elif ted:
+                    cycle_position.ted = ted
                     logger.warning(f"Attepting to set position {position} TED to {data['TED']} but no position or post TOD is available - start date will not be set")
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, estimated_end_date=ted, status="active")
@@ -552,7 +574,7 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.save()
                 else:
                     logger.warning(f"Attempting to set position {position} TED, but TED is {ted}")
-
+            cycle_position.save()
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 
 
@@ -569,7 +591,8 @@ MODEL_HELPER_MAP = {
     "organization.Post": [mode_posts],
     "language.Language": [mode_languages],
     "position.Position": [mode_positions],
-    "bidding.BidCycle": [mode_cycles, mode_cycle_positions],
+    "bidding.BidCycle": [mode_cycles],
+    "bidding.CyclePosition": [mode_cycle_positions],
 }
 
 

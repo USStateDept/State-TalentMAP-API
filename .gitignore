@@ -96,6 +96,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# VSCode
+.vscode
+
 # mkdocs documentation
 /site
 
@@ -106,6 +109,9 @@ missing_coverage.sh
 
 # MacOS
 .DS_Store
+
+# PyCharm
+.idea/
 
 #Environment setup script
 setup_environment.sh

@@ -3,9 +3,12 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from simple_history.models import HistoricalRecords
 from django.contrib.postgres.fields import ArrayField
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 import logging
 
+import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel
 
 
@@ -91,14 +94,14 @@ class Organization(StaticRepresentationModel):
         Creates this organization's permission set
         '''
         # Create a group for AOs for this bureau
-        group_name = f"bureau_ao_{self.code}"
+        group_name = f"bureau_ao:{self.code}"
         group, created = Group.objects.get_or_create(name=group_name)
 
         if created:
             logging.getLogger(__name__).info(f"Created permission group {group_name}")
 
         # Highlight action
-        permission_codename = f"can_highlight_positions_{self.code}"
+        permission_codename = f"can_highlight_positions:{self.code}"
         permission_name = f"Can highlight positions for {self.short_description} ({self.code})"
         content_type = ContentType.objects.get_for_model(type(self))
 
@@ -292,14 +295,14 @@ class Post(StaticRepresentationModel):
 
     @property
     def permission_edit_post_capsule_description_codename(self):
-        return f"can_edit_post_capsule_description_{self.id}"
+        return f"can_edit_post_capsule_description:{self.id}"
 
     def create_permissions(self):
         '''
         Creates this post's permission set
         '''
         # Create a group for all editor members of a post
-        group_name = f"post_editors_{self.id}"
+        group_name = f"post_editors:{self.id}"
         group, created = Group.objects.get_or_create(name=group_name)
 
         if created:
@@ -326,3 +329,15 @@ class Post(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["_location_code"]
+
+
+@receiver(m2m_changed, sender=Organization.highlighted_positions.through, dispatch_uid="organization_m2m_highlighted")
+def assignment_post_save(sender, instance, action, reverse, model, pk_set, **kwargs):
+    '''
+    This listener updates the highlighted positions highlighted status
+    '''
+    if action in ["post_add", "post_remove"]:
+        for position_id in pk_set:
+            pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
+            pos.is_highlighted = pos.highlighted_by_org.count() > 0
+            pos.save()

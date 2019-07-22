@@ -118,6 +118,7 @@ INSTALLED_APPS = [
     'talentmap_api.glossary',
     'talentmap_api.integrations',
     'talentmap_api.feedback',
+    'talentmap_api.projected_vacancies',
 ]
 
 MIDDLEWARE = [
@@ -332,50 +333,38 @@ LOGGING = {
         },
         'auth': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_AUTH_NAME', 'auth.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_AUTH_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_AUTH_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'access': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_ACCESS_NAME', 'access.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_ACCESS_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_ACCESS_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'permission': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_PERM_NAME', 'permissions.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_PERM_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_PERM_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'db': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_DB_NAME', 'db.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_DB_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_DB_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'sync': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_SYNC_NAME', 'sync.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_SYNC_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_SYNC_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
         'generic': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/') + get_delineated_environment_variable('DJANGO_LOG_GENERIC_NAME', 'talentmap.log'),
-            'maxBytes': int(get_delineated_environment_variable('DJANGO_LOG_GENERIC_MAX_SIZE', 1024 * 1024 * 5)),
-            'backupCount': int(get_delineated_environment_variable('DJANGO_LOG_GENERIC_NUM_BACKUPS', 5)),
             'formatter': 'simple',
         },
     },
@@ -478,3 +467,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
+
+FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')

@@ -8,24 +8,28 @@ from rest_framework import status
 @pytest.fixture
 def test_position_fts_fixture():
     # Create some junk positions to add numbers
-    bc = mommy.make('bidding.BidCycle')
-    bc.positions.add(mommy.make('position.Position',
+    bc = mommy.make('bidding.BidCycle', active=True)
+    
+    pos1 = (mommy.make('position.Position',
                                 organization__long_description="German Embassy",
                                 bureau__long_description="German Embassy",
                                 skill__description="Doctor",
-                                languages__language__long_description="German"))
-
-    bc.positions.add(mommy.make('position.Position',
+                                languages__language__long_description="German"))                          
+    pos2 = (mommy.make('position.Position',
                                 organization__long_description="French Embassy",
                                 bureau__long_description="French Embassy",
                                 skill__description="Doctor",
                                 languages__language__long_description="French"))
 
-    bc.positions.add(mommy.make('position.Position',
+    pos3 = (mommy.make('position.Position',
                                 organization__long_description="French Attache",
                                 bureau__long_description="French Attache",
                                 skill__description="Colorguard",
                                 languages__language__long_description="French"))
+    bc.positions.add(pos1)
+    bc.positions.add(pos2)
+    bc.positions.add(pos3)
+    
 
 
 @pytest.mark.django_db()
@@ -39,6 +43,5 @@ def test_position_fts_fixture():
 ])
 def test_available_filtering(client, term, expected_count):
     response = client.get(f'/api/v1/position/?q={term}')
-    print(response.data)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == expected_count

@@ -4,7 +4,6 @@ from django.db.models import Q
 
 from talentmap_api.position.models import Position
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.bidding.filters import BidCycleFilter
 
 
 from talentmap_api.language.models import Qualification, Proficiency, Language
@@ -23,8 +22,7 @@ class LanguageFilter(filters.FilterSet):
         fields = {
             "code": ALL_TEXT_LOOKUPS,
             "long_description": ALL_TEXT_LOOKUPS,
-            "short_description": ALL_TEXT_LOOKUPS,
-            "formal_description": ALL_TEXT_LOOKUPS
+            "short_description": ALL_TEXT_LOOKUPS
         }
 
 
