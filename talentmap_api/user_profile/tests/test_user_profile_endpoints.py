@@ -13,9 +13,9 @@ def test_user_profile_fixture():
     mommy.make("language.Qualification", id=1)
     mommy.make("language.Qualification", id=2)
 
-    mommy.make("position.Position", id=1)
-    mommy.make("position.Position", id=2)
-    mommy.make("position.Position", id=3)
+    mommy.make("bidding.CyclePosition", id=1)
+    mommy.make("bidding.CyclePosition", id=2)
+    mommy.make("bidding.CyclePosition", id=3)
 
 
 @pytest.mark.django_db(transaction=True)

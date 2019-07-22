@@ -8,7 +8,8 @@ from rest_framework import status
 def test_field_params_fixture():
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     post = mommy.make('organization.Post')
-    bidcycle.positions.add(mommy.make('position.Position', post=post))
+    position = mommy.make('position.Position', post=post)
+    bidcycle.positions.add(position)
 
 
 @pytest.mark.django_db()
@@ -48,4 +49,4 @@ def test_field_child_exclusion(client):
     assert response.status_code == status.HTTP_200_OK
     assert "post" in list(response.data["results"][0].keys())
     assert "id" not in list(response.data["results"][0]["post"].keys())
-    assert list(response.data["results"][0]["post"].keys()) != []
+    assert list(response.data["results"][0].keys()) != []

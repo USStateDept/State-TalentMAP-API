@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
-from talentmap_api.bidding.models import BiddingStatus
 from talentmap_api.position.models import Position, Grade, Skill, SkillCone, CapsuleDescription, Classification, Assignment, PositionBidStatistics
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
@@ -92,16 +91,6 @@ class ClassificationSerializer(PrefetchedSerializer):
         model = Classification
         fields = "__all__"
 
-
-class BiddingStatusSerializer(PrefetchedSerializer):
-    bidcycle = StaticRepresentationField(read_only=True)
-    position = StaticRepresentationField(read_only=True)
-
-    class Meta:
-        model = BiddingStatus
-        fields = "__all__"
-
-
 class PositionWritableSerializer(PrefetchedSerializer):
 
     class Meta:
@@ -150,13 +139,6 @@ class PositionListSerializer(PrefetchedSerializer):
         fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
                   "current_assignment", "position_number",  "posted_date", "title", "availability"]
         nested = {
-            "bid_cycle_statuses": {
-                "class": BiddingStatusSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
             "description": {
                 "class": CapsuleDescriptionSerializer,
                 "field": "description",
@@ -249,13 +231,6 @@ class PositionSerializer(PrefetchedSerializer):
         model = Position
         fields = "__all__"
         nested = {
-            "bid_cycle_statuses": {
-                "class": BiddingStatusSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
                 "kwargs": {
@@ -342,13 +317,6 @@ class AssignmentPositionSerializer(PrefetchedSerializer):
         model = Position
         fields = "__all__"
         nested = {
-            "bid_cycle_statuses": {
-                "class": BiddingStatusSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
                 "kwargs": {

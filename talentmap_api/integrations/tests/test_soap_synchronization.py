@@ -2,7 +2,7 @@ import pytest
 
 from django.core.management import call_command
 
-from talentmap_api.bidding.models import BidCycle, BiddingStatus
+from talentmap_api.bidding.models import BidCycle, CyclePosition
 from talentmap_api.language.models import Language
 from talentmap_api.position.models import Grade, Skill, Position, SkillCone, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
@@ -33,13 +33,9 @@ def test_soap_integrations():
     assert Skill.objects.count() == 71
     assert SkillCone.objects.count() == 10
     assert Position.objects.count() == 10
-    assert BidCycle.objects.count() == 8
     assert BidCycle.objects.first().active == False
     assert BidCycle.objects.first()._cycle_status == 'C'
     assert BidCycle.objects.get(_id="151").active == True
-    assert BidCycle.objects.get(_id="147").positions.count() == 4
-    assert BidCycle.objects.get(_id="151").positions.count() == 6
-    assert BiddingStatus.objects.count() == 10
 
     # Assert is_overseas
     assert Position.objects.get(_seq_num="1640").is_overseas == True
@@ -130,8 +126,8 @@ def test_soap_bidcycle_active():
     assert BidCycle.objects.get(_id="151").active == True
     assert BidCycle.objects.get(_id="151")._cycle_status == 'A'
 
-    assert BiddingStatus.objects.filter(bidcycle=closing_bidcycle).first().status == 'OP'
-    assert BiddingStatus.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'OP'
+    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status == 'OP'
+    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'OP'
 
 @pytest.mark.django_db(transaction=True)
 def test_soap_bidcycle_close():
@@ -155,5 +151,5 @@ def test_soap_bidcycle_close():
     assert BidCycle.objects.get(_id="138").active == False
     assert BidCycle.objects.get(_id="138")._cycle_status == 'C'
 
-    assert BiddingStatus.objects.filter(bidcycle=closing_bidcycle).first().status == 'MC'
-    assert BiddingStatus.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'MC'
+    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status == 'MC'
+    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'MC'
