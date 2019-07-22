@@ -29,7 +29,6 @@ djangorestframework-expiring-authtoken==0.1.4
 djangorestframework-filters==0.10.2
 djangosaml2==0.16.11
 drf-extensions==0.3.1
-Flask==0.12.2
 freezegun==0.3.10
 future==0.16.0
 gitdb2==2.0.3
