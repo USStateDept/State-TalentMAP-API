@@ -5,7 +5,7 @@ from django.db.models import Q, Subquery
 from django.utils import timezone
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle, BiddingStatus
+from talentmap_api.bidding.models import BidCycle, CyclePosition
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
@@ -15,6 +15,9 @@ from talentmap_api.organization.filters import OrganizationFilter, PostFilter, T
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS, NumberInFilter
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class GradeFilter(filters.FilterSet):
@@ -78,12 +81,11 @@ class PositionBidStatisticsFilter(filters.FilterSet):
             "in_grade": INTEGER_LOOKUPS,
             "at_skill": INTEGER_LOOKUPS,
             "in_grade_at_skill": INTEGER_LOOKUPS
-
         }
-
 
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
+    language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -107,7 +109,6 @@ class PositionFilter(filters.FilterSet):
             "skill__code",
             "languages__language__long_description",
             "languages__language__code",
-            "languages__language__formal_description",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
@@ -118,18 +119,18 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
-    is_available_in_bidcycle = filters.Filter(name="bid_cycles", method="filter_available_in_bidcycle")
     vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
 
-    def filter_available_in_bidcycle(self, queryset, name, value):
+    def filter_language_codes(self, queryset, name, value):
         '''
-        Returns a queryset of all positions who are in the specified bidcycle(s)
+        Returns a queryset of all languages that match the codes provided.
+        If NONE is provided, all positions with no language requirement will also be returned
         '''
-        position_ids = []
-        q_obj = Q()
-        bidding_statuses = BiddingStatus.objects.filter(bidcycle_id__in=value.split(',')).filter(status_code__in=["OP", "HS"])
-        position_ids = bidding_statuses.values_list("position_id", flat=True)
-        return queryset.filter(id__in=position_ids)
+        langs = value.split(',')
+        query = Q(languages__language__code__in=langs)
+        if 'NONE' in value:
+            query = query | Q(languages__isnull=True)
+        return queryset.filter(query).distinct()
 
     def filter_vacancy_in_years(self, queryset, name, value):
         '''

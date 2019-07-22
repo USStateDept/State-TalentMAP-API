@@ -15,6 +15,8 @@ from talentmap_api.bidding.serializers.serializers import SurveySerializer, BidS
 from talentmap_api.bidding.serializers.prepanel import PrePanelSerializer
 from talentmap_api.bidding.filters import StatusSurveyFilter, BidFilter, WaiverFilter
 from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
+from talentmap_api.position.serializers import AssignmentSerializer
+from talentmap_api.position.filters import AssignmentFilter
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import ClientFilter
@@ -45,7 +47,7 @@ class CdoClientView(ActionDependentSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, cdo=self.request.user.profile)
+        return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, cdo=self.request.user.profile).order_by("id")
 
 
 class CdoClientStatisticsView(APIView):
@@ -91,6 +93,23 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
         return queryset
 
 
+class CdoClientAssignmentView(FieldLimitableSerializerMixin, mixins.ListModelMixin, GenericViewSet):
+    """
+    list:
+    Lists all of the specified client's assignments
+    """
+
+    serializer_class = AssignmentSerializer
+    permission_classes = (IsAuthenticated,)
+    filter_class = AssignmentFilter
+
+    def get_queryset(self):
+        client = get_object_or_404(UserProfile.objects.filter(cdo=self.request.user.profile), id=self.request.parser_context.get("kwargs").get("pk"))
+        queryset = client.assignments.all()
+        self.serializer_class.prefetch_model(StatusSurvey, queryset)
+        return queryset
+
+
 class CdoClientBidView(FieldLimitableSerializerMixin,
                        ActionDependentSerializerMixin,
                        mixins.ListModelMixin,
@@ -125,9 +144,7 @@ class CdoClientBidView(FieldLimitableSerializerMixin,
         return get_object_or_404(queryset, id=self.request.parser_context.get("kwargs").get("bid_id"))
 
 
-class CdoClientWaiverView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
+class CdoClientWaiverView(FieldLimitableSerializerMixin, mixins.ListModelMixin, GenericViewSet):
     """
     list:
     Lists all of the specified client's waivers

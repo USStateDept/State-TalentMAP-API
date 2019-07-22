@@ -23,7 +23,7 @@ class PrePanelSerializer(PrefetchedSerializer):
         prepanel = {}
 
         user = UserProfileSerializer.prefetch_model(UserProfile, UserProfile.objects.all()).get(id=obj.user.id)
-        position = PositionSerializer.prefetch_model(Position, Position.objects.all()).get(id=obj.position.id)
+        position = PositionSerializer.prefetch_model(Position, Position.objects.all()).get(id=obj.position.position.id)
         waivers = obj.waivers
         sii = user.status_surveys.filter(bidcycle=obj.bidcycle).first()
 

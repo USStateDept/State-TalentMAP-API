@@ -39,9 +39,11 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
 
     # Give users some bids
     position = mommy.make('position.Position')
-    bidcycle = mommy.make('bidding.Bidcycle')
+    bidcycle = mommy.make('bidding.Bidcycle', active=True)
     bidcycle.positions.add(position)
-    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[1], status="submitted")
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
+
+    mommy.make('bidding.Bid', position=cp, bidcycle=bidcycle, user=clients[1], status="submitted")
 
     response = authorized_client.get('/api/v1/client/statistics/')
 
@@ -53,7 +55,7 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["on_post_clients"] == 1
 
     # Give users some bids
-    mommy.make('bidding.Bid', position=position, bidcycle=bidcycle, user=clients[2], status="in_panel", handshake_offered_date="1999-01-01T00:00:00Z")
+    mommy.make('bidding.Bid', position=cp, bidcycle=bidcycle, user=clients[2], status="in_panel", handshake_offered_date="1999-01-01T00:00:00Z")
 
     response = authorized_client.get('/api/v1/client/statistics/')
 
@@ -121,13 +123,14 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
     position = mommy.make('position.Position')
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
 
     statuses = list(Bid.Status.choices)
 
     status_counts = list(zip(range(1, len(statuses) + 1), statuses))
 
     for item in status_counts:
-        mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status=item[1][0], _quantity=item[0])
+        mommy.make('bidding.Bid', bidcycle=bidcycle, position=cp, user=client, status=item[1][0], _quantity=item[0])
 
     expected_counts = {x[1][1]: x[0] for x in status_counts}
 
@@ -151,8 +154,9 @@ def test_client_bid_list(authorized_client, authorized_user, test_clients_fixtur
     position = mommy.make('position.Position')
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
 
-    mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status="draft", _quantity=10)
+    mommy.make('bidding.Bid', bidcycle=bidcycle, position=cp, user=client, status="draft", _quantity=10)
 
     response = authorized_client.get(f'/api/v1/client/{client.id}/bids/')
 
@@ -167,7 +171,9 @@ def test_client_waiver_list(authorized_client, authorized_user, test_clients_fix
     position = mommy.make('position.Position')
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
-    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client, status="draft")
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
+
+    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=cp, user=client, status="draft")
     mommy.make('bidding.Waiver', bid=bid, position=position, user=client, _quantity=10)
 
     response = authorized_client.get(f'/api/v1/client/{client.id}/waivers/')
@@ -189,8 +195,9 @@ def test_client_bid_prepanel(authorized_client, authorized_user, test_clients_fi
     client.language_qualifications.add(position.languages.first())
     bidcycle = mommy.make('bidding.BidCycle', active=True)
     bidcycle.positions.add(position)
+    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
 
-    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=position, user=client)
+    bid = mommy.make('bidding.Bid', bidcycle=bidcycle, position=cp, user=client)
 
     response = authorized_client.get(f'/api/v1/client/{client.id}/bids/{bid.id}/prepanel/')
 
