@@ -262,7 +262,11 @@ def get_filtered_queryset(filter_class, filters):
     # Your daily dose of python wizardry: https://docs.python.org/3/library/functions.html#type
     fake_request = type('obj', (object,), {'query_params': query_params})
 
-    queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
+    # Handles searches on endpoints not backed by database tables
+    if getattr(filter_class, "use_api", False):
+        queryset = filter_class.get_queryset(query_params)
+    else:
+        queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
 
     return queryset
 

@@ -22,7 +22,7 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 
 from talentmap_api.settings import get_delineated_environment_variable
 
-from talentmap_api.bidding.models import BiddingStatus
+from talentmap_api.bidding.models import CyclePosition
 from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
@@ -472,12 +472,12 @@ def mode_cycles(last_updated_date=None):
             extant_cycle._positions_seq_nums.clear()
 
             if extant_cycle._cycle_status != new_status:
-                bidding_status = BiddingStatus.objects.filter(bidcycle=extant_cycle)
-                if bidding_status:
+                cycle_position = CyclePosition.objects.filter(bidcycle=extant_cycle)
+                if cycle_position:
                     if new_status == 'A':
-                        bidding_status.update(status_code='OP', status='OP')
+                        cycle_position.update(status_code='OP', status='OP')
                     elif new_status == 'C':
-                        bidding_status.update(status_code='MC', status='MC')
+                        cycle_position.update(status_code='MC', status='MC')
 
         instance, updated = loader.default_xml_action(tag, new_instances, updated_instances)
 
@@ -516,7 +516,7 @@ def mode_cycle_positions(last_updated_date=None):
 
     # Response parsing data
     instance_tag = "availablePosition"
-    collision_field = ""
+    collision_field = "_cp_id"
     tag_map = {
 
     }
@@ -524,25 +524,27 @@ def mode_cycle_positions(last_updated_date=None):
     def post_load_function(model, new_ids, updated_ids):
         # If we have any new or updated positions, update saved search counts
         if len(new_ids) + len(updated_ids) > 0:
-            SavedSearch.update_counts_for_endpoint(endpoint='position', contains=True)
+            SavedSearch.update_counts_for_endpoint(endpoint='cycleposition', contains=True)
 
     def override_loading_method(loader, tag, new_instances, updated_instances):
         data = xml_etree_to_dict(tag)
         # Find our matching bidcycle
-        bc = loader.model.objects.filter(_id=data["CYCLE_ID"]).first()
+        bc = loader.model.bidcycle.field.related_model.objects.filter(_id=data["CYCLE_ID"]).first()
         if bc:
             updated_instances.append(bc)
             bc._positions_seq_nums.append(data["POSITION_ID"])
             bc.save()
 
-        position = loader.model.positions.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
+        position = loader.model.position.field.related_model.objects.filter(_seq_num=data["POSITION_ID"]).first()
 
         if position:
             updated_instances.append(position)
-            bidding_status, _ = BiddingStatus.objects.get_or_create(bidcycle=bc, position=position)
-            bidding_status.status_code = data["STATUS_CODE"]
-            bidding_status.status = data["STATUS"]
-            bidding_status.save()
+            cycle_position, _ = CyclePosition.objects.get_or_create(bidcycle=bc, position=position, _cp_id=data["CP_ID"])
+            cycle_position.status_code = data["STATUS_CODE"]
+            cycle_position.status = data["STATUS"]
+            cycle_position.created = ensure_date(data["DATE_CREATED"], utc_offset=-5)
+            cycle_position.updated = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+            cycle_position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
             position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
@@ -552,6 +554,7 @@ def mode_cycle_positions(last_updated_date=None):
                 if not tod:
                     tod = safe_navigation(position, "post.tour_of_duty")
                 if ted and tod and tod.months:
+                    cycle_position.ted = ted
                     start_date = ted - relativedelta(months=tod.months)
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
@@ -560,6 +563,7 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.tour_of_duty = tod
                         position.current_assignment.save()
                 elif ted:
+                    cycle_position.ted = ted
                     logger.warning(f"Attepting to set position {position} TED to {data['TED']} but no position or post TOD is available - start date will not be set")
                     if not position.current_assignment:
                         Assignment.objects.create(position=position, estimated_end_date=ted, status="active")
@@ -570,7 +574,7 @@ def mode_cycle_positions(last_updated_date=None):
                         position.current_assignment.save()
                 else:
                     logger.warning(f"Attempting to set position {position} TED, but TED is {ted}")
-
+            cycle_position.save()
     return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method)
 
 
@@ -587,7 +591,8 @@ MODEL_HELPER_MAP = {
     "organization.Post": [mode_posts],
     "language.Language": [mode_languages],
     "position.Position": [mode_positions],
-    "bidding.BidCycle": [mode_cycles, mode_cycle_positions],
+    "bidding.BidCycle": [mode_cycles],
+    "bidding.CyclePosition": [mode_cycle_positions],
 }
 
 

@@ -18,7 +18,8 @@ def test_assignment_fixture():
 @pytest.mark.django_db(transaction=True)
 def test_assignment_create_from_bid():
     position = mommy.make_recipe('talentmap_api.position.tests.position')
-    bid = mommy.make('bidding.Bid', user=mommy.make('auth.User').profile, position=position)
+    cp = mommy.make('bidding.CyclePosition', position=position)
+    bid = mommy.make('bidding.Bid', user=mommy.make('auth.User').profile, position=cp)
 
     # Create an Assignment
     with pytest.raises(Exception, match="Only an approved bid may create an assignment."):

@@ -15,6 +15,7 @@ from talentmap_api.common.common_helpers import ensure_date, month_diff, safe_na
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
+from talentmap_api.bidding.models import CyclePosition
 
 
 class Position(StaticRepresentationModel):
@@ -96,7 +97,7 @@ class Position(StaticRepresentationModel):
         }
 
         q_obj = models.Q(**base_criteria)
-        position_ids = talentmap_api.bidding.models.BiddingStatus.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        position_ids = talentmap_api.bidding.models.CyclePosition.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
         all_pos_queryset = Position.objects.filter(id__in=position_ids)
         queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
 
@@ -147,7 +148,7 @@ class Position(StaticRepresentationModel):
 
         # Filter this positions bid by bidcycle and our Q object
         q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
-        fulfilling_bids = self.bids.filter(bidcycle=bidcycle).filter(q_obj)
+        fulfilling_bids = CyclePosition.objects.filter(bidcycle=bidcycle, position=self).values_list('bids').filter(q_obj)
         if fulfilling_bids.exists():
             messages = {
                 talentmap_api.bidding.models.Bid.Status.handshake_offered: "This position has an outstanding handshake",
@@ -215,8 +216,7 @@ class PositionBidStatistics(StaticRepresentationModel):
     Stores the bid statistics on a per-cycle basis for a position
     '''
 
-    bidcycle = models.ForeignKey("bidding.BidCycle", on_delete=models.CASCADE, related_name="position_bid_statistics")
-    position = models.ForeignKey("position.Position", on_delete=models.CASCADE, related_name="bid_statistics")
+    position = models.OneToOneField("bidding.CyclePosition", on_delete=models.CASCADE, related_name="bid_statistics")
 
     total_bids = models.IntegerField(default=0)
     in_grade = models.IntegerField(default=0)
@@ -231,19 +231,17 @@ class PositionBidStatistics(StaticRepresentationModel):
     is_hard_to_fill = models.BooleanField(default=False)
 
     def update_statistics(self):
-        bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
+        bidcycle_bids = self.position.bids.filter(bidcycle=self.position.bidcycle)
         self.total_bids = bidcycle_bids.count()
-        self.in_grade = bidcycle_bids.filter(user__grade=self.position.grade).count()
-        self.at_skill = bidcycle_bids.filter(user__skills=self.position.skill).count()
-        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skills=self.position.skill).count()
+        self.in_grade = bidcycle_bids.filter(user__grade=self.position.position.grade).count()
+        self.at_skill = bidcycle_bids.filter(user__skills=self.position.position.skill).count()
+        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.position.grade, user__skills=self.position.position.skill).count()
         self.has_handshake_offered = any(x.status == talentmap_api.bidding.models.Bid.Status.handshake_offered for x in bidcycle_bids)
         self.has_handshake_accepted = any(x.status == talentmap_api.bidding.models.Bid.Status.handshake_accepted for x in bidcycle_bids)
         self.save()
 
     class Meta:
         managed = True
-        ordering = ["bidcycle__cycle_start_date"]
-        unique_together = (("bidcycle", "position",),)
 
 class CapsuleDescription(StaticRepresentationModel):
     '''
@@ -459,8 +457,8 @@ class Assignment(StaticRepresentationModel):
 
         assignment = Assignment.objects.create(status=Assignment.Status.assigned,
                                                user=bid.user,
-                                               position=bid.position,
-                                               tour_of_duty=bid.position.post.tour_of_duty,
+                                               position=bid.position.position,
+                                               tour_of_duty=bid.position.position.post.tour_of_duty,
                                                bid_approval_date=bid.approved_date)
 
         return assignment
