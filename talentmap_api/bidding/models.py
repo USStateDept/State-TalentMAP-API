@@ -85,7 +85,7 @@ class CyclePosition(StaticRepresentationModel):
         '''
         # Filter this positions bid by bidcycle and our Q object
         q_obj = Bid.get_unavailable_status_filter()
-        fulfilling_bids = CyclePosition.objects.filter(id=self.id).values_list('bids').filter(q_obj)
+        fulfilling_bids = Bid.objects.filter(position__id=self.id).filter(q_obj)
         if fulfilling_bids.exists():
             messages = {
                 Bid.Status.handshake_offered: "This position has an outstanding handshake",
