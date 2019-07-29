@@ -103,6 +103,13 @@ class SynchronizationJob(models.Model):
                 soap_arguments, instance_tag, tag_map, collision_field, post_load_function, override_loading_method = task(last_updated_date=last_date_updated)
                 model = apps.get_model(self.talentmap_model)
 
+                # create a new task to log
+                sync_task = SynchronizationTask()
+                sync_task.job = self
+                sync_task.talentmap_model = self.talentmap_model
+                sync_task.priority = self.priority
+                sync_task.running = True
+
                 logger.info("Intializing XML loader")
 
                 loader = XMLloader(model, instance_tag, tag_map, 'update', collision_field, override_loading_method, logger)
@@ -153,8 +160,11 @@ class SynchronizationJob(models.Model):
                     if not response_xml:
                         logger.error(f"SOAP data for {task} is null, exiting {task}")
                         break
-                    data_elapsed_time = (datetime.datetime.now() - pre_data_time).total_seconds()
+                    start_date_time = datetime.datetime.now()
+                    data_elapsed_time = (start_date_time - pre_data_time).total_seconds()
                     logger.info(f"Retrieved SOAP response in {data_elapsed_time} seconds")
+                    sync_task.start_date_time = start_date_time
+                    sync_task.save()
 
                     # Save response_xml into temp tables
                     xml_tree = ET.fromstring(response_xml)
@@ -175,6 +185,10 @@ class SynchronizationJob(models.Model):
                     new_ids = new_ids + newer_ids
                     updated_ids = updated_ids + updateder_ids
 
+                    sync_task.new_count = len(new_ids)
+                    sync_task.updated_count = len(updated_ids)
+                    sync_task.save()
+
             logger.info("Data pull complete")
 
             # Run the post load function, if it exists
@@ -187,11 +201,14 @@ class SynchronizationJob(models.Model):
             logger.info(f"Synchronization Report\n\tModel: {self.talentmap_model}\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\n\tElapsed time: {d.days} d {d.hours} hr {d.minutes} min {d.seconds} s\t\t")
 
             # Successful, set the last synchronization
+            sync_task.end_date_time = datetime.datetime.now()
             self.last_synchronization = timezone.now()
             self.job_item_count = self.job_item_count + len(updated_ids) + len(new_ids)
         except Exception as e:  # pragma: no cover
             logger.exception(e)
         finally:
+            sync_task.running = False
+            sync_task.save()
             self.running = False
             self.save()
             return self.job_item_count
@@ -210,3 +227,33 @@ class SynchronizationJob(models.Model):
     class Meta:
         managed = True
         ordering = ["talentmap_model"]
+
+
+class SynchronizationTask(models.Model):
+    '''
+    Single task in a job
+    '''
+    start_date_time = models.DateTimeField(null=True, help_text="Time the task started")
+    end_date_time = models.DateTimeField(null=True, help_text="Time the task ended")
+
+    running = models.BooleanField(default=False, help_text="Whether the synchronization task is currently running")
+
+    talentmap_model = models.TextField(help_text="The talentmap model as a string; e.g. position.Position")
+
+    priority = models.IntegerField(default=0, help_text='The job priority, higher numbers run later. Default 0')
+    use_last_date_updated = models.BooleanField(default=False, help_text='Denotes if the job should only pull newest records')
+
+    new_count = models.IntegerField(null=True, help_text="Number of new records")
+    updated_count = models.IntegerField(null=True, help_text="Number of updated records")
+
+    job = models.ForeignKey('integrations.SynchronizationJob', on_delete=models.SET_NULL, null=True, related_name="job", help_text="The job for this task")
+
+    def save(self, *args, **kwargs):
+        super(SynchronizationTask, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"SynchronizationTask"
+
+    class Meta:
+        managed = True
+        ordering = ["start_date_time"]

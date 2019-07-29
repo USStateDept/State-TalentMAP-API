@@ -8,7 +8,7 @@ from talentmap_api.position.models import Grade, Skill, Position, SkillCone, Cap
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
 
-from talentmap_api.integrations.models import SynchronizationJob
+from talentmap_api.integrations.models import SynchronizationJob, SynchronizationTask
 from talentmap_api.integrations.management.commands.schedule_synchronization_job import Command as SyncCommand
 
 from talentmap_api.common.common_helpers import ensure_date
@@ -95,7 +95,7 @@ def test_soap_job_functions():
 
     job.refresh_from_db()
     assert job.last_synchronization == ensure_date("1975-01-01T00:00:00Z")
-
+        
     job.running = False
     job.save()
 
@@ -103,6 +103,14 @@ def test_soap_job_functions():
 
     job.refresh_from_db()
     assert job.running == False
+
+@pytest.mark.django_db(transaction=True)
+def test_soap_job_tasks():
+    task = SynchronizationTask()
+    task.talentmap_model = "position.Position"
+    task.save()
+
+    assert task.priority == 0
 
 @pytest.mark.django_db(transaction=True)
 def test_soap_bidcycle_active():
