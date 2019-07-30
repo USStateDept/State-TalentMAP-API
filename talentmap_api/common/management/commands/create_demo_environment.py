@@ -245,7 +245,7 @@ class Command(BaseCommand):
 
         
         for pos in Position.objects.all():
-            CyclePosition.objects.create(bidcycle=bc, position=pos, posted_date=today)
+            CyclePosition.objects.create(bidcycle=bc, position=pos, posted_date=today, ted=today)
 
         self.logger.info(f"Created demo bidcycle with all positions: {bc.name}")
 
@@ -368,7 +368,7 @@ class Command(BaseCommand):
                 position.save()
 
                 # Add a new CyclePosition for the position
-                CyclePosition.objects.create(bidcycle=bc, position=position, posted_date=today)
+                CyclePosition.objects.create(bidcycle=bc, position=position, posted_date=today, ted=today)
 
                 count = count + 1
                 if count >= min_position_count:
