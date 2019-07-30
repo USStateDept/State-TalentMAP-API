@@ -233,6 +233,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         call_command("create_seeded_users")
+        CyclePosition.objects.all().delete()
         BidCycle.objects.all().delete()
         today = timezone.now()
         # Create bidcycle with all positions
@@ -342,8 +343,8 @@ class Command(BaseCommand):
         self.logger.info("Done seeding waivers")
 
         self.logger.info("Create some glossary entries")
-        GlossaryEntry.objects.create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
-        GlossaryEntry.objects.create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
+        GlossaryEntry.objects.get_or_create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
+        GlossaryEntry.objects.get_or_create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
 
         self.logger.info("Creating some tasks")
         for user in list(persona_users):
@@ -365,6 +366,10 @@ class Command(BaseCommand):
                 position.id = None
                 position.description = description
                 position.save()
+
+                # Add a new CyclePosition for the position
+                CyclePosition.objects.create(bidcycle=bc, position=position, posted_date=today)
+
                 count = count + 1
                 if count >= min_position_count:
                     break
