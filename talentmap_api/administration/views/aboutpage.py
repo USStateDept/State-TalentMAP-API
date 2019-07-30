@@ -11,11 +11,12 @@ from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from talentmap_api.administration.models import AboutPage
 from talentmap_api.administration.serializers.aboutpage import AboutPageSerializer
 
+
 class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet, APIView):
 
     serializer_class = AboutPageSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
-    
+
     def get_queryset(self):
         return AboutPageSerializer.objects.first()
 
@@ -24,7 +25,7 @@ class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericV
         Gets the AboutPage
         '''
         queryset = get_object_or_404(AboutPage)
-        return Response({ "content" : queryset.content })
+        return Response({"content": queryset.content})
 
     def partial_update(self, request, pk=None, format=None):
         '''

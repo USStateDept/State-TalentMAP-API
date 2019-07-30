@@ -22,8 +22,8 @@ from talentmap_api.user_profile.models import UserProfile
 
 
 class CyclePositionListView(FieldLimitableSerializerMixin,
-                       ActionDependentSerializerMixin,
-                       CachedViewSet):
+                            ActionDependentSerializerMixin,
+                            CachedViewSet):
     """
     retrieve:
     Return the given cycle position.
@@ -107,7 +107,7 @@ class CyclePositionHighlightListView(FieldLimitableSerializerMixin,
         return queryset
 
 class CyclePositionFavoriteListView(FieldLimitableSerializerMixin,
-                               ReadOnlyModelViewSet):
+                                    ReadOnlyModelViewSet):
     """
     list:
     Return a list of all of the user's favorite cycle positions.

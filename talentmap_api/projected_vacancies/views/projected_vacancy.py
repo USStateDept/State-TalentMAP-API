@@ -14,8 +14,9 @@ from talentmap_api.user_profile.models import UserProfile
 
 import talentmap_api.fsbid.services as services
 
+
 class ProjectedVacancyFavoriteListView(APIView):
-    
+
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -29,7 +30,7 @@ class ProjectedVacancyFavoriteListView(APIView):
             pos_nums = ','.join(pvs)
             return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}")))
         else:
-            return Response({ "count":0, "next":None, "previous":None, "results":[] })
+            return Response({"count": 0, "next": None, "previous": None, "results": []})
 
 
 class ProjectedVacancyFavoriteActionView(APIView):
