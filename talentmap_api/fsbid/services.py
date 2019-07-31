@@ -146,12 +146,14 @@ def get_projected_vacancies(query, host=None):
        "results": projected_vacancies
     }
 
+
 def get_projected_vacancies_count(query, host=None):
     '''
     Gets the total number of PVs for a filterset
     '''
     response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
     return { "count": response["Data"][0]["count(1)"] }
+
 
 def get_pagination(query, count, base_url, host=None):
     '''
@@ -170,6 +172,7 @@ def get_pagination(query, count, base_url, host=None):
         "next": next_url,
         "previous": previous_url
     }
+
 
 def bureau_values(query):
     '''
@@ -191,6 +194,7 @@ def bureau_values(query):
     if len(results) > 0:
         return ",".join(results)
 
+
 def post_values(query):
     '''
     Handles mapping locations and groups of locations to FSBid expected params
@@ -208,6 +212,7 @@ def post_values(query):
         results = results + list(location_codes)
     if len(results) > 0:
         return ",".join(results)
+
 
 def convert_pv_query(query):
     '''
@@ -236,6 +241,7 @@ def convert_pv_query(query):
 # Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
 LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
 
+
 def parseLanguage(lang):
     '''
     Parses a language string from FSBid and turns it into what we want
@@ -250,6 +256,7 @@ def parseLanguage(lang):
             language["spoken_proficiency"] = match.group(3)
             language["representation"] = match.group(0).rstrip()
             return language
+
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
