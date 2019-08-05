@@ -54,7 +54,10 @@ class CyclePosition(StaticRepresentationModel):
             q_obj = models.Q(**base_criteria)
             queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
         return queryset
-    
+
+    def __str__(self):
+        return f"[{self.position.position_number}] {self.position.title} ({self.position.post})"
+
     @property
     def availability(self):
         '''
