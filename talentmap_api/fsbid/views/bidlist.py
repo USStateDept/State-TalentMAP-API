@@ -51,6 +51,7 @@ class FSBidListBidActionView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
 
+
 class FSBidListPositionActionView(APIView):
     '''
     list:

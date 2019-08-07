@@ -54,10 +54,10 @@ class PositionListView(FieldLimitableSerializerMixin,
     filter_class = PositionFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):	   
+    def get_queryset(self):
         position_ids = CyclePosition.objects.filter(bidcycle__active=True, status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
         queryset = Position.objects.filter(id__in=position_ids)
-        queryset = self.serializer_class.prefetch_model(Position, queryset)	
+        queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
 
 
@@ -165,6 +165,7 @@ class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
         self.serializer_class.prefetch_model(Assignment, queryset)
         return queryset
 
+
 class PositionHighlightListView(FieldLimitableSerializerMixin,
                                 ReadOnlyModelViewSet):
     """
@@ -179,6 +180,7 @@ class PositionHighlightListView(FieldLimitableSerializerMixin,
         queryset = Position.objects.annotate(highlight_count=Count('highlighted_by_org')).filter(highlight_count__gt=0)
         queryset = self.serializer_class.prefetch_model(Position, queryset)
         return queryset
+
 
 class PositionHighlightActionView(APIView):
     '''

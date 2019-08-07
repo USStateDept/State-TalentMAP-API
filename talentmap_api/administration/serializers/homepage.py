@@ -3,6 +3,7 @@ from rest_framework import serializers
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.administration.models import HomepageBanner
 
+
 class HomepageBannerSerializer(PrefetchedSerializer):
 
     class Meta:
