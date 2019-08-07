@@ -17,6 +17,7 @@ class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericV
     serializer_class = AboutPageSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
 
+
     def get_queryset(self):
         return AboutPageSerializer.objects.first()
 
@@ -38,3 +39,4 @@ class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericV
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+

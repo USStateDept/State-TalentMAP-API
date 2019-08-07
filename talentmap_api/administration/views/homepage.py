@@ -17,6 +17,7 @@ class HomepageBannerView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gen
     serializer_class = HomepageBannerSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
 
+
     def get_queryset(self):
         return HomepageBanner.objects.first()
 
@@ -26,6 +27,7 @@ class HomepageBannerView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, Gen
         '''
         queryset = get_object_or_404(HomepageBanner)
         return Response({"text": queryset.text, "is_visible": queryset.is_visible})
+
 
     def partial_update(self, request, pk=None, format=None):
         '''

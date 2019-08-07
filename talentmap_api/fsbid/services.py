@@ -146,6 +146,13 @@ def get_projected_vacancies(query, host=None):
        "results": projected_vacancies
     }
 
+def get_projected_vacancies_count(query, host=None):
+    '''
+    Gets the total number of PVs for a filterset
+    '''
+    response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
+    return { "count": response["Data"][0]["count(1)"] }
+
 
 def get_projected_vacancies_count(query, host=None):
     '''
@@ -153,6 +160,7 @@ def get_projected_vacancies_count(query, host=None):
     '''
     response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
     return { "count": response["Data"][0]["count(1)"] }
+
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -173,6 +181,43 @@ def get_pagination(query, count, base_url, host=None):
         "previous": previous_url
     }
 
+def bureau_values(query):
+    '''
+    Gets the ids for the functional/regional bureaus and maps to codes and their children
+    '''
+    results = []
+    # functional bureau filter
+    if query.get("org_has_groups"):
+        func_bureaus = query.get("org_has_groups").split(",")
+        func_org_codes = OrganizationGroup.objects.filter(id__in=func_bureaus).values_list("_org_codes", flat=True)
+        # Flatten _org_codes
+        func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
+        results = results + list(func_bureau_codes)
+    # Regional bureau filter
+    if query.get("position__bureau__code__in"):
+        regional_bureaus = query.get("position__bureau__code__in").split(",")
+        reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
+        results = results + list(reg_org_codes)
+    if len(results) > 0:
+        return ",".join(results)
+
+def post_values(query):
+    '''
+    Handles mapping locations and groups of locations to FSBid expected params
+    '''
+    results = []
+    if query.get("is_domestic") == "true":
+        domestic_codes = Post.objects.filter(location__country__code="USA").values_list("_location_code", flat=True)
+        results = results + list(domestic_codes)
+    if query.get("is_domestic") == "false":
+        overseas_codes = Post.objects.exclude(location__country__code="USA").values_list("_location_code", flat=True)
+        results = results + list(overseas_codes)
+    if query.get("position__post__in"):
+        post_ids = query.get("position__post__in").split(",")
+        location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
+        results = results + list(location_codes)
+    if len(results) > 0:
+        return ",".join(results)
 
 def bureau_values(query):
     '''
@@ -256,6 +301,7 @@ def parseLanguage(lang):
             language["spoken_proficiency"] = match.group(3)
             language["representation"] = match.group(0).rstrip()
             return language
+
 
 
 def fsbid_pv_to_talentmap_pv(pv):

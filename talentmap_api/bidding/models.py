@@ -54,6 +54,48 @@ class CyclePosition(StaticRepresentationModel):
             q_obj = models.Q(**base_criteria)
             queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
         return queryset
+    
+    @property
+    def availability(self):
+        '''
+        Evaluates if this cycle position can accept new bids in it's latest bidcycle
+        '''
+        if self.bidcycle:
+            available, reason = self.can_accept_new_bids(self.bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
+    
+    def can_accept_new_bids(self, bidcycle):
+        '''
+        Evaluates if this position can accept new bids for the given bidcycle
+
+        Args:
+            - bidcycle (Object) - The Bidcycle object to evaluate if this position can accept a bid
+
+        Returns:
+            - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
+        '''
+        # Filter this positions bid by bidcycle and our Q object
+        q_obj = Bid.get_unavailable_status_filter()
+        fulfilling_bids = Bid.objects.filter(position__id=self.id).filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                Bid.Status.in_panel: "This position is currently due for paneling",
+                Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
+
+        return True, ""
 
     def __str__(self):
         return f"[{self.position.position_number}] {self.position.title} ({self.position.post})"
