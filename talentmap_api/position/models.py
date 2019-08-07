@@ -438,8 +438,6 @@ class Assignment(StaticRepresentationModel):
     combined_differential = models.IntegerField(default=0, help_text='The combined differential (danger pay and differential) for this assignment')
     standard_tod_months = models.IntegerField(default=0, help_text='The standard tour of duty for the post at assignment creation')
 
-    history = HistoricalRecords()
-
     @property
     def emp_id(self):
         return self.user.emp_id

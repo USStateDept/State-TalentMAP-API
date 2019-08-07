@@ -19,6 +19,7 @@ import talentmap_api.fsbid.services as services
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidProjectedVacanciesListView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
