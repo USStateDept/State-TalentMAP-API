@@ -161,6 +161,16 @@ def get_projected_vacancies_count(query, jwt, host=None):
     return {"count": response["Data"][0]["count(1)"]}
 
 
+
+def get_projected_vacancies_count(query, host=None):
+    '''
+    Gets the total number of PVs for a filterset
+    '''
+    response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
+    return { "count": response["Data"][0]["count(1)"] }
+
+
+
 def get_pagination(query, count, base_url, host=None):
     '''
     Figures out all the pagination
