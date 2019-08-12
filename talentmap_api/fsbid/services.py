@@ -16,30 +16,34 @@ from talentmap_api.organization.models import Post, Organization, OrganizationGr
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+AD_ID = settings.AD_ID
 
 
-def user_bids(employee_id, position_id=None):
+def user_bids(employee_id, jwt, position_id=None):
     '''
     Get bids for a user on a position or all if no position
     '''
-    bids = requests.get(f"{API_ROOT}/bids/?employeeId={employee_id}").json()
+    url = f"{API_ROOT}/bids/?employeeId={employee_id}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids/?employeeId={employee_id}"
+    bids = requests.get(url, headers={'Authorization': jwt}).json()
     return [fsbid_bid_to_talentmap_bid(bid) for bid in bids if bid['cyclePosition']['cp_id'] == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, bids)
 
 
-def bid_on_position(userId, employeeId, cyclePositionId):
+def bid_on_position(userId, jwt, employeeId, cyclePositionId):
     '''
     Submits a bid on a position
     '''
-    response = requests.post(f"{API_ROOT}/bids", data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId})
+    url = f"{API_ROOT}/bids/?ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids"
+    response = requests.post(url, data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId}, headers={'Authorization': jwt})
     response.raise_for_status()
     return response
 
 
-def remove_bid(employeeId, cyclePositionId):
+def remove_bid(employeeId, cyclePositionId, jwt):
     '''
     Removes a bid from the users bid list
     '''
-    return requests.delete(f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}")
+    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids?cp_id={cyclePositionId}&perder_seq_num={employeeId}"
+    return requests.delete(url, headers={'Authorization': jwt})
 
 
 def get_bid_status(statusCode, handshakeCode):
@@ -77,81 +81,85 @@ def can_delete_bid(bidStatus, cycle):
 def fsbid_bid_to_talentmap_bid(data):
     bidStatus = get_bid_status(data['statusCode'], data['handshakeCode'])
     return {
-      "id": "",
-      "bidcycle": data['cycle']['description'],
-      "emp_id": data['employee']['perdet_seq_num'],
-      "user": "",
-      "bid_statistics": [
-        {
-          "id": "",
-          "bidcycle": data['cycle']['description'],
-          "total_bids": data['cyclePosition']['totalBidders'],
-          "in_grade": data['cyclePosition']['atGradeBidders'],
-          "at_skill": data['cyclePosition']['inConeBidders'],
-          "in_grade_at_skill": data['cyclePosition']['inBothBidders'],
-          "has_handshake_offered": data['cyclePosition']['status'] == 'HS',
-          "has_handshake_accepted": data['cyclePosition']['status'] == 'HS'
-        }
-      ],
-      "position": {
-        "id": data['cyclePosition']['pos_seq_num'],
-        "position_number": data['cyclePosition']['pos_seq_num'],
-        "status": data['cyclePosition']['status'],
-        "grade": "",
-        "skill": "",
-        "bureau": "",
-        "title": "",
-        "create_date": data['submittedDate'],
+        "id": "",
+        "bidcycle": data['cycle']['description'],
+        "emp_id": data['employee']['perdet_seq_num'],
+        "user": "",
+        "bid_statistics": [
+            {
+              "id": "",
+              "bidcycle": data['cycle']['description'],
+              "total_bids": data['cyclePosition']['totalBidders'],
+              "in_grade": data['cyclePosition']['atGradeBidders'],
+              "at_skill": data['cyclePosition']['inConeBidders'],
+              "in_grade_at_skill": data['cyclePosition']['inBothBidders'],
+              "has_handshake_offered": data['cyclePosition']['status'] == 'HS',
+              "has_handshake_accepted": data['cyclePosition']['status'] == 'HS'
+            }
+        ],
+        "position": {
+            "id": data['cyclePosition']['pos_seq_num'],
+            "position_number": data['cyclePosition']['pos_seq_num'],
+            "status": data['cyclePosition']['status'],
+            "grade": "",
+            "skill": "",
+            "bureau": "",
+            "title": "",
+            "create_date": data['submittedDate'],
+            "update_date": "",
+            "post": {
+                "id": "",
+                "location": {
+                    "id": "",
+                    "country": "",
+                    "code": "",
+                    "city": "",
+                    "state": ""
+                }
+            }
+        },
+        "waivers": [],
+        "can_delete": can_delete_bid(bidStatus, data['cycle']),
+        "status": bidStatus,
+        "draft_date": "",
+        "submitted_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
+        "handshake_offered_date": "",
+        "handshake_accepted_date": "",
+        "handshake_declined_date": "",
+        "in_panel_date": "",
+        "scheduled_panel_date": "",
+        "approved_date": "",
+        "declined_date": "",
+        "closed_date": "",
+        "is_priority": False,
+        "panel_reschedule_count": 0,
+        "create_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
         "update_date": "",
-        "post": {
-          "id": "",
-          "location": {
-            "id": "",
-            "country": "",
-            "code": "",
-            "city": "",
-            "state": ""
-          }
-        }
-      },
-      "waivers": [],
-      "can_delete": can_delete_bid(bidStatus, data['cycle']),
-      "status": bidStatus,
-      "draft_date": "",
-      "submitted_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
-      "handshake_offered_date": "",
-      "handshake_accepted_date": "",
-      "handshake_declined_date": "",
-      "in_panel_date": "",
-      "scheduled_panel_date": "",
-      "approved_date": "",
-      "declined_date": "",
-      "closed_date": "",
-      "is_priority": False,
-      "panel_reschedule_count": 0,
-      "create_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
-      "update_date": "",
-      "reviewer": ""
+        "reviewer": ""
     }
 
 
-def get_projected_vacancies(query, host=None):
+def get_projected_vacancies(query, jwt, host=None):
     '''
     Gets projected vacancies from FSBid
     '''
-    response = requests.get(f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}").json()
+    url = f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}"
+    response = requests.get(url, headers={'Authorization': jwt}).json()
     projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
     return {
-       **get_pagination(query, get_projected_vacancies_count(query)['count'], "/api/v1/fsbid/projected_vacancies/", host),
-       "results": projected_vacancies
+        **get_pagination(query, get_projected_vacancies_count(query, jwt)['count'], "/api/v1/fsbid/projected_vacancies/", host),
+        "results": projected_vacancies
     }
 
-def get_projected_vacancies_count(query, host=None):
+
+def get_projected_vacancies_count(query, jwt, host=None):
     '''
     Gets the total number of PVs for a filterset
     '''
-    response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
-    return { "count": response["Data"][0]["count(1)"] }
+    url = f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}"
+    response = requests.get(url, headers={'Authorization': jwt}).json()
+    return {"count": response["Data"][0]["count(1)"]}
+
 
 
 def get_projected_vacancies_count(query, host=None):
@@ -181,6 +189,7 @@ def get_pagination(query, count, base_url, host=None):
         "previous": previous_url
     }
 
+
 def bureau_values(query):
     '''
     Gets the ids for the functional/regional bureaus and maps to codes and their children
@@ -201,6 +210,7 @@ def bureau_values(query):
     if len(results) > 0:
         return ",".join(results)
 
+
 def post_values(query):
     '''
     Handles mapping locations and groups of locations to FSBid expected params
@@ -218,6 +228,7 @@ def post_values(query):
         results = results + list(location_codes)
     if len(results) > 0:
         return ",".join(results)
+
 
 def bureau_values(query):
     '''
@@ -283,6 +294,7 @@ def convert_pv_query(query):
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
 
+
 # Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
 LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
 
@@ -303,7 +315,6 @@ def parseLanguage(lang):
             return language
 
 
-
 def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
@@ -320,7 +331,7 @@ def fsbid_pv_to_talentmap_pv(pv):
             "active": True
         },
         "position": {
-            
+
             "grade": pv["pos_grade_code"],
             "skill": pv["pos_skill_desc"],
             "bureau": pv["bureau_desc"],
@@ -373,9 +384,11 @@ def fsbid_pv_to_talentmap_pv(pv):
     }
 
 
-def get_bid_seasons(bsn_future_vacancy_ind):
-    url = f"{API_ROOT}/bidSeasons?=bsn_future_vacancy_ind={bsn_future_vacancy_ind}" if bsn_future_vacancy_ind else f"{API_ROOT}/bidSeasons"
-    bid_seasons = requests.get(f"{API_ROOT}/bidSeasons").json()
+def get_bid_seasons(bsn_future_vacancy_ind, jwt):
+    # set future vacancy indicator - default to 'Y'
+    future_vacancy_ind = bsn_future_vacancy_ind if bsn_future_vacancy_ind else 'Y'
+    url = f"{API_ROOT}/bidSeasons?bsn_future_vacancy_ind={future_vacancy_ind}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bidSeasons?bsn_future_vacancy_ind={future_vacancy_ind}"
+    bid_seasons = requests.get(url, headers={'Authorization': jwt}).json()
     return map(fsbid_bid_season_to_talentmap_bid_season, bid_seasons)
 
 
@@ -387,3 +400,9 @@ def fsbid_bid_season_to_talentmap_bid_season(bs):
         "end_date": datetime.strptime(bs["bsn_end_date"], "%Y/%m/%d"),
         "panel_cut_off_date": datetime.strptime(bs["bsn_panel_cutoff_date"], "%Y/%m/%d")
     }
+
+
+def get_jwt(user):
+    url = f"{API_ROOT}/token?sAppCircuitID={user}" if user else f"{API_ROOT}/token"
+    jwt = requests.get(url).json()
+    return jwt['token']
