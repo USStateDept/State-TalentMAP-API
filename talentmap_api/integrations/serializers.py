@@ -17,5 +17,5 @@ class SynchronizationJobSerializer(PrefetchedSerializer):
 class SynchronizationTaskSerializer(PrefetchedSerializer):
 
     class Meta:
-        model= SynchronizationTask
+        model = SynchronizationTask
         fields = "__all__"
