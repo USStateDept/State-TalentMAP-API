@@ -170,6 +170,5 @@ class DataSyncTaskListView(mixins.ListModelMixin,
     serializer_class = SynchronizationTaskSerializer
 
     def get_queryset(self):
-        pk = self.kwargs.get("pk")
         queryset = SynchronizationTask.objects.all()
         return queryset
