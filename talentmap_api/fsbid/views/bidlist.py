@@ -33,7 +33,7 @@ class FSBidListView(APIView):
         Gets all bids for the current user
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        return Response(services.user_bids(user.emp_id, request.META['HTTP_JWT']))
+        return Response(services.user_bids(user.emp_id, 'JWTPLACEHOLDER'))
 
 
 class FSBidListBidActionView(APIView):
@@ -46,7 +46,7 @@ class FSBidListBidActionView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A', request.META['HTTP_JWT'])
+            services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A', 'JWTPLACEHOLDER')
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -66,7 +66,7 @@ class FSBidListPositionActionView(APIView):
         Returns 204 if the position is in the list, otherwise, 404
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        if len(services.user_bids(user.emp_id, request.META['HTTP_JWT'], pk)) > 0:
+        if len(services.user_bids(user.emp_id, 'JWTPLACEHOLDER', pk)) > 0:
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -76,7 +76,7 @@ class FSBidListPositionActionView(APIView):
         Adds a cycle position to the user's bid list
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        services.bid_on_position(self.request.user.id, request.META['HTTP_JWT'], user.emp_id, pk)
+        services.bid_on_position(self.request.user.id, 'JWTPLACEHOLDER', user.emp_id, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
@@ -84,5 +84,5 @@ class FSBidListPositionActionView(APIView):
         Closes or deletes specified bid on a cycle position
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        services.remove_bid(user.emp_id, pk, request.META['HTTP_JWT'])
+        services.remove_bid(user.emp_id, pk, 'JWTPLACEHOLDER')
         return Response(status=status.HTTP_204_NO_CONTENT)

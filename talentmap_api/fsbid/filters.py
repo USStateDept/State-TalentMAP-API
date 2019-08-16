@@ -25,7 +25,7 @@ class ProjectedVacancyFilter():
     # Used when saving a search to determine the number of records returned
     def get_queryset(query):
         def count(self):
-            return services.get_projected_vacancies_count(query, request.META['HTTP_JWT'])
+            return services.get_projected_vacancies_count(query, 'JWTPLACEHOLDER')
 
         return type('', (object,), {'count': count})()
 
