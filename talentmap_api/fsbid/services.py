@@ -145,6 +145,7 @@ def get_projected_vacancies(query, jwt, host=None):
     '''
     url = f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}"
     response = requests.get(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+
     projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
     return {
         **get_pagination(query, get_projected_vacancies_count(query, jwt)['count'], "/api/v1/fsbid/projected_vacancies/", host),
