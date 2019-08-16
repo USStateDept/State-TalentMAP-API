@@ -31,4 +31,4 @@ class FSBidBidSeasonsListView(APIView):
         '''
         Gets all bid seasons
         '''
-        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None), request.META['HTTP_JWT']))
+        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None), 'JWTPLACEHOLDER'))
