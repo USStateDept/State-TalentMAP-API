@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
+from talentmap_api.settings import OBC_URL
 
 
 class OrganizationSerializer(PrefetchedSerializer):
@@ -41,6 +42,13 @@ class OrganizationGroupSerializer(PrefetchedSerializer):
 
 
 class CountrySerializer(PrefetchedSerializer):
+    country_url = serializers.SerializerMethodField()
+
+    def get_country_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/country/detail/{obj.obc_id}"
+        else:
+            return None
 
     class Meta:
         model = Country
@@ -58,6 +66,20 @@ class LocationSerializer(PrefetchedSerializer):
 class PostSerializer(PrefetchedSerializer):
     code = serializers.CharField(source="_location_code", read_only=True)
     tour_of_duty = StaticRepresentationField(read_only=True)
+    post_overview_url = serializers.SerializerMethodField()
+    post_bidding_considerations_url = serializers.SerializerMethodField()
+
+    def get_post_overview_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/post/detail/{obj.obc_id}"
+        else:
+            return None
+
+    def get_post_bidding_considerations_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/post/postdatadetails/{obj.obc_id}"
+        else:
+            return None
 
     class Meta:
         model = Post

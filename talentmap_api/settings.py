@@ -471,5 +471,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
-# remove actual value before committing
+
+# remove actual values before committing
 AD_ID = 'DOMAIN\\USERNAME'
+OBC_URL = get_delineated_environment_variable('OBC_URL', 'http://localhost:4000')
