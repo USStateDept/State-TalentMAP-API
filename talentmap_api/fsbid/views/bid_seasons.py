@@ -18,6 +18,7 @@ import talentmap_api.fsbid.services as services
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidBidSeasonsListView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -30,4 +31,4 @@ class FSBidBidSeasonsListView(APIView):
         '''
         Gets all bid seasons
         '''
-        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None)))
+        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None), 'JWTPLACEHOLDER'))

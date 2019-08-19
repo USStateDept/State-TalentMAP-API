@@ -10,7 +10,7 @@ from dateutils import relativedelta
 
 from django.contrib.auth.models import User
 
-from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey
+from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey, CyclePosition
 from talentmap_api.position.models import Position, Assignment
 from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.messaging.models import Task
@@ -233,6 +233,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         call_command("create_seeded_users")
+        CyclePosition.objects.all().delete()
         BidCycle.objects.all().delete()
         today = timezone.now()
         # Create bidcycle with all positions
@@ -242,7 +243,10 @@ class Command(BaseCommand):
                                      cycle_deadline_date=today + relativedelta(months=1),
                                      cycle_end_date=today + relativedelta(months=3))
 
-        bc.positions.add(*list(Position.objects.all()))
+        
+        for pos in Position.objects.all():
+            CyclePosition.objects.create(bidcycle=bc, position=pos, posted_date=today, ted=today)
+
         self.logger.info(f"Created demo bidcycle with all positions: {bc.name}")
 
         self.logger.info(f"Setting all position posted dates, and statuses")
@@ -275,7 +279,7 @@ class Command(BaseCommand):
         Bid.objects.all().delete()
 
         # Create 40 bids, with competition
-        positions = list(bc.positions.filter(bureau__code="150000").order_by('?'))  # Our AO persona gets all the bids
+        positions = list(CyclePosition.objects.filter(position__bureau__code="150000").order_by('?'))  # Our AO persona gets all the bids
         for _ in range(0, 20):
             position = positions.pop()
             Bid.objects.create(position=position, bidcycle=bc, user=next(valid_users), reviewer=reviewer)
@@ -328,7 +332,7 @@ class Command(BaseCommand):
         waiver_category = itertools.cycle([Waiver.Category.language, Waiver.Category.six_eight, Waiver.Category.fairshare])
 
         for bid in list(Bid.objects.all().order_by('?')[:20]):
-            Waiver.objects.create(type=next(waiver_type), category=next(waiver_category), user=bid.user, position=bid.position, bid=bid)
+            Waiver.objects.create(type=next(waiver_type), category=next(waiver_category), user=bid.user, position=bid.position.position, bid=bid)
 
         # Randomly alter waiver statuses
         for waiver in list(Waiver.objects.all().order_by('?')):
@@ -339,8 +343,8 @@ class Command(BaseCommand):
         self.logger.info("Done seeding waivers")
 
         self.logger.info("Create some glossary entries")
-        GlossaryEntry.objects.create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
-        GlossaryEntry.objects.create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
+        GlossaryEntry.objects.get_or_create(title="Waiver", definition="A waiver grants an exclusion to a position's requirements")
+        GlossaryEntry.objects.get_or_create(title="Position", definition="A position represents a particular job", link="http://www.google.com")
 
         self.logger.info("Creating some tasks")
         for user in list(persona_users):
@@ -362,6 +366,10 @@ class Command(BaseCommand):
                 position.id = None
                 position.description = description
                 position.save()
+
+                # Add a new CyclePosition for the position
+                CyclePosition.objects.create(bidcycle=bc, position=position, posted_date=today, ted=today)
+
                 count = count + 1
                 if count >= min_position_count:
                     break

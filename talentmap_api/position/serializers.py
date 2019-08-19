@@ -91,6 +91,7 @@ class ClassificationSerializer(PrefetchedSerializer):
         model = Classification
         fields = "__all__"
 
+
 class PositionWritableSerializer(PrefetchedSerializer):
 
     class Meta:

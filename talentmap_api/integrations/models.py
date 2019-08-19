@@ -76,6 +76,7 @@ class SynchronizationJob(models.Model):
             test (bool) - Indicates if we should use the testing method of the SOAP client
         '''
         start = datetime.datetime.utcnow()
+        tz_start = timezone.now()
         self.running = True
         self.save()
         self.job_item_count = 0
@@ -202,7 +203,7 @@ class SynchronizationJob(models.Model):
 
             # Successful, set the last synchronization
             sync_task.end_date_time = datetime.datetime.now()
-            self.last_synchronization = timezone.now()
+            self.last_synchronization = tz_start
             self.job_item_count = self.job_item_count + len(updated_ids) + len(new_ids)
         except Exception as e:  # pragma: no cover
             logger.exception(e)

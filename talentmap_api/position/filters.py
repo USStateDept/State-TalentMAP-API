@@ -83,6 +83,7 @@ class PositionBidStatisticsFilter(filters.FilterSet):
             "in_grade_at_skill": INTEGER_LOOKUPS
         }
 
+
 class PositionFilter(filters.FilterSet):
     languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
     language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
