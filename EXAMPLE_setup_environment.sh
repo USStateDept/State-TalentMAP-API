@@ -109,3 +109,4 @@ export SAML2_ADMINISTRATIVE_POC_COMPANY=''
 export SAML2_ADMINISTRATIVE_POC_EMAIL=''
 
 export FSBID_API_URL='http://mock_fsbid:3333'
+export OBC_URL='http://localhost:4000'

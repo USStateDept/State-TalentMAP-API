@@ -24,7 +24,7 @@ def user_bids(employee_id, jwt, position_id=None):
     Get bids for a user on a position or all if no position
     '''
     url = f"{API_ROOT}/bids/?employeeId={employee_id}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids/?employeeId={employee_id}"
-    bids = requests.get(url, headers={'Authorization': jwt}).json()
+    bids = requests.get(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return [fsbid_bid_to_talentmap_bid(bid) for bid in bids if bid['cyclePosition']['cp_id'] == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, bids)
 
 
@@ -33,7 +33,7 @@ def bid_on_position(userId, jwt, employeeId, cyclePositionId):
     Submits a bid on a position
     '''
     url = f"{API_ROOT}/bids/?ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids"
-    response = requests.post(url, data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId}, headers={'Authorization': jwt})
+    response = requests.post(url, data={"perdet_seq_num": employeeId, "cp_id": cyclePositionId, "userId": userId}, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
 
@@ -43,7 +43,7 @@ def remove_bid(employeeId, cyclePositionId, jwt):
     Removes a bid from the users bid list
     '''
     url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bids?cp_id={cyclePositionId}&perder_seq_num={employeeId}"
-    return requests.delete(url, headers={'Authorization': jwt})
+    return requests.delete(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False)  # nosec
 
 
 def get_bid_status(statusCode, handshakeCode):
@@ -144,7 +144,8 @@ def get_projected_vacancies(query, jwt, host=None):
     Gets projected vacancies from FSBid
     '''
     url = f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'Authorization': jwt}).json()
+    response = requests.get(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+
     projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
     return {
         **get_pagination(query, get_projected_vacancies_count(query, jwt)['count'], "/api/v1/fsbid/projected_vacancies/", host),
@@ -157,9 +158,8 @@ def get_projected_vacancies_count(query, jwt, host=None):
     Gets the total number of PVs for a filterset
     '''
     url = f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'Authorization': jwt}).json()
+    response = requests.get(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0]["count(1)"]}
-
 
 
 def get_projected_vacancies_count(query, host=None):
@@ -167,8 +167,7 @@ def get_projected_vacancies_count(query, host=None):
     Gets the total number of PVs for a filterset
     '''
     response = requests.get(f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}").json()
-    return { "count": response["Data"][0]["count(1)"] }
-
+    return {"count": response["Data"][0]["count(1)"]}
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -388,7 +387,7 @@ def get_bid_seasons(bsn_future_vacancy_ind, jwt):
     # set future vacancy indicator - default to 'Y'
     future_vacancy_ind = bsn_future_vacancy_ind if bsn_future_vacancy_ind else 'Y'
     url = f"{API_ROOT}/bidSeasons?bsn_future_vacancy_ind={future_vacancy_ind}&ad_id={AD_ID}" if AD_ID else f"{API_ROOT}/bidSeasons?bsn_future_vacancy_ind={future_vacancy_ind}"
-    bid_seasons = requests.get(url, headers={'Authorization': jwt}).json()
+    bid_seasons = requests.get(url, headers={'Authorization': jwt, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return map(fsbid_bid_season_to_talentmap_bid_season, bid_seasons)
 
 
