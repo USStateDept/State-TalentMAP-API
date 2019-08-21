@@ -476,3 +476,17 @@ FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://moc
 # remove actual values before committing
 AD_ID = 'DOMAIN\\USERNAME'
 OBC_URL = get_delineated_environment_variable('OBC_URL', 'http://localhost:4000')
+
+# defaults from https://pypi.org/project/django-cors-headers/ plus our custom headers
+CORS_ALLOW_HEADERS = [
+'accept',
+'accept-encoding',
+'authorization',
+'content-type',
+'dnt',
+'jwt',
+'origin',
+'user-agent',
+'x-csrftoken',
+'x-requested-with',
+]
