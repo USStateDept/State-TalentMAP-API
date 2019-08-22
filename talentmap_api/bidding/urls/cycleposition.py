@@ -2,7 +2,7 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from talentmap_api.bidding.views import cycleposition as views
-from talentmap_api.common.urls import get_list, get_retrieve
+from talentmap_api.common.urls import get_list, get_retrieve, patch_update
 
 router = routers.SimpleRouter()
 
@@ -14,6 +14,9 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.CyclePositionListView.as_view({**get_retrieve}), name='bidding.CyclePosition-detail'),
     url(r'^(?P<pk>[0-9]+)/bids/$', views.CyclePositionBidListView.as_view(get_list), name='bidding.CyclePosition-bids'),
     url(r'^(?P<pk>[0-9]+)/similar/$', views.CyclePositionSimilarView.as_view(get_list), name='bidding.CyclePosition-similar'),
-]   
+    url(r'^(?P<pk>[0-9]+)/designation/$', views.CyclePositionDesignationView.as_view({ **patch_update }), name='bidding.CyclePosition-designation'),
+]
+
+
 
 urlpatterns += router.urls
