@@ -15,7 +15,7 @@ from talentmap_api.common.common_helpers import has_permission_or_403, in_group_
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 from talentmap_api.bidding.models import Bid, CyclePosition
-from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer, CyclePositionListSerializer
+from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer, CyclePositionListSerializer, CyclePositionDesignationSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter, CyclePositionFilter
 
 from talentmap_api.user_profile.models import UserProfile
@@ -155,3 +155,18 @@ class CyclePositionFavoriteActionView(APIView):
         '''
         UserProfile.objects.get(user=self.request.user).favorite_positions.remove(CyclePosition.objects.get(id=pk))
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CyclePositionDesignationView(mixins.UpdateModelMixin,
+                                   FieldLimitableSerializerMixin,
+                                   GenericViewSet):
+    '''
+    partial_update:
+    Updates a bid cycle's position designation
+    '''
+    serializer_class = CyclePositionDesignationSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        queryset = CyclePosition.objects.all()
+        queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
+        return queryset
