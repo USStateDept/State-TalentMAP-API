@@ -84,7 +84,10 @@ urlpatterns = [
     url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
 
     # Log viewing
-    url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry'))
+    url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),
+
+    # Login statistics
+    url(r'^api/v1/stats/', include('talentmap_api.stats.urls.logins'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
