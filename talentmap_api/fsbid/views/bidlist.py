@@ -14,7 +14,7 @@ from rest_framework import status
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.bid as services
 
 import logging
 logger = logging.getLogger(__name__)

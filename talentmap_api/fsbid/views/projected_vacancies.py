@@ -14,7 +14,7 @@ from rest_framework import status
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import ProjectedVacancyFilter
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.projected_vacancies as services
 
 import logging
 logger = logging.getLogger(__name__)

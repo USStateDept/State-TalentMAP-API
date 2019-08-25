@@ -13,7 +13,7 @@ from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.bid_season as services
 
 import logging
 logger = logging.getLogger(__name__)

@@ -1,10 +1,9 @@
 import rest_framework_filters as filters
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.projected_vacancies as pv_services
 
 import logging
 logger = logging.getLogger(__name__)
-
 
 # Filter handles not having database tables backing the model
 class ProjectedVacancyFilter():
@@ -25,7 +24,8 @@ class ProjectedVacancyFilter():
     # Used when saving a search to determine the number of records returned
     def get_queryset(query):
         def count(self):
-            return services.get_projected_vacancies_count(query, 'JWTPLACEHOLDER')
+            fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
+            return pv_services.get_projected_vacancies_count(query, fake_jwt)
 
         return type('', (object,), {'count': count})()
 

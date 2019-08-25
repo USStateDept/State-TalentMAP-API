@@ -28,7 +28,7 @@ pv = {
 
 @pytest.mark.django_db()
 def test_favorite_action_endpoints(authorized_client, authorized_user):
-   with patch('talentmap_api.fsbid.services.requests.get') as mock_get:
+   with patch('talentmap_api.fsbid.services.projected_vacancies.requests.get') as mock_get:
       mock_get.return_value = Mock(ok=True)
       mock_get.return_value.json.return_value = [pv]
       

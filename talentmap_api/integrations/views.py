@@ -8,9 +8,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.core.management import call_command
-from talentmap_api.integrations.models import SynchronizationJob
+from talentmap_api.integrations.models import SynchronizationJob, SynchronizationTask
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
-from talentmap_api.integrations.serializers import SynchronizationJobSerializer
+from talentmap_api.integrations.serializers import SynchronizationJobSerializer, SynchronizationTaskSerializer
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
@@ -158,3 +158,17 @@ class DataSyncScheduleActionView(FieldLimitableSerializerMixin,
     def perform_update(self, serializer):
         instance = serializer.save()
         logger.info(f"User {self.request.user.id}:{self.request.user} updating sync job entry {instance}")
+
+
+class DataSyncTaskListView(mixins.ListModelMixin,
+                           GenericViewSet):
+    '''
+    list:
+    Lists all data sync tasks
+    '''
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMember('superuser'))
+    serializer_class = SynchronizationTaskSerializer
+
+    def get_queryset(self):
+        queryset = SynchronizationTask.objects.all()
+        return queryset
