@@ -74,6 +74,38 @@ def test_saved_search_create_bad_filters(authorized_client, authorized_user):
 
 
 @pytest.mark.django_db()
+def test_saved_search_create_in_array_filters(authorized_client, authorized_user):
+    # Test a valid endpoint with declared (i.e. manual) filters
+    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
+        {
+            "name": "Banana search",
+            "endpoint": "/api/v1/position/",
+            "filters": {
+                "grade__code__in": ["05", "06"]
+            }
+        }
+    ), content_type='application/json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db()
+def test_saved_search_create_in_string_filters(authorized_client, authorized_user):
+    # Test a valid endpoint with declared (i.e. manual) filters
+    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
+        {
+            "name": "Banana search",
+            "endpoint": "/api/v1/position/",
+            "filters": {
+                "post__in": "254,123"
+            }
+        }
+    ), content_type='application/json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db()
 def test_saved_search_create_declared_filters(authorized_client, authorized_user):
     # Test a valid endpoint with declared (i.e. manual) filters
     response = authorized_client.post('/api/v1/searches/', data=json.dumps(

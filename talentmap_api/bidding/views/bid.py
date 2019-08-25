@@ -15,6 +15,9 @@ from talentmap_api.bidding.serializers.serializers import BidWritableSerializer
 from talentmap_api.bidding.models import Bid
 from talentmap_api.user_profile.models import UserProfile
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class BidUpdateView(mixins.UpdateModelMixin,
                     GenericViewSet):
@@ -26,11 +29,12 @@ class BidUpdateView(mixins.UpdateModelMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
 
     def perform_update(self, serializer):
-        serializer.save(status=Bid.Status.in_panel, in_panel_date=timezone.now())
+        instance = serializer.save(status=Bid.Status.in_panel, in_panel_date=timezone.now())
+        logger.info(f"User {self.request.user.id}:{self.request.user} setting status for bid {instance} to in_panel")
 
     def get_object(self):
         bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"), status__in=[Bid.Status.handshake_accepted, Bid.Status.in_panel])
-        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.position.bureau.code}')
         return bid
 
 
@@ -47,8 +51,9 @@ class BidListAOActionView(GenericViewSet):
         if prereq_status:
             bid = get_object_or_404(Bid, id=bid_id, status=prereq_status)
         # We must be an AO for the bureau for the bid's position
-        in_group_or_403(user, f'bureau_ao_{bid.position.bureau.code}')
+        in_group_or_403(user, f'bureau_ao:{bid.position.position.bureau.code}')
 
+        logger.info(f"User {self.request.user.id}:{self.request.user} setting bid status for {bid} to {status}")
         bid.status = status
         setattr(bid, f"{status}_date", timezone.now())
         bid.save()
@@ -88,8 +93,9 @@ class BidListAOActionView(GenericViewSet):
         '''
         bid = get_object_or_404(Bid, id=pk)
         # We must be an AO for the bureau for the bid's position
-        in_group_or_403(self.request.user, f'bureau_ao_{bid.position.bureau.code}')
+        in_group_or_403(self.request.user, f'bureau_ao:{bid.position.position.bureau.code}')
 
+        logger.info(f"User {self.request.user.id}:{self.request.user} self-assigning to bid {bid}")
         bid.reviewer = self.request.user.profile
         bid.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -100,7 +106,7 @@ class BidListBidderActionView(GenericViewSet):
     Supports all bidder actions for a bid
     '''
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
 
     def submit(self, request, pk, format=None):
         '''
@@ -116,6 +122,7 @@ class BidListBidderActionView(GenericViewSet):
         if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
+        logger.info(f"User {self.request.user.id}:{self.request.user} is submitting bid {bid}")
         bid.status = Bid.Status.submitted
         bid.submitted_date = timezone.now()
         bid.save()
@@ -132,6 +139,7 @@ class BidListBidderActionView(GenericViewSet):
         if user.bidlist.filter(is_priority=True, bidcycle=bid.bidcycle).exists():
             return Response({"detail": "Cannot submit a bid when another bid has priority."}, status=status.HTTP_400_BAD_REQUEST)
 
+        logger.info(f"User {self.request.user.id}:{self.request.user} is accepting handshake on bid {bid}")
         bid.status = Bid.Status.handshake_accepted
         bid.handshake_accepted_date = timezone.now()
         bid.save()
@@ -144,6 +152,7 @@ class BidListBidderActionView(GenericViewSet):
         Returns 204 if the action is a success
         '''
         bid = get_object_or_404(Bid, user=UserProfile.objects.get(user=self.request.user), id=pk, status=Bid.Status.handshake_offered)
+        logger.info(f"User {self.request.user.id}:{self.request.user} is declining handshake on bid {bid}")
         bid.status = Bid.Status.handshake_declined
         bid.handshake_declined_date = timezone.now()
         bid.save()

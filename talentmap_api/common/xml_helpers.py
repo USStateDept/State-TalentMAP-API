@@ -6,6 +6,7 @@ import defusedxml.lxml as ET
 import logging
 import re
 import csv
+import datetime
 
 from io import StringIO
 
@@ -14,7 +15,7 @@ from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 
 class XMLloader():
 
-    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None, override_loading_method=None):
+    def __init__(self, model, instance_tag, tag_map, collision_behavior=None, collision_field=None, override_loading_method=None, logger=None):
         '''
         Instantiates the XMLloader
 
@@ -33,6 +34,11 @@ class XMLloader():
         self.collision_behavior = collision_behavior
         self.collision_field = collision_field
         self.override_loading_method = override_loading_method
+        self.last_pagination_start_key = None
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(__name__)
 
     def create_models_from_xml(self, xml, raw_string=False):
         '''
@@ -74,12 +80,39 @@ class XMLloader():
 
         # For every instance tag, create a new instance and populate it
         self.last_tag_collision_field = None  # Used when loading piecemeal
-        for tag in instance_tags:
-            if self.override_loading_method:
-                self.override_loading_method(self, tag, new_instances, updated_instances)
-                continue
+        self.last_pagination_start_key = None  # Used when loading SOAP integrations
 
-            self.default_xml_action(tag, new_instances, updated_instances)
+        self.logger.info(f"XML Loader found {len(instance_tags)} items")
+        processed = 0
+        start_time = datetime.datetime.now()
+        for tag in instance_tags:
+            if processed > 0:
+                tot_sec = (len(instance_tags) - processed) * ((datetime.datetime.now() - start_time).total_seconds() / processed)
+                days = int(tot_sec / 86400)
+                hours = int(tot_sec % 86400 / 3600)
+                minutes = int(tot_sec % 86400 % 3600 / 60)
+                seconds = int(tot_sec % 86400 % 3600 % 60)
+                etr = f"{days} d {hours} h {minutes} min {seconds} s"
+                pct = str(int(processed / len(instance_tags) * 100))
+            else:
+                etr = "Unknown"
+                pct = "0"
+            self.logger.info(f"Processing... ({pct})% Estimated Time Remaining: {etr}")
+            # Update the last pagination start key
+            last_pagination_key_item = tag.find("paginationStartKey", tag.nsmap)
+            if last_pagination_key_item is not None:
+                self.last_pagination_start_key = last_pagination_key_item.text
+
+            # Try to parse and load this tag
+            try:
+                processed += 1
+                # Call override method if it exists
+                if self.override_loading_method:
+                    self.override_loading_method(self, tag, new_instances, updated_instances)
+                else:
+                    self.default_xml_action(tag, new_instances, updated_instances)
+            except Exception as e:
+                self.logger.exception(e)
 
         # We want to call the save() logic on each new instance
         for instance in new_instances:
@@ -87,9 +120,12 @@ class XMLloader():
         new_instances = [instance.id for instance in new_instances]
 
         # Create our instances
-        return (new_instances, updated_instances, self.last_tag_collision_field)
+        return (new_instances, updated_instances)
 
     def default_xml_action(self, tag, new_instances, updated_instances):
+        '''
+        Returns the instance and a boolean indicating if the instance was "updated" or not
+        '''
         instance = self.model()
         for key in self.tag_map.keys():
             # Find a matching entry for the tag from the tag map
@@ -112,7 +148,7 @@ class XMLloader():
             self.last_tag_collision_field = getattr(instance, self.collision_field)
             collisions = type(instance).objects.filter(**q_kwargs)
             if collisions.count() > 1:
-                logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
+                logging.getLogger(__name__).warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
                 return
             elif collisions.count() == 1:
                 # We have exactly one collision, so handle it
@@ -121,20 +157,22 @@ class XMLloader():
                     new_instances.append(instance)
                 elif self.collision_behavior == 'update':
                     # Update our collided instance
-                    update_dict = dict(instance.__dict__)
+                    update_dict = {k: v for k, v in instance.__dict__.items() if k in collisions.first().__dict__.keys()}
                     del update_dict["id"]
                     del update_dict["_state"]
                     collisions.update(**update_dict)
                     updated_instances.append(collisions.first().id)
-                    return
+                    return collisions.first(), True
                 elif self.collision_behavior == 'skip':
                     # Skip this instance, because it already exists
-                    return
+                    return None, False
             else:
                 new_instances.append(instance)
         else:
             # Append our instance
             new_instances.append(instance)
+
+        return instance, False
 
 
 class CSVloader():
@@ -195,7 +233,7 @@ class CSVloader():
                     q_kwargs[self.collision_field] = getattr(instance, self.collision_field)
                     collisions = type(instance).objects.filter(**q_kwargs)
                     if collisions.count() > 1:
-                        logging.getLogger('console').warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
+                        logging.getLogger(__name__).warn(f"Looking for collision on {type(instance).__name__}, field {self.collision_field}, value {getattr(instance, self.collision_field)}; found {collisions.count()}. Skipping item.")
                         continue
                     elif collisions.count() == 1:
                         # We have exactly one collision, so handle it
@@ -287,4 +325,20 @@ def get_nested_tag(field, tag, many=False):
         else:
             data = [element.text for element in list(item.iter()) if element.tag == tag]
             setattr(instance, field, ",".join(data))
+    return process_function
+
+
+def set_foreign_key_by_filters(field, foreign_field, lookup="__iexact"):
+    '''
+    Creates a function which will search the model associated with the foreign key
+    specified by the foreign field parameter, matching on tag contents. Use this when
+    syncing reference data.
+    '''
+
+    def process_function(instance, item):
+        if item is not None and item.text:
+            foreign_model = type(instance)._meta.get_field(field).related_model
+            search_parameter = {f"{foreign_field}{lookup}": item.text}
+            setattr(instance, field, foreign_model.objects.filter(**search_parameter).first())
+
     return process_function

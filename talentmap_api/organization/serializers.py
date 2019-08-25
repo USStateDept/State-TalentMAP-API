@@ -1,12 +1,14 @@
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
+from talentmap_api.settings import OBC_URL
 
 
 class OrganizationSerializer(PrefetchedSerializer):
     bureau_organization = serializers.SerializerMethodField()
     parent_organization = serializers.SerializerMethodField()
+    groups = StaticRepresentationField(read_only=True, many=True)
     highlighted_positions = StaticRepresentationField(read_only=True, many=True)
     location = StaticRepresentationField(read_only=True)
 
@@ -31,7 +33,22 @@ class OrganizationSerializer(PrefetchedSerializer):
         fields = "__all__"
 
 
+class OrganizationGroupSerializer(PrefetchedSerializer):
+    organizations = StaticRepresentationField(read_only=True, many=True)
+
+    class Meta:
+        model = OrganizationGroup
+        fields = "__all__"
+
+
 class CountrySerializer(PrefetchedSerializer):
+    country_url = serializers.SerializerMethodField()
+
+    def get_country_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/country/detail/{obj.obc_id}"
+        else:
+            return None
 
     class Meta:
         model = Country
@@ -48,12 +65,33 @@ class LocationSerializer(PrefetchedSerializer):
 
 class PostSerializer(PrefetchedSerializer):
     code = serializers.CharField(source="_location_code", read_only=True)
-    location = StaticRepresentationField(read_only=True)
     tour_of_duty = StaticRepresentationField(read_only=True)
+    post_overview_url = serializers.SerializerMethodField()
+    post_bidding_considerations_url = serializers.SerializerMethodField()
+
+    def get_post_overview_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/post/detail/{obj.obc_id}"
+        else:
+            return None
+
+    def get_post_bidding_considerations_url(self, obj):
+        if obj.obc_id:
+            return f"{OBC_URL}/post/postdatadetails/{obj.obc_id}"
+        else:
+            return None
 
     class Meta:
         model = Post
         fields = "__all__"
+        nested = {
+            "location": {
+                "class": LocationSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            }
+        }
 
 
 class TourOfDutySerializer(PrefetchedSerializer):

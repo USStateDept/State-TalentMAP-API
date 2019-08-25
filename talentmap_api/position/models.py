@@ -15,6 +15,7 @@ from talentmap_api.common.common_helpers import ensure_date, month_diff, safe_na
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification
+from talentmap_api.bidding.models import CyclePosition
 
 
 class Position(StaticRepresentationModel):
@@ -24,33 +25,37 @@ class Position(StaticRepresentationModel):
     '''
 
     position_number = models.TextField(null=True, help_text='The position number')
-    description = models.OneToOneField('position.CapsuleDescription', related_name='position', null=True, help_text="A plain text description of the position")
+    description = models.OneToOneField('position.CapsuleDescription', on_delete=models.DO_NOTHING, related_name='position', null=True, help_text="A plain text description of the position")
     title = models.TextField(null=True, help_text='The position title')
 
     # Positions can have any number of language requirements
     languages = models.ManyToManyField('language.Qualification', related_name='positions')
 
     # Positions most often share their tour of duty with the post, but sometimes vary
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='positions', null=True, help_text='The tour of duty of the post')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The tour of duty of the post')
 
     # Positions can have any number of classifications
     classifications = models.ManyToManyField('position.Classification', related_name='positions')
-    current_assignment = models.ForeignKey('position.Assignment', null=True, related_name='current_for_position')
+    current_assignment = models.ForeignKey('position.Assignment', on_delete=models.DO_NOTHING, null=True, related_name='current_for_position')
 
-    grade = models.ForeignKey('position.Grade', related_name='positions', null=True, help_text='The job grade for this position')
-    skill = models.ForeignKey('position.Skill', related_name='positions', null=True, help_text='The job skill for this position')
+    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The job grade for this position')
+    skill = models.ForeignKey('position.Skill', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The job skill for this position')
 
-    organization = models.ForeignKey('organization.Organization', related_name='organization_positions', null=True, help_text='The organization for this position')
-    bureau = models.ForeignKey('organization.Organization', related_name='bureau_positions', null=True, help_text='The bureau for this position')
-    post = models.ForeignKey('organization.Post', related_name='positions', null=True, help_text='The position post')
+    organization = models.ForeignKey('organization.Organization', on_delete=models.DO_NOTHING, related_name='organization_positions', null=True, help_text='The organization for this position')
+    bureau = models.ForeignKey('organization.Organization', on_delete=models.DO_NOTHING, related_name='bureau_positions', null=True, help_text='The bureau for this position')
+    post = models.ForeignKey('organization.Post', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The position post')
 
     is_overseas = models.BooleanField(default=False, help_text="Flag designating whether the position is overseas")
+    is_highlighted = models.BooleanField(default=False, help_text="Flag designating whether the position is highlighted by an organization")
+
+    latest_bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.DO_NOTHING, related_name='latest_cycle_for_positions', null=True, help_text="The latest bid cycle this position is in")
 
     history = HistoricalRecords()
 
     create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
     effective_date = models.DateTimeField(null=True, help_text="The effective date of this position")
+    posted_date = models.DateTimeField(null=True, help_text="The posted date of this position")
 
     # Values from the original XML/DB that are maintained but not displayed
     _seq_num = models.TextField(null=True)
@@ -79,8 +84,48 @@ class Position(StaticRepresentationModel):
     _jobcode_code = models.TextField(null=True)
     _occ_series_code = models.TextField(null=True)
 
+    @property
+    def similar_positions(self):
+        '''
+        Returns a query set of similar positions, using the base criteria.
+        If there are not at least 3 results, the criteria is loosened.
+        '''
+        base_criteria = {
+            "post__location__country__id": safe_navigation(self, "post.location.country.id"),
+            "skill__code": safe_navigation(self, "skill.code"),
+            "grade__code": safe_navigation(self, "grade.code"),
+        }
+
+        q_obj = models.Q(**base_criteria)
+        position_ids = talentmap_api.bidding.models.CyclePosition.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        all_pos_queryset = Position.objects.filter(id__in=position_ids)
+        queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+
+        while queryset.count() < 3:
+            del base_criteria[list(base_criteria.keys())[0]]
+            q_obj = models.Q(**base_criteria)
+            queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+        return queryset
+
     def __str__(self):
         return f"[{self.position_number}] {self.title} ({self.post})"
+
+    @property
+    def availability(self):
+        '''
+        Evaluates if this position can accept new bids in it's latest bidcycle
+        '''
+        if self.latest_bidcycle:
+            available, reason = self.can_accept_new_bids(self.latest_bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
 
     def can_accept_new_bids(self, bidcycle):
         '''
@@ -91,20 +136,29 @@ class Position(StaticRepresentationModel):
 
         Returns:
             - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
         '''
-        if not bidcycle.active:
-            # We must be looking at an active bidcycle
-            return False
+        # Commenting this out for now - we don't appear to be synchronizing this boolean
+        # if not bidcycle.active:
+        #     # We must be looking at an active bidcycle
+        #     return False, "Bid cycle is not open"
         if not bidcycle.positions.filter(id=self.id).exists():
             # We must be in the bidcycle's position list
-            return False
+            return False, "Position not in specified bid cycle"
 
         # Filter this positions bid by bidcycle and our Q object
         q_obj = talentmap_api.bidding.models.Bid.get_unavailable_status_filter()
-        if self.bids.filter(bidcycle=bidcycle).filter(q_obj).exists():
-            return False
+        fulfilling_bids = CyclePosition.objects.filter(bidcycle=bidcycle, position=self).values_list('bids').filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                talentmap_api.bidding.models.Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                talentmap_api.bidding.models.Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                talentmap_api.bidding.models.Bid.Status.in_panel: "This position is currently due for paneling",
+                talentmap_api.bidding.models.Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
 
-        return True
+        return True, ""
 
     def update_relationships(self):
         '''
@@ -162,26 +216,28 @@ class PositionBidStatistics(StaticRepresentationModel):
     Stores the bid statistics on a per-cycle basis for a position
     '''
 
-    bidcycle = models.ForeignKey("bidding.BidCycle", on_delete=models.CASCADE, related_name="position_bid_statistics")
-    position = models.ForeignKey("position.Position", on_delete=models.CASCADE, related_name="bid_statistics")
+    position = models.OneToOneField("bidding.CyclePosition", on_delete=models.CASCADE, related_name="bid_statistics")
 
     total_bids = models.IntegerField(default=0)
     in_grade = models.IntegerField(default=0)
     at_skill = models.IntegerField(default=0)
     in_grade_at_skill = models.IntegerField(default=0)
 
+    has_handshake_offered = models.BooleanField(default=False)
+    has_handshake_accepted = models.BooleanField(default=False)
+
     def update_statistics(self):
-        bidcycle_bids = self.position.bids.filter(bidcycle=self.bidcycle)
+        bidcycle_bids = self.position.bids.filter(bidcycle=self.position.bidcycle)
         self.total_bids = bidcycle_bids.count()
-        self.in_grade = bidcycle_bids.filter(user__grade=self.position.grade).count()
-        self.at_skill = bidcycle_bids.filter(user__skills=self.position.skill).count()
-        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.grade, user__skills=self.position.skill).count()
+        self.in_grade = bidcycle_bids.filter(user__grade=self.position.position.grade).count()
+        self.at_skill = bidcycle_bids.filter(user__skills=self.position.position.skill).count()
+        self.in_grade_at_skill = bidcycle_bids.filter(user__grade=self.position.position.grade, user__skills=self.position.position.skill).count()
+        self.has_handshake_offered = any(x.status == talentmap_api.bidding.models.Bid.Status.handshake_offered for x in bidcycle_bids)
+        self.has_handshake_accepted = any(x.status == talentmap_api.bidding.models.Bid.Status.handshake_accepted for x in bidcycle_bids)
         self.save()
 
     class Meta:
         managed = True
-        ordering = ["bidcycle__cycle_start_date"]
-        unique_together = (("bidcycle", "position",),)
 
 
 class CapsuleDescription(StaticRepresentationModel):
@@ -193,7 +249,7 @@ class CapsuleDescription(StaticRepresentationModel):
     point_of_contact = models.TextField(null=True)
     website = models.TextField(null=True)
 
-    last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
+    last_editing_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
@@ -250,7 +306,7 @@ class Skill(StaticRepresentationModel):
     '''
 
     code = models.TextField(db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
-    cone = models.ForeignKey("position.SkillCone", related_name="skills", null=True)
+    cone = models.ForeignKey("position.SkillCone", on_delete=models.DO_NOTHING, related_name="skills", null=True)
     description = models.TextField(null=False, help_text="Text description of the job skill")
 
     def __str__(self):
@@ -362,16 +418,16 @@ class Assignment(StaticRepresentationModel):
     curtailment_reason = models.TextField(null=True, choices=CurtailmentReason.choices)
 
     # Incumbent and position information
-    user = models.ForeignKey('user_profile.UserProfile', related_name='assignments')
-    position = models.ForeignKey('position.Position', related_name='assignments')
-    tour_of_duty = models.ForeignKey('organization.TourOfDuty', related_name='assignments')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name='assignments')
+    tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, null=True, related_name='assignments')
 
     # Chronology information
     create_date = models.DateTimeField(auto_now_add=True, help_text='The date the assignment was created')
     start_date = models.DateTimeField(null=True, help_text='The date the assignment started')
     estimated_end_date = models.DateTimeField(null=True, help_text='The estimated end date based upon tour of duty')
     end_date = models.DateTimeField(null=True, help_text='The date this position was completed or curtailed')
-    bid_approval_date = models.DateTimeField(help_text='The date the bid for this assignment was approved')
+    bid_approval_date = models.DateTimeField(null=True, help_text='The date the bid for this assignment was approved')
     arrival_date = models.DateTimeField(null=True, help_text='The date the incumbent arrived at the position')
     service_duration = models.IntegerField(null=True, help_text='The duration of a completed assignment in months')
     update_date = models.DateTimeField(auto_now=True)
@@ -382,7 +438,9 @@ class Assignment(StaticRepresentationModel):
     combined_differential = models.IntegerField(default=0, help_text='The combined differential (danger pay and differential) for this assignment')
     standard_tod_months = models.IntegerField(default=0, help_text='The standard tour of duty for the post at assignment creation')
 
-    history = HistoricalRecords()
+    @property
+    def emp_id(self):
+        return self.user.emp_id
 
     @staticmethod
     def create_from_bid(bid):
@@ -394,8 +452,8 @@ class Assignment(StaticRepresentationModel):
 
         assignment = Assignment.objects.create(status=Assignment.Status.assigned,
                                                user=bid.user,
-                                               position=bid.position,
-                                               tour_of_duty=bid.position.post.tour_of_duty,
+                                               position=bid.position.position,
+                                               tour_of_duty=bid.position.position.post.tour_of_duty,
                                                bid_approval_date=bid.approved_date)
 
         return assignment
@@ -445,8 +503,7 @@ def assignment_pre_save(sender, instance, **kwargs):
                (sd.year == today.year and sd.month < 11 and today.month > 11):
                 sd_post = sd_post.history.as_of(f"{sd.year}-11-01T00:00:00Z")
 
-            if bd.year < today.year or \
-               (bd.year == today.year and bd.month < 11 and today.month > 11):
+            if bd and (bd.year < today.year or (bd.year == today.year and bd.month < 11 and today.month > 11)):
                 bd_post = bd_post.history.as_of(f"{bd.year}-11-01T00:00:00Z")
 
             instance.combined_differential = max((sd_post.differential_rate + sd_post.danger_pay),

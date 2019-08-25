@@ -12,9 +12,139 @@ from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel
+from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
 
+class CyclePosition(StaticRepresentationModel):
+    '''
+    Maps a position to a bid cycle with additional fields
+    '''
+    bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="cycle_position_cycle")
+    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="cycle_position_position")
+
+    ted = models.DateTimeField(null=True, help_text="The ted date for the cycle position")
+    created = models.DateTimeField(null=True, help_text="The created date for the cycle positon")
+    updated = models.DateTimeField(null=True, help_text="The updated date for the cycle positon")
+    posted_date = models.DateTimeField(null=True, help_text="The posted date for the cycle positon")
+    status_code = models.CharField(max_length=120, default="OP", null=True, help_text="Cycle status code")
+    status = models.CharField(max_length=120, default="Open", null=True, help_text="Cycle status text")
+    
+    _cp_id = models.TextField(null=True)
+    
+    @property
+    def similar_positions(self):
+        '''
+        Returns a query set of similar positions, using the base criteria.
+        If there are not at least 3 results, the criteria is loosened.
+        '''
+        base_criteria = {
+            "position__post__location__country__id": safe_navigation(self, "position.post.location.country.id"),
+            "position__skill__code": safe_navigation(self, "position.skill.code"),
+            "position__grade__code": safe_navigation(self, "position.grade.code"),
+        }
+
+        q_obj = models.Q(**base_criteria)
+        position_ids = CyclePosition.objects.filter(status_code__in=["HS", "OP"]).values_list("position_id", flat=True)
+        all_pos_queryset = CyclePosition.objects.filter(position_id__in=position_ids)
+        queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+
+        while queryset.count() < 3:
+            del base_criteria[list(base_criteria.keys())[0]]
+            q_obj = models.Q(**base_criteria)
+            queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
+        return queryset
+    
+    @property
+    def availability(self):
+        '''
+        Evaluates if this cycle position can accept new bids in it's latest bidcycle
+        '''
+        if self.bidcycle:
+            available, reason = self.can_accept_new_bids(self.bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
+    
+    def can_accept_new_bids(self, bidcycle):
+        '''
+        Evaluates if this position can accept new bids for the given bidcycle
+
+        Args:
+            - bidcycle (Object) - The Bidcycle object to evaluate if this position can accept a bid
+
+        Returns:
+            - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
+        '''
+        # Filter this positions bid by bidcycle and our Q object
+        q_obj = Bid.get_unavailable_status_filter()
+        fulfilling_bids = Bid.objects.filter(position__id=self.id).filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                Bid.Status.in_panel: "This position is currently due for paneling",
+                Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
+
+        return True, ""
+
+    def __str__(self):
+        return f"[{self.position.position_number}] {self.position.title} ({self.position.post})"
+
+    @property
+    def availability(self):
+        '''
+        Evaluates if this cycle position can accept new bids in it's latest bidcycle
+        '''
+        if self.bidcycle:
+            available, reason = self.can_accept_new_bids(self.bidcycle)
+            return {
+                "availability": available,
+                "reason": reason,
+            }
+        else:
+            return {
+                "availability": False,
+                "reason": "This position is not in an available bid cycle",
+            }
+    
+    def can_accept_new_bids(self, bidcycle):
+        '''
+        Evaluates if this position can accept new bids for the given bidcycle
+
+        Args:
+            - bidcycle (Object) - The Bidcycle object to evaluate if this position can accept a bid
+
+        Returns:
+            - Boolean - True if the position can accept new bids for the cycle, otherwise False
+            - String - An explanation of why this position is not biddable
+        '''
+        # Filter this positions bid by bidcycle and our Q object
+        q_obj = Bid.get_unavailable_status_filter()
+        fulfilling_bids = Bid.objects.filter(position__id=self.id).filter(q_obj)
+        if fulfilling_bids.exists():
+            messages = {
+                Bid.Status.handshake_offered: "This position has an outstanding handshake",
+                Bid.Status.handshake_accepted: "This position has an accepted handshake",
+                Bid.Status.in_panel: "This position is currently due for paneling",
+                Bid.Status.approved: "This position has been filled",
+            }
+            return False, messages[fulfilling_bids.first().status]
+
+        return True, ""
+
+    class Meta:
+        managed = True
+        ordering = ["bidcycle__cycle_start_date"]
 
 class BidCycle(StaticRepresentationModel):
     '''
@@ -34,6 +164,7 @@ class BidCycle(StaticRepresentationModel):
     _id = models.TextField(null=True)
     _positions_seq_nums = ArrayField(models.TextField(), default=list)
     _category_code = models.TextField(null=True)
+    _cycle_status = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -53,18 +184,9 @@ class BidCycle(StaticRepresentationModel):
 
         return positions
 
-    def update_relationships(self):
-        # For each position in our _positions_seq_nums, find it and add it to our positions
-        for seq_num in self._positions_seq_nums:
-            try:
-                self.positions.add(talentmap_api.position.models.Position.objects.get(_seq_num=seq_num))
-            except:
-                logging.getLogger('console').info(f"While adding positions to bidcycle, could not locate sequence number {seq_num}")
-
     class Meta:
         managed = True
         ordering = ["cycle_start_date"]
-
 
 class StatusSurvey(StaticRepresentationModel):
     '''
@@ -73,7 +195,7 @@ class StatusSurvey(StaticRepresentationModel):
     '''
 
     user = models.ForeignKey("user_profile.UserProfile", on_delete=models.CASCADE, related_name="status_surveys")
-    bidcycle = models.ForeignKey(BidCycle, related_name="status_surveys")
+    bidcycle = models.ForeignKey(BidCycle, on_delete=models.DO_NOTHING, related_name="status_surveys")
 
     is_differential_bidder = models.BooleanField(default=False)
     is_fairshare = models.BooleanField(default=False)
@@ -147,7 +269,7 @@ class Bid(StaticRepresentationModel):
 
     bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.CASCADE, related_name="bids", help_text="The bidcycle for this bid")
     user = models.ForeignKey('user_profile.UserProfile', on_delete=models.CASCADE, related_name="bidlist", help_text="The user owning this bid")
-    position = models.ForeignKey('position.Position', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
+    position = models.ForeignKey('bidding.CyclePosition', on_delete=models.CASCADE, related_name="bids", help_text="The position this bid is for")
     is_priority = models.BooleanField(default=False, help_text="Flag indicating if this bid is the bidder's priority bid")
     panel_reschedule_count = models.IntegerField(default=0, help_text="The number of times this bid's panel date has been rescheduled")
 
@@ -157,11 +279,20 @@ class Bid(StaticRepresentationModel):
     update_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user}#{self.position.position_number} ({self.status})"
+        return f"{self.id} {self.user}#{self.position.position.position_number} ({self.status})"
 
     @property
     def is_paneling_today(self):
         return timezone.now().date() == self.scheduled_panel_date.date()
+
+    @property
+    def can_delete(self):
+        ''' Whether or not a bid can be deleted '''
+        return self.status == Bid.Status.draft or (self.status == Bid.Status.submitted and self.bidcycle.active)
+
+    @property
+    def emp_id(self):
+        return self.user.emp_id
 
     @staticmethod
     def get_approval_statuses():
@@ -183,7 +314,7 @@ class Bid(StaticRepresentationModel):
         Returns a Q object which will return bids which are unavailable for bids (i.e. at or further than handshake status)
         '''
         # We must not have a status of a handshake; or any status further in the process
-        qualified_statuses = Bid.get_approval_statuses()
+        qualified_statuses = Bid.get_priority_statuses()
 
         q_obj = Q()
         # Here we construct a Q object looking for statuses matching any of the qualified statuses
@@ -231,11 +362,11 @@ class Waiver(StaticRepresentationModel):
     type = models.TextField(default=Type.full, choices=Type.choices)
     status = models.TextField(default=Status.requested, choices=Status.choices)
 
-    bid = models.ForeignKey(Bid, related_name='waivers')
-    position = models.ForeignKey('position.Position', related_name='waivers')
-    user = models.ForeignKey('user_profile.UserProfile', related_name='waivers')
+    bid = models.ForeignKey(Bid, on_delete=models.DO_NOTHING, related_name='waivers')
+    position = models.ForeignKey('position.Position', on_delete=models.DO_NOTHING, related_name='waivers')
+    user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='waivers')
 
-    reviewer = models.ForeignKey('user_profile.UserProfile', null=True, related_name='reviewed_waivers')
+    reviewer = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, null=True, related_name='reviewed_waivers')
 
     description = models.TextField(null=True, help_text="Description of the waiver request")
 
@@ -262,11 +393,34 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
     if action == "pre_add":
         # Create a new statistics item when a position is placed in the bid cycle
         for position_id in pk_set:
-            talentmap_api.position.models.PositionBidStatistics.objects.create(bidcycle=instance, position_id=position_id)
+            cp = CyclePosition.objects.create(bidcycle=instance, position_id=position_id)
+            talentmap_api.position.models.PositionBidStatistics.objects.create(position=cp)
     elif action == "pre_remove":
         # Delete statistics items when removed from the bidcycle
-        talentmap_api.position.models.PositionBidStatistics.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
+        talentmap_api.position.models.PositionBidStatistics.objects.filter(position__bidcycle=instance, position_id__in=pk_set).delete()
+        CyclePosition.objects.filter(bidcycle=instance, position_id__in=pk_set).delete()
 
+    if action in ["post_add", "post_remove"]:
+        for position_id in pk_set:
+            pos = talentmap_api.position.models.Position.objects.get(pk=position_id)
+            if pos.bid_cycles.filter(active=True).count() > 0:
+                pos.latest_bidcycle = pos.bid_cycles.filter(active=True).latest('cycle_start_date')
+            else:
+                pos.latest_bidcycle = None
+            pos.save()
+
+@receiver(post_save, sender=BidCycle, dispatch_uid="bidcycle_active_changed")
+def bidcycle_active_changed(sender, instance, **kwargs):
+    '''
+    Update positions latest_active_bidcycle field to latest acive bidcycle
+    '''
+    positions = talentmap_api.position.models.Position.objects.filter(id__in=instance.positions.values_list('id', flat=True))
+    for pos in positions:
+        if pos.bid_cycles.filter(active=True).count() > 0:
+            pos.latest_bidcycle = pos.bid_cycles.filter(active=True).latest('cycle_start_date')
+        else:
+            pos.latest_bidcycle = None
+        pos.save()
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")
 def bid_status_changed(sender, instance, **kwargs):
@@ -318,7 +472,7 @@ def bid_panel_date_changed(sender, instance, **kwargs):
 @receiver(post_delete, sender=Bid, dispatch_uid="delete_update_bid_statistics")
 def delete_update_bid_statistics(sender, instance, **kwargs):
     # Get the position associated with this bid and update the statistics
-    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(bidcycle=instance.bidcycle, position=instance.position)
+    statistics, _ = talentmap_api.position.models.PositionBidStatistics.objects.get_or_create(position=instance.position)
     statistics.update_statistics()
 
     # Update the user's bid statistics

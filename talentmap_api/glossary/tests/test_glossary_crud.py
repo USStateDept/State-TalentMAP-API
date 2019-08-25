@@ -34,8 +34,10 @@ def test_glossary_crud(authorized_client, authorized_user, glossary_editors_grou
     assert response.status_code == status.HTTP_201_CREATED
     glossary_id = response.data["id"]
 
-    response = authorized_client.patch(f'/api/v1/glossary/{glossary_id}', data=json.dumps(
+    response = authorized_client.patch(f'/api/v1/glossary/{glossary_id}/', data=json.dumps(
         {
             "link": "test_link"
         }
     ), content_type='application/json')
+
+    assert response.status_code == status.HTTP_200_OK

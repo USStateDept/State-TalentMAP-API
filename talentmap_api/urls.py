@@ -19,9 +19,12 @@ from django.conf.urls.static import static
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_expiring_authtoken import views as auth_views
 from djangosaml2.views import echo_attributes
+from talentmap_api.saml2.acs_patch import assertion_consumer_service
 
 urlpatterns = [
-    url(r'^$', get_swagger_view(title='TalentMAP API')),
+    # Administration related resources
+    url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
+    url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
 
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
@@ -35,6 +38,15 @@ urlpatterns = [
     url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
     url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
     url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
+    url(r'^api/v1/cycleposition/', include('talentmap_api.bidding.urls.cycleposition')),
+
+    # FSBId
+    url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
+    url(r'^api/v1/fsbid/projected_vacancies', include('talentmap_api.fsbid.urls.projected_vacancies')),
+    url(r'^api/v1/fsbid/bid_seasons', include('talentmap_api.fsbid.urls.bid_seasons')),
+
+    # Projected Vacancies
+    url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
@@ -64,16 +76,27 @@ urlpatterns = [
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
+
+    # Feedback
+    url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
+
+    # Data sync services
+    url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
+
+    # Log viewing
+    url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
 urlpatterns += [
-    url(r'^api/v1/accounts/token/', auth_views.obtain_expiring_auth_token),
+    url(r'^api/v1/accounts/token/$', auth_views.obtain_expiring_auth_token),
     url(r'^api/v1/accounts/', include('rest_framework.urls')),
+    url(r'^api/v1/accounts/token/view/', include('talentmap_api.common.tokens.urls')),
 ]
 
 if settings.ENABLE_SAML2:  # pragma: no cover
     urlpatterns += [
+        url(r'^saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
         url(r'^saml2/', include('djangosaml2.urls')),
     ]
     if settings.DEBUG:
@@ -85,4 +108,5 @@ if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^$', get_swagger_view(title='TalentMAP API')),
     ]

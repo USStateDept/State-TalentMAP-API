@@ -3,10 +3,10 @@ import datetime
 from pydoc import locate
 
 from dateutil.relativedelta import relativedelta
-from dateutil import parser
+from dateutil import parser, tz
 
 from django.contrib.auth.models import Group, Permission
-from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.http import QueryDict
 from django.utils.six.moves.urllib.parse import urlparse
 from django.utils.datastructures import MultiValueDict
@@ -14,6 +14,92 @@ from django.utils.datastructures import MultiValueDict
 from django.core.exceptions import FieldError, ValidationError, PermissionDenied
 
 from django.db.models import Q
+
+
+LANGUAGE_FORMAL_NAMES = {
+    "Albanian": "Albanian",
+    "Amharic": "Amharic",
+    "Arabic-Mod": "Arabic (Modern Standard)",
+    "Arabic Egy": "Arabic (Egyptian)",
+    "Arabic-Lev": "Arabic (Levantine)",
+    "Azerbaijan": "Azerbaijani",
+    "Bengali": "Bengali",
+    "Bulgarian": "Bulgarian",
+    "Burmese": "Burmese",
+    "Cambodian-": "Khmer",
+    "Chinese-Ca": "Cantonese",
+    "Chinese-Ma": "Mandarin",
+    "Czech": "Czech",
+    "Danish": "Danish",
+    "Dari": "Dari",
+    "Dutch": "Dutch",
+    "Estonian": "Estonian",
+    "Farsi": "Farsi",
+    "Finnish": "Finnish",
+    "French": "French",
+    "Georgian": "Georgian",
+    "German": "German",
+    "Greek": "Greek",
+    "Gujarati": "Gujarati",
+    "Haitian Cr": "Haitian Creole",
+    "Hausa": "Hausa",
+    "Hebrew": "Hebrew",
+    "Hindi": "Hindi",
+    "Hungarian": "Hungarian",
+    "Japanese": "Japanese",
+    "Icelandic": "Icelandic",
+    "Indonesian": "Indonesian",
+    "Italian": "Italian",
+    "Kannada": "Kannada",
+    "Kazakh": "Kazakh",
+    "Kinyarwand": "Kinyarwand",
+    "Kirghiz": "Kirghiz",
+    "Korean": "Korean",
+    "Kurdish": "Kurdish",
+    "Kyrgyz": "Kyrgyz",
+    "Lao": "Lao",
+    "Latvian": "Latvian",
+    "Lithuanian": "Lithuanian",
+    "Macedonian": "Macedonian",
+    "Malay": "Malay",
+    "Malayalam": "Malayalam",
+    "Mongolian": "Mongolian",
+    "Nepali/Nep": "Nepali/Nepalese",
+    "Norwegian": "Norwegian",
+    "Persian-Ir": "Iranian",
+    "Persian-Af": "Afghan",
+    "Panjabi/Pu": "Punjabi",
+    "Polish": "Polish",
+    "Pashto": "Pashto",
+    "Portuguese": "Portuguese",
+    "Spanish": "Spanish",
+    "Armenian-E": "Armenian",
+    "Romanian": "Romanian",
+    "Russian": "Russian",
+    "Serbo-Croa": "Serbo-Croatian (Croatian)",
+    "Serbo-Bosn": "Serbo-Croatian (Bosnian)",
+    "Serbo-Serb": "Serbo-Croatian (Serbian)",
+    "Sindhi": "Sindhi",
+    "Singhalese": "Sinhala",
+    "Slovak": "Slovakian",
+    "Slovenian": "Slovenian",
+    "Somali": "Somali",
+    "Swahili/Ki": "Swahili",
+    "Swati": "Swati",
+    "Swedish": "Swedish",
+    "Pilipino/T": "Tagalog",
+    "Persian -": "Tajiki",
+    "Tamil": "Tamil",
+    "Telugu": "Telugu",
+    "Thai": "Thai",
+    "Tibetan": "Tibetan",
+    "Turkish": "Turkish",
+    "Turkmen": "Turkmen",
+    "Ukrainian": "Ukrainian",
+    "Urdu": "Urdu",
+    "Uzbek": "Uzbek",
+    "Vietnamese": "Vietnamese",
+}
 
 
 def resolve_path_to_view(request_path):
@@ -72,7 +158,7 @@ def get_prefetched_filtered_queryset(model, serializer_class, *args, **kwargs):
     return queryset
 
 
-def ensure_date(date):
+def ensure_date(date, utc_offset=0):
     '''
     Ensures the date given is a datetime object.
 
@@ -82,10 +168,12 @@ def ensure_date(date):
     Returns:
         - date (Object) - Datetime
     '''
-    if isinstance(date, str):
-        return parser.parse(date).astimezone(datetime.timezone.utc)
+    if not date:
+        return None
+    elif isinstance(date, str):
+        return parser.parse(date).astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
     elif isinstance(date, datetime.date):
-        return date.astimezone(datetime.timezone.utc)
+        return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
     else:
         raise Exception("Parameter must be a date object or string")
 
@@ -117,6 +205,8 @@ def validate_filters_exist(filter_list, filter_class):
                 value = filter_list[filter]
                 if isinstance(value, list) and len(value) == 1:
                     value = value[0]
+                elif filter[-2:] == "in" and not isinstance(value, list):
+                    value = value.split(",")
                 filter_class.Meta.model.objects.filter(Q(**{f"{filter}": value}))
             except FieldError:
                 # Filter is using a bad field, return False
@@ -172,7 +262,11 @@ def get_filtered_queryset(filter_class, filters):
     # Your daily dose of python wizardry: https://docs.python.org/3/library/functions.html#type
     fake_request = type('obj', (object,), {'query_params': query_params})
 
-    queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
+    # Handles searches on endpoints not backed by database tables
+    if getattr(filter_class, "use_api", False):
+        queryset = filter_class.get_queryset(query_params)
+    else:
+        queryset = filter_class.get_subset(query_params)(data=query_params, request=fake_request).qs
 
     return queryset
 
@@ -245,6 +339,20 @@ def has_permission_or_403(user, permission):
         raise PermissionDenied
 
 
+def in_superuser_group(user):
+    '''
+    This function checks whether or not the specified user is in the superuser group
+
+    Args:
+        - user (Object) - The user instance
+    '''
+    try:
+        group = get_group_by_name("superuser")
+        return group in user.groups.all()
+    except:
+        return False
+
+
 def month_diff(start_date, end_date):
     '''
     This function calculates the difference between two dates in months.
@@ -287,6 +395,14 @@ def xml_etree_to_dict(tree):
     dictionary[tree.tag] = tree.text
 
     return dictionary
+
+
+def order_dict(dictionary):
+    '''
+    Orders a dictionary by keys, including nested dictionaries
+    '''
+    return {k: order_dict(v) if isinstance(v, dict) else v
+            for k, v in sorted(dictionary.items())}
 
 
 def serialize_instance(instance, serializer_string, many=False):

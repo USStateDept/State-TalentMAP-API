@@ -12,18 +12,18 @@ from talentmap_api.user_profile.models import UserProfile
 
 class Command(BaseCommand):
     help = 'Creates a set of users for testing purposes and seeds their skill codes and grades'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [
         ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, []),
-        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, []),
+        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["feedback_editors"]),
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, []),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, []),
         ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, []),
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, []),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, [])
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["feedback_editors"])
     ]
 
     def handle(self, *args, **options):
@@ -46,19 +46,24 @@ class Command(BaseCommand):
                 profile.primary_nationality = Country.objects.get(code="USA")
                 profile.date_of_birth = "1975-01-01T00:00:00Z"
                 profile.phone_number = "555-555-5555"
+                profile.emp_id = f"{user.first_name}_{user.last_name}"
                 profile.save()
 
                 assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=timezone.now(), status="active", bid_approval_date="1975-01-01T00:00:00Z")
 
+                # Add user to the bidder group
+                group = get_group_by_name("bidder")
+                group.user_set.add(user)
+
                 # Add the user to the editing group for their position
-                group = get_group_by_name(f"post_editors_{position.post.id}")
+                group = get_group_by_name(f"post_editors:{position.post.id}")
                 group.user_set.add(user)
 
                 if data[5]:
                     group = get_group_by_name(f"bureau_ao")
                     group.user_set.add(user)
 
-                    group = get_group_by_name(f"bureau_ao_150000")
+                    group = get_group_by_name(f"bureau_ao:150000")
                     group.user_set.add(user)
 
                 if data[6]:

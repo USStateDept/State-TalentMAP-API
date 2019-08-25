@@ -11,6 +11,9 @@ from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.glossary.filters import GlossaryEntryFilter
 from talentmap_api.glossary.serializers import GlossaryEntrySerializer
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class GlossaryView(FieldLimitableSerializerMixin,
                    GenericViewSet,
@@ -38,11 +41,13 @@ class GlossaryView(FieldLimitableSerializerMixin,
 
     def perform_create(self, serializer):
         in_group_or_403(self.request.user, f"glossary_editors")
-        serializer.save(last_editing_user=self.request.user.profile)
+        instance = serializer.save(last_editing_user=self.request.user.profile)
+        logger.info(f"User {self.request.user.id}:{self.request.user} creating glossary entry {instance}")
 
     def perform_update(self, serializer):
         in_group_or_403(self.request.user, f"glossary_editors")
-        serializer.save(last_editing_user=self.request.user.profile)
+        instance = serializer.save(last_editing_user=self.request.user.profile)
+        logger.info(f"User {self.request.user.id}:{self.request.user} updating glossary entry {instance}")
 
     def get_queryset(self):
         return get_prefetched_filtered_queryset(GlossaryEntry, self.serializer_class)

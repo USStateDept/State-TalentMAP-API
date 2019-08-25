@@ -5,6 +5,25 @@ from model_mommy import mommy
 
 from talentmap_api.position.models import Assignment
 
+@pytest.mark.django_db()
+def test_user_display_name():
+    user_1 = mommy.make('auth.User', first_name="Johnny", last_name="State", email="StateJB@state.gov")
+    user_2 = mommy.make('auth.User', first_name="", last_name="", username="statej", email="StateJB@state.gov")
+    user_3 = mommy.make('auth.User', first_name="", last_name="", username="", email="StateJB@state.gov")
+
+    assert user_1.profile.display_name == "Johnny"
+    assert user_2.profile.display_name == "statej"
+    assert user_3.profile.display_name == "StateJB@state.gov"
+
+
+@pytest.mark.django_db()
+def test_user_initials():
+    user_1 = mommy.make('auth.User', first_name="Johnny", last_name="State")
+    user_2 = mommy.make('auth.User', first_name="", last_name="", email="StateJB@state.gov")
+
+    assert user_1.profile.initials == "JS"
+    assert user_2.profile.initials == "JS"
+
 
 @pytest.mark.django_db()
 def test_fairshare_differential_case():

@@ -5,103 +5,123 @@
             <availablePositions xmlns="">
                <availablePosition>
                   <CP_ID>130641</CP_ID>
-                  <POSITION_ID>102996</POSITION_ID>
+                  <POSITION_ID>1640</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2016/04/22 13:06:21</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:04</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:04</CP_POST_DT>
                   <BID_COUNT>3(3/3)3</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>130728</CP_ID>
-                  <POSITION_ID>103046</POSITION_ID>
+                  <POSITION_ID>1657</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2016/04/28 12:28:44</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:04</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:04</CP_POST_DT>
                   <BID_COUNT>4(3/3)3</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>130734</CP_ID>
-                  <POSITION_ID>112</POSITION_ID>
+                  <POSITION_ID>1660</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2016/04/28 12:56:31</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:04</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:04</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>131872</CP_ID>
-                  <POSITION_ID>11264</POSITION_ID>
+                  <POSITION_ID>1661</POSITION_ID>
                   <CYCLE_ID>147</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2016/05/17 10:22:59</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:04</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:04</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137817</CP_ID>
-                  <POSITION_ID>11736</POSITION_ID>
+                  <POSITION_ID>1662</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/01/13 16:27:13</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137825</CP_ID>
-                  <POSITION_ID>1271</POSITION_ID>
+                  <POSITION_ID>1668</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/13 16:39:54</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137826</CP_ID>
-                  <POSITION_ID>75878</POSITION_ID>
+                  <POSITION_ID>1673</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/13 16:39:54</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137843</CP_ID>
-                  <POSITION_ID>132004</POSITION_ID>
+                  <POSITION_ID>1675</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>HS</STATUS_CODE>
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/01/17 11:46:00</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137867</CP_ID>
-                  <POSITION_ID>36998</POSITION_ID>
+                  <POSITION_ID>1678</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/17 11:50:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>2(0/2)0</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137868</CP_ID>
-                  <POSITION_ID>37002</POSITION_ID>
+                  <POSITION_ID>1679</POSITION_ID>
                   <CYCLE_ID>151</CYCLE_ID>
                   <STATUS_CODE>OP</STATUS_CODE>
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/17 11:50:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137873</CP_ID>
@@ -111,7 +131,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/17 11:50:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137925</CP_ID>
@@ -121,7 +143,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/20 09:16:34</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>4(2/3)2</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137926</CP_ID>
@@ -131,7 +155,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/20 09:31:48</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>3(3/3)3</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137927</CP_ID>
@@ -141,7 +167,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/20 09:31:48</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137929</CP_ID>
@@ -151,7 +179,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/20 09:31:48</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>6(2/6)2</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137949</CP_ID>
@@ -161,7 +191,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/23 12:40:58</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>10(6/8)4</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137971</CP_ID>
@@ -171,7 +203,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/23 16:44:54</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137978</CP_ID>
@@ -181,7 +215,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/24 16:56:54</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137995</CP_ID>
@@ -191,7 +227,9 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/25 17:47:46</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>6(3/5)3</BID_COUNT>
+                  <TED>2018/07/03</TED>
                </availablePosition>
                <availablePosition>
                   <CP_ID>137996</CP_ID>
@@ -201,6 +239,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/25 17:48:37</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>2(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -211,6 +250,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/26 12:38:00</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>3(3/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -221,6 +261,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/26 12:56:45</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>3(2/3)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -231,6 +272,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/01/26 14:42:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -241,6 +283,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/01/27 08:57:05</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -251,6 +294,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/01/27 12:12:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -261,6 +305,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/02/03 14:52:38</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>5(5/5)5</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -271,6 +316,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/02/07 15:13:53</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -281,6 +327,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/02/22 09:13:09</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:05</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:05</CP_POST_DT>
                   <BID_COUNT>1(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -291,6 +338,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/02/22 09:15:11</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -301,6 +349,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/03/01 17:43:00</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(2/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -311,6 +360,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/03/21 14:44:05</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(2/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -321,6 +371,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:19</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -331,6 +382,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(3/3)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -341,6 +393,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -351,6 +404,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -361,6 +415,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>6(1/6)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -371,6 +426,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -381,6 +437,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:20</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(2/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -391,6 +448,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:21</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>5(1/5)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -401,6 +459,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:21</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -411,6 +470,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:21</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -421,6 +481,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:22</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -431,6 +492,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:22</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(2/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -441,6 +503,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:22</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(2/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -451,6 +514,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -461,6 +525,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:23</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -471,6 +536,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:24</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -481,6 +547,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:24</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>11(0/7)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -491,6 +558,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:24</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -501,6 +569,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:24</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -511,6 +580,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:24</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -521,6 +591,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:25</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -531,6 +602,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:25</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(3/4)3</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -541,6 +613,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:25</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(4/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -551,6 +624,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:25</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>7(5/4)3</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -561,6 +635,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:26</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(3/4)3</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -571,6 +646,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:26</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>5(4/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -581,6 +657,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:26</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -591,6 +668,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(2/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -601,6 +679,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(2/4)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -611,6 +690,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -621,6 +701,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -631,6 +712,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(2/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -641,6 +723,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -651,6 +734,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>8(0/6)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -661,6 +745,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -671,6 +756,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(2/4)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -681,6 +767,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -691,6 +778,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -701,6 +789,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:27</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -711,6 +800,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -721,6 +811,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -731,6 +822,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(1/3)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -741,6 +833,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -751,6 +844,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(2/3)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -761,6 +855,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>8(0/4)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -771,6 +866,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -781,6 +877,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -791,6 +888,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -801,6 +899,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:28</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -811,6 +910,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -821,6 +921,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -831,6 +932,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -841,6 +943,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(4/2)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -851,6 +954,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(1/4)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -861,6 +965,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:29</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(3/3)2</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -871,6 +976,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(1/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -881,6 +987,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -891,6 +998,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/0)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -901,6 +1009,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -911,6 +1020,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(1/2)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -921,6 +1031,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>3(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -931,6 +1042,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>5(4/5)4</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -941,6 +1053,7 @@
                   <STATUS>Handshake</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -951,6 +1064,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>1(0/1)0</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -961,6 +1075,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>4(3/3)3</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -971,6 +1086,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:06</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:06</CP_POST_DT>
                   <BID_COUNT>2(2/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -981,6 +1097,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:07</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:07</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -991,6 +1108,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:30</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:07</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:07</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
                <availablePosition>
@@ -1001,6 +1119,7 @@
                   <STATUS>Open</STATUS>
                   <DATE_CREATED>2017/05/08 09:03:31</DATE_CREATED>
                   <DATE_UPDATED>2018/01/22 01:45:07</DATE_UPDATED>
+                  <CP_POST_DT>2018/01/22 01:45:07</CP_POST_DT>
                   <BID_COUNT>1(1/1)1</BID_COUNT>
                </availablePosition>
             </availablePositions>

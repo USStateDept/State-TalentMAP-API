@@ -13,11 +13,6 @@ tour_of_duty = Recipe(
     code=seq('tod_code')
 )
 
-post = Recipe(
-    Post,
-    tour_of_duty=foreign_key('tour_of_duty')
-)
-
 country = Recipe(
     Country,
     code=seq('country_code')
@@ -27,4 +22,10 @@ location = Recipe(
     Location,
     code=seq('location_code'),
     country=foreign_key('country')
+)
+
+post = Recipe(
+    Post,
+    tour_of_duty=foreign_key('tour_of_duty'),
+    location=foreign_key('location')
 )

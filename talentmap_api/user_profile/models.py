@@ -21,18 +21,20 @@ class UserProfile(StaticRepresentationModel):
     mandatory_retirement_date = models.DateTimeField(null=True)
     phone_number = models.TextField(null=True)
 
-    cdo = models.ForeignKey('self', related_name='direct_reports', null=True)
+    cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
 
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
     skills = models.ManyToManyField('position.Skill')
 
-    grade = models.ForeignKey('position.Grade', null=True)
+    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)
 
-    favorite_positions = models.ManyToManyField('position.Position', related_name='favorited_by_users', help_text="Positions which this user has designated as a favorite")
+    favorite_positions = models.ManyToManyField('bidding.CyclePosition', related_name='favorited_by_users', help_text="Cycle Positions which this user has designated as a favorite")
 
-    primary_nationality = models.ForeignKey('organization.Country', null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
-    secondary_nationality = models.ForeignKey('organization.Country', null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
+    primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
+    secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
+
+    emp_id = models.TextField(null=False, help_text="The user's employee id")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -42,6 +44,39 @@ class UserProfile(StaticRepresentationModel):
         if self.date_of_birth:
             self.mandatory_retirement_date = ensure_date(self.date_of_birth) + relativedelta(years=65)
         super(UserProfile, self).save(*args, **kwargs)
+
+    @property
+    def display_name(self):
+        '''
+        Returns the user's display name, derived from first name, username or e-mail
+        '''
+        display_name = ""
+        if self.user.first_name:
+            display_name = self.user.first_name
+        elif self.user.username:
+            display_name = self.user.username
+        else:
+            display_name = self.user.email
+
+        return display_name
+
+    @property
+    def initials(self):
+        '''
+        Returns the user's initials, derived from first name/last name or e-mail
+        '''
+        initials = ""
+        if self.user.first_name and self.user.last_name:
+            initials = f"{self.user.first_name[0]}{self.user.last_name[0]}"
+        if len(initials) == 0:
+            # No first name/last name on user object, derive from email
+            # Example email: StateJB@state.gov
+            # [x for x in self.user.email if x.isupper()] - get all capitals
+            # [:2] - get the first two
+            # [::-1] - reverse the list
+            initials = "".join([x for x in self.user.email if x.isupper()][:2][::-1])
+
+        return initials
 
     @property
     def is_cdo(self):
@@ -135,7 +170,7 @@ class SavedSearch(StaticRepresentationModel):
     '''
     Represents a saved search.
     '''
-    owner = models.ForeignKey(UserProfile, related_name="saved_searches")
+    owner = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, related_name="saved_searches")
 
     name = models.TextField(default="Saved Search", help_text="The name of the saved search")
     endpoint = models.TextField(help_text="The endpoint for this search and filter")
@@ -180,7 +215,7 @@ class SavedSearch(StaticRepresentationModel):
             self._disable_signals = False
 
     @staticmethod
-    def update_counts_for_endpoint(endpoint=None):
+    def update_counts_for_endpoint(endpoint=None, contains=False):
         '''
         Update all saved searches counts whose endpoint matches the specified endpoint.
         If the endpoint is omitted, updates all saved search counts.
@@ -191,7 +226,10 @@ class SavedSearch(StaticRepresentationModel):
 
         queryset = SavedSearch.objects.all()
         if endpoint:
-            queryset = SavedSearch.objects.filter(endpoint=endpoint)
+            if contains:
+                queryset = SavedSearch.objects.filter(endpoint__icontains=endpoint)
+            else:
+                queryset = SavedSearch.objects.filter(endpoint=endpoint)
 
         for search in queryset:
             search.update_count()

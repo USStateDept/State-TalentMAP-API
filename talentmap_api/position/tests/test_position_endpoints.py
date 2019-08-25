@@ -8,6 +8,7 @@ from itertools import cycle
 from django.contrib.auth.models import User
 from django.utils import timezone
 from talentmap_api.common.common_helpers import get_permission_by_name
+from talentmap_api.position.tests.mommy_recipes import bidcycle_positions
 
 
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
@@ -31,17 +32,18 @@ def test_position_endpoints_fixture():
     skill_2 = mommy.make('position.Skill', code="0020")
     mommy.make_recipe('talentmap_api.position.tests.skill', _quantity=8)
 
+    bc = mommy.make('bidding.BidCycle', active=True)
     # Create a position with the specific qualification
-    mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill)
-    mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2)
+    bc.positions.add(mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill))
+    bc.positions.add(mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2))
 
     is_overseas = [True, False]
     # Create some junk positions to add numbers
-    mommy.make('position.Position',
-               organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
-               bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
-               is_overseas=cycle(is_overseas),
-               _quantity=8)
+    for _ in range(0, 8):
+        bc.positions.add(mommy.make('position.Position',
+                                    organization=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+                                    bureau=mommy.make_recipe('talentmap_api.organization.tests.orphaned_organization'),
+                                    is_overseas=cycle(is_overseas)))
 
 
 @pytest.mark.django_db()
@@ -57,6 +59,10 @@ def test_position_list(client):
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 def test_position_filtering(client):
     response = client.get('/api/v1/position/?languages__language__name=German')
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 2
+
+    response = client.get('/api/v1/position/?language_codes=DE')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2
 
@@ -183,66 +189,19 @@ def test_position_assignment_list(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data['results']) == 5
 
-
-@pytest.mark.django_db()
-def test_position_bid_list(authorized_client, authorized_user):
-    # Create a bureau for the position
-    bureau = mommy.make('organization.Organization', code='12345')
-    position = mommy.make('position.Position', bureau=bureau)
-    bidcycle = mommy.make('bidding.BidCycle')
-    bidcycle.positions.add(position)
-    mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle, _quantity=5)
-
-    # Create valid permissions to view this position's bids
-    group = mommy.make('auth.Group', name='bureau_ao')
-    group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
-    group.user_set.add(authorized_user)
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/bids/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data['results']) == 5
-
-
-@pytest.mark.django_db()
-def test_favorite_action_endpoints(authorized_client, authorized_user):
-    position = mommy.make_recipe('talentmap_api.position.tests.position')
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-    response = authorized_client.put(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.delete(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/favorite/')
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
 @pytest.mark.django_db(transaction=True)
 def test_highlight_action_endpoints(authorized_client, authorized_user):
     bureau = mommy.make('organization.Organization', code="123456", short_description="Test Bureau")
     bureau.create_permissions()
-    permission = get_permission_by_name(f"organization.can_highlight_positions_{bureau.code}")
+    permission = get_permission_by_name(f"organization.can_highlight_positions:{bureau.code}")
 
-    position = mommy.make_recipe('talentmap_api.position.tests.position', bureau=bureau)
+    position = bidcycle_positions(bureau=bureau)
 
     response = authorized_client.get(f'/api/v1/position/{position.id}/highlight/')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
     # First, try to highlight without appropriate permissions
-    assert not authorized_user.has_perm(f"{permission.content_type.app_label}.{permission.codename}")
     response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -254,9 +213,8 @@ def test_highlight_action_endpoints(authorized_client, authorized_user):
 
     # Add the permission to our user
     authorized_user.user_permissions.add(permission)
-    # Must re-acquire the user from the DB after adding permissions due to caching
-    authorized_user = User.objects.get(id=authorized_user.id)
-    assert authorized_user.has_perm(f"{permission.content_type.app_label}.{permission.codename}")
+    group = mommy.make('auth.Group', name='superuser')
+    group.user_set.add(authorized_user)
 
     response = authorized_client.put(f'/api/v1/position/{position.id}/highlight/')
 
@@ -279,16 +237,16 @@ def test_highlight_action_endpoints(authorized_client, authorized_user):
 def test_position_waiver_actions(authorized_client, authorized_user):
     # Create a bureau for the position
     bureau = mommy.make('organization.Organization', code='12345')
-    position = mommy.make('position.Position', bureau=bureau)
-    bidcycle = mommy.make('bidding.BidCycle')
-    bidcycle.positions.add(position)
-    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=position, bidcycle=bidcycle)
+    position = bidcycle_positions(bureau=bureau)
+    bidcycle = mommy.make('bidding.BidCycle', active=True)
+    cp = mommy.make('bidding.CyclePosition', position=position, bidcycle=bidcycle)
+    bid = mommy.make('bidding.Bid', user=authorized_user.profile, position=cp, bidcycle=bidcycle)
     waiver = mommy.make('bidding.Waiver', user=authorized_user.profile, position=position, bid=bid)
 
     # Create valid permissions to view this position's waivers
     group = mommy.make('auth.Group', name='bureau_ao')
     group.user_set.add(authorized_user)
-    group = mommy.make('auth.Group', name=f'bureau_ao_{bureau.code}')
+    group = mommy.make('auth.Group', name=f'bureau_ao:{bureau.code}')
     group.user_set.add(authorized_user)
 
     assert waiver.status == waiver.Status.requested
@@ -324,9 +282,9 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
 
     today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=mommy.make('position.Position'), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
+    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
 
     response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
 
@@ -342,3 +300,38 @@ def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
+
+
+@pytest.mark.django_db(transaction=True)
+def test_position_similar_list(client):
+    post = mommy.make_recipe('talentmap_api.organization.tests.post')
+    skill = mommy.make('position.Skill')
+    grade = mommy.make('position.Grade')
+    position = bidcycle_positions(post=post, skill=skill, grade=grade)
+
+    bidcycle_positions(post=post, skill=skill, grade=grade, _quantity=3)
+    bidcycle_positions(post=mommy.make_recipe('talentmap_api.organization.tests.post'), skill=skill, grade=grade, _quantity=3)
+    bidcycle_positions(post=mommy.make_recipe('talentmap_api.organization.tests.post'), skill=mommy.make('position.Skill'), grade=grade, _quantity=3)
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 3
+
+    position.post = None
+    position.save()
+    position.refresh_from_db()
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 6
+
+    position.skill = None
+    position.save()
+    position.refresh_from_db()
+
+    response = client.get(f'/api/v1/position/{position.id}/similar/')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 9

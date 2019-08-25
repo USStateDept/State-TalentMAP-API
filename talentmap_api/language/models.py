@@ -3,6 +3,7 @@ from django.db import models
 import logging
 
 from talentmap_api.common.models import StaticRepresentationModel
+from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
 
 
 class Language(StaticRepresentationModel):
@@ -18,7 +19,14 @@ class Language(StaticRepresentationModel):
     effective_date = models.DateTimeField(null=True, help_text="The date after which the language is in effect")
 
     def __str__(self):
-        return f"{self.long_description} ({self.code})"
+        return f"{self.formal_description} ({self.code})"
+
+    @property
+    def formal_description(self):
+        '''
+        Read-only field for user-friendly name field
+        '''
+        return LANGUAGE_FORMAL_NAMES.get(self.short_description, self.short_description)
 
     class Meta:
         managed = True
@@ -122,7 +130,7 @@ class Qualification(StaticRepresentationModel):
         spoken_proficiency = Proficiency.objects.filter(code=spoken_proficiency_code)
 
         if language.count() != 1 or reading_proficiency.count() != 1 or spoken_proficiency.count() != 1:
-            logging.getLogger('console').warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {reading_proficiency_code} ({reading_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
+            logging.getLogger(__name__).warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {reading_proficiency_code} ({reading_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
             return None, False
 
         return Qualification.objects.get_or_create(language=language.first(), reading_proficiency=reading_proficiency.first(), spoken_proficiency=spoken_proficiency.first())
@@ -133,4 +141,4 @@ class Qualification(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["language__code"]
-        unique_together = (('language', 'reading_proficiency', 'spoken_proficiency'))
+        unique_together = ('language', 'reading_proficiency', 'spoken_proficiency')

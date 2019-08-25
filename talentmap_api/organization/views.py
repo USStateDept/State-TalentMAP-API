@@ -1,12 +1,12 @@
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from talentmap_api.common.cache.views import CachedViewSet
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.common.history_helpers import generate_historical_view
 
-from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
-from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter, CountryFilter
-from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer, CountrySerializer
+from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
+from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter, CountryFilter, OrganizationGroupFilter
+from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer, CountrySerializer, OrganizationGroupSerializer
 
 
 HistoricalPostView = generate_historical_view(Post, PostSerializer, PostFilter)
@@ -17,7 +17,7 @@ HistoricalTourOfDutyView = generate_historical_view(TourOfDuty, TourOfDutySerial
 
 
 class OrganizationListView(FieldLimitableSerializerMixin,
-                           ReadOnlyModelViewSet):
+                           CachedViewSet):
     """
     retrieve:
     Return the given organization.
@@ -28,13 +28,31 @@ class OrganizationListView(FieldLimitableSerializerMixin,
 
     serializer_class = OrganizationSerializer
     filter_class = OrganizationFilter
+    lookup_value_regex = '[0-9]+'
 
     def get_queryset(self):
         return get_prefetched_filtered_queryset(Organization, self.serializer_class)
 
 
+class OrganizationGroupListView(FieldLimitableSerializerMixin,
+                                CachedViewSet):
+    """
+    retrieve:
+    Return the given organization group.
+
+    list:
+    Return a list of all organization groups.
+    """
+
+    serializer_class = OrganizationGroupSerializer
+    filter_class = OrganizationGroupFilter
+
+    def get_queryset(self):
+        return get_prefetched_filtered_queryset(OrganizationGroup, self.serializer_class)
+
+
 class LocationView(FieldLimitableSerializerMixin,
-                   ReadOnlyModelViewSet):
+                   CachedViewSet):
     """
     retrieve:
     Return the given location.
@@ -51,7 +69,7 @@ class LocationView(FieldLimitableSerializerMixin,
 
 
 class CountryView(FieldLimitableSerializerMixin,
-                  ReadOnlyModelViewSet):
+                  CachedViewSet):
     """
     retrieve:
     Return the given country.
@@ -68,7 +86,7 @@ class CountryView(FieldLimitableSerializerMixin,
 
 
 class PostListView(FieldLimitableSerializerMixin,
-                   ReadOnlyModelViewSet):
+                   CachedViewSet):
     """
     retrieve:
     Return the given post.
@@ -85,7 +103,7 @@ class PostListView(FieldLimitableSerializerMixin,
 
 
 class TourOfDutyListView(FieldLimitableSerializerMixin,
-                         ReadOnlyModelViewSet):
+                         CachedViewSet):
     """
     retrieve:
     Return the given tour of duty.

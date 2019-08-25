@@ -4,12 +4,12 @@ import logging
 
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.position.models import Position, Grade, SkillCone
-from talentmap_api.organization.models import Organization, Post, Location
+from talentmap_api.organization.models import Organization, OrganizationGroup, Post, Location
 
 
 class Command(BaseCommand):
     help = 'Updates all models foreign key relationships'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
@@ -17,12 +17,12 @@ class Command(BaseCommand):
         # These models should have update_relationships
         self.models = [
             Organization,
+            OrganizationGroup,
             Position,
             Location,
             Post,
             Grade,
             SkillCone,
-            BidCycle,
         ]
 
     def handle(self, *args, **options):

@@ -11,7 +11,7 @@ from talentmap_api.organization.models import Organization, Post, TourOfDuty, Lo
 
 class Command(BaseCommand):
     help = 'Loads an XML into a supported file'
-    logger = logging.getLogger('console')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             collision_behavior = "skip"
 
         loader = XMLloader(model, instance_tag, tag_map, collision_behavior, collision_field)
-        new_ids, updated_ids, _ = loader.create_models_from_xml(options['file'][0])
+        new_ids, updated_ids = loader.create_models_from_xml(options['file'][0])
 
         # Run the post load function, if it exists
         if callable(post_load_function) and not options['skip_post']:
