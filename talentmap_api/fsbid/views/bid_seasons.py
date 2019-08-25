@@ -13,7 +13,7 @@ from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.bid_season as services
 
 import logging
 logger = logging.getLogger(__name__)
@@ -31,4 +31,4 @@ class FSBidBidSeasonsListView(APIView):
         '''
         Gets all bid seasons
         '''
-        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None), 'JWTPLACEHOLDER'))
+        return Response(services.get_bid_seasons(request.query_params.get('bsn_future_vacancy_ind', None), request.META['HTTP_JWT']))

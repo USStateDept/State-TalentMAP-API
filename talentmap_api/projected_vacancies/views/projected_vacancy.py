@@ -12,7 +12,7 @@ from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
 from talentmap_api.user_profile.models import UserProfile
 
-import talentmap_api.fsbid.services as services
+import talentmap_api.fsbid.services.projected_vacancies as services
 
 
 class ProjectedVacancyFavoriteListView(APIView):
@@ -28,7 +28,7 @@ class ProjectedVacancyFavoriteListView(APIView):
         pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_number", flat=True)
         if len(pvs) > 0:
             pos_nums = ','.join(pvs)
-            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}")))
+            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT']))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
