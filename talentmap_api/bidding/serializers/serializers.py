@@ -282,7 +282,7 @@ class CyclePositionListSerializer(PrefetchedSerializer):
 
     class Meta:
         model = CyclePosition
-        fields = ["id", "status", "status_code", "ted", "posted_date", "availability"]
+        fields = ["id", "status", "status_code", "ted", "posted_date", "availability", "is_urgent_vacancy", "is_volunteer", "is_hard_to_fill"]
         nested = {
             "position": {
                 "class": "talentmap_api.position.serializers.PositionSerializer",
@@ -310,3 +310,10 @@ class CyclePositionListSerializer(PrefetchedSerializer):
                 }
             }
         }
+
+class CyclePositionDesignationSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = model = CyclePosition
+        fields = "__all__"
+        writable_fields = ("is_urgent_vacancy", "is_volunteer", "is_hard_to_fill")
