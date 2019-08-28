@@ -119,6 +119,9 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "cycle_deadline_date": "",
                 "cycle_end_date": "",
                 "active": True
+            },
+            "description": {
+                "content": pv["ppos_capsule_descr_txt"]
             }
         }
     }
