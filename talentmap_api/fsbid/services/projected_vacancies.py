@@ -60,7 +60,7 @@ def fsbid_pv_to_talentmap_pv(pv):
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
     return {
-        "id": pv["fv_seq_number"],
+        "id": pv["fv_seq_num"],
         "ted": ensure_date(pv["ted"], utc_offset=-5),
         "bidcycle": {
             "id": pv["bsn_id"],
@@ -98,16 +98,16 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "estimated_end_date": ensure_date(pv["ted"], utc_offset=-5)
             },
             "position_number": pv["position"],
-            "title": pv["post_title_desc"],
+            "title": pv["pos_title_desc"],
             "availability": {
                 "availability": True,
                 "reason": ""
             },
             "bid_cycle_statuses": [
                 {
-                    "id": pv["fv_seq_number"],
+                    "id": pv["fv_seq_num"],
                     "bidcycle": pv["bsn_descr_text"],
-                    "position": pv["post_title_desc"],
+                    "position": pv["pos_title_desc"],
                     "status_code": "",
                     "status": ""
                 }
@@ -119,6 +119,9 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "cycle_deadline_date": "",
                 "cycle_end_date": "",
                 "active": True
+            },
+            "description": {
+                "content": pv["ppos_capsule_descr_txt"]
             }
         }
     }
@@ -181,6 +184,6 @@ def convert_pv_query(query):
         "fv_request_params.tod_codes": query.get("position__post__tour_of_duty__code__in"),
         "fv_request_params.location_codes": post_values(query),
         "fv_request_params.pos_numbers": query.get("position__position_number__in", None),
-        "fv_request_params.fv_seq_number": query.get("id", None),
+        "fv_request_params.seq_nums": query.get("id", None),
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
