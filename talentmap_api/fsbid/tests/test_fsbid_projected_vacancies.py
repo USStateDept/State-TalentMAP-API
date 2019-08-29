@@ -8,8 +8,8 @@ from django.utils import timezone
 
 
 pv = {
-    "fv_seq_number": 89367,
-    "post_title_desc": "CHIEF OF STAFF:",
+    "fv_seq_num": 89367,
+    "pos_title_desc": "CHIEF OF STAFF:",
     "pos_location_code": "110010001",
     "post_org_country_state": "WASHINGTON, DISTRICT OF COLUMBIA",
     "ted": "2020-08-02T00:00:00",
@@ -48,4 +48,4 @@ def test_projected_vacancies_actions(authorized_client, authorized_user):
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [pv]}
         response = authorized_client.get(f'/api/v1/fsbid/projected_vacancies', HTTP_JWT=fake_jwt)
-        assert response.json()["results"][0]['id'] == [pv][0]['fv_seq_number']
+        assert response.json()["results"][0]['id'] == [pv][0]['fv_seq_num']
