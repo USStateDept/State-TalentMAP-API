@@ -170,6 +170,17 @@ def bureau_values(query):
     if len(results) > 0:
         return results
 
+sort_dict = {
+    "position__title": "pos_title_desc",
+    "position__grade": "pos_grade_code",
+    "position__bureau": "bureau_desc",
+    "ted": "ted",
+    "position__position_number": "position"
+}
+
+def sorting_values(sort):
+    if sort is not None:
+        return sort_dict.get(sort, None)
 
 def convert_pv_query(query):
     '''
@@ -178,6 +189,7 @@ def convert_pv_query(query):
     The TalentMap filters align with the position search filter naming
     '''
     values = {
+        "fv_request_params.order_by": sorting_values(query.get("ordering", None)),
         "fv_request_params.page_index": int(query.get("page", 1)),
         "fv_request_params.page_size": query.get("limit", 25),
         "fv_request_params.freeText": query.get("q", None),
