@@ -22,3 +22,7 @@ def get_pagination(query, count, base_url, host=None):
         "next": next_url,
         "previous": previous_url
     }
+
+def convert_multi_value(val):
+    if val is not None:
+        return val.split(',')
