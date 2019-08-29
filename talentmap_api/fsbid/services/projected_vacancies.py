@@ -15,12 +15,13 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def get_projected_vacancies(query, jwt_token, host=None):
     '''
     Gets projected vacancies from FSBid
     '''
     url = f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
 
     projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
     return {
@@ -34,11 +35,13 @@ def get_projected_vacancies_count(query, jwt_token, host=None):
     Gets the total number of PVs for a filterset
     '''
     url = f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return {"count": response["Data"][0]["count(1)"]}
+
 
 # Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
 LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
+
 
 def parseLanguage(lang):
     '''
@@ -54,6 +57,7 @@ def parseLanguage(lang):
             language["spoken_proficiency"] = match.group(3)
             language["representation"] = match.group(0).rstrip()
             return language
+
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
@@ -126,6 +130,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         }
     }
 
+
 def post_values(query):
     '''
     Handles mapping locations and groups of locations to FSBid expected params
@@ -143,6 +148,7 @@ def post_values(query):
         results = results + list(location_codes)
     if len(results) > 0:
         return ",".join(results)
+
 
 def bureau_values(query):
     '''
@@ -163,6 +169,7 @@ def bureau_values(query):
         results = results + list(reg_org_codes)
     if len(results) > 0:
         return ",".join(results)
+
 
 def convert_pv_query(query):
     '''
