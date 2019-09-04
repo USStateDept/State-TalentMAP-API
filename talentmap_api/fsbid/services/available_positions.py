@@ -80,7 +80,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "id": "",
             "grade": ap["pos_grade_code"],
             "skill": ap["pos_skill_desc"],
-            "bureau": ap["bureau_desc"],
+            "bureau": ap["pos_bureau_short_desc"],
             "organization": ap["post_org_country_state"],
             "tour_of_duty": ap["tod"],
             "classifications": "",
@@ -90,7 +90,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "reason": ""
             },
             "position_number": ap["position"],
-            "title": ap["post_title_desc"],
+            "title": ap["pos_title_desc"],
             "is_overseas": "",
             "is_highlighted": "",
             "create_date": "",
@@ -116,7 +116,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             },
             "post": {
                 "id": "",
-                "code": ad["pos_location_code"],
+                "code": ap["pos_location_code"],
                 "tour_of_duty": ap["tod"],
                 "post_overview_url": "",
                 "post_bidding_considerations_url": "",
@@ -136,8 +136,8 @@ def fsbid_ap_to_talentmap_ap(ap):
                 }
             },
             "latest_bidcycle": {
-                "id": ap["bsn_id"],
-                "name": ap["bsn_descr_text"],
+                "id": ap["cycle_id"],
+                "name": ap["cycle_nm_txt"],
                 "cycle_start_date": "",
                 "cycle_deadline_date": "",
                 "cycle_end_date": "",
@@ -149,8 +149,8 @@ def fsbid_ap_to_talentmap_ap(ap):
             ])),
         },
         "bidcycle": {
-            "id": ap["bsn_id"],
-            "name": ap["bsn_descr_text"],
+            "id": ap["cycle_id"],
+            "name": ap["cycle_nm_txt"],
             "cycle_start_date": "",
             "cycle_deadline_date": "",
             "cycle_end_date": "",
