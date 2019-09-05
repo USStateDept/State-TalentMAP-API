@@ -22,10 +22,9 @@ class ProjectedVacancyFilter():
     use_api = True
 
     # Used when saving a search to determine the number of records returned
-    def get_queryset(query):
+    def get_count(query, jwt_token):
         def count(self):
-            fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
-            return pv_services.get_projected_vacancies_count(query, fake_jwt)
+            return pv_services.get_projected_vacancies_count(query, jwt_token)
 
         return type('', (object,), {'count': count})()
 
