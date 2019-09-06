@@ -136,12 +136,6 @@ def post_values(query):
     Handles mapping locations and groups of locations to FSBid expected params
     '''
     results = []
-    if query.get("is_domestic") == "true":
-        domestic_codes = Post.objects.filter(location__country__code="USA").values_list("_location_code", flat=True)
-        results = results + list(domestic_codes)
-    if query.get("is_domestic") == "false":
-        overseas_codes = Post.objects.exclude(location__country__code="USA").values_list("_location_code", flat=True)
-        results = results + list(overseas_codes)
     if query.get("position__post__in"):
         post_ids = query.get("position__post__in").split(",")
         location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
@@ -170,6 +164,12 @@ def bureau_values(query):
     if len(results) > 0:
         return results
 
+def overseas_values(query):
+    if query.get("is_domestic") == "true":
+        return "D"
+    if query.get("is_domestic") == "false":
+        return "O"
+
 sort_dict = {
     "position__title": "pos_title_desc",
     "position__grade": "pos_grade_code",
@@ -195,6 +195,7 @@ def convert_pv_query(query):
         "fv_request_params.freeText": query.get("q", None),
         "fv_request_params.bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
         "fv_request_params.bureaus": bureau_values(query),
+        "fv_request_params.overseas_ind": overseas_values(query),
         "fv_request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
         "fv_request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
         "fv_request_params.languages": services.convert_multi_value(query.get("language_codes")),
