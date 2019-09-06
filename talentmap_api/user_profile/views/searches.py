@@ -39,5 +39,8 @@ class SavedSearchView(FieldLimitableSerializerMixin,
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile, jwt_token=self.request.META['HTTP_JWT'])
 
+    def perform_update(self, serializer):
+        serializer.save(owner=self.request.user.profile, jwt_token=self.request.META['HTTP_JWT'])
+
     def get_queryset(self):
         return get_prefetched_filtered_queryset(SavedSearch, self.serializer_class, owner=self.request.user.profile)
