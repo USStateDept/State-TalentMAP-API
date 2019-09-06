@@ -10,13 +10,13 @@ class ProjectedVacancyFilter():
     declared_filters = [
         "projectedVacancy",
         "is_available_in_bidseason",
-        "skill__code__in",
-        "grade__code__in",
-        "bureau__code__in",
-        "post__tour_of_duty__code__in",
+        "position__skill__code__in",
+        "position__grade__code__in",
+        "position__bureau__code__in",
+        "position__post__tour_of_duty__code__in",
         "language_codes",
-        "post__differential_rate__in",
-        "post__danger_pay__in",
+        "position__post__differential_rate__in",
+        "position__post__danger_pay__in",
     ]
 
     use_api = True
