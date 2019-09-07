@@ -200,15 +200,15 @@ class SavedSearch(StaticRepresentationModel):
         filter_class = resolve_path_to_view(self.endpoint).filter_class
         query_params = format_filter(self.filters)
         if getattr(filter_class, "use_api", False):
-            count = filter_class.get_count(query_params, jwt_token).count()
+            count = filter_class.get_count(query_params, jwt_token)['count']
         else:
             count = self.get_queryset().count()
 
 
-        if self.count != count and not created:
+        if self.count != count:
             # Create a notification for this saved search's owner if the amount has increased
             diff = count - self.count
-            if diff > 0:
+            if diff > 0 and not created:
                 Notification.objects.create(
                     owner=self.owner,
                     tags=['saved_search'],

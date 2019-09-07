@@ -23,10 +23,7 @@ class ProjectedVacancyFilter():
 
     # Used when saving a search to determine the number of records returned
     def get_count(query, jwt_token):
-        def count(self):
-            return pv_services.get_projected_vacancies_count(query, jwt_token)
-
-        return type('', (object,), {'count': count})()
+        return pv_services.get_projected_vacancies_count(query, jwt_token)
 
     class Meta:
         fields = "__all__"
