@@ -248,16 +248,7 @@ def get_filtered_queryset(filter_class, filters):
         5. Instantiate the subset filter class using query_params and the faked request
         6. Get the queryset from the filter class
     '''
-    new_filters = MultiValueDict()
-
-    for key, value in filters.items():
-        if isinstance(value, list):
-            new_filters.setlist(key, value)
-        else:
-            new_filters.appendlist(key, value)
-
-    query_params = QueryDict('', mutable=True)
-    query_params.update(new_filters)
+    query_params = format_filter(filters)
 
     # Your daily dose of python wizardry: https://docs.python.org/3/library/functions.html#type
     fake_request = type('obj', (object,), {'query_params': query_params})
@@ -270,6 +261,18 @@ def get_filtered_queryset(filter_class, filters):
 
     return queryset
 
+def format_filter(filters):
+    new_filters = MultiValueDict()
+
+    for key, value in filters.items():
+        if isinstance(value, list):
+            new_filters.setlist(key, value)
+        else:
+            new_filters.appendlist(key, value)
+
+    query_params = QueryDict('', mutable=True)
+    query_params.update(new_filters)
+    return query_params
 
 def get_permission_by_name(name):
     '''
