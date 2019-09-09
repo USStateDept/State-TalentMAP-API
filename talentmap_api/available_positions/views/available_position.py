@@ -59,8 +59,7 @@ class AvailablePositionFavoriteActionView(APIView):
         Marks the available position as a favorite
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        apf = AvailablePositionFavorite(user=user, cp_id=pk)
-        apf.save()
+        AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
@@ -68,5 +67,5 @@ class AvailablePositionFavoriteActionView(APIView):
         Removes the available position from favorites
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        AvailablePositionFavorite.objects.get(user=user, cp_id=pk).delete()
+        AvailablePositionFavorite.objects.filter(user=user, cp_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
