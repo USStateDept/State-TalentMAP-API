@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def get_available_positions(query, jwt_token, host=None):
     '''
-    Gets projected vacancies from FSBid
+    Gets available positions from FSBid
     '''
     url = f"{API_ROOT}/availablePositions?{convert_ap_query(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
