@@ -16,26 +16,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_positions(query, jwt_token, host=None):
-    '''
-    Gets available positions from FSBid
-    '''
-    url = f"{API_ROOT}/availablePositions?{convert_ap_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-
-    available_positions = map(fsbid_ap_to_talentmap_ap, response["Data"])
-    return {
-        **services.get_pagination(query, get_available_positions_count(query, jwt_token)['count'], "/api/v1/fsbid/available_positions/", host),
-        "results": available_positions
-    }
+    return services.send_get_request(
+        "availablePositions",
+        query,
+        convert_ap_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap,
+        get_available_positions_count,
+        "/api/v1/fsbid/available_positions/",
+        host
+    )
 
 
 def get_available_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
-    url = f"{API_ROOT}/availablePositionsCount?{convert_ap_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-    return {"count": response["Data"][0]["count(1)"]}
+    return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
 def fsbid_ap_to_talentmap_ap(ap):

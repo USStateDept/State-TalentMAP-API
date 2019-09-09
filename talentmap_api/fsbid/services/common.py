@@ -4,7 +4,11 @@ import logging
 
 from urllib.parse import urlencode
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
+
+API_ROOT = settings.FSBID_API_URL
 
 def get_pagination(query, count, base_url, host=None):
     '''
@@ -100,3 +104,25 @@ sort_dict = {
 def sorting_values(sort):
     if sort is not None:
         return sort_dict.get(sort, None)
+
+
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
+    '''
+    Gets items from FSBid
+    '''
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+
+    results = map(mapping_function, response["Data"])
+    return {
+        **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
+        "results": results
+    }
+
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
+    '''
+    Gets the total number of items for a filterset
+    '''
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    return {"count": response["Data"][0]["count(1)"]}

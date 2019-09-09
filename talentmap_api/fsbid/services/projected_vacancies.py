@@ -17,26 +17,24 @@ logger = logging.getLogger(__name__)
 
 
 def get_projected_vacancies(query, jwt_token, host=None):
-    '''
-    Gets projected vacancies from FSBid
-    '''
-    url = f"{API_ROOT}/futureVacancies?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-
-    projected_vacancies = map(fsbid_pv_to_talentmap_pv, response["Data"])
-    return {
-        **services.get_pagination(query, get_projected_vacancies_count(query, jwt_token)['count'], "/api/v1/fsbid/projected_vacancies/", host),
-        "results": projected_vacancies
-    }
+    return services.send_get_request(
+        "futureVacancies",
+        query,
+        convert_pv_query,
+        jwt_token,
+        fsbid_pv_to_talentmap_pv,
+        get_projected_vacancies_count,
+        "/api/v1/fsbid/projected_vacancies/",
+        host
+    )
 
 
 def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
     Gets the total number of PVs for a filterset
     '''
-    url = f"{API_ROOT}/futureVacanciesCount?{convert_pv_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-    return {"count": response["Data"][0]["count(1)"]}
+    return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
+
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
