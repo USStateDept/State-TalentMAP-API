@@ -32,7 +32,7 @@ source setup_environment.sh
 export DATABASE_URL='<DATABASE_URL>'
 export DJANGO_LOG_DIRECTORY='/home/ec2-user/log/'
 export DEPLOYMENT_LOCATION='/home/ec2-user/State-TalentMAP-API-dev/'
-export FSBID_API_URL='http://dev.talentmap.fsbid.metaphasedev.com'
+export FSBID_API_URL='https://mockfsbid.metaphasedev.com'
 
 # install dependencies
 pip install -r requirements.txt
