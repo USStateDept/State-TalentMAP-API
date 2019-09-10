@@ -156,7 +156,15 @@ def fsbid_ap_to_talentmap_ap(ap):
             "cycle_end_date": "",
             "active": ""
         },
-        "bid_statistics": ""
+        "bid_statistics": {
+            "id": "",
+            "total_bids": ap["cp_ttl_bidder_qty"],
+            "in_grade": ap["cp_at_grd_qty"],
+            "at_skill": ap["cp_in_cone_qty"],
+            "in_grade_at_skill": ap["cp_at_grd_in_cone_qty"],
+            "has_handshake_offered": "",
+            "has_handshake_accepted": ""
+        }
     }
 
 
