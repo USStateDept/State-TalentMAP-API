@@ -33,6 +33,10 @@ ap = {
     "incumbent": "Siegner:",
     "position": "D0994900",
     "ppos_capsule_descr_txt": "ON SPEC.  The Bureau of Admnistration (A) is the back bone of all  dafdafafdadfadfadsfadfadfjfauoiukjigqur ijf iajfdpoiaudf afdoijafdiuwpei poiu foiafdjfd oau0jj;kj",
+    "cp_ttl_bidder_qty": 0,
+    "cp_at_grd_qty": 0,
+    "cp_in_cone_qty": 0,
+    "cp_at_grd_in_cone_qty": 0,
     "rnum": 1,
     "count(1)": 1
 }
