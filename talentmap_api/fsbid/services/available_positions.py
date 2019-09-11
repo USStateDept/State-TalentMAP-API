@@ -40,7 +40,7 @@ def fsbid_ap_to_talentmap_ap(ap):
     '''
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
-    designations = AvailablePositionDesignation.objects.get(cp_id=ap["cp_id"])
+    designations = AvailablePositionDesignation.objects.filter(cp_id=ap["cp_id"]).first()
     return {
         "id": ap["cp_id"],
         "status": "",
