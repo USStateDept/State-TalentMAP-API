@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter
 from talentmap_api.common.decorators import respect_instance_signalling
 
 from talentmap_api.messaging.models import Notification
@@ -195,12 +195,20 @@ class SavedSearch(StaticRepresentationModel):
     def get_queryset(self):
         return get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters)
 
-    def update_count(self, created=False):
-        count = self.get_queryset().count()
-        if self.count != count and not created:
+    def update_count(self, created=False, jwt_token=''):
+
+        filter_class = resolve_path_to_view(self.endpoint).filter_class
+        query_params = format_filter(self.filters)
+        if getattr(filter_class, "use_api", False):
+            count = filter_class.get_count(query_params, jwt_token)['count']
+        else:
+            count = self.get_queryset().count()
+
+
+        if self.count != count:
             # Create a notification for this saved search's owner if the amount has increased
             diff = count - self.count
-            if diff > 0:
+            if diff > 0 and not created:
                 Notification.objects.create(
                     owner=self.owner,
                     tags=['saved_search'],
@@ -247,12 +255,3 @@ def create_profile(sender, instance, created, **kwargs):
     '''
     if created:
         UserProfile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=SavedSearch)
-@respect_instance_signalling()
-def post_saved_search_save(sender, instance, created, **kwargs):
-    '''
-    This listener ensures newly created or edited saved searches update their counts
-    '''
-    instance.update_count(created)

@@ -84,7 +84,7 @@ def test_saved_search_create_in_array_filters(authorized_client, authorized_user
                 "grade__code__in": ["05", "06"]
             }
         }
-    ), content_type='application/json')
+    ), content_type='application/json', HTTP_JWT='test')
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -100,7 +100,7 @@ def test_saved_search_create_in_string_filters(authorized_client, authorized_use
                 "post__in": "254,123"
             }
         }
-    ), content_type='application/json')
+    ), content_type='application/json', HTTP_JWT='test')
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -116,7 +116,7 @@ def test_saved_search_create_declared_filters(authorized_client, authorized_user
                 "q": ["german security"]
             }
         }
-    ), content_type='application/json')
+    ), content_type='application/json', HTTP_JWT='test')
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -134,7 +134,7 @@ def test_saved_search_create_valid_filters(authorized_client, authorized_user):
                 "post__tour_of_duty__months__gt": ["6"]
             }
         }
-    ), content_type='application/json')
+    ), content_type='application/json', HTTP_JWT='test')
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -177,7 +177,7 @@ def test_saved_search_patch_valid_filters(authorized_client, authorized_user, te
                 "bureau_organization__code__contains": ["6"]
             }
         }
-    ), content_type='application/json')
+    ), content_type='application/json', HTTP_JWT='test')
 
     assert response.status_code == status.HTTP_200_OK
 

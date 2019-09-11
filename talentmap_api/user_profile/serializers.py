@@ -216,6 +216,10 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 class SavedSearchSerializer(PrefetchedSerializer):
     owner = serializers.StringRelatedField(read_only=True)
 
+    def save(self, **kwargs):
+        super().save(owner=kwargs['owner'])
+        self.instance.update_count(True, kwargs['jwt_token'])
+
     def validate(self, data):
         # We'll need the endpoint to validate our filters, so determine if our
         # datasource is an instance or a fresh object (in which case we use initial data)
