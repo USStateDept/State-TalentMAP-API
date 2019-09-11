@@ -7,17 +7,21 @@ from rest_framework import status
 from django.utils import timezone
 
 
-pv = {
-    "fv_seq_num": 89367,
+ap = {
+    "cp_id": 89367,
+    "cp_status": "OP",
+    "cp_post_dt": "2020-08-02T00:00:00",
     "pos_title_desc": "CHIEF OF STAFF:",
     "pos_location_code": "110010001",
     "post_org_country_state": "WASHINGTON, DISTRICT OF COLUMBIA",
     "ted": "2020-08-02T00:00:00",
     "fv_override_ted_date": "",
-    "bsn_id": 21,
+    "cycle_id": 21,
+    "cycle_nm_txt": "Test Cycle",
     "bureau_code": "OC",
     "bsn_descr_text": "Summer 2020",
     "pos_skill_desc": "MANAGEMENT OFFICER",
+    "pos_bureau_short_desc": 'Desc',
     "pos_job_category_desc": "Management",
     "pos_grade_code": "OC",
     "bureau_desc": "(A)BUREAU OF ADMINISTRATION",
@@ -29,6 +33,10 @@ pv = {
     "incumbent": "Siegner:",
     "position": "D0994900",
     "ppos_capsule_descr_txt": "ON SPEC.  The Bureau of Admnistration (A) is the back bone of all  dafdafafdadfadfadsfadfadfjfauoiukjigqur ijf iajfdpoiaudf afdoijafdiuwpei poiu foiafdjfd oau0jj;kj",
+    "cp_ttl_bidder_qty": 0,
+    "cp_at_grd_qty": 0,
+    "cp_in_cone_qty": 0,
+    "cp_at_grd_in_cone_qty": 0,
     "rnum": 1,
     "count(1)": 1
 }
@@ -43,9 +51,9 @@ def test_bidder_fixture(authorized_user):
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
-def test_projected_vacancies_actions(authorized_client, authorized_user):
+def test_available_positions_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = {"Data": [pv]}
-        response = authorized_client.get(f'/api/v1/fsbid/projected_vacancies', HTTP_JWT=fake_jwt)
-        assert response.json()["results"][0]['id'] == [pv][0]['fv_seq_num']
+        mock_get.return_value.json.return_value = {"Data": [ap]}
+        response = authorized_client.get(f'/api/v1/fsbid/available_positions', HTTP_JWT=fake_jwt)
+        assert response.json()["results"][0]['id'] == [ap][0]['cp_id']
