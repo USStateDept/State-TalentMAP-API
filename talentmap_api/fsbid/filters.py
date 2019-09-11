@@ -10,24 +10,20 @@ class ProjectedVacancyFilter():
     declared_filters = [
         "projectedVacancy",
         "is_available_in_bidseason",
-        "skill__code__in",
-        "grade__code__in",
-        "bureau__code__in",
-        "post__tour_of_duty__code__in",
+        "position__skill__code__in",
+        "position__grade__code__in",
+        "position__bureau__code__in",
+        "position__post__tour_of_duty__code__in",
         "language_codes",
-        "post__differential_rate__in",
-        "post__danger_pay__in",
+        "position__post__differential_rate__in",
+        "position__post__danger_pay__in",
     ]
 
     use_api = True
 
     # Used when saving a search to determine the number of records returned
-    def get_queryset(query):
-        def count(self):
-            fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
-            return pv_services.get_projected_vacancies_count(query, fake_jwt)
-
-        return type('', (object,), {'count': count})()
+    def get_count(query, jwt_token):
+        return pv_services.get_projected_vacancies_count(query, jwt_token)
 
     class Meta:
         fields = "__all__"

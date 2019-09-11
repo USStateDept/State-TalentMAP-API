@@ -490,3 +490,14 @@ CORS_ALLOW_HEADERS = [
 'x-csrftoken',
 'x-requested-with',
 ]
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "api_key": {
+            "type": "apiKey",
+            "name": "JWT",
+            "in": "header",
+            "description": "JWT authorization"
+        },
+    },
+}

@@ -539,14 +539,24 @@ def mode_cycle_positions(last_updated_date=None):
 
         if position:
             updated_instances.append(position)
-            cycle_position, _ = CyclePosition.objects.get_or_create(_cp_id=data["CP_ID"])
-            cycle_position.position = position
-            cycle_position.bidcycle = bc
-            cycle_position.status_code = data["STATUS_CODE"]
-            cycle_position.status = data["STATUS"]
-            cycle_position.created = ensure_date(data["DATE_CREATED"], utc_offset=-5)
-            cycle_position.updated = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
-            cycle_position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
+            cycle_position, _ = CyclePosition.objects.get_or_create(_cp_id=data["CP_ID"], defaults={
+                'position': position,
+                'bidcycle': bc,
+                'status_code': data["STATUS_CODE"],
+                'status': data["STATUS"],
+                'created': ensure_date(data["DATE_CREATED"], utc_offset=-5),
+                'updated': ensure_date(data["DATE_UPDATED"], utc_offset=-5),
+                'posted_date': ensure_date(data["CP_POST_DT"], utc_offset=-5)
+            })
+            # if the CP was found, update it
+            if _ is False:
+                cycle_position.position = position
+                cycle_position.bidcycle = bc
+                cycle_position.status_code = data["STATUS_CODE"]
+                cycle_position.status = data["STATUS"]
+                cycle_position.created = ensure_date(data["DATE_CREATED"], utc_offset=-5)
+                cycle_position.updated = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
+                cycle_position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.effective_date = ensure_date(data["DATE_UPDATED"], utc_offset=-5)
             position.posted_date = ensure_date(data["CP_POST_DT"], utc_offset=-5)
             position.save()
