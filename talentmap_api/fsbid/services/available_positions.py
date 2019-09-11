@@ -8,6 +8,7 @@ from django.db.models import Q
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.available_positions.models import AvailablePositionDesignation
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
@@ -39,6 +40,7 @@ def fsbid_ap_to_talentmap_ap(ap):
     '''
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
+    designations = AvailablePositionDesignation.objects.get(cp_id=ap["cp_id"])
     return {
         "id": ap["cp_id"],
         "status": "",
@@ -49,9 +51,9 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": "",
             "reason": ""
         },
-        "is_urgent_vacancy": "",
-        "is_volunteer": "",
-        "is_hard_to_fill": "",
+        "is_urgent_vacancy": getattr(designations, 'is_urgent_vacancy', False),
+        "is_volunteer": getattr(designations, 'is_volunteer', False),
+        "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "position": {
             "id": "",
             "grade": ap["pos_grade_code"],
@@ -68,7 +70,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "position_number": ap["position"],
             "title": ap["pos_title_desc"],
             "is_overseas": "",
-            "is_highlighted": "",
+            "is_highlighted": getattr(designations, 'is_highlighted', False),
             "create_date": "",
             "update_date": "",
             "effective_date": "",
