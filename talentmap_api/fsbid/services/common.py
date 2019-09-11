@@ -33,22 +33,22 @@ def convert_multi_value(val):
         return val.split(',')
 
 
-# Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
-LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
+# Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
+LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
 
 def parseLanguage(lang):
     '''
     Parses a language string from FSBid and turns it into what we want
-    The lang param comes in as something like "Spanish (3/3)"
+    The lang param comes in as something like "Spanish(SP) 3/3"
     '''
     if lang:
         match = LANG_PATTERN.search(lang)
         if match:
             language = {}
             language["language"] = match.group(1)
-            language["reading_proficiency"] = match.group(2)
-            language["spoken_proficiency"] = match.group(3)
-            language["representation"] = match.group(0).rstrip()
+            language["reading_proficiency"] = match.group(3)
+            language["spoken_proficiency"] = match.group(4)
+            language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
             return language
 
 
