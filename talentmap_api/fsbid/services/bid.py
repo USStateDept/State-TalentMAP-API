@@ -16,7 +16,7 @@ def user_bids(employee_id, jwt_token, position_id=None):
     '''
     Get bids for a user on a position or all if no position
     '''
-    url = f"{API_ROOT}/bids/?employeeId={employee_id}"
+    url = f"{API_ROOT}/bids/?perdet_seq_num={employee_id}"
     bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return [fsbid_bid_to_talentmap_bid(bid) for bid in bids if bid['cyclePosition']['cp_id'] == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, bids)
 
