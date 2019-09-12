@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.fsbid.filters import ProjectedVacancyFilter
+from talentmap_api.fsbid.filters import AvailablePositionsFilter
 
 import talentmap_api.fsbid.services.available_positions as services
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class FSBidAvailablePositionsListView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_class = ProjectedVacancyFilter
+    filter_class = AvailablePositionsFilter
 
     @classmethod
     def get_extra_actions(cls):
@@ -33,4 +33,4 @@ class FSBidAvailablePositionsListView(APIView):
         '''
         Gets all available positions
         '''
-        return Response(services.get_available_positions(request.query_params, 'JWTPLACEHOLDER', f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
