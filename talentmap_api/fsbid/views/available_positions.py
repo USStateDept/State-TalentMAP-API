@@ -19,18 +19,40 @@ import talentmap_api.fsbid.services.available_positions as services
 import logging
 logger = logging.getLogger(__name__)
 
-
-class FSBidAvailablePositionsListView(APIView):
-
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_class = ProjectedVacancyFilter
-
+class BaseView(APIView):
     @classmethod
     def get_extra_actions(cls):
         return []
+
+class FSBidAvailablePositionsListView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
 
     def get(self, request, *args, **kwargs):
         '''
         Gets all available positions
         '''
         return Response(services.get_available_positions(request.query_params, 'JWTPLACEHOLDER', f"{request.scheme}://{request.get_host()}"))
+
+
+class FSBidAvailablePositionView(BaseView):
+    
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, pk):
+        '''
+        Gets an available position
+        '''
+        return Response(services.get_available_position(pk, request.META['HTTP_JWT']))
+
+
+class FSBidAvailablePositionsSimilarView(BaseView):
+    
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, pk):
+        '''
+        Gets similar available positions to the position provided
+        '''
+        return Response(services.get_similar_available_positions(pk, request.META['HTTP_JWT']))

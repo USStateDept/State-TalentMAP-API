@@ -12,6 +12,7 @@ ap = {
     "cp_status": "OP",
     "cp_post_dt": "2020-08-02T00:00:00",
     "pos_title_desc": "CHIEF OF STAFF:",
+    "pos_skill_code": "OC",
     "pos_location_code": "110010001",
     "post_org_country_state": "WASHINGTON, DISTRICT OF COLUMBIA",
     "ted": "2020-08-02T00:00:00",
@@ -55,5 +56,16 @@ def test_available_positions_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [ap]}
-        response = authorized_client.get(f'/api/v1/fsbid/available_positions', HTTP_JWT=fake_jwt)
+        response = authorized_client.get(f'/api/v1/fsbid/available_positions/', HTTP_JWT=fake_jwt)
         assert response.json()["results"][0]['id'] == [ap][0]['cp_id']
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.usefixtures("test_bidder_fixture")
+def test_available_position_actions(authorized_client, authorized_user):
+    with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
+        mock_get.return_value = Mock(ok=True)
+        mock_get.return_value.json.return_value = {"Data": [ap]}
+        response = authorized_client.get(f'/api/v1/fsbid/available_positions/{ap["cp_id"]}/', HTTP_JWT=fake_jwt)
+        assert response.json()['id'] == ap['cp_id']
+
