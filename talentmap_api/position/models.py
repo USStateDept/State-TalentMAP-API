@@ -6,7 +6,6 @@ from djchoices import DjangoChoices, ChoiceItem
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-from simple_history.models import HistoricalRecords
 
 from dateutil.relativedelta import relativedelta
 
@@ -49,8 +48,6 @@ class Position(StaticRepresentationModel):
     is_highlighted = models.BooleanField(default=False, help_text="Flag designating whether the position is highlighted by an organization")
 
     latest_bidcycle = models.ForeignKey('bidding.BidCycle', on_delete=models.DO_NOTHING, related_name='latest_cycle_for_positions', null=True, help_text="The latest bid cycle this position is in")
-
-    history = HistoricalRecords()
 
     create_date = models.DateTimeField(null=True, help_text="The creation date of the position")
     update_date = models.DateTimeField(null=True, help_text="The update date of this position")
@@ -252,8 +249,6 @@ class CapsuleDescription(StaticRepresentationModel):
     last_editing_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='edited_capsule_descriptions', null=True, help_text="The last user to edit this description")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-
-    history = HistoricalRecords()
 
     _pos_seq_num = models.TextField(null=True)
 
@@ -497,14 +492,6 @@ def assignment_pre_save(sender, instance, **kwargs):
 
             sd_post = instance.position.post                # post as of start date
             bd_post = instance.position.post                # post as of bid date
-
-            # If a historical record exists for the post for Nov. 1st, use that
-            if sd.year < today.year or \
-               (sd.year == today.year and sd.month < 11 and today.month > 11):
-                sd_post = sd_post.history.as_of(f"{sd.year}-11-01T00:00:00Z")
-
-            if bd and (bd.year < today.year or (bd.year == today.year and bd.month < 11 and today.month > 11)):
-                bd_post = bd_post.history.as_of(f"{bd.year}-11-01T00:00:00Z")
 
             instance.combined_differential = max((sd_post.differential_rate + sd_post.danger_pay),
                                                  (bd_post.differential_rate + bd_post.danger_pay))
