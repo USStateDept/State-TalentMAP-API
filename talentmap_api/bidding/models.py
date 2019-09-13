@@ -7,7 +7,6 @@ from django.db.models.signals import pre_save, post_save, post_delete, m2m_chang
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 
-from simple_history.models import HistoricalRecords
 from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
@@ -162,8 +161,6 @@ class BidCycle(StaticRepresentationModel):
     active = models.BooleanField(default=False, help_text="Whether this bidcycle is active or not")
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
-
-    history = HistoricalRecords()
 
     _id = models.TextField(null=True)
     _positions_seq_nums = ArrayField(models.TextField(), default=list)
