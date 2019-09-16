@@ -6,7 +6,6 @@ from talentmap_api.common.urls import get_retrieve, get_list, patch_update
 from rest_framework import routers
 
 router = routers.SimpleRouter()
-router.register(r'^(?P<instance_id>[0-9]+)/history', views.HistoricalCapsuleDescriptionView, base_name="organization.CapsuleDescription-history")
 
 urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.CapsuleDescriptionView.as_view({**get_retrieve, **patch_update}), name='position.CapsuleDescription-detail'),

@@ -7,16 +7,11 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
-from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.common_helpers import has_permission_or_403
 
 from talentmap_api.position.models import CapsuleDescription
 from talentmap_api.position.filters import CapsuleDescriptionFilter
 from talentmap_api.position.serializers import CapsuleDescriptionSerializer
-
-
-HistoricalCapsuleDescriptionView = generate_historical_view(CapsuleDescription, CapsuleDescriptionSerializer, CapsuleDescriptionFilter)
-
 
 class CapsuleDescriptionView(FieldLimitableSerializerMixin,
                              GenericViewSet,

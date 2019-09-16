@@ -1,5 +1,4 @@
 import requests
-import re
 import logging
 
 from urllib.parse import urlencode
@@ -17,46 +16,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_positions(query, jwt_token, host=None):
-    '''
-    Gets available positions from FSBid
-    '''
-    url = f"{API_ROOT}/availablePositions?{convert_ap_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-
-    available_positions = map(fsbid_ap_to_talentmap_ap, response["Data"])
-    return {
-        **services.get_pagination(query, get_available_positions_count(query, jwt_token)['count'], "/api/v1/fsbid/available_positions/", host),
-        "results": available_positions
-    }
+    return services.send_get_request(
+        "availablePositions",
+        query,
+        convert_ap_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap,
+        get_available_positions_count,
+        "/api/v1/fsbid/available_positions/",
+        host
+    )
 
 
 def get_available_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
-    url = f"{API_ROOT}/availablePositionsCount?{convert_ap_query(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-    return {"count": response["Data"][0]["count(1)"]}
-
-
-# Pattern for extracting language parts from a string. Ex. "Spanish (3/3)"
-LANG_PATTERN = re.compile("(.*?)\(.*\)\s(\d)/(\d)")
-
-
-def parseLanguage(lang):
-    '''
-    Parses a language string from FSBid and turns it into what we want
-    The lang param comes in as something like "Spanish (3/3)"
-    '''
-    if lang:
-        match = LANG_PATTERN.search(lang)
-        if match:
-            language = {}
-            language["language"] = match.group(1)
-            language["reading_proficiency"] = match.group(2)
-            language["spoken_proficiency"] = match.group(3)
-            language["representation"] = match.group(0).rstrip()
-            return language
+    return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
 def fsbid_ap_to_talentmap_ap(ap):
@@ -144,8 +120,8 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "active": ""
             },
             "languages": list(filter(None, [
-                parseLanguage(ap["lang1"]),
-                parseLanguage(ap["lang2"]),
+                services.parseLanguage(ap["lang1"]),
+                services.parseLanguage(ap["lang2"]),
             ])),
         },
         "bidcycle": {
@@ -167,47 +143,6 @@ def fsbid_ap_to_talentmap_ap(ap):
         }
     }
 
-
-def post_values(query):
-    '''
-    Handles mapping locations and groups of locations to FSBid expected params
-    '''
-    results = []
-    if query.get("is_domestic") == "true":
-        domestic_codes = Post.objects.filter(location__country__code="USA").values_list("_location_code", flat=True)
-        results = results + list(domestic_codes)
-    if query.get("is_domestic") == "false":
-        overseas_codes = Post.objects.exclude(location__country__code="USA").values_list("_location_code", flat=True)
-        results = results + list(overseas_codes)
-    if query.get("position__post__in"):
-        post_ids = query.get("position__post__in").split(",")
-        location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
-        results = results + list(location_codes)
-    if len(results) > 0:
-        return ",".join(results)
-
-
-def bureau_values(query):
-    '''
-    Gets the ids for the functional/regional bureaus and maps to codes and their children
-    '''
-    results = []
-    # functional bureau filter
-    if query.get("org_has_groups"):
-        func_bureaus = query.get("org_has_groups").split(",")
-        func_org_codes = OrganizationGroup.objects.filter(id__in=func_bureaus).values_list("_org_codes", flat=True)
-        # Flatten _org_codes
-        func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
-        results = results + list(func_bureau_codes)
-    # Regional bureau filter
-    if query.get("position__bureau__code__in"):
-        regional_bureaus = query.get("position__bureau__code__in").split(",")
-        reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
-        results = results + list(reg_org_codes)
-    if len(results) > 0:
-        return ",".join(results)
-
-
 def convert_ap_query(query):
     '''
     Converts TalentMap filters into FSBid filters
@@ -215,19 +150,22 @@ def convert_ap_query(query):
     The TalentMap filters align with the position search filter naming
     '''
     values = {
+        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
-        "request_params.bid_seasons": query.get("is_available_in_bidseason"),
-        "request_params.bureaus": bureau_values(query),
-        "request_params.danger_pays": query.get("position__post__danger_pay__in"),
-        "request_params.grades": query.get("position__grade__code__in"),
-        "request_params.languages": query.get("language_codes"),
-        "request_params.differential_pays": query.get("position__post__differential_rate__in"),
-        "request_params.skills": query.get("position__skill__code__in"),
-        "request_params.tod_codes": query.get("position__post__tour_of_duty__code__in"),
-        "request_params.location_codes": post_values(query),
-        "request_params.pos_numbers": query.get("position__position_number__in", None),
-        "request_params.cp_ids": query.get("id", None),
+        "request_params.cps_codes": services.convert_multi_value("OP,HS"),
+        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidseason")),
+        "request_params.bureaus": services.bureau_values(query),
+        "request_params.overseas_ind": services.overseas_values(query),
+        "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        "request_params.languages": services.convert_multi_value(query.get("language_codes")),
+        "request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        "request_params.location_codes": services.post_values(query),
+        "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None})
