@@ -15,10 +15,6 @@ class Migration(migrations.Migration):
             name='_string_representation',
         ),
         migrations.RemoveField(
-            model_name='historicalcapsuledescription',
-            name='_string_representation',
-        ),
-        migrations.RemoveField(
             model_name='positionbidstatistics',
             name='_string_representation',
         ),
