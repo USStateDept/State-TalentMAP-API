@@ -5,10 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 
 from djchoices import DjangoChoices, ChoiceItem
 
-from talentmap_api.common.models import StaticRepresentationModel
-
-
-class Notification(StaticRepresentationModel):
+class Notification(models.Model):
     '''
     This model represents an individual notification item
     '''
@@ -27,7 +24,7 @@ class Notification(StaticRepresentationModel):
         ordering = ["date_updated"]
 
 
-class Task(StaticRepresentationModel):
+class Task(models.Model):
     '''
     This model represents a task object.
     '''
@@ -53,7 +50,7 @@ class Task(StaticRepresentationModel):
         ordering = ['priority', 'date_due']
 
 
-class Sharable(StaticRepresentationModel):
+class Sharable(models.Model):
     '''
     This model represents a shared item from one user to another. The field sharable_model
     is the string representation of the model, for example 'position.Position', and the
