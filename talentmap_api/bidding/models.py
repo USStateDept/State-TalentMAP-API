@@ -189,7 +189,7 @@ class BidCycle(StaticRepresentationModel):
         managed = True
         ordering = ["cycle_start_date"]
 
-class StatusSurvey(StaticRepresentationModel):
+class StatusSurvey(models.Model):
     '''
     The status survey model represents eligiblity status self-identification information
     on a per-bidcycle basis
@@ -208,7 +208,7 @@ class StatusSurvey(StaticRepresentationModel):
         unique_together = (("user", "bidcycle"),)
 
 
-class UserBidStatistics(StaticRepresentationModel):
+class UserBidStatistics(models.Model):
     '''
     Stores bid statistics for any particular bidcycle for each user
     '''

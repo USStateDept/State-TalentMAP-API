@@ -208,7 +208,7 @@ class Position(StaticRepresentationModel):
         ordering = ["position_number"]
 
 
-class PositionBidStatistics(StaticRepresentationModel):
+class PositionBidStatistics(models.Model):
     '''
     Stores the bid statistics on a per-cycle basis for a position
     '''
@@ -237,7 +237,7 @@ class PositionBidStatistics(StaticRepresentationModel):
         managed = True
 
 
-class CapsuleDescription(StaticRepresentationModel):
+class CapsuleDescription(models.Model):
     '''
     Represents a capsule description, describing the associated object in plain English
     '''

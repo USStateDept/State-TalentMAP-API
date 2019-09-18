@@ -1,9 +1,6 @@
 from django.db import models
 
-from talentmap_api.common.models import StaticRepresentationModel
-
-
-class HomepageBanner(StaticRepresentationModel):
+class HomepageBanner(models.Model):
     '''
     The banner for the homepage
     '''
@@ -14,7 +11,7 @@ class HomepageBanner(StaticRepresentationModel):
         managed = True
 
 
-class AboutPage(StaticRepresentationModel):
+class AboutPage(models.Model):
     '''
     About page content
     '''
