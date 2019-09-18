@@ -14,20 +14,21 @@ class Command(BaseCommand):
         parser.add_argument('--model', nargs='?', dest="model", help='Used to specify a model to process only the specifically requested model')
     
     def handle(self, *args, **options):
+        models = [x for x in apps.get_models() if issubclass(x, StaticRepresentationModel)]
         if options['model']:
             try:
                 m = apps.get_model(options['model'])
             except (LookupError, ValueError):
-                print(f"The model {options['model']} could not be found")
+                print(f"The model {options['model']} could not be found. Available models are...")
+                for m in models:
+                    print(f"\t{m._meta.app_label}.{m.__name__}")
                 return
 
-            if issubclass(m, StaticRepresentationModel):
+            if m in models:
                 models = [m]
             else:
                 print(f"The model {options['model']} is not a subclass of StaticRepresentationModel")
                 return
-        else:
-            models = [x for x in apps.get_models() if issubclass(x, StaticRepresentationModel)]
         for model in models:
             self.logger.info(f"Updating string representations for model: {model}")
             for instance in list(model.objects.all()):
