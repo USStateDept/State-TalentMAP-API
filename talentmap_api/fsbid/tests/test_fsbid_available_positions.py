@@ -55,5 +55,5 @@ def test_available_positions_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [ap]}
-        response = authorized_client.get(f'/api/v1/fsbid/available_positions', HTTP_JWT=fake_jwt)
+        response = authorized_client.get(f'/api/v1/fsbid/available_positions/', HTTP_JWT=fake_jwt)
         assert response.json()["results"][0]['id'] == [ap][0]['cp_id']
