@@ -34,7 +34,9 @@ class Command(BaseCommand):
             try:
                 m = apps.get_model(options['model'])
             except (LookupError, ValueError):
-                print(f"The model {options['model']} could not be found")
+                print(f"The model {options['model']} could not be found. Available models are:")
+                for o in self.models:
+                    print(f"\t{o._meta.app_label}.{o.__name__}")
                 return
 
             if m in models:
