@@ -1,10 +1,13 @@
 import requests
 import logging
+import csv
 
 from urllib.parse import urlencode
 
 from django.conf import settings
 from django.db.models import Q
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
@@ -33,6 +36,67 @@ def get_available_positions_count(query, jwt_token, host=None):
     Gets the total number of available positions for a filterset
     '''
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
+
+
+def get_available_positions_csv(query, jwt_token, host=None):
+    data = services.send_get_csv_request(
+        "availablePositions",
+        query,
+        convert_ap_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap,
+        "/api/v1/fsbid/available_positions/",
+        host
+    )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = "attachment; filename=available_positions.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    writer.writerow([
+        smart_str(u"Position"),
+        smart_str(u"Position Number"),
+        smart_str(u"Skill"),
+        smart_str(u"Grade"),
+        smart_str(u"Bureau"),
+        smart_str(u"Post City"),
+        smart_str(u"Post Country"),
+        smart_str(u"Tour of Duty"),
+        smart_str(u"Languages"),
+        smart_str(u"Service Needs Differential"),
+        smart_str(u"Post Differential"),
+        smart_str(u"Danger Pay"),
+        smart_str(u"TED"),
+        smart_str(u"Incumbent"),
+        smart_str(u"Bid Cycle/Season"),
+        smart_str(u"Posted Date"),
+        smart_str(u"Status Code"),
+    ])
+
+    for record in data:
+        writer.writerow([
+            smart_str(record["position"]["title"]),
+            smart_str(record["position"]["position_number"]),
+            smart_str(record["position"]["skill"]),
+            smart_str(record["position"]["grade"]),
+            smart_str(record["position"]["bureau"]),
+            smart_str(record["position"]["post"]["location"]["city"]),
+            smart_str(record["position"]["post"]["location"]["country"]),
+            smart_str(record["position"]["tour_of_duty"]),
+            smart_str(record["position"]["languages"]),
+            smart_str(record["position"]["post"]["has_service_needs_differential"]),
+            smart_str(record["position"]["post"]["differential_rate"]),
+            smart_str(record["position"]["post"]["danger_pay"]),
+            smart_str(record["ted"]),
+            smart_str(record["position"]["current_assignment"]["user"]),
+            smart_str(record["bidcycle"]["name"]),
+            smart_str(record["posted_date"]),
+            smart_str(record["status_code"]),
+        ])
+    return response
 
 
 def fsbid_ap_to_talentmap_ap(ap):
@@ -142,6 +206,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "has_handshake_accepted": ""
         }
     }
+
 
 def convert_ap_query(query):
     '''

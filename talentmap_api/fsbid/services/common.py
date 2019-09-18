@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 
+
 def get_pagination(query, count, base_url, host=None):
     '''
     Figures out all the pagination
@@ -28,6 +29,7 @@ def get_pagination(query, count, base_url, host=None):
         "previous": previous_url
     }
 
+
 def convert_multi_value(val):
     if val is not None:
         return val.split(',')
@@ -35,6 +37,7 @@ def convert_multi_value(val):
 
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
 LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
+
 
 def parseLanguage(lang):
     '''
@@ -85,6 +88,7 @@ def bureau_values(query):
     if len(results) > 0:
         return results
 
+
 def overseas_values(query):
     '''
     Maps the overseas/domestic filter to the proper value
@@ -93,6 +97,8 @@ def overseas_values(query):
         return "D"
     if query.get("is_domestic") == "false":
         return "O"
+
+
 sort_dict = {
     "position__title": "pos_title_desc",
     "position__grade": "pos_grade_code",
@@ -100,6 +106,7 @@ sort_dict = {
     "ted": "ted",
     "position__position_number": "position"
 }
+
 
 def sorting_values(sort):
     if sort is not None:
@@ -119,6 +126,7 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
         "results": results
     }
 
+
 def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
     '''
     Gets the total number of items for a filterset
@@ -126,3 +134,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return {"count": response["Data"][0]["count(1)"]}
+
+
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None):
+    '''
+    Gets items from FSBid
+    '''
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+
+    results = map(mapping_function, response["Data"])
+    return results

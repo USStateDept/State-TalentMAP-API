@@ -13,6 +13,7 @@ from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
+from talentmap_api.common.renderers import PaginatedCSVRenderer
 
 import talentmap_api.fsbid.services.available_positions as services
 
@@ -34,3 +35,20 @@ class FSBidAvailablePositionsListView(APIView):
         Gets all available positions
         '''
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+
+
+class FSBidAvailablePositionsCSVView(APIView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+    # renderer_class = [PaginatedCSVRenderer]
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets all available positions
+        '''
+        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
