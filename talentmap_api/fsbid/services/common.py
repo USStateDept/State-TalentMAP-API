@@ -6,6 +6,8 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 
+from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
@@ -106,17 +108,27 @@ def sorting_values(sort):
         return sort_dict.get(sort, None)
 
 
+def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+
+    return list(map(mapping_function, response["Data"]))
+
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
+    '''
+    Gets an individual record by the provided ID
+    '''
+    results = get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function)[0]
+    return results
+
+
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
     '''
     Gets items from FSBid
     '''
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-
-    results = map(mapping_function, response["Data"])
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
-        "results": results
+        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
     }
 
 def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
