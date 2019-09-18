@@ -13,7 +13,6 @@ from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
-from talentmap_api.common.renderers import PaginatedCSVRenderer
 
 import talentmap_api.fsbid.services.available_positions as services
 
@@ -41,7 +40,6 @@ class FSBidAvailablePositionsCSVView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
-    # renderer_class = [PaginatedCSVRenderer]
 
     @classmethod
     def get_extra_actions(cls):
