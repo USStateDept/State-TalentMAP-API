@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.conf import settings
 
+from talentmap_api.common.common_helpers import ensure_date
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
@@ -23,7 +24,7 @@ def fsbid_bid_season_to_talentmap_bid_season(bs):
     return {
         "id": bs["bsn_id"],
         "description": bs["bsn_descr_text"],
-        "start_date": datetime.strptime(bs["bsn_start_date"], "%Y/%m/%d"),
-        "end_date": datetime.strptime(bs["bsn_end_date"], "%Y/%m/%d"),
-        "panel_cut_off_date": datetime.strptime(bs["bsn_panel_cutoff_date"], "%Y/%m/%d")
+        "start_date": ensure_date(bs["bsn_start_date"], utc_offset=-5),
+        "end_date": ensure_date(bs["bsn_end_date"], utc_offset=-5),
+        "panel_cut_off_date": ensure_date(bs["bsn_panel_cutoff_date"], utc_offset=-5)
     }
