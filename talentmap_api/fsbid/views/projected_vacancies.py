@@ -57,7 +57,7 @@ class FSBidProjectedVacancyView(BaseView):
         Gets a projected vacancy
         '''
         result = services.get_projected_vacancy(pk, request.META['HTTP_JWT'])
-        if len(result) == 0:
+        if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
  
         return Response(result)

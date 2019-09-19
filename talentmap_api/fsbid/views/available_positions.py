@@ -57,7 +57,7 @@ class FSBidAvailablePositionView(BaseView):
         Gets an available position
         '''
         result = services.get_available_position(pk, request.META['HTTP_JWT'])
-        if len(result) == 0:
+        if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
   
         return Response(result)
