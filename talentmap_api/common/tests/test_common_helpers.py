@@ -16,9 +16,8 @@ from talentmap_api.bidding.filters import CyclePositionFilter
 
 @pytest.mark.django_db()
 def test_ensure_date():
-    # Try to get a permission without it existing
-    with pytest.raises(Exception, match="Parameter must be a date object or string"):
-        ensure_date(201225123)
+   
+    ensure_date(201225123) == None
 
     date = parser.parse("1000-01-01T00:00:00-05:00")
 
