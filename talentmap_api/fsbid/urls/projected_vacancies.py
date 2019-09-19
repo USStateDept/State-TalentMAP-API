@@ -6,7 +6,7 @@ from talentmap_api.fsbid.views import projected_vacancies as views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    url(r'', views.FSBidProjectedVacanciesListView.as_view(), name="projected-vacancies-FSBid-projected-vacancies-actions"),
+    url(r'^$', views.FSBidProjectedVacanciesListView.as_view(), name="projected-vacancies-FSBid-projected-vacancies-actions"),
 ]
 
 urlpatterns += router.urls

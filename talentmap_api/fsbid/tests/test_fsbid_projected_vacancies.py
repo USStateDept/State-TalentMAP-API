@@ -47,5 +47,5 @@ def test_projected_vacancies_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [pv]}
-        response = authorized_client.get(f'/api/v1/fsbid/projected_vacancies', HTTP_JWT=fake_jwt)
+        response = authorized_client.get('/api/v1/fsbid/projected_vacancies/', HTTP_JWT=fake_jwt)
         assert response.json()["results"][0]['id'] == [pv][0]['fv_seq_num']
