@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from simple_history.models import HistoricalRecords
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
@@ -33,8 +32,6 @@ class Organization(StaticRepresentationModel):
 
     # List of highlighted positions
     highlighted_positions = models.ManyToManyField('position.Position', related_name='highlighted_by_org', help_text="Positions which have been designated as highlighted by this organization")
-
-    history = HistoricalRecords()
 
     # These fields are used during loading to preserve source coded data, before the FK relationships are set
     # These also preserve the data should the FK items be deleted
@@ -178,8 +175,6 @@ class TourOfDuty(StaticRepresentationModel):
 
     _status = models.TextField(null=True)
 
-    history = HistoricalRecords()
-
     def __str__(self):
         return f"{self.long_description}"
 
@@ -202,8 +197,6 @@ class Country(StaticRepresentationModel):
 
     obc_id = models.TextField(null=True, help_text="The OBC ID for this country")
 
-    history = HistoricalRecords()
-
     def __str__(self):
         return f"{self.short_name}"
 
@@ -222,8 +215,6 @@ class Location(StaticRepresentationModel):
     city = models.TextField(default="", blank=True)
     state = models.TextField(default="", blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, related_name="locations", help_text="The country for this location")
-
-    history = HistoricalRecords()
 
     _country = models.TextField(null=True)
 
@@ -276,8 +267,6 @@ class Post(StaticRepresentationModel):
     obc_id = models.TextField(null=True, help_text="The OBC ID for this post")
 
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.SET_NULL, null=True, related_name="posts", help_text="The tour of duty")
-
-    history = HistoricalRecords()
 
     _tod_code = models.TextField(null=True)
     _location_code = models.TextField(null=True)
