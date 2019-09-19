@@ -7,25 +7,21 @@ from django.utils import timezone
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 
+from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.bid_season as services
 
 import logging
 logger = logging.getLogger(__name__)
 
 
-class FSBidBidSeasonsListView(APIView):
+class FSBidBidSeasonsListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    @classmethod
-    def get_extra_actions(cls):
-        return []
 
     def get(self, request, *args, **kwargs):
         '''

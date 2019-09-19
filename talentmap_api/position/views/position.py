@@ -10,7 +10,6 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from talentmap_api.common.cache.views import CachedViewSet
-from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
 from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
@@ -24,9 +23,6 @@ from talentmap_api.position.filters import PositionFilter, AssignmentFilter
 from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
 
 from talentmap_api.user_profile.models import UserProfile
-
-
-HistoricalPositionView = generate_historical_view(Position, PositionSerializer, PositionFilter)
 
 
 class PositionListView(FieldLimitableSerializerMixin,

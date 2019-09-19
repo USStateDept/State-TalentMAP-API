@@ -166,7 +166,7 @@ class UserProfile(StaticRepresentationModel):
         ordering = ['user__last_name']
 
 
-class SavedSearch(StaticRepresentationModel):
+class SavedSearch(models.Model):
     '''
     Represents a saved search.
     '''
