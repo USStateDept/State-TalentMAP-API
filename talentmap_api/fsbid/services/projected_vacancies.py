@@ -1,5 +1,4 @@
 import requests
-import re
 import logging
 
 from urllib.parse import urlencode
@@ -34,6 +33,7 @@ def get_projected_vacancies_count(query, jwt_token, host=None):
     Gets the total number of PVs for a filterset
     '''
     return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
+
 
 
 def fsbid_pv_to_talentmap_pv(pv):
