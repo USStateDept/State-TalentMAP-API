@@ -14,7 +14,17 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-
+def get_projected_vacancy(id, jwt_token):
+    '''
+    Gets an indivdual projected vacancy by id
+    '''
+    return services.get_individual(
+        "futureVacancies",
+        id,
+        convert_pv_query,
+        jwt_token,
+        fsbid_pv_to_talentmap_pv
+    )
 def get_projected_vacancies(query, jwt_token, host=None):
     return services.send_get_request(
         "futureVacancies",
