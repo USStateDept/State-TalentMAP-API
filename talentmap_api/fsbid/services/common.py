@@ -100,12 +100,19 @@ sort_dict = {
     "position__grade": "pos_grade_code",
     "position__bureau": "bureau_desc",
     "ted": "ted",
-    "position__position_number": "position"
+    "position__position_number": "pos_num_text"
 }
 
 def sorting_values(sort):
     if sort is not None:
-        return sort_dict.get(sort, None)
+        direction = 'asc'
+        if sort.startswith('-'):
+            direction = 'desc'
+            sort = sort_dict.get(sort[1:], None)
+        else:
+            sort = sort_dict.get(sort, None)
+        if sort is not None:
+            return f"{sort} {direction}"
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
