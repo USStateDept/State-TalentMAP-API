@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from pydoc import locate
 
@@ -15,6 +16,7 @@ from django.core.exceptions import FieldError, ValidationError, PermissionDenied
 
 from django.db.models import Q
 
+logger = logging.getLogger(__name__)
 
 LANGUAGE_FORMAL_NAMES = {
     "Albanian": "Albanian",
@@ -175,7 +177,8 @@ def ensure_date(date, utc_offset=0):
     elif isinstance(date, datetime.date):
         return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
     else:
-        raise Exception("Parameter must be a date object or string")
+        logger.warn(f"Parameter {date} must be a date object or string")
+        return None
 
 
 def validate_filters_exist(filter_list, filter_class):
