@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 
 from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
-from talentmap_api.common.history_helpers import generate_historical_view
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.position.serializers import PositionSerializer
 from talentmap_api.position.filters import PositionFilter
@@ -21,9 +20,6 @@ from talentmap_api.user_profile.models import SavedSearch
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-HistoricalBidCycleView = generate_historical_view(BidCycle, BidCycleSerializer, BidCycleFilter)
 
 
 class BidCycleListPositionView(mixins.ListModelMixin,

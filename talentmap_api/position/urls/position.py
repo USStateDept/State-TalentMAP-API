@@ -6,7 +6,6 @@ from talentmap_api.common.urls import get_list, get_retrieve, patch_update
 
 router = routers.SimpleRouter()
 router.register(r'^classification', views.ClassificationListView, base_name="position.Classification")
-router.register(r'^(?P<instance_id>[0-9]+)/history', views.HistoricalPositionView, base_name="organization.Position-history")
 
 urlpatterns = [
     url(r'^$', views.PositionListView.as_view(get_list), name='position.Position-list'),

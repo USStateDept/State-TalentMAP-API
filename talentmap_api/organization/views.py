@@ -2,18 +2,10 @@ from talentmap_api.common.cache.views import CachedViewSet
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.common.history_helpers import generate_historical_view
 
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country, OrganizationGroup
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter, LocationFilter, CountryFilter, OrganizationGroupFilter
 from talentmap_api.organization.serializers import OrganizationSerializer, PostSerializer, TourOfDutySerializer, LocationSerializer, CountrySerializer, OrganizationGroupSerializer
-
-
-HistoricalPostView = generate_historical_view(Post, PostSerializer, PostFilter)
-HistoricalOrganizationView = generate_historical_view(Organization, OrganizationSerializer, OrganizationFilter)
-HistoricalCountryView = generate_historical_view(Country, CountrySerializer, CountryFilter)
-HistoricalLocationView = generate_historical_view(Location, LocationSerializer, LocationFilter)
-HistoricalTourOfDutyView = generate_historical_view(TourOfDuty, TourOfDutySerializer, TourOfDutyFilter)
 
 
 class OrganizationListView(FieldLimitableSerializerMixin,
