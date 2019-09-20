@@ -24,10 +24,6 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["all_clients"] == 10
     assert response.data["bidding_clients"] == 0
     assert response.data["in_panel_clients"] == 0
-    assert response.data["on_post_clients"] == 0
-
-    # Give a user an assignment
-    mommy.make('position.Assignment', user=clients[0])
 
     response = authorized_client.get('/api/v1/client/statistics/')
 
@@ -35,7 +31,6 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["all_clients"] == 10
     assert response.data["bidding_clients"] == 0
     assert response.data["in_panel_clients"] == 0
-    assert response.data["on_post_clients"] == 1
 
     # Give users some bids
     position = mommy.make('position.Position')
@@ -52,7 +47,6 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["bidding_clients"] == 1
     assert response.data["bidding_no_handshake"] == 1
     assert response.data["in_panel_clients"] == 0
-    assert response.data["on_post_clients"] == 1
 
     # Give users some bids
     mommy.make('bidding.Bid', position=cp, bidcycle=bidcycle, user=clients[2], status="in_panel", handshake_offered_date="1999-01-01T00:00:00Z")
@@ -64,7 +58,6 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.data["bidding_clients"] == 2
     assert response.data["bidding_no_handshake"] == 1
     assert response.data["in_panel_clients"] == 1
-    assert response.data["on_post_clients"] == 1
 
     # Test our filters
     response = authorized_client.get('/api/v1/client/?is_bidding=true')
@@ -90,15 +83,6 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     response = authorized_client.get('/api/v1/client/?is_in_panel=false')
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 9
-
-    response = authorized_client.get('/api/v1/client/?is_on_post=true')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = authorized_client.get('/api/v1/client/?is_on_post=false')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 9
-
 
 @pytest.mark.django_db(transaction=True)
 def test_client_list(authorized_client, authorized_user, test_clients_fixture):
@@ -211,7 +195,5 @@ def test_client_bid_prepanel(authorized_client, authorized_user, test_clients_fi
     assert response.status_code == status.HTTP_200_OK
     prepanel = response.data["prepanel"]
 
-    assert "fairshare" in prepanel
-    assert "six_eight" in prepanel
     assert "language" in prepanel
     assert "skill" in prepanel

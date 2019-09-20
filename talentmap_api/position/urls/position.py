@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.PositionListView.as_view({**get_retrieve, **patch_update}), name='position.Position-detail'),
     url(r'^highlighted/$', views.PositionHighlightListView.as_view(get_list), name='view-highlighted-positions'),
     url(r'^(?P<pk>[0-9]+)/highlight/$', views.PositionHighlightActionView.as_view(), name='position.Position-highlight'),
-    url(r'^(?P<pk>[0-9]+)/assignments/$', views.PositionAssignmentHistoryView.as_view(get_list), name='position.Position-assignment-history'),
     url(r'^(?P<pk>[0-9]+)/similar/$', views.PositionSimilarView.as_view(get_list), name='position.Position-similar'),
     url(r'^(?P<pk>[0-9]+)/waivers/$', views.PositionWaiverListView.as_view(get_list), name='position.Position-waivers'),
     url(r'^(?P<pk>[0-9]+)/waivers/(?P<waiver_pk>[0-9]+)/approve/$', views.PositionWaiverActionView.as_view({'get': 'approve'}), name='position.Position-waivers'),
