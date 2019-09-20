@@ -110,7 +110,7 @@ class AvailablePositionHighlightListView(APIView):
         """
         cp_ids = AvailablePositionDesignation.objects.filter(is_highlighted=True).values_list("cp_id", flat=True)
         if len(cp_ids) > 0:
-            pos_nums = '&id='.join(cp_ids)
+            pos_nums = ','.join(cp_ids)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT']))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
