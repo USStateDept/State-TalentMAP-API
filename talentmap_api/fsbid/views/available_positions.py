@@ -10,22 +10,17 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
 
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
+from talentmap_api.fsbid.views.base import BaseView
 
 import talentmap_api.fsbid.services.available_positions as services
 
 import logging
 logger = logging.getLogger(__name__)
-
-class BaseView(APIView):
-    @classmethod
-    def get_extra_actions(cls):
-        return []
 
 class FSBidAvailablePositionsListView(BaseView):
 
@@ -61,7 +56,11 @@ class FSBidAvailablePositionView(BaseView):
         '''
         Gets an available position
         '''
-        return Response(services.get_available_position(pk, request.META['HTTP_JWT']))
+        result = services.get_available_position(pk, request.META['HTTP_JWT'])
+        if result is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+  
+        return Response(result)
 
 
 class FSBidAvailablePositionsSimilarView(BaseView):

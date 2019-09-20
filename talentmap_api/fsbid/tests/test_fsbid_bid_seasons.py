@@ -24,6 +24,6 @@ def test_bidder_fixture(authorized_user):
 def test_bid_seasons_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.bid_season.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = [bs]
+        mock_get.return_value.json.return_value = { "Data": [bs] }
         response = authorized_client.get('/api/v1/fsbid/bid_seasons/', HTTP_JWT=fake_jwt)
         assert response.json()[0]['id'] == [bs][0]['bsn_id']
