@@ -30,27 +30,10 @@ class PrePanelSerializer(PrefetchedSerializer):
         if not sii:
             return "Bidder has not submitted a self-identification survey for this bidcycle"
 
-        prepanel['fairshare'] = self.generate_prepanel_fairshare(user, position, waivers, sii)
-        prepanel['six_eight'] = self.generate_prepanel_six_eight(user, position, waivers, sii)
         prepanel['language'] = self.generate_prepanel_language(user, position, waivers)
         prepanel['skill'] = self.generate_prepanel_skill(user, position, waivers)
 
         return prepanel
-
-    def generate_prepanel_fairshare(self, user, position, waivers, sii):
-        return {
-            "calculated": user.is_fairshare,
-            "self_identified": sii.is_fairshare,
-            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.fairshare))]
-        }
-
-    def generate_prepanel_six_eight(self, user, position, waivers, sii):
-        return {
-            "calculated": user.is_six_eight,
-            "self_identified": sii.is_six_eight,
-            "post_location": str(safe_navigation(position, 'post.location')),
-            "waivers": [str(x) for x in list(waivers.filter(category=Waiver.Category.six_eight))]
-        }
 
     def generate_prepanel_language(self, user, position, waivers):
         '''

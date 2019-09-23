@@ -5,7 +5,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.bidding.models import BidCycle, CyclePosition
 from talentmap_api.bidding.tests.mommy_recipes import bidcycle
 
-from talentmap_api.position.models import Position, Grade, Skill, Classification, Assignment
+from talentmap_api.position.models import Position, Grade, Skill, Classification
 from talentmap_api.organization.tests.mommy_recipes import post, orphaned_organization
 
 grade = Recipe(
@@ -64,10 +64,3 @@ def highlighted_position():
     org = mommy.make("organization.Organization")
     org.highlighted_positions.add(pos)
     return pos
-
-
-def assignment_for_user():
-    assignment = mommy.make(Assignment, user=UserProfile.objects.last(), position=mommy.make(Position), tour_of_duty=mommy.make('organization.TourOfDuty', months=6))
-    assignment.start_date = "2017-02-01T00:00:00Z"
-    assignment.save()
-    return assignment

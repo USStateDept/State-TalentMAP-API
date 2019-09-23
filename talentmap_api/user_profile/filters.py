@@ -58,7 +58,6 @@ class ClientFilter(UserProfileFilter):
 
     is_bidding = filters.BooleanFilter(name="bidlist", method="filter_is_bidding")
     is_in_panel = filters.BooleanFilter(name="bidlist", method="filter_is_in_panel")
-    is_on_post = filters.BooleanFilter(name="bidlist", method="filter_is_on_post")
     is_bidding_no_handshake = filters.BooleanFilter(name="bidlist", method="filter_is_bidding_no_handshake")
 
     def filter_is_bidding(self, queryset, name, value):
@@ -74,13 +73,6 @@ class ClientFilter(UserProfileFilter):
             return queryset.filter(bidlist__status=Bid.Status.in_panel)
         else:
             return queryset.exclude(bidlist__status=Bid.Status.in_panel)
-
-    def filter_is_on_post(self, queryset, name, value):
-        value = bool(value)
-        if value:
-            return queryset.exclude(assignments__current_for_position=None)
-        else:
-            return queryset.filter(assignments__current_for_position=None)
 
     def filter_is_bidding_no_handshake(self, queryset, name, value):
         value = bool(value)
