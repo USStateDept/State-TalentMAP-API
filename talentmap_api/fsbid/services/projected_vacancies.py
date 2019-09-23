@@ -1,7 +1,7 @@
 import requests
 import logging
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.db.models import Q
@@ -141,4 +141,4 @@ def convert_pv_query(query):
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
     }
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True)
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
