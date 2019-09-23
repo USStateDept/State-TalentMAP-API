@@ -22,6 +22,7 @@ import talentmap_api.fsbid.services.available_positions as services
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidAvailablePositionsListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -41,6 +42,7 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("q", location='query', description='Text search'),
         ]
     )
+
     def get(self, request, *args, **kwargs):
         '''
         Gets all available positions
@@ -48,14 +50,10 @@ class FSBidAvailablePositionsListView(BaseView):
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
 
-class FSBidAvailablePositionsCSVView(APIView):
+class FSBidAvailablePositionsCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
-
-    @classmethod
-    def get_extra_actions(cls):
-        return []
 
     def get(self, request, *args, **kwargs):
         '''
@@ -65,7 +63,7 @@ class FSBidAvailablePositionsCSVView(APIView):
 
 
 class FSBidAvailablePositionView(BaseView):
-    
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -75,12 +73,12 @@ class FSBidAvailablePositionView(BaseView):
         result = services.get_available_position(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-  
+
         return Response(result)
 
 
 class FSBidAvailablePositionsSimilarView(BaseView):
-    
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):

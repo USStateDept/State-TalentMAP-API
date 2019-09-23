@@ -1,6 +1,7 @@
 import requests
 import logging
 import csv
+from datetime import datetime
 
 from urllib.parse import urlencode
 
@@ -16,6 +17,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
@@ -27,6 +29,7 @@ def get_available_position(id, jwt_token):
         jwt_token,
         fsbid_ap_to_talentmap_ap
     )
+
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -42,6 +45,7 @@ def get_available_positions(query, jwt_token, host=None):
         "/api/v1/fsbid/available_positions/",
         host
     )
+
 
 def get_available_positions_count(query, jwt_token, host=None):
     '''
@@ -91,9 +95,9 @@ def get_available_positions_csv(query, jwt_token, host=None):
     for record in data:
         writer.writerow([
             smart_str(record["position"]["title"]),
-            smart_str(record["position"]["position_number"]),
+            smart_str("=\"%s\"" % record["position"]["position_number"]),
             smart_str(record["position"]["skill"]),
-            smart_str(record["position"]["grade"]),
+            smart_str("=\"%s\"" % record["position"]["grade"]),
             smart_str(record["position"]["bureau"]),
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
@@ -102,10 +106,10 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
-            smart_str(record["ted"]),
+            smart_str(record["ted"].strftime('%m/%d/%Y')),
             smart_str(record["position"]["current_assignment"]["user"]),
             smart_str(record["bidcycle"]["name"]),
-            smart_str(record["posted_date"]),
+            smart_str(record["posted_date"].strftime('%m/%d/%Y')),
             smart_str(record["status_code"]),
         ])
     return response
