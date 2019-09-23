@@ -18,9 +18,9 @@ from talentmap_api.bidding.models import Bid, Waiver, CyclePosition
 from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer
 from talentmap_api.bidding.filters import BidFilter, WaiverFilter
 
-from talentmap_api.position.models import Position, Classification, Assignment
-from talentmap_api.position.filters import PositionFilter, AssignmentFilter
-from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer, AssignmentSerializer
+from talentmap_api.position.models import Position, Classification
+from talentmap_api.position.filters import PositionFilter
+from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer
 
 from talentmap_api.user_profile.models import UserProfile
 
@@ -139,27 +139,6 @@ class PositionWaiverActionView(GenericViewSet):
         waiver.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class PositionAssignmentHistoryView(FieldLimitableSerializerMixin,
-                                    GenericViewSet,
-                                    mixins.ListModelMixin):
-    '''
-    list:
-    Lists all of the position's assignments
-    '''
-
-    serializer_class = AssignmentSerializer
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('bureau_ao'))
-    filter_class = AssignmentFilter
-
-    def get_queryset(self):
-        # Get the position based on the PK from the url
-        position = get_object_or_404(Position, pk=self.request.parser_context.get("kwargs").get("pk"))
-        # Get the position's assignments
-        queryset = position.assignments
-        self.serializer_class.prefetch_model(Assignment, queryset)
-        return queryset
 
 
 class PositionHighlightListView(FieldLimitableSerializerMixin,

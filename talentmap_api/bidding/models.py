@@ -199,9 +199,7 @@ class StatusSurvey(models.Model):
     bidcycle = models.ForeignKey(BidCycle, on_delete=models.DO_NOTHING, related_name="status_surveys")
 
     is_differential_bidder = models.BooleanField(default=False)
-    is_fairshare = models.BooleanField(default=False)
-    is_six_eight = models.BooleanField(default=False)
-
+    
     class Meta:
         managed = True
         ordering = ["bidcycle"]

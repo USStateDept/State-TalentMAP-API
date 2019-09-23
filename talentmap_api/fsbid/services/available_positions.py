@@ -3,7 +3,7 @@ import logging
 import csv
 from datetime import datetime
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.db.models import Q
@@ -269,4 +269,4 @@ def convert_ap_query(query):
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
     }
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True)
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)

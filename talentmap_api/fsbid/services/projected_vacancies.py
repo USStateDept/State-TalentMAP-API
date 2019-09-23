@@ -1,13 +1,13 @@
 import requests
 import logging
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
-from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date
-from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation
+from talentmap_api.organization.models import Location
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
@@ -50,6 +50,11 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
+    location = {}
+    try:
+        location = Location.objects.get(code=pv["pos_location_code"])
+    except ObjectDoesNotExist:
+        logger.warning(f"No location with code {pv['pos_location_code']} was found.")
     return {
         "id": pv["fv_seq_num"],
         "ted": ensure_date(pv["ted"], utc_offset=-5),
@@ -77,11 +82,11 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "differential_rate": pv["bt_differential_rate_num"],
                 "danger_pay": pv["bt_danger_pay_num"],
                 "location": {
-                    "id": 7,
-                    "country": "",
-                    "code": "",
-                    "city": "",
-                    "state": ""
+                    "id": safe_navigation(location, 'id'),
+                    "country": f"{safe_navigation(location, 'country')}",
+                    "code": safe_navigation(location, 'code'),
+                    "city": safe_navigation(location, 'city'),
+                    "state": safe_navigation(location, 'state')
                 }
             },
             "current_assignment": {
@@ -141,4 +146,4 @@ def convert_pv_query(query):
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
     }
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True)
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
