@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation
 from talentmap_api.organization.models import Location
 import talentmap_api.fsbid.services.common as services
 
@@ -82,11 +82,11 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "differential_rate": pv["bt_differential_rate_num"],
                 "danger_pay": pv["bt_danger_pay_num"],
                 "location": {
-                    "id": location.get('id'),
-                    "country": f"{location.get('country')}",
-                    "code": location.get('code'),
-                    "city": location.get('city'),
-                    "state": location.get('state')
+                    "id": safe_navigation(location, 'id'),
+                    "country": f"{safe_navigation(location, 'country')}",
+                    "code": safe_navigation(location, 'code'),
+                    "city": safe_navigation(location, 'city'),
+                    "state": safe_navigation(location, 'state')
                 }
             },
             "current_assignment": {
