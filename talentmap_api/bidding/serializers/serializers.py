@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.position.serializers import PositionSerializer, PositionBidStatisticsSerializer, LanguageQualificationSerializer, PostSerializer, CapsuleDescriptionSerializer, CurrentAssignmentSerializer
+from talentmap_api.position.serializers import PositionSerializer, PositionBidStatisticsSerializer, LanguageQualificationSerializer, PostSerializer, CapsuleDescriptionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
 from talentmap_api.position.models import Position
 
@@ -95,15 +95,13 @@ class SurveySerializer(PrefetchedSerializer):
 
     def get_calculated_values(self, obj):
         calculated_values = {}
-        calculated_values['is_fairshare'] = obj.user.is_fairshare
-        calculated_values['is_six_eight'] = obj.user.is_six_eight
 
         return calculated_values
 
     class Meta:
         model = StatusSurvey
         fields = "__all__"
-        writable_fields = ("bidcycle", "is_differential_bidder", "is_fairshare", "is_six_eight")
+        writable_fields = ("bidcycle", "is_differential_bidder")
 
 
 class CyclePositionSerializer(PrefetchedSerializer):
@@ -163,20 +161,6 @@ class CyclePositionSerializer(PrefetchedSerializer):
                     "read_only": True
                 }
             },
-            "current_assignment": {
-                "class": CurrentAssignmentSerializer,
-                "field": "current_assignment",
-                "kwargs": {
-                    "override_fields": [
-                        "user",
-                        "status",
-                        "start_date",
-                        "tour_of_duty",
-                        "estimated_end_date"
-                    ],
-                    "read_only": True
-                }
-            }
         }
 
 
