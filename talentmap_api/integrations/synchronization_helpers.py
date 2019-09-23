@@ -23,7 +23,6 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 from talentmap_api.settings import get_delineated_environment_variable
 
 from talentmap_api.bidding.models import CyclePosition
-from talentmap_api.position.models import Assignment
 from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
 
@@ -568,22 +567,9 @@ def mode_cycle_positions(last_updated_date=None):
                 if ted and tod and tod.months:
                     cycle_position.ted = ted
                     start_date = ted - relativedelta(months=tod.months)
-                    if not position.current_assignment:
-                        Assignment.objects.create(position=position, start_date=start_date, tour_of_duty=tod, status="active")
-                    else:
-                        position.current_assignment.start_date = start_date
-                        position.current_assignment.tour_of_duty = tod
-                        position.current_assignment.save()
                 elif ted:
                     cycle_position.ted = ted
                     logger.warning(f"Attepting to set position {position} TED to {data['TED']} but no position or post TOD is available - start date will not be set")
-                    if not position.current_assignment:
-                        Assignment.objects.create(position=position, estimated_end_date=ted, status="active")
-                    else:
-                        position.current_assignment.estimated_end_date = ted
-                        position.current_assignment.state_date = None
-                        position.current_assignment.tour_of_duty = None
-                        position.current_assignment.save()
                 else:
                     logger.warning(f"Attempting to set position {position} TED, but TED is {ted}")
             cycle_position.save()
