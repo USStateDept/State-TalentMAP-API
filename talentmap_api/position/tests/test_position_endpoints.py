@@ -175,20 +175,6 @@ def test_domestic_filtering(client):
 
     assert response_1.data == response_2.data
 
-
-@pytest.mark.django_db()
-def test_position_assignment_list(authorized_client, authorized_user):
-    # Give the user AO permissions
-    group = mommy.make("auth.Group", name="bureau_ao")
-    group.user_set.add(authorized_user)
-    position = mommy.make("position.Position")
-    mommy.make("position.Assignment", position=position, user=authorized_user.profile, tour_of_duty=mommy.make("organization.TourOfDuty"), _quantity=5)
-
-    response = authorized_client.get(f'/api/v1/position/{position.id}/assignments/')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data['results']) == 5
-
 @pytest.mark.django_db(transaction=True)
 def test_highlight_action_endpoints(authorized_client, authorized_user):
     bureau = mommy.make('organization.Organization', code="123456", short_description="Test Bureau")
@@ -272,34 +258,6 @@ def test_position_waiver_actions(authorized_client, authorized_user):
     waiver.refresh_from_db()
     assert waiver.status == waiver.Status.denied
     assert waiver.reviewer == authorized_user.profile
-
-
-@pytest.mark.django_db(transaction=True)
-def test_position_vacancy_filter_aliases(authorized_client, authorized_user):
-    one_year_tod = mommy.make('organization.TourOfDuty', months=12)
-    two_year_tod = mommy.make('organization.TourOfDuty', months=24)
-    three_year_tod = mommy.make('organization.TourOfDuty', months=36)
-
-    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
-
-    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=one_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=two_year_tod, user=authorized_user.profile)
-    mommy.make('position.Assignment', position=bidcycle_positions(), start_date=today, tour_of_duty=three_year_tod, user=authorized_user.profile)
-
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=1')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=2')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = authorized_client.get('/api/v1/position/?vacancy_in_years=3')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 3
 
 
 @pytest.mark.django_db(transaction=True)
