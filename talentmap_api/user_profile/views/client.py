@@ -15,8 +15,6 @@ from talentmap_api.bidding.serializers.serializers import SurveySerializer, BidS
 from talentmap_api.bidding.serializers.prepanel import PrePanelSerializer
 from talentmap_api.bidding.filters import StatusSurveyFilter, BidFilter, WaiverFilter
 from talentmap_api.bidding.models import StatusSurvey, Bid, Waiver
-from talentmap_api.position.serializers import AssignmentSerializer
-from talentmap_api.position.filters import AssignmentFilter
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.user_profile.filters import ClientFilter
@@ -68,7 +66,6 @@ class CdoClientStatisticsView(APIView):
             "bidding_clients": profile.direct_reports.exclude(bidlist=None).count(),
             "bidding_no_handshake": profile.direct_reports.exclude(bidlist=None).filter(bidlist__handshake_offered_date=None).distinct().count(),
             "in_panel_clients": profile.direct_reports.filter(bidlist__status=Bid.Status.in_panel).count(),
-            "on_post_clients": profile.direct_reports.exclude(assignments__current_for_position=None).count()
         }
 
         return Response(statistics, status=status.HTTP_200_OK)
@@ -91,24 +88,6 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
         queryset = client.status_surveys.all()
         self.serializer_class.prefetch_model(StatusSurvey, queryset)
         return queryset
-
-
-class CdoClientAssignmentView(FieldLimitableSerializerMixin, mixins.ListModelMixin, GenericViewSet):
-    """
-    list:
-    Lists all of the specified client's assignments
-    """
-
-    serializer_class = AssignmentSerializer
-    permission_classes = (IsAuthenticated,)
-    filter_class = AssignmentFilter
-
-    def get_queryset(self):
-        client = get_object_or_404(UserProfile.objects.filter(cdo=self.request.user.profile), id=self.request.parser_context.get("kwargs").get("pk"))
-        queryset = client.assignments.all()
-        self.serializer_class.prefetch_model(StatusSurvey, queryset)
-        return queryset
-
 
 class CdoClientBidView(FieldLimitableSerializerMixin,
                        ActionDependentSerializerMixin,

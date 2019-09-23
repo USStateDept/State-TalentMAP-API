@@ -11,7 +11,7 @@ from dateutils import relativedelta
 from django.contrib.auth.models import User
 
 from talentmap_api.bidding.models import BidCycle, Bid, Waiver, StatusSurvey, CyclePosition
-from talentmap_api.position.models import Position, Assignment
+from talentmap_api.position.models import Position
 from talentmap_api.glossary.models import GlossaryEntry
 from talentmap_api.messaging.models import Task
 from talentmap_api.organization.models import TourOfDuty
@@ -252,15 +252,7 @@ class Command(BaseCommand):
         self.logger.info(f"Setting all position posted dates, and statuses")
         Position.objects.all().update(posted_date="2006-05-20T15:00:00Z")
 
-        # Give all positions without a current assignment an assignment from John Doe
         profile = UserProfile.objects.get(user__username="doej")
-        unassigned_positions = Position.objects.filter(current_assignment__isnull=True)
-        self.logger.info(f"Creating assignments for {unassigned_positions.count()} unassigned positions...")
-        for position in unassigned_positions:
-            tour_of_duty = position.post.tour_of_duty
-            if not tour_of_duty:
-                tour_of_duty = TourOfDuty.objects.get(id=1)
-            Assignment.objects.create(user=profile, position=position, start_date=timezone.now(), tour_of_duty=tour_of_duty, status="active", bid_approval_date="1975-02-02T00:00:00Z")
         self.logger.info("Created.")
 
         self.logger.info(f"Seeding bids for all users...")

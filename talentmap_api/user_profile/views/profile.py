@@ -7,14 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
 
-from talentmap_api.position.models import Assignment
 from talentmap_api.user_profile.models import UserProfile
-from talentmap_api.position.serializers import AssignmentSerializer
 from talentmap_api.user_profile.serializers import (UserProfileSerializer,
                                                     UserProfilePublicSerializer,
                                                     UserProfileWritableSerializer)
 
-from talentmap_api.position.filters import AssignmentFilter
 
 
 class UserProfileView(FieldLimitableSerializerMixin,
@@ -54,19 +51,3 @@ class UserPublicProfileView(FieldLimitableSerializerMixin,
 
     def get_object(self):
         return get_object_or_404(UserProfile, pk=self.request.parser_context.get("kwargs").get("pk"))
-
-
-class UserAssignmentHistoryView(FieldLimitableSerializerMixin,
-                                GenericViewSet,
-                                mixins.ListModelMixin):
-    '''
-    list:
-    Lists all of the user's assignments
-    '''
-
-    serializer_class = AssignmentSerializer
-    permission_classes = (IsAuthenticated,)
-    filter_class = AssignmentFilter
-
-    def get_queryset(self):
-        return get_prefetched_filtered_queryset(Assignment, self.serializer_class, user=self.request.user.profile)
