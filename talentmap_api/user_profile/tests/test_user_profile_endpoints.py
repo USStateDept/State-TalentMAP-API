@@ -33,20 +33,6 @@ def test_user_public_profile_endpoint(authorized_client, authorized_user, test_u
     assert resp.status_code == status.HTTP_200_OK
     assert resp.data["first_name"] == user_profile.user.first_name
 
-@pytest.mark.django_db(transaction=True)
-def test_user_profile_current_assignment(authorized_client, authorized_user, test_user_profile_fixture):
-    resp = authorized_client.get('/api/v1/profile/')
-
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data["current_assignment"] is None
-
-    mommy.make('position.Assignment', position=mommy.make('position.Position', id=5), user=authorized_user.profile, tour_of_duty=mommy.make('organization.TourOfDuty'), start_date="1991-01-01T00:00:00Z")
-
-    resp = authorized_client.get('/api/v1/profile/')
-
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data["current_assignment"] is not None
-
 
 @pytest.mark.django_db(transaction=True)
 def test_user_profile_retirement_date(authorized_client, authorized_user, test_user_profile_fixture):

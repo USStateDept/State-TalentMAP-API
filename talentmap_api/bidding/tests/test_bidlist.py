@@ -56,7 +56,7 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
     # Put the position into the bidlist, but it will fail as we will be retired
-    in_cycle_position.current_assignment = mommy.make("position.Assignment", position=in_cycle_position, user=authorized_user.profile, estimated_end_date="1999-01-01T00:00:00Z")
+
     in_cycle_position.save()
     profile = authorized_user.profile
     profile.mandatory_retirement_date = "1888-01-01T00:00:00Z"

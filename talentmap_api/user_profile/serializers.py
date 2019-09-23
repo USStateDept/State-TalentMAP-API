@@ -5,7 +5,7 @@ from talentmap_api.common.common_helpers import resolve_path_to_view, validate_f
 from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer, SkillSerializer, CurrentAssignmentSerializer
+from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 
 from django.contrib.auth.models import User
@@ -19,20 +19,13 @@ class UserSerializer(PrefetchedSerializer):
 
 
 class UserProfilePublicSerializer(PrefetchedSerializer):
-    current_assignment = serializers.SerializerMethodField()
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
 
-    def get_current_assignment(self, obj):
-        if obj.assignments.count() > 0:
-            return str(obj.assignments.latest('start_date'))
-        else:
-            return None
-
     class Meta:
         model = UserProfile
-        fields = ["first_name", "last_name", "email", "current_assignment", "skills"]
+        fields = ["first_name", "last_name", "email", "skills"]
         nested = {
             "skills": {
                 "class": SkillSerializer,
@@ -59,7 +52,6 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
 
 class ClientSerializer(PrefetchedSerializer):
-    current_assignment = serializers.SerializerMethodField()
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
@@ -67,21 +59,9 @@ class ClientSerializer(PrefetchedSerializer):
     initials = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
-    def get_current_assignment(self, obj):
-        if obj.assignments.count() > 0:
-            return str(obj.assignments.latest('start_date'))
-        else:
-            return None
-
-    def get_assignment(self, obj):
-        if obj.assignments.count() > 0:
-            return str(obj.assignments.latest('start_date'))
-        else:
-            return None
-
     class Meta:
         model = UserProfile
-        fields = ["id", "current_assignment", "assignments", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
+        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -114,27 +94,14 @@ class ClientSerializer(PrefetchedSerializer):
                     "read_only": True
                 }
             },
-            "assignments": {
-                "class": CurrentAssignmentSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            }
         }
 
 
 class ClientDetailSerializer(ClientSerializer):
-
-    def get_current_assignment(self, obj):
-        if obj.assignments.count() > 0:
-            return serialize_instance(obj.assignments.latest('start_date'), "talentmap_api.position.serializers.AssignmentSerializer")
-        else:
-            return None
+    pass
 
 
 class UserProfileSerializer(PrefetchedSerializer):
-    current_assignment = serializers.SerializerMethodField()
     skills = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
@@ -143,12 +110,6 @@ class UserProfileSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
-
-    def get_current_assignment(self, obj):
-        if obj.assignments.count() > 0:
-            return str(obj.assignments.latest('start_date'))
-        else:
-            return None
 
     class Meta:
         model = UserProfile
