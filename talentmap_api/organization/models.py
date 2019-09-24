@@ -278,7 +278,7 @@ class Post(StaticRepresentationModel):
         if self._location_code:
             self.location = Location.objects.filter(code=self._location_code).first()
 
-        self.create_permissions()
+        # self.create_permissions()
 
         self.save()
 
