@@ -48,6 +48,9 @@ urlpatterns = [
 
     # Projected Vacancies
     url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
+    
+    # Available Positions
+    url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),

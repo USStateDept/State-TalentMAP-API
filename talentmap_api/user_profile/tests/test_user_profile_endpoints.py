@@ -1,6 +1,8 @@
 import pytest
 import json
 
+from unittest.mock import Mock, patch
+
 from model_mommy import mommy
 from rest_framework import status
 
@@ -33,20 +35,6 @@ def test_user_public_profile_endpoint(authorized_client, authorized_user, test_u
     assert resp.status_code == status.HTTP_200_OK
     assert resp.data["first_name"] == user_profile.user.first_name
 
-@pytest.mark.django_db(transaction=True)
-def test_user_profile_current_assignment(authorized_client, authorized_user, test_user_profile_fixture):
-    resp = authorized_client.get('/api/v1/profile/')
-
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data["current_assignment"] is None
-
-    mommy.make('position.Assignment', position=mommy.make('position.Position', id=5), user=authorized_user.profile, tour_of_duty=mommy.make('organization.TourOfDuty'), start_date="1991-01-01T00:00:00Z")
-
-    resp = authorized_client.get('/api/v1/profile/')
-
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data["current_assignment"] is not None
-
 
 @pytest.mark.django_db(transaction=True)
 def test_user_profile_retirement_date(authorized_client, authorized_user, test_user_profile_fixture):
@@ -63,32 +51,29 @@ def test_user_profile_retirement_date(authorized_client, authorized_user, test_u
 
 @pytest.mark.django_db(transaction=True)
 def test_user_profile_favorites(authorized_client, authorized_user, test_user_profile_fixture):
-    resp = authorized_client.get('/api/v1/profile/')
+     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
+        mock_get.return_value = Mock(ok=True)
+        mock_get.return_value.json.return_value = {"Data": []}
+        resp = authorized_client.get('/api/v1/profile/')
 
-    assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data["favorite_positions"]) == 0
-    assert len(resp.data["language_qualifications"]) == 0
+        assert resp.status_code == status.HTTP_200_OK
+        assert len(resp.data["favorite_positions"]) == 0
+        assert len(resp.data["language_qualifications"]) == 0
 
-    resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
-        "favorite_positions": [1, 3],
-        "language_qualifications": [1]
-    }), content_type="application/json")
+        resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
+            "language_qualifications": [1]
+        }), content_type="application/json")
 
-    assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data["favorite_positions"]) == 2
-    assert len(resp.data["language_qualifications"]) == 1
+        assert resp.status_code == status.HTTP_200_OK
+        assert len(resp.data["language_qualifications"]) == 1
 
-    assert list(authorized_user.profile.favorite_positions.values_list("id", flat=True)) == [1, 3]
-    assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [1]
+        assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [1]
 
-    resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
-        "favorite_positions": [2],
-        "language_qualifications": [2]
-    }), content_type="application/json")
+        resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
+            "language_qualifications": [2]
+        }), content_type="application/json")
 
-    assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data["favorite_positions"]) == 1
-    assert len(resp.data["language_qualifications"]) == 1
+        assert resp.status_code == status.HTTP_200_OK
+        assert len(resp.data["language_qualifications"]) == 1
 
-    assert list(authorized_user.profile.favorite_positions.values_list("id", flat=True)) == [2]
-    assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [2]
+        assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [2]

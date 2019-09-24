@@ -12,7 +12,7 @@ from rest_framework import status
 from django.apps import apps
 
 from talentmap_api.bidding.tests.mommy_recipes import tz_aware_bidcycle
-from talentmap_api.position.tests.mommy_recipes import favorite_position, highlighted_position, assignment_for_user, cycle_position
+from talentmap_api.position.tests.mommy_recipes import favorite_position, highlighted_position, cycle_position
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
 from talentmap_api.messaging.tests.mommy_recipes import owned_notification
 
@@ -50,9 +50,6 @@ parameterized_data = [
 
     # Saved Searches
     ('/api/v1/searches/', 'user_profile.SavedSearch', owned_saved_search, True),
-
-    # User profile endpoints
-    ('/api/v1/profile/assignments/', 'position.Assignment', assignment_for_user, False),
 
     # Messaging Endpoints
     ('/api/v1/notification/', 'messaging.Notification', owned_notification, True),
