@@ -12,3 +12,17 @@ class AvailablePositionFavorite(StaticRepresentationModel):
         managed = True
         ordering = ["cp_id"]
         unique_together = ('cp_id', 'user',)
+
+
+class AvailablePositionDesignation(models.Model):
+
+    cp_id = models.TextField(null=False, unique=True)
+
+    is_highlighted = models.BooleanField(default=False)
+    is_urgent_vacancy = models.BooleanField(default=False)
+    is_volunteer = models.BooleanField(default=False)
+    is_hard_to_fill = models.BooleanField(default=False)
+
+    class Meta:
+        managed = True
+        ordering = ["cp_id"]
