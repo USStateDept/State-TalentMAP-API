@@ -21,9 +21,9 @@ class Command(BaseCommand):
             OrganizationGroup,
             Position,
             Location,
-            Post,
             Grade,
             SkillCone,
+            Post,
         ]
     def add_arguments(self, parser):
         parser.add_argument('--model', nargs='?', dest="model", help='Used to specify a model to process only the specifically requested model')
