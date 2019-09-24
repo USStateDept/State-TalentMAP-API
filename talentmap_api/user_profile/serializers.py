@@ -1,3 +1,5 @@
+from django.http import QueryDict
+
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
@@ -7,9 +9,11 @@ from talentmap_api.common.serializers import PrefetchedSerializer, StaticReprese
 from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
+from talentmap_api.available_positions.models import AvailablePositionFavorite
 
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
+from talentmap_api.fsbid.services.available_positions import get_available_positions
 
 
 class UserSerializer(PrefetchedSerializer):
@@ -110,6 +114,17 @@ class UserProfileSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
+    favorite_positions = serializers.SerializerMethodField()
+
+    def get_favorite_positions(self, obj):
+        request = self.context['request']
+        user = UserProfile.objects.get(user=request.user)
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        if len(aps) > 0:
+            pos_nums = ','.join(aps)
+            aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]
+            return ({ 'id': o['id'] } for o in aps)
+        return []
 
     class Meta:
         model = UserProfile
@@ -136,17 +151,6 @@ class UserProfileSerializer(PrefetchedSerializer):
                     ],
                     "many": True,
                     "read_only": True,
-                }
-            },
-            "favorite_positions": {
-                "class": CyclePositionSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "representation"
-                    ],
-                    "many": True,
-                    "read_only": True
                 }
             },
             "received_shares": {
