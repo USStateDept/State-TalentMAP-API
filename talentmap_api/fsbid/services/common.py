@@ -5,6 +5,7 @@ import logging
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.db.models import Q
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 
