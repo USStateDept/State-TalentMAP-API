@@ -7,7 +7,6 @@ from django.db.models.signals import pre_save, post_save, post_delete, m2m_chang
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 
-from simple_history.models import HistoricalRecords
 from djchoices import DjangoChoices, ChoiceItem
 
 import talentmap_api.position.models
@@ -163,8 +162,6 @@ class BidCycle(StaticRepresentationModel):
 
     positions = models.ManyToManyField('position.Position', related_name="bid_cycles")
 
-    history = HistoricalRecords()
-
     _id = models.TextField(null=True)
     _positions_seq_nums = ArrayField(models.TextField(), default=list)
     _category_code = models.TextField(null=True)
@@ -192,7 +189,7 @@ class BidCycle(StaticRepresentationModel):
         managed = True
         ordering = ["cycle_start_date"]
 
-class StatusSurvey(StaticRepresentationModel):
+class StatusSurvey(models.Model):
     '''
     The status survey model represents eligiblity status self-identification information
     on a per-bidcycle basis
@@ -202,16 +199,14 @@ class StatusSurvey(StaticRepresentationModel):
     bidcycle = models.ForeignKey(BidCycle, on_delete=models.DO_NOTHING, related_name="status_surveys")
 
     is_differential_bidder = models.BooleanField(default=False)
-    is_fairshare = models.BooleanField(default=False)
-    is_six_eight = models.BooleanField(default=False)
-
+    
     class Meta:
         managed = True
         ordering = ["bidcycle"]
         unique_together = (("user", "bidcycle"),)
 
 
-class UserBidStatistics(StaticRepresentationModel):
+class UserBidStatistics(models.Model):
     '''
     Stores bid statistics for any particular bidcycle for each user
     '''

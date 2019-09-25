@@ -1,21 +1,36 @@
 import requests
 import logging
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.db.models import Q
 
 from talentmap_api.common.common_helpers import ensure_date
-from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.available_positions.models import AvailablePositionDesignation
+
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+def get_available_position(id, jwt_token):
+    '''
+    Gets an indivdual available position by id
+    '''
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_ap_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
 
 def get_available_positions(query, jwt_token, host=None):
+    '''
+    Gets available positions
+    '''
     return services.send_get_request(
         "availablePositions",
         query,
@@ -27,7 +42,6 @@ def get_available_positions(query, jwt_token, host=None):
         host
     )
 
-
 def get_available_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
@@ -35,10 +49,30 @@ def get_available_positions_count(query, jwt_token, host=None):
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
+def get_similar_available_positions(id, jwt_token, host=None):
+    '''
+    Returns a query set of similar positions, using the base criteria.
+    If there are not at least 3 results, the criteria is loosened.
+    '''
+    ap = get_available_position(id, jwt_token)
+    base_criteria = {
+        "position__post__in": ap["position"]["post"]["code"],
+        "position__skill__code__in": ap["position"]['skill_code'],
+        "position__grade__code__in": ap["position"]["grade"],
+    }
+    results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
+    while len(results) < 3 and len(base_criteria.keys()) > 0:
+        del base_criteria[list(base_criteria.keys())[0]]
+        results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
+
+    return {"results": results}
+
+
 def fsbid_ap_to_talentmap_ap(ap):
     '''
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
+    designations = AvailablePositionDesignation.objects.filter(cp_id=ap["cp_id"]).first()
     return {
         "id": ap["cp_id"],
         "status": "",
@@ -49,13 +83,14 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": "",
             "reason": ""
         },
-        "is_urgent_vacancy": "",
-        "is_volunteer": "",
-        "is_hard_to_fill": "",
+        "is_urgent_vacancy": getattr(designations, 'is_urgent_vacancy', False),
+        "is_volunteer": getattr(designations, 'is_volunteer', False),
+        "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "position": {
             "id": "",
             "grade": ap["pos_grade_code"],
             "skill": ap["pos_skill_desc"],
+            "skill_code": ap["pos_skill_code"],
             "bureau": ap["pos_bureau_short_desc"],
             "organization": ap["post_org_country_state"],
             "tour_of_duty": ap["tod"],
@@ -68,7 +103,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "position_number": ap["position"],
             "title": ap["pos_title_desc"],
             "is_overseas": "",
-            "is_highlighted": "",
+            "is_highlighted": getattr(designations, 'is_highlighted', False),
             "create_date": "",
             "update_date": "",
             "effective_date": "",
@@ -168,4 +203,4 @@ def convert_ap_query(query):
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
     }
-    return urlencode({i: j for i, j in values.items() if j is not None})
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)

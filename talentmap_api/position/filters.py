@@ -6,7 +6,7 @@ from django.utils import timezone
 import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import BidCycle, CyclePosition
-from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, Assignment, PositionBidStatistics, SkillCone
+from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
@@ -93,7 +93,6 @@ class PositionFilter(filters.FilterSet):
     organization = filters.RelatedFilter(OrganizationFilter, name='organization', queryset=Organization.objects.all())
     bureau = filters.RelatedFilter(OrganizationFilter, name='bureau', queryset=Organization.objects.all())
     post = filters.RelatedFilter(PostFilter, name='post', queryset=Post.objects.all())
-    current_assignment = filters.RelatedFilter('talentmap_api.position.filters.AssignmentFilter', name='current_assignment', queryset=Assignment.objects.all())
     bid_statistics = filters.RelatedFilter(PositionBidStatisticsFilter, name='bid_statistics', queryset=PositionBidStatistics.objects.all())
 
     is_domestic = filters.BooleanFilter(name="is_overseas", lookup_expr="exact", exclude=True)
@@ -120,8 +119,6 @@ class PositionFilter(filters.FilterSet):
         ]
     ))
 
-    vacancy_in_years = filters.NumberFilter(name="current_assignment__estimated_end_date", method="filter_vacancy_in_years")
-
     def filter_language_codes(self, queryset, name, value):
         '''
         Returns a queryset of all languages that match the codes provided.
@@ -132,17 +129,6 @@ class PositionFilter(filters.FilterSet):
         if 'NONE' in value:
             query = query | Q(languages__isnull=True)
         return queryset.filter(query).distinct()
-
-    def filter_vacancy_in_years(self, queryset, name, value):
-        '''
-        Returns a queryset of all positions with a vacancy in the specified number of years
-        '''
-        start = timezone.now()
-        end = start + relativedelta(years=value)
-        q_obj = {}
-        q_obj[LOOKUP_SEP.join([name, "gt"])] = start
-        q_obj[LOOKUP_SEP.join([name, "lte"])] = end
-        return queryset.filter(Q(**q_obj))
 
     class Meta:
         model = Position
@@ -161,26 +147,4 @@ class PositionFilter(filters.FilterSet):
             "grade": FOREIGN_KEY_LOOKUPS,
             "description": FOREIGN_KEY_LOOKUPS,
             "languages": FOREIGN_KEY_LOOKUPS,
-            "current_assignment": FOREIGN_KEY_LOOKUPS
-        }
-
-
-class AssignmentFilter(filters.FilterSet):
-    position = filters.RelatedFilter(PositionFilter, name='position', queryset=Position.objects.all())
-    tour_of_duty = filters.RelatedFilter(TourOfDutyFilter, name='position', queryset=TourOfDuty.objects.all())
-
-    class Meta:
-        model = Assignment
-        fields = {
-            "status": ALL_TEXT_LOOKUPS,
-            "curtailment_reason": ALL_TEXT_LOOKUPS,
-            "create_date": DATE_LOOKUPS,
-            "start_date": DATE_LOOKUPS,
-            "estimated_end_date": DATE_LOOKUPS,
-            "end_date": DATE_LOOKUPS,
-            "update_date": DATE_LOOKUPS,
-            "position": FOREIGN_KEY_LOOKUPS,
-            "tour_of_duty": FOREIGN_KEY_LOOKUPS,
-            "combined_differential": INTEGER_LOOKUPS,
-            "is_domestic": ["exact"]
         }

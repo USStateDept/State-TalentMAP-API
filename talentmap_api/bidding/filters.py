@@ -63,8 +63,6 @@ class StatusSurveyFilter(filters.FilterSet):
         model = StatusSurvey
         fields = {
             "is_differential_bidder": ["exact"],
-            "is_fairshare": ["exact"],
-            "is_six_eight": ["exact"],
             "bidcycle": FOREIGN_KEY_LOOKUPS
         }
 

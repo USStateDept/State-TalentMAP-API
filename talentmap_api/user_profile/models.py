@@ -87,86 +87,12 @@ class UserProfile(StaticRepresentationModel):
 
         return self.direct_reports.count() != 0
 
-    @property
-    def is_six_eight(self):
-        '''
-        Determines if this user is classified as a 6/8 valid bidder. The rules to calculate this have some
-        exceptions, but this is just a baseline logic implementation for the time being.
-        '''
-        # An employee is valid under 6/8 rules if the following states are TRUE
-        #  - Has served a sufficient portion of a non-domestic tour of duty (10 of 12, 20 of 24, 30 of 36 or 83% of others)
-        #    such that there is no contiguous block (have removed invalid non-domestic TOD assignments) of 6 or 8 years domestic service
-
-        # Get the user's assignment history
-        assignments = self.assignments.all().filter(status__in=[self.assignments.model.Status.completed, self.assignments.model.Status.curtailed])
-
-        # Annotate with the TOD months to avoid a lookup error
-        assignments = assignments.annotate(tod_months=F("tour_of_duty__months")).annotate(required_service=F("tod_months") * 0.83)
-
-        # Create a case to filter for USA positions
-        usa_q_obj = Q(is_domestic=True)
-        # Create cases for the 12, 24, and 36 month cases
-        tod_case_1 = Q(tod_months=12, service_duration__gte=10)
-        tod_case_2 = Q(tod_months=24, service_duration__gte=20)
-        tod_case_3 = Q(tod_months=36, service_duration__gte=30)
-        # Create case for the Non 12, 24, and 36 month cases
-        tod_case_4 = ~Q(tod_months__in=[12, 24, 36]) & Q(service_duration__gte=F("required_service"))
-        tod_cases = tod_case_1 | tod_case_2 | tod_case_3 | tod_case_4
-
-        valid_case = usa_q_obj | (~usa_q_obj & tod_cases)
-
-        # Keep only assignments which are domestic, and foreign assignments which meet the criteria
-        assignments = assignments.filter(valid_case).order_by("-start_date")
-
-        # Count our assignments in order from most recent to oldest, counting the service duration until we
-        # hit a foreign assignment, which is now guaranteed to be a valid duration to break apart 6/8 tabulations
-        total = 0
-        for assignment in list(assignments):
-            if not assignment.is_domestic:
-                break
-            total += assignment.service_duration
-
-        # If the total number of now contiguous domestic service exceeds 6 years we should return FALSE as we don't meet the requirements
-        return total < (6 * 12)
-
-    @property
-    def is_fairshare(self):
-        '''
-        Determines if this user is classified as a Fair Share bidder. The rules to calculate this have some
-        exceptions, but at this moment only the baseline logic is implemented in the system.
-        '''
-        # An employee is considered a "Fair Share" bidder if either of the following states are TRUE
-        #  - Served at least 20 months at a post with combined differential (diff + danger pay) of >=20
-        #  - Served at least 10 months at a post with 1 year standard TOD
-
-        # Get the user's assignment history
-        assignments = self.assignments.all().filter(status__in=[self.assignments.model.Status.completed, self.assignments.model.Status.curtailed])
-
-        # Create our cases
-        case_1 = Q(combined_differential__gte=20) | Q(combined_differential__gte=15, bid_approval_date__lte="2017-06-30T23:59:59Z")
-        case_2 = Q(standard_tod_months=12)
-
-        # Filter our assignments to only those matching these cases
-        case_1_assignments = assignments.filter(case_1)
-        case_2_assignments = assignments.filter(case_2)
-
-        # Calculate the number of months spent in each of these cases
-        case_1_lengths = case_1_assignments.values_list("service_duration", flat=True)
-        case_2_lengths = case_2_assignments.values_list("service_duration", flat=True)
-
-        # Sum our values
-        case_1 = sum(case_1_lengths) >= 20
-        case_2 = sum(case_2_lengths) >= 10
-
-        # Return true if either are true
-        return (case_1 or case_2)
-
     class Meta:
         managed = True
         ordering = ['user__last_name']
 
 
-class SavedSearch(StaticRepresentationModel):
+class SavedSearch(models.Model):
     '''
     Represents a saved search.
     '''

@@ -5,7 +5,7 @@ import logging
 from django.contrib.auth.models import User
 from django.utils import timezone
 from talentmap_api.common.common_helpers import get_group_by_name
-from talentmap_api.position.models import Position, Assignment
+from talentmap_api.position.models import Position
 from talentmap_api.organization.models import TourOfDuty, Country
 from talentmap_api.user_profile.models import UserProfile
 
@@ -49,8 +49,6 @@ class Command(BaseCommand):
                 profile.emp_id = f"{user.first_name}_{user.last_name}"
                 profile.save()
 
-                assignment = Assignment.objects.create(user=profile, position=position, tour_of_duty=TourOfDuty.objects.all().first(), start_date=timezone.now(), status="active", bid_approval_date="1975-01-01T00:00:00Z")
-
                 # Add user to the bidder group
                 group = get_group_by_name("bidder")
                 group.user_set.add(user)
@@ -72,6 +70,6 @@ class Command(BaseCommand):
                 for group in data[7]:
                     get_group_by_name(group).user_set.add(user)
 
-                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skills}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}\n\tAssignment: {assignment}")
+                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skills}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}")
             except Exception as e:
                 self.logger.info(f"Could not create {data}, {e}")

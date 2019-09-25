@@ -5,6 +5,9 @@ import logging
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.db.models import Q
+
+from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 
 logger = logging.getLogger(__name__)
 
@@ -98,25 +101,41 @@ sort_dict = {
     "position__grade": "pos_grade_code",
     "position__bureau": "bureau_desc",
     "ted": "ted",
-    "position__position_number": "position"
+    "position__position_number": "pos_num_text"
 }
 
 def sorting_values(sort):
     if sort is not None:
-        return sort_dict.get(sort, None)
+        direction = 'asc'
+        if sort.startswith('-'):
+            direction = 'desc'
+            sort = sort_dict.get(sort[1:], None)
+        else:
+            sort = sort_dict.get(sort, None)
+        if sort is not None:
+            return f"{sort} {direction}"
+
+
+def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+
+    return list(map(mapping_function, response["Data"]))
+
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
+    '''
+    Gets an individual record by the provided ID
+    '''
+    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function)), None)
 
 
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
     '''
     Gets items from FSBid
     '''
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-
-    results = map(mapping_function, response["Data"])
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
-        "results": results
+        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
     }
 
 def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
@@ -124,5 +143,5 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     Gets the total number of items for a filterset
     '''
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0]["count(1)"]}
