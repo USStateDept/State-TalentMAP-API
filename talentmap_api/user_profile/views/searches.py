@@ -60,5 +60,5 @@ class SavedSearchListCountView(APIView):
 
     def put(self, request, *args, **kwargs):
 
-        SavedSearch.update_counts_for_endpoint(contains=True, jwt_token=request.META['HTTP_JWT'])
+        SavedSearch.update_counts_for_endpoint(contains=True, jwt_token=request.META['HTTP_JWT'], user=request.user.profile)
         return Response(status=status.HTTP_204_NO_CONTENT)
