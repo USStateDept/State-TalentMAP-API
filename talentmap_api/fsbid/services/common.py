@@ -128,6 +128,7 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
 
     return list(map(mapping_function, response["Data"]))
 
+
 def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
     '''
     Gets an individual record by the provided ID
