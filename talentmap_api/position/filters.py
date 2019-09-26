@@ -122,11 +122,11 @@ class PositionFilter(filters.FilterSet):
     def filter_language_codes(self, queryset, name, value):
         '''
         Returns a queryset of all languages that match the codes provided.
-        If NONE is provided, all positions with no language requirement will also be returned
+        If NLR is provided, all positions with no language requirement will also be returned
         '''
         langs = value.split(',')
         query = Q(languages__language__code__in=langs)
-        if 'NONE' in value:
+        if 'NLR' in value:
             query = query | Q(languages__isnull=True)
         return queryset.filter(query).distinct()
 
