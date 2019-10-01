@@ -15,7 +15,7 @@ from talentmap_api.administration.serializers.aboutpage import AboutPageSerializ
 class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet, APIView):
 
     serializer_class = AboutPageSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'), isDjangoGroupMemberOrReadOnly('about_editor'))
 
 
     def get_queryset(self):
