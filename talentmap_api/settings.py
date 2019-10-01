@@ -141,6 +141,7 @@ MIDDLEWARE = [
 
     # Our middleware
     'talentmap_api.common.middleware.IE11Middleware',
+    'talentmap_api.common.middleware.ExposeHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'talentmap_api.urls'
