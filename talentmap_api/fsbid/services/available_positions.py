@@ -68,7 +68,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
     )
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = "attachment; filename=available_positions.csv"
+    response['Content-Disposition'] = f"attachment; filename=available_positions_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -104,7 +104,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
             smart_str(record["position"]["tour_of_duty"]),
-            smart_str(record["position"]["languages"]),
+            smart_str(record["position"]["languages"]).strip('[]'),
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
