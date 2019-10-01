@@ -40,7 +40,7 @@ class FSBidDifferentialRatesView(BaseView):
 
     def get(self, request):
         '''
-        Gets the differenctial rates
+        Gets the differential rates
         '''
         return Response(services.get_differential_rates(request.META['HTTP_JWT']))
 
@@ -49,6 +49,27 @@ class FSBidGradesView(BaseView):
 
     def get(self, request):
         '''
-        Gets the differenctial rates
+        Gets the grades
         '''
         return Response(services.get_grade(request.META['HTTP_JWT']))
+
+class FSBidLanguagesView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request):
+        '''
+        Gets the languages
+        '''
+        return Response(services.get_languages(request.META['HTTP_JWT']))
+
+class FSBidTourOfDutiesView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request):
+        '''
+        Gets the tour of duties
+        '''
+        return Response(services.get_tour_of_duties(request.META['HTTP_JWT']))
+        #return Response(services.get_fsbid_results("tourofduties", request.META['HTTP_JWT'], fsbid_tour_of_duties_to_talentmap_tour_of_duties))

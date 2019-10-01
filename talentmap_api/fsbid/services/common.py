@@ -122,6 +122,11 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
 
     return list(map(mapping_function, response["Data"]))
 
+def get_fsbid_results(uri, jwt_token, mapping_function):
+    url = f"{API_ROOT}/{uri}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()
+    return map(mapping_function, response["Data"])
+
 def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
     '''
     Gets an individual record by the provided ID
