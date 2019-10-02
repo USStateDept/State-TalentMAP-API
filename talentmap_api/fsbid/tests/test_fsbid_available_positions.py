@@ -44,6 +44,7 @@ ap = {
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
 
+
 @pytest.fixture
 def test_bidder_fixture(authorized_user):
     group = mommy.make('auth.Group', name='bidder')
