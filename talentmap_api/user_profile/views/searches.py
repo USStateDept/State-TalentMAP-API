@@ -8,6 +8,11 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.user_profile.models import SavedSearch
 from talentmap_api.user_profile.serializers import SavedSearchSerializer
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
 
 class SavedSearchView(FieldLimitableSerializerMixin,
                       GenericViewSet,
@@ -44,3 +49,16 @@ class SavedSearchView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         return get_prefetched_filtered_queryset(SavedSearch, self.serializer_class, owner=self.request.user.profile)
+
+class SavedSearchListCountView(APIView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+     
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def put(self, request, *args, **kwargs):
+
+        SavedSearch.update_counts_for_endpoint(contains=True, jwt_token=request.META['HTTP_JWT'], user=request.user.profile)
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -149,7 +149,7 @@ class SavedSearch(models.Model):
             self._disable_signals = False
 
     @staticmethod
-    def update_counts_for_endpoint(endpoint=None, contains=False):
+    def update_counts_for_endpoint(endpoint=None, contains=False, jwt_token='', user=''):
         '''
         Update all saved searches counts whose endpoint matches the specified endpoint.
         If the endpoint is omitted, updates all saved search counts.
@@ -166,7 +166,8 @@ class SavedSearch(models.Model):
                 queryset = SavedSearch.objects.filter(endpoint=endpoint)
 
         for search in queryset:
-            search.update_count()
+            if search.owner == user or user == '':
+                search.update_count(jwt_token=jwt_token)
 
     class Meta:
         managed = True

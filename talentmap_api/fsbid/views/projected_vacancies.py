@@ -39,6 +39,7 @@ class FSBidProjectedVacanciesListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("language_codes", location='query', description='Language code'),
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            coreapi.Field("id", location="query", description="Projected Vacancies ids"),
         ]
     )
 
