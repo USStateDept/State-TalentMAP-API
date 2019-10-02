@@ -1,5 +1,6 @@
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.reference as services
+import talentmap_api.fsbid.services.common as common
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,7 +16,7 @@ class FSBidDangerPayView(BaseView):
         '''
         Gets the danger pay
         '''
-        return Response(services.get_dangerpay(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("dangerpays", request.META['HTTP_JWT'], services.fsbid_danger_pay_to_talentmap_danger_pay))
 
 class FSBidCyclesView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -24,7 +25,7 @@ class FSBidCyclesView(BaseView):
         '''
         Gets the cycles
         '''
-        return Response(services.get_cycles(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("cycles", request.META['HTTP_JWT'], services.fsbid_cycles_to_talentmap_cycles))
 
 class FSBidBureausView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -33,7 +34,7 @@ class FSBidBureausView(BaseView):
         '''
         Gets the bureaus
         '''
-        return Response(services.get_bureaus(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("bureaus", request.META['HTTP_JWT'], services.fsbid_bureaus_to_talentmap_bureaus))
 
 class FSBidDifferentialRatesView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -42,7 +43,8 @@ class FSBidDifferentialRatesView(BaseView):
         '''
         Gets the differential rates
         '''
-        return Response(services.get_differential_rates(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("differentialrates", request.META['HTTP_JWT'], services.fsbid_differential_rates_to_talentmap_differential_rates))
+
 
 class FSBidGradesView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -51,7 +53,8 @@ class FSBidGradesView(BaseView):
         '''
         Gets the grades
         '''
-        return Response(services.get_grade(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("grades", request.META['HTTP_JWT'], services.fsbid_grade_to_talentmap_grade))
+
 
 class FSBidLanguagesView(BaseView):
 
@@ -61,7 +64,8 @@ class FSBidLanguagesView(BaseView):
         '''
         Gets the languages
         '''
-        return Response(services.get_languages(request.META['HTTP_JWT']))
+        return Response(common.get_fsbid_results("languages", request.META['HTTP_JWT'], services.fsbid_languages_to_talentmap_languages))
+
 
 class FSBidTourOfDutiesView(BaseView):
 
@@ -71,5 +75,4 @@ class FSBidTourOfDutiesView(BaseView):
         '''
         Gets the tour of duties
         '''
-        return Response(services.get_tour_of_duties(request.META['HTTP_JWT']))
-        #return Response(services.get_fsbid_results("tourofduties", request.META['HTTP_JWT'], fsbid_tour_of_duties_to_talentmap_tour_of_duties))
+        return Response(common.get_fsbid_results("tourofduties", request.META['HTTP_JWT'], services.fsbid_tour_of_duties_to_talentmap_tour_of_duties))

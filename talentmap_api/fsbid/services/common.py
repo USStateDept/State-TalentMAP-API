@@ -124,7 +124,7 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
 
 def get_fsbid_results(uri, jwt_token, mapping_function):
     url = f"{API_ROOT}/{uri}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
     return map(mapping_function, response["Data"])
 
 def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
