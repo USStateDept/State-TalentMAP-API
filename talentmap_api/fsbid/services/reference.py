@@ -55,8 +55,8 @@ def fsbid_grade_to_talentmap_grade(data):
 
 def fsbid_languages_to_talentmap_languages(data):
     return {
-        "id": data["AE"],
-        "code": data["AE"],
+        "id": data["language_code"],
+        "code": data["language_code"],
         "formal_description": data["language_long_desc"],
         "long_description": data["language_long_desc"],
         "short_description": data["language_short_desc"],
