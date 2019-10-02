@@ -22,6 +22,7 @@ import talentmap_api.fsbid.services.available_positions as services
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidAvailablePositionsListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -38,9 +39,11 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("language_codes", location='query', description='Language code'),
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("q", location='query', description='Text search'),
         ]
     )
+
     def get(self, request, *args, **kwargs):
         '''
         Gets all available positions
@@ -48,8 +51,20 @@ class FSBidAvailablePositionsListView(BaseView):
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
 
+class FSBidAvailablePositionsCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets all available positions
+        '''
+        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+
+
 class FSBidAvailablePositionView(BaseView):
-    
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -59,12 +74,12 @@ class FSBidAvailablePositionView(BaseView):
         result = services.get_available_position(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-  
+
         return Response(result)
 
 
 class FSBidAvailablePositionsSimilarView(BaseView):
-    
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
