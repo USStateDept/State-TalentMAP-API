@@ -18,6 +18,11 @@ class ProjectedVacancyFilter():
         "language_codes",
         "position__post__differential_rate__in",
         "position__post__danger_pay__in",
+        "position__post__in",
+        "is_overseas",
+        "is_domestic",
+        "q",
+        "org_has_groups",
     ]
 
     use_api = True
@@ -43,14 +48,19 @@ class AvailablePositionsFilter():
         "language_codes",
         "position__post__danger_pay__in",
         "is_available_in_current_bidcycle",
-        "q"
+        "q",
+        "position__post__in",
+        "is_overseas",
+        "org_has_groups",
     ]
 
     use_api = True
 
     # Used when saving a search to determine the number of records returned
     def get_count(query, jwt_token):
-        return ap_services.get_available_positions_count(query, jwt_token)
+        pass
+        # TODO - once using available_positions, re-enable this and close TM-1314
+        #return ap_services.get_available_positions_count(query, jwt_token)
 
     class Meta:
         fields = "__all__"
