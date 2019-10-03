@@ -114,17 +114,6 @@ class UserProfileSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
-    favorite_positions = serializers.SerializerMethodField()
-
-    def get_favorite_positions(self, obj):
-        request = self.context['request']
-        user = UserProfile.objects.get(user=request.user)
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
-        if len(aps) > 0:
-            pos_nums = ','.join(aps)
-            aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]
-            return ({ 'id': o['id'] } for o in aps)
-        return []
 
     class Meta:
         model = UserProfile
