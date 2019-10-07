@@ -72,7 +72,7 @@ def can_delete_bid(bidStatus, cycle):
 
 
 def fsbid_bid_to_talentmap_bid(data):
-    bidStatus = get_bid_status(data['statusCode'], data['handshakeCode'])
+    bidStatus = get_bid_status(data.get("statusCode", ""), data.get("handshakeCode", ""))
     return {
         "id": "",
         "bidcycle": data['cycle']['description'],
@@ -98,7 +98,7 @@ def fsbid_bid_to_talentmap_bid(data):
             "skill": "",
             "bureau": "",
             "title": "",
-            "create_date": data['submittedDate'],
+            "create_date": data.get("submittedDate", ""),
             "update_date": "",
             "post": {
                 "id": "",
@@ -112,10 +112,10 @@ def fsbid_bid_to_talentmap_bid(data):
             }
         },
         "waivers": [],
-        "can_delete": can_delete_bid(bidStatus, data['cycle']),
+        "can_delete": can_delete_bid(bidStatus, data.get("cycle", "")),
         "status": bidStatus,
         "draft_date": "",
-        "submitted_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
+        "submitted_date": datetime.strptime(data.get("submittedDate", ""), "%Y/%m/%d"),
         "handshake_offered_date": "",
         "handshake_accepted_date": "",
         "handshake_declined_date": "",
@@ -126,7 +126,7 @@ def fsbid_bid_to_talentmap_bid(data):
         "closed_date": "",
         "is_priority": False,
         "panel_reschedule_count": 0,
-        "create_date": datetime.strptime(data['submittedDate'], "%Y/%m/%d"),
+        "create_date": datetime.strptime(data.get("submittedDate", ""), "%Y/%m/%d"),
         "update_date": "",
         "reviewer": ""
     }

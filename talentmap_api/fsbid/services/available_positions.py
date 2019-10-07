@@ -140,13 +140,13 @@ def fsbid_ap_to_talentmap_ap(ap):
     '''
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
-    designations = AvailablePositionDesignation.objects.filter(cp_id=ap["cp_id"]).first()
+    designations = AvailablePositionDesignation.objects.filter(cp_id=ap.get("cp_id", "")).first()
     return {
-        "id": ap["cp_id"],
+        "id": ap.get("cp_id", ""),
         "status": "",
-        "status_code": ap["cp_status"],
-        "ted": ensure_date(ap["ted"], utc_offset=-5),
-        "posted_date": ensure_date(ap["cp_post_dt"], utc_offset=-5),
+        "status_code": ap.get("cp_status", ""),
+        "ted": ensure_date(ap.get("ted", ""), utc_offset=-5),
+        "posted_date": ensure_date(ap.get("cp_post_dt", ""), utc_offset=-5),
         "availability": {
             "availability": "",
             "reason": ""
@@ -156,52 +156,52 @@ def fsbid_ap_to_talentmap_ap(ap):
         "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "position": {
             "id": "",
-            "grade": ap["pos_grade_code"],
-            "skill": ap["pos_skill_desc"],
-            "skill_code": ap["pos_skill_code"],
-            "bureau": ap["pos_bureau_short_desc"],
-            "organization": ap["post_org_country_state"],
-            "tour_of_duty": ap["tod"],
+            "grade": ap.get("pos_grade_code", ""),
+            "skill": ap.get("pos_skill_desc", ""),
+            "skill_code": ap.get("pos_skill_code", ""),
+            "bureau": ap.get("pos_bureau_short_desc", ""),
+            "organization": ap.get("post_org_country_state", ""),
+            "tour_of_duty": ap.get("tod", ""),
             "classifications": "",
             "representation": "",
             "availability": {
                 "availability": "",
                 "reason": ""
             },
-            "position_number": ap["position"],
-            "title": ap["pos_title_desc"],
+            "position_number": ap.get("position", ""),
+            "title": ap.get("pos_title_desc", ""),
             "is_overseas": "",
             "is_highlighted": getattr(designations, 'is_highlighted', False),
             "create_date": "",
             "update_date": "",
             "effective_date": "",
-            "posted_date": ensure_date(ap["cp_post_dt"], utc_offset=-5),
+            "posted_date": ensure_date(ap.get("cp_post_dt", ""), utc_offset=-5),
             "description": {
                 "id": "",
                 "last_editing_user": "",
                 "is_editable_by_user": "",
                 "date_created": "",
                 "date_updated": "",
-                "content": ap["ppos_capsule_descr_txt"],
+                "content": ap.get("ppos_capsule_descr_txt", ""),
                 "point_of_contact": "",
                 "website": ""
             },
             "current_assignment": {
-                "user": ap["incumbent"],
-                "tour_of_duty": ap["tod"],
+                "user": ap.get("incumbent", ""),
+                "tour_of_duty": ap.get("tod", ""),
                 "status": "",
                 "start_date": "",
-                "estimated_end_date": ensure_date(ap["ted"], utc_offset=-5)
+                "estimated_end_date": ensure_date(ap.get("ted", ""), utc_offset=-5)
             },
             "post": {
                 "id": "",
-                "code": ap["pos_location_code"],
-                "tour_of_duty": ap["tod"],
+                "code": ap.get("pos_location_code", ""),
+                "tour_of_duty": ap.get("tod", ""),
                 "post_overview_url": "",
                 "post_bidding_considerations_url": "",
                 "cost_of_living_adjustment": "",
-                "differential_rate": ap["bt_differential_rate_num"],
-                "danger_pay": ap["bt_danger_pay_num"],
+                "differential_rate": ap.get("bt_differential_rate_num", ""),
+                "danger_pay": ap.get("bt_danger_pay_num", ""),
                 "rest_relaxation_point": "",
                 "has_consumable_allowance": "",
                 "has_service_needs_differential": "",
@@ -215,21 +215,21 @@ def fsbid_ap_to_talentmap_ap(ap):
                 }
             },
             "latest_bidcycle": {
-                "id": ap["cycle_id"],
-                "name": ap["cycle_nm_txt"],
+                "id": ap.get("cycle_id", ""),
+                "name": ap.get("cycle_nm_txt", ""),
                 "cycle_start_date": "",
                 "cycle_deadline_date": "",
                 "cycle_end_date": "",
                 "active": ""
             },
             "languages": list(filter(None, [
-                services.parseLanguage(ap["lang1"]),
-                services.parseLanguage(ap["lang2"]),
+                services.parseLanguage(ap.get("lang1", "")),
+                services.parseLanguage(ap.get("lang2", "")),
             ])),
         },
         "bidcycle": {
-            "id": ap["cycle_id"],
-            "name": ap["cycle_nm_txt"],
+            "id": ap.get("cycle_id", ""),
+            "name": ap.get("cycle_nm_txt", ""),
             "cycle_start_date": "",
             "cycle_deadline_date": "",
             "cycle_end_date": "",
@@ -237,10 +237,10 @@ def fsbid_ap_to_talentmap_ap(ap):
         },
         "bid_statistics": {
             "id": "",
-            "total_bids": ap["cp_ttl_bidder_qty"],
-            "in_grade": ap["cp_at_grd_qty"],
-            "at_skill": ap["cp_in_cone_qty"],
-            "in_grade_at_skill": ap["cp_at_grd_in_cone_qty"],
+            "total_bids": ap.get("cp_ttl_bidder_qty", ""),
+            "in_grade": ap.get("cp_at_grd_qty", ""),
+            "at_skill": ap.get("cp_in_cone_qty", ""),
+            "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", ""),
             "has_handshake_offered": "",
             "has_handshake_accepted": ""
         }
