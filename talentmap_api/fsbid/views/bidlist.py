@@ -46,7 +46,7 @@ class FSBidListBidActionView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            services.bid_on_position(self.request.user.id, user.emp_id, pk, 'A', request.META['HTTP_JWT'])
+            services.submit_bid_on_position(user.emp_id, pk, request.META['HTTP_JWT'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -76,7 +76,7 @@ class FSBidListPositionActionView(APIView):
         Adds a cycle position to the user's bid list
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        services.bid_on_position(self.request.user.id, request.META['HTTP_JWT'], user.emp_id, pk)
+        services.bid_on_position(user.emp_id, pk, request.META['HTTP_JWT'])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
