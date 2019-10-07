@@ -58,7 +58,7 @@ class AvailablePositionsFilter():
 
     # Used when saving a search to determine the number of records returned
     def get_count(query, jwt_token):
-        pass
+        { count: 0 }
         # TODO - once using available_positions, re-enable this and close TM-1314
         #return ap_services.get_available_positions_count(query, jwt_token)
 
