@@ -7,56 +7,26 @@ from rest_framework import status
 from django.utils import timezone
 
 bid = {
-    "check_ind": False,
-    "delete_ind": False,
-    "per_seq_num": 2,
-    "per_full_name": "EBERLY-HARNICAR,RIOVON-CZORNY NMN",
-    "cycle_nm_txt": "Now & Winter 2018/2019",
-    "cs_cd": "A",
-    "cs_descr_txt": "Active",
-    "cc_cd": "O",
-    "cc_descr_txt": "Other",
-    "cp_id": 1,
-    "pos_seq_num": 53960,
-    "pos_bureau_code": "130000",
-    "pos_bureau_short_desc": "EAP",
-    "pos_org_code": "330501",
-    "pos_org_short_desc": "BEIJING",
-    "pos_num_text": "10231180",
-    "ptitle": "Political Officer",
-    "pos_skill_code": "5505",
-    "pos_skill_desc": "POLITICAL AFFAIRS",
-    "pos_grade_code": "02",
-    "ted": None,
-    "ubw_core_bid_ind": "N",
-    "ubw_core_bid_desc": "No",
-    "bp_code": "M",
-    "bp_descr_txt": "Medium",
-    "ubw_rank_num": None,
-    "ubw_submit_dt": "2019-02-04T09:44:31",
-    "hs_code": None,
-    "ubw_hndshk_offrd_flg": "N",
-    "ubw_hndshk_offrd_dt": None,
-    "bs_cd": "A",
-    "bs_descr_txt": "Active",
-    "cps_descr_txt": "Open",
-    "bid_count": "<span data-ct=\"001\">1(0/0)0</span>",
-    "pos_lang_code": None,
-    "pos_lang_desc": None,
-    "acp_hard_to_fill_ind": "N",
-    "cp_critical_need_ind": "N",
-    "pct_short_desc_text": " ",
-    "pct_desc_text": " ",
-    "ubw_comment": None,
-    "bid_unavailable_ind": "N",
-    "jo_pos_ind": "N",
-    "bid_due_date_passed": "Y",
-    "capsule_position_desc": "<a title=\"The East Asia and Pacific Hub director plans and implements to engage...\" href=\"#\">60822100</a>",
-    "famer_link": "<a title=\"Click to view Famer Page\" href=\"#\">fmr</a>",
-    "bidding_tool": "<a data-pn=\"10231180\" title=\"Click to view Capsule Description and Bidding Tool\" href=\"#\">10231180</a>",
-    "cycle_bidders": "<a title=\"Click to view Cycle Bidder\" href=\"#\">cb</a>",
-    "tp_codes": None
-  }
+    "submittedDate": "2019/01/01",
+    "statusCode": "A",
+    "handshakeCode": "N",
+    "cycle": {
+        "description": "",
+        "status": "A",
+    },
+    "employee": {
+        "perdet_seq_num": "1"
+    },
+    "cyclePosition": {
+        "cp_id": 1,
+        "status": "A",
+        "pos_seq_num": "1",
+        "totalBidders": 0,
+        "atGradeBidders": 0,
+        "inConeBidders": 0,
+        "inBothBidders": 0,
+    }
+}
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
 
@@ -73,7 +43,7 @@ def test_bidlist_actions(authorized_client, authorized_user):
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = [bid]
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
-        assert response.json()[0]['emp_id'] == [bid][0]['per_seq_num']
+        assert response.json()[0]['emp_id'] == [bid][0]['employee']['perdet_seq_num']
 
 
 @pytest.mark.django_db(transaction=True)
