@@ -102,7 +102,7 @@ def fsbid_bid_to_talentmap_bid(data):
         ],
         "position": {
             "id": data.get('cp_id'),
-            "position_number": "",
+            "position_number": data.get('pos_num_text'),
             "status": "",
             "grade": data.get("pos_grade_code"),
             "skill": data.get("pos_skill_desc"),
@@ -122,7 +122,7 @@ def fsbid_bid_to_talentmap_bid(data):
             }
         },
         "waivers": [],
-        "can_delete": can_delete_bid(bidStatus, data.get('cycle')),
+        "can_delete": data.get('delete_id', True),
         "status": bidStatus,
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
