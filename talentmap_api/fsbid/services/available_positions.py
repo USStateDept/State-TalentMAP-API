@@ -116,6 +116,12 @@ def get_available_positions_csv(query, jwt_token, host=None):
         ])
     return response
 
+# Max number of similar positions to return
+SIMILAR_LIMIT = 3
+
+# Filters available positions by the criteria provides and by the position with the provided id
+def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
+    return list(filter(lambda i: str(id) != str(i["id"]), get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT}}, jwt_token, host)["results"]))
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -128,10 +134,11 @@ def get_similar_available_positions(id, jwt_token, host=None):
         "position__skill__code__in": ap["position"]['skill_code'],
         "position__grade__code__in": ap["position"]["grade"],
     }
-    results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
-    while len(results) < 3 and len(base_criteria.keys()) > 0:
+
+    results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
+    while len(results) < SIMILAR_LIMIT and len(base_criteria.keys()) > 0:
         del base_criteria[list(base_criteria.keys())[0]]
-        results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
+        results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
 
     return {"results": results}
 
