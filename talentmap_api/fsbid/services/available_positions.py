@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
 import talentmap_api.fsbid.services.common as services
@@ -116,6 +117,12 @@ def get_available_positions_csv(query, jwt_token, host=None):
         ])
     return response
 
+# Max number of similar positions to return
+SIMILAR_LIMIT = 3
+
+# Filters available positions by the criteria provides and by the position with the provided id
+def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
+    return list(filter(lambda i: str(id) != str(i["id"]), get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT}}, jwt_token, host)["results"]))
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -124,14 +131,15 @@ def get_similar_available_positions(id, jwt_token, host=None):
     '''
     ap = get_available_position(id, jwt_token)
     base_criteria = {
-        "position__post__in": ap["position"]["post"]["code"],
+        "position__post__code__in": ap["position"]["post"]["code"],
         "position__skill__code__in": ap["position"]['skill_code'],
         "position__grade__code__in": ap["position"]["grade"],
     }
-    results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
-    while len(results) < 3 and len(base_criteria.keys()) > 0:
+
+    results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
+    while len(results) < SIMILAR_LIMIT and len(base_criteria.keys()) > 0:
         del base_criteria[list(base_criteria.keys())[0]]
-        results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
+        results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
 
     return {"results": results}
 
@@ -246,6 +254,13 @@ def fsbid_ap_to_talentmap_ap(ap):
         }
     }
 
+def bid_cycle_filter(cycle_ids):
+    results = []
+    if cycle_ids:
+        ids = BidCycle.objects.filter(id__in=cycle_ids.split(",")).values_list("_id", flat=True)
+        results = results + list(ids)
+    if len(results) > 0:
+        return results
 
 def convert_ap_query(query):
     '''
@@ -259,7 +274,7 @@ def convert_ap_query(query):
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
         "request_params.cps_codes": services.convert_multi_value("OP,HS"),
-        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidseason")),
+        "request_params.assign_cycles": bid_cycle_filter(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
