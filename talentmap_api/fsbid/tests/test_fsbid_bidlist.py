@@ -7,26 +7,27 @@ from rest_framework import status
 from django.utils import timezone
 
 bid = {
-    "submittedDate": "2019/01/01",
-    "statusCode": "A",
-    "handshakeCode": "N",
-    "cycle": {
-        "description": "",
-        "status": "A",
-    },
-    "employee": {
-        "perdet_seq_num": "1"
-    },
-    "cyclePosition": {
-        "cp_id": 1,
-        "status": "A",
-        "pos_seq_num": "1",
-        "totalBidders": 0,
-        "atGradeBidders": 0,
-        "inConeBidders": 0,
-        "inBothBidders": 0,
-    }
-}
+    "perdet_seq_num": 2,
+    "cycle_nm_txt": "Now & Winter 2018/2019",
+    "cp_id": 1,
+    "ptitle": "Political Officer",
+    "pos_skill_code": "5505",
+    "pos_skill_desc": "POLITICAL AFFAIRS",
+    "pos_grade_code": "01",
+    "ubw_hndshk_offrd_flg": "N",
+    "ubw_hndshk_offrd_dt": "",
+    "ubw_create_dt": "2019-02-04T09:44:31",
+    "ubw_submit_dt": "2019-02-09T09:44:31",
+    "bs_cd": "A",
+    "bs_descr_txt": "Active",
+    "cp_ttl_bidder_qty": 0,
+    "cp_at_grd_qty": 0,
+    "cp_in_cone_qty": 0,
+    "cp_at_grd_in_cone_qty": 0,
+    "location_city": "WASHINGTON",
+    "location_state": "DC",
+    "location_country": "USA"
+  }
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
 
@@ -43,7 +44,7 @@ def test_bidlist_actions(authorized_client, authorized_user):
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = [bid]
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
-        assert response.json()[0]['emp_id'] == [bid][0]['employee']['perdet_seq_num']
+        assert response.json()[0]['emp_id'] == [bid][0]['perdet_seq_num']
 
 
 @pytest.mark.django_db(transaction=True)
