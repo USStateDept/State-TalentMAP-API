@@ -131,7 +131,7 @@ def get_similar_available_positions(id, jwt_token, host=None):
     '''
     ap = get_available_position(id, jwt_token)
     base_criteria = {
-        "position__post__in": ap["position"]["post"]["code"],
+        "position__post__code__in": ap["position"]["post"]["code"],
         "position__skill__code__in": ap["position"]['skill_code'],
         "position__grade__code__in": ap["position"]["grade"],
     }
