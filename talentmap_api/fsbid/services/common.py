@@ -67,6 +67,8 @@ def post_values(query):
         post_ids = query.get("position__post__in").split(",")
         location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
         results = results + list(location_codes)
+    if query.get("position__post__code__in"):
+        results = results + query.get("position__post__code__in").split(',')
     if len(results) > 0:
         return results
 
