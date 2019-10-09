@@ -7,16 +7,18 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+@staticmethod
 def fsbid_danger_pay_to_talentmap_danger_pay(data):
     return {
-        "id": data.get("pay_percent_num", ""),
+        "id": data.get("pay_percent_num", 0),
         "code": data.get("pay_percent_num", ""),
         "description": data.get("pay_percentage_text", "")
     }
 
+@staticmethod
 def fsbid_cycles_to_talentmap_cycles(data):
     return {
-        "id": data.get("cycle_id", ""),
+        "id": data.get("cycle_id", 0),
         "name": data.get("cycle_name", ""),
         "active": True,
         "cycle_deadline_date": "",
@@ -24,13 +26,14 @@ def fsbid_cycles_to_talentmap_cycles(data):
         "cycle_start_date": ""
     }
 
+@staticmethod
 def fsbid_bureaus_to_talentmap_bureaus(data):
     return {
         "bureau_organization": "",
         "code": data.get("bur", ""),
         "groups": [],
         "highlighted_positions": [],
-        "id": data.get("bur", ""),
+        "id": data.get("bur", 0),
         "is_bureau": True,
         "is_regional": True if data.get("isregional", "") == 0 else False,
         "location": "",
@@ -39,23 +42,26 @@ def fsbid_bureaus_to_talentmap_bureaus(data):
         "short_description": data.get("bureau_short_desc", "")
     }
 
+@staticmethod
 def fsbid_differential_rates_to_talentmap_differential_rates(data):
     return {
-        "id": data.get("pay_percent_num", ""),
+        "id": data.get("pay_percent_num", 0),
         "code": data.get("pay_percent_num", ""),
         "description": data.get("pay_percentage_text", "")
     }
 
+@staticmethod
 def fsbid_grade_to_talentmap_grade(data):
     return {
-        "id": data.get("grade_code", ""),
+        "id": data.get("grade_code", 0),
         "code": data.get("grade_code", ""),
         "description": ""
     }
 
+@staticmethod
 def fsbid_languages_to_talentmap_languages(data):
     return {
-        "id": data.get("language_code", ""),
+        "id": data.get("language_code", 0),
         "code": data.get("language_code", ""),
         "formal_description": data.get("language_long_desc", ""),
         "long_description": data.get("language_long_desc", ""),
@@ -63,6 +69,7 @@ def fsbid_languages_to_talentmap_languages(data):
         "effective_date": ""
     }
 
+@staticmethod
 def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
     return {
         "id": data.get("code", 0),

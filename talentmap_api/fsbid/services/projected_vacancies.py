@@ -54,7 +54,7 @@ def fsbid_pv_to_talentmap_pv(pv):
     try:
         location = Location.objects.get(code=pv.get("pos_location_code", ""))
     except ObjectDoesNotExist:
-        logger.warning(f"No location with code {pv.get("pos_location_code", "")} was found.")
+        logger.warning(f"No location with code {pv['pos_location_code']} was found.")
     return {
         "id": pv.get("fv_seq_num", ""),
         "ted": ensure_date(pv.get("ted", ""), utc_offset=-5),
