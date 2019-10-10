@@ -22,9 +22,9 @@ def get_bid_seasons(bsn_future_vacancy_ind, jwt_token):
 
 def fsbid_bid_season_to_talentmap_bid_season(bs):
     return {
-        "id": bs.get("bsn_id", ""),
-        "description": bs.get("bsn_descr_text", ""),
-        "start_date": ensure_date(bs.get("bsn_start_date", ""), utc_offset=-5),
-        "end_date": ensure_date(bs.get("bsn_end_date", ""), utc_offset=-5),
-        "panel_cut_off_date": ensure_date(bs.get("bsn_panel_cutoff_date", ""), utc_offset=-5)
+        "id": bs.get("bsn_id", None),
+        "description": bs.get("bsn_descr_text", None),
+        "start_date": ensure_date(bs.get("bsn_start_date", None), utc_offset=-5),
+        "end_date": ensure_date(bs.get("bsn_end_date", None), utc_offset=-5),
+        "panel_cut_off_date": ensure_date(bs.get("bsn_panel_cutoff_date", None), utc_offset=-5)
     }
