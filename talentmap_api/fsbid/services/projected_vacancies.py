@@ -52,35 +52,34 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     location = {}
     try:
-        location = Location.objects.get(code=pv["pos_location_code"])
+        location = Location.objects.get(code=pv.get("pos_location_code", None))
     except ObjectDoesNotExist:
         logger.warning(f"No location with code {pv['pos_location_code']} was found.")
     return {
-        "id": pv["fv_seq_num"],
-        "ted": ensure_date(pv["ted"], utc_offset=-5),
+        "id": pv.get("fv_seq_num", None),
+        "ted": ensure_date(pv.get("ted", None), utc_offset=-5),
         "bidcycle": {
-            "id": pv["bsn_id"],
-            "name": pv["bsn_descr_text"],
-            "cycle_start_date": "",
-            "cycle_deadline_date": "",
-            "cycle_end_date": "",
+            "id": pv.get("bsn_id", None),
+            "name": pv.get("bsn_descr_text", None),
+            "cycle_start_date": None,
+            "cycle_deadline_date": None,
+            "cycle_end_date": None,
             "active": True
         },
         "position": {
-
-            "grade": pv["pos_grade_code"],
-            "skill": pv["pos_skill_desc"],
-            "bureau": pv["bureau_desc"],
-            "organization": pv["post_org_country_state"],
-            "tour_of_duty": pv["tod"],
+            "grade": pv.get("pos_grade_code", None),
+            "skill": pv.get("pos_skill_desc", None),
+            "bureau": pv.get("bureau_desc", None),
+            "organization": pv.get("post_org_country_state", None),
+            "tour_of_duty": pv.get("tod", None),
             "languages": list(filter(None, [
-                services.parseLanguage(pv["lang1"]),
-                services.parseLanguage(pv["lang2"]),
+                services.parseLanguage(pv.get("lang1", None)),
+                services.parseLanguage(pv.get("lang2", None)),
             ])),
             "post": {
-                "tour_of_duty": pv["tod"],
-                "differential_rate": pv["bt_differential_rate_num"],
-                "danger_pay": pv["bt_danger_pay_num"],
+                "tour_of_duty": pv.get("tod", None),
+                "differential_rate": pv.get("bt_differential_rate_num", None),
+                "danger_pay": pv.get("bt_danger_pay_num", None),
                 "location": {
                     "id": safe_navigation(location, 'id'),
                     "country": f"{safe_navigation(location, 'country')}",
@@ -90,34 +89,34 @@ def fsbid_pv_to_talentmap_pv(pv):
                 }
             },
             "current_assignment": {
-                "user": pv["incumbent"],
-                "estimated_end_date": ensure_date(pv["ted"], utc_offset=-5)
+                "user": pv.get("incumbent", None),
+                "estimated_end_date": ensure_date(pv.get("ted", None), utc_offset=-5)
             },
-            "position_number": pv["position"],
-            "title": pv["pos_title_desc"],
+            "position_number": pv.get("position", None),
+            "title": pv.get("pos_title_desc", None),
             "availability": {
                 "availability": True,
-                "reason": ""
+                "reason": None
             },
             "bid_cycle_statuses": [
                 {
-                    "id": pv["fv_seq_num"],
-                    "bidcycle": pv["bsn_descr_text"],
-                    "position": pv["pos_title_desc"],
-                    "status_code": "",
-                    "status": ""
+                    "id": pv.get("fv_seq_num", None),
+                    "bidcycle": pv.get("bsn_descr_text", None),
+                    "position": pv.get("pos_title_desc", None),
+                    "status_code": None,
+                    "status": None
                 }
             ],
             "latest_bidcycle": {
-                "id": pv["bsn_id"],
-                "name": pv["bsn_descr_text"],
-                "cycle_start_date": "",
-                "cycle_deadline_date": "",
-                "cycle_end_date": "",
+                "id": pv.get("bsn_id", None),
+                "name": pv.get("bsn_descr_text", None),
+                "cycle_start_date": None,
+                "cycle_deadline_date": None,
+                "cycle_end_date": None,
                 "active": True
             },
             "description": {
-                "content": pv["ppos_capsule_descr_txt"]
+                "content": pv.get("ppos_capsule_descr_txt", None)
             }
         }
     }
