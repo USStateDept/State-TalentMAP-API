@@ -147,6 +147,7 @@ def get_fsbid_results(uri, jwt_token, mapping_function):
  
     return map(mapping_function, response.get("Data", {}))
 
+
 def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
     '''
     Gets an individual record by the provided ID
