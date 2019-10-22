@@ -16,3 +16,5 @@ For example:
 
 - `docker-compose run app py.test` will run the test suite.
 - `docker-compose run db bash` will get you a shell in the `db` container.
+
+Use `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml up` to run mock-fsbid container from local code.

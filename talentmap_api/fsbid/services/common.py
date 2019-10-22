@@ -4,6 +4,9 @@ import logging
 
 from urllib.parse import urlencode
 
+from rest_framework.response import Response
+from rest_framework import status
+
 from django.conf import settings
 from django.db.models import Q
 
@@ -67,6 +70,8 @@ def post_values(query):
         post_ids = query.get("position__post__in").split(",")
         location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
         results = results + list(location_codes)
+    if query.get("position__post__code__in"):
+        results = results + query.get("position__post__code__in").split(',')
     if len(results) > 0:
         return results
 
@@ -105,9 +110,10 @@ def overseas_values(query):
 sort_dict = {
     "position__title": "pos_title_desc",
     "position__grade": "pos_grade_code",
-    "position__bureau": "bureau_desc",
+    "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
-    "position__position_number": "pos_num_text"
+    "position__position_number": "pos_num_text",
+    "posted_date": "cp_post_dt"
 }
 
 
@@ -127,7 +133,19 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    return list(map(mapping_function, response["Data"]))
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
+        return None
+
+    return list(map(mapping_function, response.get("Data", {})))
+
+def get_fsbid_results(uri, jwt_token, mapping_function):
+    url = f"{API_ROOT}/{uri}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
+    
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
+        return None
+ 
+    return map(mapping_function, response.get("Data", {}))
 
 
 def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
@@ -163,5 +181,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
 
-    results = map(mapping_function, response["Data"])
-    return results
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
+        return None
+
+    return map(mapping_function, response.get("Data", {}))

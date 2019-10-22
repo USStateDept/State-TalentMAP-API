@@ -1,0 +1,12 @@
+version: '2'
+services:
+  mock_fsbid:
+    build:
+      context: ../mock-fsbid
+    ports:
+      - 3333:3333
+    command: npm start
+    volumes:
+      - ../mock-fsbid/:/app:delegated
+    environment:
+      - PORT=3333

@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y postgresql-client xmlsec1
 RUN mkdir /app
 RUN mkdir /app/logs
 RUN mkdir /var/log/talentmap/ && chmod a+wrxs /var/log/talentmap/
+
+ADD requirements.txt /app/
 WORKDIR /app
+RUN pip install -r requirements.txt
 
 COPY talentmap_api /app/talentmap_api/
-ADD requirements.txt wait-for-postgres.sh manage.py setup.cfg /app/
+ADD wait-for-postgres.sh manage.py setup.cfg /app/
 
 RUN chmod +x wait-for-postgres.sh
-RUN pip install -r requirements.txt

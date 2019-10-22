@@ -1,0 +1,10 @@
+version: '2'
+services:
+  app:
+    links:
+      - mock_fsbid
+  mock_fsbid:
+    image: metaphase/mock-fsbid
+    ports:
+      - 3333:3333
+
