@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
 import talentmap_api.fsbid.services.common as services
@@ -116,6 +117,12 @@ def get_available_positions_csv(query, jwt_token, host=None):
         ])
     return response
 
+# Max number of similar positions to return
+SIMILAR_LIMIT = 3
+
+# Filters available positions by the criteria provides and by the position with the provided id
+def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
+    return list(filter(lambda i: str(id) != str(i["id"]), get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT}}, jwt_token, host)["results"]))
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -124,14 +131,15 @@ def get_similar_available_positions(id, jwt_token, host=None):
     '''
     ap = get_available_position(id, jwt_token)
     base_criteria = {
-        "position__post__in": ap["position"]["post"]["code"],
+        "position__post__code__in": ap["position"]["post"]["code"],
         "position__skill__code__in": ap["position"]['skill_code'],
         "position__grade__code__in": ap["position"]["grade"],
     }
-    results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
-    while len(results) < 3 and len(base_criteria.keys()) > 0:
+
+    results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
+    while len(results) < SIMILAR_LIMIT and len(base_criteria.keys()) > 0:
         del base_criteria[list(base_criteria.keys())[0]]
-        results = list(filter(lambda i: str(id) != str(i["id"]), get_available_positions(base_criteria, jwt_token, host)["results"]))
+        results = filter_available_positions_exclude_self(id, base_criteria, jwt_token, host)
 
     return {"results": results}
 
@@ -140,112 +148,119 @@ def fsbid_ap_to_talentmap_ap(ap):
     '''
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
-    designations = AvailablePositionDesignation.objects.filter(cp_id=ap["cp_id"]).first()
+    designations = AvailablePositionDesignation.objects.filter(cp_id=ap.get("cp_id", None)).first()
     return {
-        "id": ap["cp_id"],
-        "status": "",
-        "status_code": ap["cp_status"],
-        "ted": ensure_date(ap["ted"], utc_offset=-5),
-        "posted_date": ensure_date(ap["cp_post_dt"], utc_offset=-5),
+        "id": ap.get("cp_id", None),
+        "status": None,
+        "status_code": ap.get("cp_status", None),
+        "ted": ensure_date(ap.get("ted", None), utc_offset=-5),
+        "posted_date": ensure_date(ap.get("cp_post_dt", None), utc_offset=-5),
         "availability": {
-            "availability": "",
-            "reason": ""
+            "availability": None,
+            "reason": None
         },
         "is_urgent_vacancy": getattr(designations, 'is_urgent_vacancy', False),
         "is_volunteer": getattr(designations, 'is_volunteer', False),
         "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "position": {
-            "id": "",
-            "grade": ap["pos_grade_code"],
-            "skill": ap["pos_skill_desc"],
-            "skill_code": ap["pos_skill_code"],
-            "bureau": ap["pos_bureau_short_desc"],
-            "organization": ap["post_org_country_state"],
-            "tour_of_duty": ap["tod"],
-            "classifications": "",
-            "representation": "",
+            "id": None,
+            "grade": ap.get("pos_grade_code", None),
+            "skill": ap.get("pos_skill_desc", None),
+            "skill_code": ap.get("pos_skill_code", None),
+            "bureau": ap.get("pos_bureau_short_desc", None),
+            "organization": ap.get("post_org_country_state", None),
+            "tour_of_duty": ap.get("tod", None),
+            "classifications": None,
+            "representation": None,
             "availability": {
-                "availability": "",
-                "reason": ""
+                "availability": None,
+                "reason": None
             },
-            "position_number": ap["position"],
-            "title": ap["pos_title_desc"],
-            "is_overseas": "",
+            "position_number": ap.get("position", None),
+            "title": ap.get("pos_title_desc", None),
+            "is_overseas": None,
             "is_highlighted": getattr(designations, 'is_highlighted', False),
-            "create_date": "",
-            "update_date": "",
-            "effective_date": "",
-            "posted_date": ensure_date(ap["cp_post_dt"], utc_offset=-5),
+            "create_date": None,
+            "update_date": None,
+            "effective_date": None,
+            "posted_date": ensure_date(ap.get("cp_post_dt", None), utc_offset=-5),
             "description": {
-                "id": "",
-                "last_editing_user": "",
-                "is_editable_by_user": "",
-                "date_created": "",
-                "date_updated": "",
-                "content": ap["ppos_capsule_descr_txt"],
-                "point_of_contact": "",
-                "website": ""
+                "id": None,
+                "last_editing_user": None,
+                "is_editable_by_user": None,
+                "date_created": None,
+                "date_updated": None,
+                "content": ap.get("ppos_capsule_descr_txt", None),
+                "point_of_contact": None,
+                "website": None
             },
             "current_assignment": {
-                "user": ap["incumbent"],
-                "tour_of_duty": ap["tod"],
-                "status": "",
-                "start_date": "",
-                "estimated_end_date": ensure_date(ap["ted"], utc_offset=-5)
+                "user": ap.get("incumbent", None),
+                "tour_of_duty": ap.get("tod", None),
+                "status": None,
+                "start_date": None,
+                "estimated_end_date": ensure_date(ap.get("ted", None), utc_offset=-5)
             },
             "post": {
-                "id": "",
-                "code": ap["pos_location_code"],
-                "tour_of_duty": ap["tod"],
-                "post_overview_url": "",
-                "post_bidding_considerations_url": "",
-                "cost_of_living_adjustment": "",
-                "differential_rate": ap["bt_differential_rate_num"],
-                "danger_pay": ap["bt_danger_pay_num"],
-                "rest_relaxation_point": "",
-                "has_consumable_allowance": "",
-                "has_service_needs_differential": "",
-                "obc_id": "",
+                "id": None,
+                "code": ap.get("pos_location_code", None),
+                "tour_of_duty": ap.get("tod", None),
+                "post_overview_url": None,
+                "post_bidding_considerations_url": None,
+                "cost_of_living_adjustment": None,
+                "differential_rate": ap.get("bt_differential_rate_num", None),
+                "danger_pay": ap.get("bt_danger_pay_num", None),
+                "rest_relaxation_point": None,
+                "has_consumable_allowance": None,
+                "has_service_needs_differential": None,
+                "obc_id": None,
                 "location": {
-                    "id": "",
-                    "country": "",
-                    "code": "",
-                    "city": "",
-                    "state": ""
+                    "id": None,
+                    "country": None,
+                    "code": None,
+                    "city": None,
+                    "state": None
                 }
             },
             "latest_bidcycle": {
-                "id": ap["cycle_id"],
-                "name": ap["cycle_nm_txt"],
-                "cycle_start_date": "",
-                "cycle_deadline_date": "",
-                "cycle_end_date": "",
-                "active": ""
+                "id": ap.get("cycle_id", None),
+                "name": ap.get("cycle_nm_txt", None),
+                "cycle_start_date": None,
+                "cycle_deadline_date": None,
+                "cycle_end_date": None,
+                "active": None
             },
             "languages": list(filter(None, [
-                services.parseLanguage(ap["lang1"]),
-                services.parseLanguage(ap["lang2"]),
+                services.parseLanguage(ap.get("lang1", None)),
+                services.parseLanguage(ap.get("lang2", None)),
             ])),
         },
         "bidcycle": {
-            "id": ap["cycle_id"],
-            "name": ap["cycle_nm_txt"],
-            "cycle_start_date": "",
-            "cycle_deadline_date": "",
-            "cycle_end_date": "",
-            "active": ""
+            "id": ap.get("cycle_id", None),
+            "name": ap.get("cycle_nm_txt", None),
+            "cycle_start_date": None,
+            "cycle_deadline_date": None,
+            "cycle_end_date": None,
+            "active": None
         },
         "bid_statistics": {
-            "id": "",
-            "total_bids": ap["cp_ttl_bidder_qty"],
-            "in_grade": ap["cp_at_grd_qty"],
-            "at_skill": ap["cp_in_cone_qty"],
-            "in_grade_at_skill": ap["cp_at_grd_in_cone_qty"],
-            "has_handshake_offered": "",
-            "has_handshake_accepted": ""
+            "id": None,
+            "total_bids": ap.get("cp_ttl_bidder_qty", None),
+            "in_grade": ap.get("cp_at_grd_qty", None),
+            "at_skill": ap.get("cp_in_cone_qty", None),
+            "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
+            "has_handshake_offered": None,
+            "has_handshake_accepted": None
         }
     }
 
+def bid_cycle_filter(cycle_ids):
+    results = []
+    if cycle_ids:
+        ids = BidCycle.objects.filter(id__in=cycle_ids.split(",")).values_list("_id", flat=True)
+        results = results + list(ids)
+    if len(results) > 0:
+        return results
 
 def convert_ap_query(query):
     '''
@@ -259,7 +274,7 @@ def convert_ap_query(query):
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
         "request_params.cps_codes": services.convert_multi_value("OP,HS"),
-        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidseason")),
+        "request_params.assign_cycles": bid_cycle_filter(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
