@@ -76,7 +76,7 @@ jobs:
       - store_artifacts:
           path: coverage.xml
           destination: pytest-cov/coverage.xml
-  site:
+  dependencies:
     docker:
       - *default-python-node
     steps:
@@ -140,7 +140,7 @@ workflows:
       - pytest:
           requires:
             - build
-      - site:
+      - dependencies:
           requires:
             - build
       - zap:
