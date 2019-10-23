@@ -143,6 +143,10 @@ workflows:
       - site:
           requires:
             - build
+          branches:
+            only:
+              - master
+              - dev
       - zap:
           filters:
             tags:
