@@ -25,16 +25,6 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-      - run:
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            mkdir ./tmp-pip
-            pip install -r requirements.txt -t ./tmp-pip
-            zip talentmap.zip -r ./tmp-pip/*
-      - store_artifacts:
-          path: talentmap.zip
-          destination: talentmap.zip
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
@@ -99,10 +89,10 @@ jobs:
             . venv/bin/activate
             mkdir ./tmp-pip
             pip install -r requirements.txt -t ./tmp-pip
-            zip talentmap.zip -r ./tmp-pip/*
+            zip talentmap-api-dependencies.zip -r ./tmp-pip/*
       - store_artifacts:
-          path: talentmap.zip
-          destination: talentmap.zip
+          path: talentmap-api-dependencies.zip
+          destination: talentmap-api-dependencies.zip
   zap:
     docker:
       - *default-python-node
@@ -150,6 +140,12 @@ workflows:
       - pytest:
           requires:
             - build
+      - site:
+          requires:
+            - build
+          filters:
+            branches:
+              only: dev
       - zap:
           filters:
             tags:
