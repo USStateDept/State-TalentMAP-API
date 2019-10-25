@@ -132,8 +132,8 @@ def sorting_values(sort):
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-
     if response.get("Data") is None or response.get('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
     return list(map(mapping_function, response.get("Data", {})))
@@ -143,6 +143,7 @@ def get_fsbid_results(uri, jwt_token, mapping_function):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
     
     if response.get("Data") is None or response.get('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
         return None
  
     return map(mapping_function, response.get("Data", {}))
@@ -182,6 +183,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
     return map(mapping_function, response.get("Data", {}))
