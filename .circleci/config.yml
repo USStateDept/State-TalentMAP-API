@@ -89,7 +89,8 @@ jobs:
             . venv/bin/activate
             mkdir ./tmp-pip
             pip install -r requirements.txt -t ./tmp-pip
-            zip talentmap-api-dependencies.zip -r ./tmp-pip/*
+            cd ./tmp-pip
+            zip -r ../talentmap-api-dependencies.zip * .[^.]*
       - store_artifacts:
           path: talentmap-api-dependencies.zip
           destination: talentmap-api-dependencies.zip
