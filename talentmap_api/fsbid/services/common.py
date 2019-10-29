@@ -180,7 +180,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     Gets items from FSBid
     '''
     url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
