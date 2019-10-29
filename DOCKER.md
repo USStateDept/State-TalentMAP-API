@@ -17,4 +17,12 @@ For example:
 - `docker-compose run app py.test` will run the test suite.
 - `docker-compose run db bash` will get you a shell in the `db` container.
 
-Use `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml up` to run mock-fsbid container from local code.
+Use `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml <COMMAND>` to execute commands in the mock-fsbid container from local code.
+
+For example:
+
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml build`
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml up`
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run dev`
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run migrate`
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run seed`
