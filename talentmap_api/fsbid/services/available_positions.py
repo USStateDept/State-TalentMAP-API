@@ -9,10 +9,12 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
+from talentmap_api.organization.models import Location
 
 import talentmap_api.fsbid.services.common as services
 
@@ -149,6 +151,13 @@ def fsbid_ap_to_talentmap_ap(ap):
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
     designations = AvailablePositionDesignation.objects.filter(cp_id=ap.get("cp_id", None)).first()
+
+    location = {}
+    try:
+        location = Location.objects.get(code=ap.get("pos_location_code", None))
+    except ObjectDoesNotExist:
+        logger.warning(f"No location with code {ap['pos_location_code']} was found.")
+
     return {
         "id": ap.get("cp_id", None),
         "status": None,
@@ -215,11 +224,11 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "has_service_needs_differential": None,
                 "obc_id": None,
                 "location": {
-                    "id": None,
-                    "country": None,
-                    "code": None,
-                    "city": None,
-                    "state": None
+                    "id": safe_navigation(location, 'id'),
+                    "country": f"{safe_navigation(location, 'country')}",
+                    "code": safe_navigation(location, 'code'),
+                    "city": safe_navigation(location, 'city'),
+                    "state": safe_navigation(location, 'state')
                 }
             },
             "latest_bidcycle": {
