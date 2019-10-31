@@ -13,7 +13,7 @@ services:
       - 3333:3333
     environment:
       - PORT=3333
-      - DB_HOST=db
+      - DB_HOST=mock_db
       - DB_NAME=mockfsbid
       - DB_USER=mockfsbid-user
       - DB_PASSWORD=fsbid_pwd
