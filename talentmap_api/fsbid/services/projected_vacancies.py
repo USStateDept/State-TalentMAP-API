@@ -69,6 +69,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": pv.get("pos_skill_desc", None),
+            "skill_code": pv.get("pos_skill_code", None),
             "bureau": pv.get("bureau_desc", None),
             "organization": pv.get("post_org_country_state", None),
             "tour_of_duty": pv.get("tod", None),
