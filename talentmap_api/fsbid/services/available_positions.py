@@ -198,7 +198,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "last_editing_user": None,
                 "is_editable_by_user": None,
                 "date_created": None,
-                "date_updated": None,
+                "date_updated": ensure_date(ap.get("ppos_capsule_modify_dt", None), utc_offset=5),
                 "content": ap.get("ppos_capsule_descr_txt", None),
                 "point_of_contact": None,
                 "website": None
