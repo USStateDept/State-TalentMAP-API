@@ -2,11 +2,23 @@ version: '2'
 services:
   mock_fsbid:
     build:
-      context: ../mock-fsbid
+      context: ../mock-fsbid/
+    links:
+      - mock_db
+    depends_on:
+      - mock_db
     ports:
       - 3333:3333
-    command: npm start
+    command: npm run dev
     volumes:
       - ../mock-fsbid/:/app:delegated
     environment:
       - PORT=3333
+      - DB_HOST=mock_db
+      - DB_NAME=mockfsbid
+      - DB_USER=mockfsbid-user
+      - DB_PASSWORD=fsbid_pwd
+      - DB_PORT=5432
+      - DB_CHARSET=utf8
+volumes:
+  mock_pgdata:
