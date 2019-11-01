@@ -7,8 +7,10 @@ services:
       - 8000:8000
     links:
       - db
+      - mock_fsbid
     depends_on:
       - db
+      - mock_fsbid
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -23,5 +25,13 @@ services:
     environment:
       - POSTGRES_DB=talentmap
       - POSTGRES_USER=talentmap-user
+  mock_db:
+    image: postgres:9.6.3
+    volumes:
+      - pgdata:/var/lib/postgresql/mock-data/
+    environment:
+      - POSTGRES_DB=mockfsbid
+      - POSTGRES_USER=mockfsbid-user
+      - POSTGRES_PASSWORD=fsbid_pwd
 volumes:
   pgdata:
