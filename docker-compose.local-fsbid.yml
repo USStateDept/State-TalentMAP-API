@@ -20,5 +20,6 @@ services:
       - DB_PASSWORD=fsbid_pwd
       - DB_PORT=5432
       - DB_CHARSET=utf8
+      - DEBUG=false
 volumes:
   mock_pgdata:
