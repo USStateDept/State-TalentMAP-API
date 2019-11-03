@@ -177,7 +177,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "skill": f"{ap.get('pos_skill_desc', None)} ({ap.get('pos_skill_code')})",
             "skill_code": ap.get("pos_skill_code", None),
             "bureau": ap.get("pos_bureau_short_desc", None),
-            "organization": ap.get("post_org_country_state", None),
+            "organization": f"({ap.get('org_short_desc', None)}) {ap.get('org_long_desc', None)}",
             "tour_of_duty": ap.get("tod", None),
             "classifications": None,
             "representation": None,
