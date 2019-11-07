@@ -35,7 +35,7 @@ def fsbid_bureaus_to_talentmap_bureaus(data):
         "highlighted_positions": [],
         "id": data.get("bur", 0),
         "is_bureau": True,
-        "is_regional": True if data.get("isregional", None) == 0 else False,
+        "is_regional": data.get("isregional", None) == 1,
         "location": None,
         "long_description": data.get("bureau_long_desc", None),
         "parent_organization": None,
