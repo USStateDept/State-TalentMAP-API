@@ -41,3 +41,6 @@ class FSBidCodesView(BaseView):
     uri = "codes"
     mapping_function = services.fsbid_codes_to_talentmap_codes
     
+class FSBidLocationsView(BaseView):
+    uri = "locations"
+    mapping_function = services.fsbid_locations_to_talentmap_locations
