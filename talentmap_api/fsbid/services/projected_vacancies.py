@@ -62,8 +62,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         },
         "position": {
             "grade": pv.get("pos_grade_code", None),
-            "skill": pv.get("pos_skill_desc", None),
-            "skill_code": pv.get("pos_skill_code", None),
+            "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "bureau": pv.get("bureau_desc", None),
             "organization": pv.get("post_org_country_state", None),
             "tour_of_duty": pv.get("tod", None),
@@ -110,7 +109,8 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "active": True
             },
             "description": {
-                "content": pv.get("ppos_capsule_descr_txt", None)
+                "content": pv.get("ppos_capsule_descr_txt", None),
+                "date_updated": ensure_date(pv.get("ppos_capsule_modify_dt", None), utc_offset=5),
             }
         }
     }
