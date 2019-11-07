@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from talentmap_api.common.common_helpers import ensure_date, safe_navigation
-from talentmap_api.organization.models import Location
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
@@ -50,11 +49,6 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
-    location = {}
-    try:
-        location = Location.objects.get(code=pv.get("pos_location_code", None))
-    except ObjectDoesNotExist:
-        logger.warning(f"No location with code {pv['pos_location_code']} was found.")
     return {
         "id": pv.get("fv_seq_num", None),
         "ted": ensure_date(pv.get("ted", None), utc_offset=-5),
@@ -69,6 +63,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": pv.get("pos_skill_desc", None),
+            "skill_code": pv.get("pos_skill_code", None),
             "bureau": pv.get("bureau_desc", None),
             "organization": pv.get("post_org_country_state", None),
             "tour_of_duty": pv.get("tod", None),
@@ -81,11 +76,10 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "differential_rate": pv.get("bt_differential_rate_num", None),
                 "danger_pay": pv.get("bt_danger_pay_num", None),
                 "location": {
-                    "id": safe_navigation(location, 'id'),
-                    "country": f"{safe_navigation(location, 'country')}",
-                    "code": safe_navigation(location, 'code'),
-                    "city": safe_navigation(location, 'city'),
-                    "state": safe_navigation(location, 'state')
+                    "country": pv.get("location_country", None),
+                    "code": pv.get("pos_location_code", None),
+                    "city": pv.get("location_city", None),
+                    "state": pv.get("location_state", None),
                 }
             },
             "current_assignment": {
