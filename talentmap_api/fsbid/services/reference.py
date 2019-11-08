@@ -90,6 +90,15 @@ def fsbid_codes_to_talentmap_codes(data):
     }
 
 @staticmethod
+def fsbid_codes_to_talentmap_cones(data):
+    return {
+        "id": data.get("jc_id", 0),
+        "code": data.get("skl_code", 0),
+        "cone": data.get("jc_nm_txt", None),
+        "description": data.get("skill_descr", None)
+    }
+
+@staticmethod
 def fsbid_locations_to_talentmap_locations(data):
     return {
         "code": data.get("code", 0),

@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from itertools import groupby
+from operator import itemgetter
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -44,3 +47,27 @@ class FSBidCodesView(BaseView):
 class FSBidLocationsView(BaseView):
     uri = "locations"
     mapping_function = services.fsbid_locations_to_talentmap_locations
+
+class FSBidConesView(BaseView):
+    uri = "codes"
+    mapping_function = services.fsbid_codes_to_talentmap_cones
+
+    def get(self, request):
+
+        results = common.get_fsbid_results(self.uri, request.META['HTTP_JWT'], self.mapping_function)
+        if results is None:
+            logger.warning(f"Invalid response from '\{self.uri}'.")
+            return Response({"detail": "FSBID returned error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        results = list(results)
+        values = set(map(lambda x: x['cone'], results))
+
+        newlist, codes = [], []
+        for cone in values:
+            for info in results:
+                if info['cone'] == cone:
+                    codes.append({'code': info['code'], 'id': info['id'], 'description': info['description']})
+            newlist.append({'cone': cone, 'codes': codes})
+
+        return Response(newlist)
+        
