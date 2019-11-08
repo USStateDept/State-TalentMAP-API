@@ -9,8 +9,9 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
@@ -165,10 +166,10 @@ def fsbid_ap_to_talentmap_ap(ap):
         "position": {
             "id": None,
             "grade": ap.get("pos_grade_code", None),
-            "skill": ap.get("pos_skill_desc", None),
+            "skill": f"{ap.get('pos_skill_desc', None)} ({ap.get('pos_skill_code')})",
             "skill_code": ap.get("pos_skill_code", None),
-            "bureau": ap.get("pos_bureau_short_desc", None),
-            "organization": ap.get("post_org_country_state", None),
+            "bureau": f"({ap.get('pos_bureau_short_desc', None)}) {ap.get('pos_bureau_long_desc', None)}",
+            "organization": f"({ap.get('org_short_desc', None)}) {ap.get('org_long_desc', None)}",
             "tour_of_duty": ap.get("tod", None),
             "classifications": None,
             "representation": None,
@@ -189,7 +190,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "last_editing_user": None,
                 "is_editable_by_user": None,
                 "date_created": None,
-                "date_updated": None,
+                "date_updated": ensure_date(ap.get("ppos_capsule_modify_dt", None), utc_offset=5),
                 "content": ap.get("ppos_capsule_descr_txt", None),
                 "point_of_contact": None,
                 "website": None
@@ -215,11 +216,10 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "has_service_needs_differential": None,
                 "obc_id": None,
                 "location": {
-                    "id": None,
-                    "country": None,
-                    "code": None,
-                    "city": None,
-                    "state": None
+                    "country": ap.get("location_country", None),
+                    "code": ap.get("pos_location_code", None),
+                    "city": ap.get("location_city", None),
+                    "state": ap.get("location_state", None),
                 }
             },
             "latest_bidcycle": {

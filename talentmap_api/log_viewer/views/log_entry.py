@@ -35,6 +35,6 @@ class LogEntryView(APIView):
         log_name = self.request.parser_context.get("kwargs").get("string")
         resp = services.get_log(log_name)
         if resp:
-            return Response(services.get_log(log_name))
+            return Response(resp)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)

@@ -35,7 +35,7 @@ def fsbid_bureaus_to_talentmap_bureaus(data):
         "highlighted_positions": [],
         "id": data.get("bur", 0),
         "is_bureau": True,
-        "is_regional": True if data.get("isregional", None) == 0 else False,
+        "is_regional": data.get("isregional", None) == 1,
         "location": None,
         "long_description": data.get("bureau_long_desc", None),
         "parent_organization": None,
@@ -88,3 +88,14 @@ def fsbid_codes_to_talentmap_codes(data):
         "cone": data.get("jc_nm_txt", None),
         "description": data.get("skill_descr", None)
     }
+
+@staticmethod
+def fsbid_locations_to_talentmap_locations(data):
+    return {
+        "code": data.get("code", 0),
+        "city": data.get("city", None),
+        "state": data.get("state", None),
+        "country": data.get("country", None),
+        "is_domestic": data.get("is_domestic", None) == 1,
+    }
+
