@@ -52,13 +52,8 @@ class FSBidConesView(BaseView):
     uri = "codes"
     mapping_function = services.fsbid_codes_to_talentmap_cones
 
-    def get(self, request):
-
-        results = common.get_fsbid_results(self.uri, request.META['HTTP_JWT'], self.mapping_function)
-        if results is None:
-            logger.warning(f"Invalid response from '\{self.uri}'.")
-            return Response({"detail": "FSBID returned error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    def ModConesResults(self, results):
+        
         results = list(results)
         values = set(map(lambda x: x['cone'], results))
 
@@ -68,6 +63,7 @@ class FSBidConesView(BaseView):
                 if info['cone'] == cone:
                     codes.append({'code': info['code'], 'id': info['id'], 'description': info['description']})
             newlist.append({'cone': cone, 'codes': codes})
-
-        return Response(newlist)
         
+        return newlist
+    
+    mod_function = ModConesResults
