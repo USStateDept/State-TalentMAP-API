@@ -254,14 +254,6 @@ def fsbid_ap_to_talentmap_ap(ap):
         }
     }
 
-def bid_cycle_filter(cycle_ids):
-    results = []
-    if cycle_ids:
-        ids = BidCycle.objects.filter(id__in=cycle_ids.split(",")).values_list("_id", flat=True)
-        results = results + list(ids)
-    if len(results) > 0:
-        return results
-
 def convert_ap_query(query):
     '''
     Converts TalentMap filters into FSBid filters
@@ -274,7 +266,7 @@ def convert_ap_query(query):
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
         "request_params.cps_codes": services.convert_multi_value("OP,HS"),
-        "request_params.assign_cycles": bid_cycle_filter(query.get("is_available_in_bidcycle")),
+        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
