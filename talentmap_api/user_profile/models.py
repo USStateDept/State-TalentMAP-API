@@ -11,6 +11,7 @@ from django.contrib.postgres.fields import JSONField
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter
 from talentmap_api.common.decorators import respect_instance_signalling
+from talentmap_api.common.permissions import in_group_or_403
 
 from talentmap_api.messaging.models import Notification
 
@@ -81,11 +82,13 @@ class UserProfile(StaticRepresentationModel):
     @property
     def is_cdo(self):
         '''
-        Represents if the user is a CDO (Career development officer) or not. If the user's direct_report
-        reverse relationship has any members, they are a CDO
+        Represents if the user is a CDO (Career development officer) or not.
         '''
-
-        return self.direct_reports.count() != 0
+        try:
+            in_group_or_403(self.user, 'cdo')
+            return True
+        except:
+            return False
 
     class Meta:
         managed = True
