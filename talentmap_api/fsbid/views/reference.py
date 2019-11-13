@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from itertools import groupby
+from operator import itemgetter
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -44,3 +47,25 @@ class FSBidCodesView(BaseView):
 class FSBidLocationsView(BaseView):
     uri = "locations"
     mapping_function = services.fsbid_locations_to_talentmap_locations
+
+class FSBidConesView(BaseView):
+    uri = "codes"
+    mapping_function = services.fsbid_codes_to_talentmap_cones
+
+    def ModConesResults(self, results):
+        
+        results = list(results)
+        values = set(map(lambda x: x['category'], results))
+
+        newlist, codes = [], []
+        for cone in values:
+            for info in results:
+                if info['category'] == cone:
+                    codes.append({'code': info['code'], 'id': info['id'], 'description': info['description']})
+            
+            newlist.append({'category': cone, 'skills': codes})
+            codes = []
+        
+        return newlist
+    
+    mod_function = ModConesResults

@@ -13,7 +13,8 @@ class BaseView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     uri = ""
-    mapping_function = ""
+    mapping_function = None
+    mod_function = None
 
     @classmethod
     def get_extra_actions(cls):
@@ -25,5 +26,8 @@ class BaseView(APIView):
         if results is None:
             logger.warning(f"Invalid response from '\{self.uri}'.")
             return Response({"detail": "FSBID returned error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        if callable(self.mod_function): 
+            results = self.mod_function(results)
         
         return Response(results)
