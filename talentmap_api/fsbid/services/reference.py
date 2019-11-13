@@ -94,7 +94,7 @@ def fsbid_codes_to_talentmap_cones(data):
     return {
         "id": data.get("jc_id", 0),
         "code": data.get("skl_code", 0),
-        "cone": data.get("jc_nm_txt", None),
+        "category": data.get("jc_nm_txt", None),
         "description": data.get("skill_descr", None)
     }
 

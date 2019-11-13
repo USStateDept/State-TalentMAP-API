@@ -55,14 +55,16 @@ class FSBidConesView(BaseView):
     def ModConesResults(self, results):
         
         results = list(results)
-        values = set(map(lambda x: x['cone'], results))
+        values = set(map(lambda x: x['category'], results))
 
         newlist, codes = [], []
         for cone in values:
             for info in results:
-                if info['cone'] == cone:
+                if info['category'] == cone:
                     codes.append({'code': info['code'], 'id': info['id'], 'description': info['description']})
-            newlist.append({'cone': cone, 'codes': codes})
+            
+            newlist.append({'category': cone, 'skills': codes})
+            codes = []
         
         return newlist
     
