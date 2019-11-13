@@ -44,7 +44,7 @@ def test_bidlist_actions(authorized_client, authorized_user):
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = [bid]
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
-        assert response.json()[0]['emp_id'] == [bid][0]['perdet_seq_num']
+        assert response.json()['results'][0]['emp_id'] == [bid][0]['perdet_seq_num']
 
 
 @pytest.mark.django_db(transaction=True)
