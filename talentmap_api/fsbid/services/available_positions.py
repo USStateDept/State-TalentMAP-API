@@ -94,6 +94,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
         smart_str(u"Bid Cycle/Season"),
         smart_str(u"Posted Date"),
         smart_str(u"Status Code"),
+        smart_str(u"Capsule Description"),
     ])
 
     for record in data:
@@ -115,6 +116,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["bidcycle"]["name"]),
             smart_str(record["posted_date"].strftime('%m/%d/%Y')),
             smart_str(record["status_code"]),
+            smart_str(record["position"]["description"]["content"]),
         ])
     return response
 
