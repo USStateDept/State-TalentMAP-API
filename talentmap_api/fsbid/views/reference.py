@@ -49,11 +49,10 @@ class FSBidLocationsView(BaseView):
     mapping_function = services.fsbid_locations_to_talentmap_locations
 
 class FSBidConesView(BaseView):
-    uri = "codes"
+    uri = "skillCodes"
     mapping_function = services.fsbid_codes_to_talentmap_cones
 
-    def ModConesResults(self, results):
-        
+    def modCones(self, results):
         results = list(results)
         values = set(map(lambda x: x['category'], results))
 
@@ -65,7 +64,6 @@ class FSBidConesView(BaseView):
             
             newlist.append({'category': cone, 'skills': codes})
             codes = []
-        
         return newlist
-    
-    mod_function = ModConesResults
+
+    mod_function = modCones
