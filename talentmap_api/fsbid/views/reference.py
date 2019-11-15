@@ -24,14 +24,6 @@ class FSBidBureausView(BaseView):
     uri = "bureaus"
     mapping_function = services.fsbid_bureaus_to_talentmap_bureaus
 
-    def modBureaus(self, request, results):
-        print("I hate everything!!!!!!!!")
-        print(request.path_info)
-
-        return results
-
-    mod_function = modBureaus
-
 class FSBidDifferentialRatesView(BaseView):
     uri = "differentialrates"
     mapping_function = services.fsbid_differential_rates_to_talentmap_differential_rates
