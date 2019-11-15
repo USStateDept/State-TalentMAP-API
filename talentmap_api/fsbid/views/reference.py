@@ -52,7 +52,7 @@ class FSBidConesView(BaseView):
     uri = "skillCodes"
     mapping_function = services.fsbid_codes_to_talentmap_cones
 
-    def modCones(self, request, results):
+    def modCones(self, results):
         results = list(results)
         values = set(map(lambda x: x['category'], results))
 
