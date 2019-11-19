@@ -39,21 +39,20 @@ class FSBidLanguagesView(BaseView):
 class FSBidTourOfDutiesView(BaseView):
     uri = "tourofduties"
     mapping_function = services.fsbid_tour_of_duties_to_talentmap_tour_of_duties
-    
+
 class FSBidCodesView(BaseView):
     uri = "skillCodes"
     mapping_function = services.fsbid_codes_to_talentmap_codes
-    
+
 class FSBidLocationsView(BaseView):
     uri = "locations"
     mapping_function = services.fsbid_locations_to_talentmap_locations
 
 class FSBidConesView(BaseView):
-    uri = "codes"
+    uri = "skillCodes"
     mapping_function = services.fsbid_codes_to_talentmap_cones
 
-    def ModConesResults(self, results):
-        
+    def modCones(self, results):
         results = list(results)
         values = set(map(lambda x: x['category'], results))
 
@@ -62,10 +61,9 @@ class FSBidConesView(BaseView):
             for info in results:
                 if info['category'] == cone:
                     codes.append({'code': info['code'], 'id': info['id'], 'description': info['description']})
-            
+
             newlist.append({'category': cone, 'skills': codes})
             codes = []
-        
         return newlist
-    
-    mod_function = ModConesResults
+
+    mod_function = modCones
