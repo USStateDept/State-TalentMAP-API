@@ -2,6 +2,7 @@ import requests
 import logging
 import csv
 from datetime import datetime
+import maya
 
 from urllib.parse import urlencode, quote
 
@@ -111,10 +112,10 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
-            smart_str(record["ted"].strftime('%m/%d/%Y')),
+            smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y')),
             smart_str(record["position"]["current_assignment"]["user"]),
             smart_str(record["bidcycle"]["name"]),
-            smart_str(record["posted_date"].strftime('%m/%d/%Y')),
+            smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
             smart_str(record["status_code"]),
             smart_str(record["position"]["description"]["content"]),
         ])
