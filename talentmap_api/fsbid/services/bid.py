@@ -21,7 +21,7 @@ def user_bids(employee_id, jwt_token, position_id=None):
     '''
     url = f"{API_ROOT}/bids/?perdet_seq_num={employee_id}"
     bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    return [fsbid_bid_to_talentmap_bid(bid) for bid in bids if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, bids)
+    return [fsbid_bid_to_talentmap_bid(bid) for bid in bids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, bids.get('Data', []))
 
 
 def bid_on_position(employeeId, cyclePositionId, jwt_token):
