@@ -176,7 +176,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
 
 def get_obc_id(post_id):
 
-    post = Post.objects.filter(id=post_id)
+    post = Post.objects.filter(_location_code=post_id)
     if post.count() == 1:
         for p in post:
             return p.obc_id
