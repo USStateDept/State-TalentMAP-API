@@ -160,6 +160,7 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
     '''
     Gets items from FSBid
     '''
+    print(get_results(uri, query, query_mapping_function, jwt_token, mapping_function))
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
         "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
@@ -174,6 +175,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0]["count(1)"]}
 
+def get_obc_id(post_id):
+
+    post = Post.objects.filter(id=post_id)
+    if post.count() == 1:
+        for p in post:
+            return p.obc_id
+
+    return None
 
 def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None):
     '''

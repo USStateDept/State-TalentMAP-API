@@ -216,7 +216,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "rest_relaxation_point": None,
                 "has_consumable_allowance": None,
                 "has_service_needs_differential": None,
-                "obc_id": None,
+                "obc_id": services.get_obc_id(ap.get("pos_location_code", None)),
                 "location": {
                     "country": ap.get("location_country", None),
                     "code": ap.get("pos_location_code", None),
