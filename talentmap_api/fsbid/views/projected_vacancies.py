@@ -62,3 +62,12 @@ class FSBidProjectedVacancyView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
  
         return Response(result)
+
+class FSBidProjectedVacanciesCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
+
+    def get(self, request, *args, **kwargs):
+        
+        return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
