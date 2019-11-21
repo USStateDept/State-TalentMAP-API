@@ -246,7 +246,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "cycle_end_date": None,
             "active": None
         },
-        "bid_statistics": {
+        "bid_statistics": [{
             "id": None,
             "total_bids": ap.get("cp_ttl_bidder_qty", None),
             "in_grade": ap.get("cp_at_grd_qty", None),
@@ -254,7 +254,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
             "has_handshake_offered": None,
             "has_handshake_accepted": None
-        }
+        }]
     }
 
 def convert_ap_query(query):
