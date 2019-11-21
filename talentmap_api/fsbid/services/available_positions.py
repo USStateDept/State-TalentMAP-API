@@ -217,15 +217,15 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "id": None,
                 "code": ap.get("pos_location_code", None),
                 "tour_of_duty": ap.get("tod", None),
-                "post_overview_url": None,
-                "post_bidding_considerations_url": None,
+                "post_overview_url": services.get_post_overview_url(ap.get("pos_location_code", None)),
+                "post_bidding_considerations_url": services.get_post_bidding_considerations_url(ap.get("pos_location_code", None)),
                 "cost_of_living_adjustment": None,
                 "differential_rate": ap.get("bt_differential_rate_num", None),
                 "danger_pay": ap.get("bt_danger_pay_num", None),
                 "rest_relaxation_point": None,
                 "has_consumable_allowance": None,
                 "has_service_needs_differential": None,
-                "obc_id": None,
+                "obc_id": services.get_obc_id(ap.get("pos_location_code", None)),
                 "location": {
                     "country": ap.get("location_country", None),
                     "code": ap.get("pos_location_code", None),
@@ -254,7 +254,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "cycle_end_date": None,
             "active": None
         },
-        "bid_statistics": {
+        "bid_statistics": [{
             "id": None,
             "total_bids": ap.get("cp_ttl_bidder_qty", None),
             "in_grade": ap.get("cp_at_grd_qty", None),
@@ -262,7 +262,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
             "has_handshake_offered": None,
             "has_handshake_accepted": None
-        }
+        }]
     }
 
 def convert_ap_query(query):
