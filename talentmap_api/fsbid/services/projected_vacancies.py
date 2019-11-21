@@ -73,6 +73,9 @@ def fsbid_pv_to_talentmap_pv(pv):
             ])),
             "post": {
                 "tour_of_duty": pv.get("tod", None),
+                "post_overview_url": services.get_post_overview_url(pv.get("pos_location_code", None)),
+                "post_bidding_considerations_url": services.get_post_bidding_considerations_url(pv.get("pos_location_code", None)),
+                "obc_id": services.get_obc_id(pv.get("pos_location_code", None)),
                 "differential_rate": pv.get("bt_differential_rate_num", None),
                 "danger_pay": pv.get("bt_danger_pay_num", None),
                 "location": {
