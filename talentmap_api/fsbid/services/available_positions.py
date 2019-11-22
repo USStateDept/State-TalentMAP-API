@@ -99,6 +99,14 @@ def get_available_positions_csv(query, jwt_token, host=None):
     ])
 
     for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        try:
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+        except:
+            posteddate = "None listed"
         writer.writerow([
             smart_str(record["position"]["title"]),
             smart_str("=\"%s\"" % record["position"]["position_number"]),
@@ -112,10 +120,10 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
-            smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y')),
+            ted,
             smart_str(record["position"]["current_assignment"]["user"]),
             smart_str(record["bidcycle"]["name"]),
-            smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate,
             smart_str(record["status_code"]),
             smart_str(record["position"]["description"]["content"]),
         ])
