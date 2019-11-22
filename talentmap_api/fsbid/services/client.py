@@ -1,6 +1,7 @@
 import requests
 import logging
 
+API_ROOT = settings.FSBID_API_URL
 
 # what do we need? 
 # need to verify we have a cdo fetching the other cdos
