@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.settings import OBC_URL
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +175,28 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0]["count(1)"]}
 
+def get_obc_id(post_id):
+
+    post = Post.objects.filter(_location_code=post_id)
+    if post.count() == 1:
+        for p in post:
+            return p.obc_id
+
+    return None
+
+def get_post_overview_url(post_id):
+    obc_id = get_obc_id(post_id)
+    if obc_id:
+        return f"{OBC_URL}/post/detail/{obc_id}"
+    else:
+        return None
+
+def get_post_bidding_considerations_url(post_id):
+    obc_id = get_obc_id(post_id)
+    if obc_id:
+        return f"{OBC_URL}/post/postdatadetails/{obc_id}"
+    else:
+        return None
 
 def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None):
     '''
