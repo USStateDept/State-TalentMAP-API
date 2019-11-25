@@ -3,6 +3,8 @@ from rest_framework import routers
 
 from talentmap_api.fsbid.views import client as views
 
+# Need help fixing the router
+
 router = routers.SimpleRouter()
 
 urlpatterns = [
