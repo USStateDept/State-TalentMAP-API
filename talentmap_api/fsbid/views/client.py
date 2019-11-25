@@ -6,7 +6,7 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 # do we have a cdo user permission? 
 
 # base view vs api view???
-Class FSBidAgentView(baseview)
+class FSBidAgentView(baseview):
     permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
     def get(self, request, pk)
