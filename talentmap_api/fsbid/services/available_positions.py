@@ -116,7 +116,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
             smart_str(record["position"]["tour_of_duty"]),
-            smart_str(record["position"]["languages"]).strip('[]'),
+            smart_str(services.parseLanguagesString(record["position"]["languages"])),
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
