@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 # do we have a cdo user permission? 
 
 # base view vs api view???
-class FSBidAgentView(BaseView):
+class FSBidCDOListView(BaseView):
     permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
     def get(self, request, pk):
