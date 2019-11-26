@@ -93,7 +93,7 @@ def get_projected_vacancies_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
             smart_str(record["position"]["tour_of_duty"]),
-            smart_str(record["position"]["languages"]).strip('[]'),
+            smart_str(services.parseLanguagesString(record["position"]["languages"])),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
             smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y')),
