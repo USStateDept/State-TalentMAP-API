@@ -31,7 +31,7 @@ def clients(cdo_id, jwt_token):
 
 def fsbid_clients_to_talentmap_clients(data):
     return {
-        "id": data.get("rnum", None),
+        "id": data.get("hru_id", None),
         "name": data.get("per_full_name", None),
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": data.get("grade_code", None),
@@ -41,6 +41,9 @@ def fsbid_clients_to_talentmap_clients(data):
         "skill2_code_desc": data.get("skill2_code_desc", None),
         "skill3_code": data.get("skill3_code", None),
         "skill3_code_desc": data.get("skill3_code_desc", None),
+        "employee_id": data.get("emplid", None),
+        "role_cdoe": data.get("role_code", None),
+        "pos_location_code": data.get("pos_location_code", None),
     }
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
