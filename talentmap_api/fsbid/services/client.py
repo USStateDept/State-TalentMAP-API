@@ -42,7 +42,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "skill3_code": data.get("skill3_code", None),
         "skill3_code_desc": data.get("skill3_code_desc", None),
         "employee_id": data.get("emplid", None),
-        "role_cdoe": data.get("role_code", None),
+        "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
     }
 
