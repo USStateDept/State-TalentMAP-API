@@ -16,3 +16,6 @@ class FSBidAgentView(BaseView):
         Get All CDOs (agents)
         '''
         return Response(services.agents(request.query_params.get('CDO', None), request.META['HTTP_JWT']))
+
+class FSBidClientView(BaseView):
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
