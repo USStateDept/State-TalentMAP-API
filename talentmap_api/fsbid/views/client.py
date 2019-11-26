@@ -9,10 +9,5 @@ from rest_framework.permissions import IsAuthenticated
 
 # base view vs api view???
 class FSBidCDOListView(BaseView):
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
-
-    def get(self, request, pk):
-        '''
-        Get All CDOs (agents)
-        '''
-        return Response(services.agents(request.query_params.get('CDO', None), request.META['HTTP_JWT']))
+    uri = "agents"
+    mapping_function = services.fsbid_cdo_list_to_talentmap_cdo_list

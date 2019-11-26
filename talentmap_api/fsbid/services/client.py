@@ -16,6 +16,7 @@ def agents(jwt_token):
     respone = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
     return response
 
+@staticmethod
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     return {
         "id": data.get("hru_id", None),
