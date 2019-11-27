@@ -129,7 +129,7 @@ class SavedSearch(models.Model):
         filter_class = resolve_path_to_view(self.endpoint).filter_class
         query_params = format_filter(self.filters)
         if getattr(filter_class, "use_api", False):
-            count = filter_class.get_count(query_params, jwt_token)['count']
+            count = int(filter_class.get_count(query_params, jwt_token).get('count', 0))
         else:
             count = self.get_queryset().count()
 

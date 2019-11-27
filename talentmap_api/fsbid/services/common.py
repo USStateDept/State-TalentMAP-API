@@ -61,6 +61,19 @@ def parseLanguage(lang):
             language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
             return language
 
+def parseLanguagesString(lang):
+    '''
+    Parses a language dictionary and turns it into a comma seperated string of languages
+    '''
+    if lang:
+        lang_str = ""
+        for l in lang:
+            if not lang_str:
+                lang_str = l["language"]
+            else:
+                lang_str += ", " + l["language"]
+
+        return lang_str
 
 def post_values(query):
     '''
