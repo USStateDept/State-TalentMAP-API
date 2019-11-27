@@ -6,7 +6,7 @@ from talentmap_api.fsbid.views import client as views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    url(r'^perdet_seq_num/$', views.FSBidCDOListView.as_view(), name='FSBid-cdo_list'),
+    url(r'^cdo/$', views.FSBidCDOListView.as_view(), name='FSBid-cdo_list'),
 ]
 
 urlpatterns += router.urls
