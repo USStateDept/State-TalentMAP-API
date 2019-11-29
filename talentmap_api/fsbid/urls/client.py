@@ -3,12 +3,10 @@ from rest_framework import routers
 
 from talentmap_api.fsbid.views import client as views
 
-# Need help fixing the router
-
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    url(r'^perdet_seq_num/$', views.FSBidClientActionView.as_view(), name='client.FSBid-perdet_seq_num-actions'),
+    url(r'^cdo/$', views.FSBidCDOListView.as_view(), name='FSBid-cdo_list'),
 ]
 
 urlpatterns += router.urls

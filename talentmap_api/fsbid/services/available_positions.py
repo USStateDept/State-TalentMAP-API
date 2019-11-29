@@ -116,7 +116,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
             smart_str(record["position"]["tour_of_duty"]),
-            smart_str(record["position"]["languages"]).strip('[]'),
+            smart_str(services.parseLanguagesString(record["position"]["languages"])),
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
@@ -161,6 +161,11 @@ def fsbid_ap_to_talentmap_ap(ap):
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
     designations = AvailablePositionDesignation.objects.filter(cp_id=ap.get("cp_id", None)).first()
+
+    hasHandShakeOffered = False
+    if ap.get("cp_status", None) == "HS":
+        hasHandShakeOffered = True
+
     return {
         "id": ap.get("cp_id", None),
         "status": None,
@@ -260,7 +265,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "in_grade": ap.get("cp_at_grd_qty", None),
             "at_skill": ap.get("cp_in_cone_qty", None),
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
-            "has_handshake_offered": None,
+            "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
         }]
     }
