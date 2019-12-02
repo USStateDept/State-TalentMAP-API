@@ -7,6 +7,7 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     url(r'^cdo/$', views.FSBidCDOListView.as_view(), name='FSBid-cdo_list'),
+    url(r'^client/$', views.FSBidClientListView.as_view(), name='FSBid-client_list')
 ]
 
 urlpatterns += router.urls
