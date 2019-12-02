@@ -16,3 +16,10 @@ class FSBidCDOListView(BaseView):
         Gets all cdos
         '''
         return Response(services.cdo(request.META['HTTP_JWT']))
+
+class FSBidClientListView(BaseView):
+    def get(self, hru_id, request):
+        '''
+        Get all clients by cdo_id/hru_id
+        '''
+        return Response(services.client(hru_id, request.META['HTTP_JWT']))
