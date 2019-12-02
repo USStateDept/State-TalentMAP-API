@@ -8,14 +8,14 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def clients(hru_id, jwt_token):
+def client(jwt_token):
     '''
     Get Clients by CDO
     '''
     # hru_id (cdo_id) is the unique identifier for get agents request 
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"/Clients?ad_id={ad_id}&hru_id={hru_id}"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_client_list_to_talentmap_client_list)
+    uri = f"Clients?ad_id={ad_id}"
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
 def fsbid_clients_to_talentmap_clients(data):
