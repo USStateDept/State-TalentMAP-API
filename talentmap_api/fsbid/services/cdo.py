@@ -13,8 +13,8 @@ def cdo(jwt_token):
     Get All CDOs 
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"/Agents?ad_id={ad_id}&rl_cd=CDO"
-    respone = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    uri = f"Agents?ad_id={ad_id}&rl_cd=CDO"
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
     return response
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
