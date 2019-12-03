@@ -12,6 +12,14 @@ import talentmap_api.fsbid.services.bid as services
 import logging
 logger = logging.getLogger(__name__)
 
+class FSBidCDOListView(BaseView):
+
+    def get(self, request):
+        '''
+        Gets all cdos
+        '''
+        return Response(services.cdo(request.META['HTTP_JWT']))
+
 
 class FSBidListView(BaseView):
 
