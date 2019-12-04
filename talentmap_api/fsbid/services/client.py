@@ -18,6 +18,17 @@ def client(jwt_token):
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
+def single_client(jwt_token, perdet_seq_num):
+    '''
+    Get a single client for a CDO
+    '''
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    uri = f"Clients?ad_id={ad_id}&perdet_seq_num={perdet_seq_num}"
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
+    return list(response)[0]
+
+
+
 def fsbid_clients_to_talentmap_clients(data):
     return {
         "id": data.get("hru_id", None),
