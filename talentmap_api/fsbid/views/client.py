@@ -13,6 +13,6 @@ class FSBidClientListView(BaseView):
 
     def get(self, request):
         '''
-        Gets all cdos
+        Gets all clients for the currently logged in user
         '''
         return Response(services.client(request.META['HTTP_JWT']))
