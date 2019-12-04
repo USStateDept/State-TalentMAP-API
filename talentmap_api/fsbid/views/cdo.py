@@ -8,6 +8,7 @@ from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.bid as services
+import talentmap_api.fsbid.services.cdo as cdoServices
 
 import logging
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class FSBidCDOListView(BaseView):
         '''
         Gets all cdos
         '''
-        return Response(services.cdo(request.META['HTTP_JWT']))
+        return Response(cdoServices.cdo(request.META['HTTP_JWT']))
 
 
 class FSBidListView(BaseView):
