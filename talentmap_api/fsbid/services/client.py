@@ -35,13 +35,19 @@ def fsbid_clients_to_talentmap_clients(data):
         "name": data.get("per_full_name", None),
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": data.get("grade_code", None),
-        "skill_code": data.get("skill_code", None),
-        "skill_code_desc": data.get("skill_code_desc", None),
-        "skill2_code": data.get("skill2_code", None),
-        "skill2_code_desc": data.get("skill2_code_desc", None),
-        "skill3_code": data.get("skill3_code", None),
-        "skill3_code_desc": data.get("skill3_code_desc", None),
+        "skills": map_skill_codes(data),
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
     }
+
+def map_skill_codes(data):
+    skills = []
+    for i in range(1,4):
+        index = i
+        if i == 1:
+            index = ''
+        code = data.get(f'skill{index}_code', None)
+        desc = data.get(f'skill{index}_code_desc', None)
+        skills.append({ 'code': code, 'description': desc })
+    return filter(lambda x: x.get('code', None) is not None, skills)
