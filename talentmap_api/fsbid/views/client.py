@@ -16,3 +16,12 @@ class FSBidClientListView(BaseView):
         Gets all clients for the currently logged in user
         '''
         return Response(services.client(request.META['HTTP_JWT']))
+
+
+class FSBidClientView(BaseView):
+    
+    def get(self, request, pk):
+        '''
+        Gets a single client by perdet_seq_num
+        '''
+        return Response(services.single_client(request.META['HTTP_JWT'], pk))
