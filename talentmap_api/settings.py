@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'djangosaml2',
     'simple_history',
+    "sslserver",
 
     # TalentMap Apps
     'talentmap_api.common',
