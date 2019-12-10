@@ -21,9 +21,9 @@ class FSBidClientListView(BaseView):
     )
     def get(self, request):
         '''
-        Gets all clients for the currently logged in user
+        Gets all clients for a CDO
         '''
-        return Response(services.client(request.META['HTTP_JWT'], request.query_params.get('hru_id')))
+        return Response(services.client(request.META['HTTP_JWT'], request.query_params.get('hru_id'), request.query_params.get('rl_cd')))
 
 
 class FSBidClientView(BaseView):
