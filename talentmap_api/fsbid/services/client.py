@@ -14,7 +14,7 @@ def client(jwt_token):
     '''
     # hru_id (cdo_id) is the unique identifier for get agents request 
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Clients?ad_id={ad_id}"
+    uri = f"Clients?&request_params.ad_id={ad_id}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
@@ -23,7 +23,7 @@ def single_client(jwt_token, perdet_seq_num):
     Get a single client for a CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Clients?ad_id={ad_id}&perdet_seq_num={perdet_seq_num}"
+    uri = f"Clients?&request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return list(response)[0]
 
