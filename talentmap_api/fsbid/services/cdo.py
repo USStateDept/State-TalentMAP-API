@@ -10,11 +10,12 @@ logger = logging.getLogger(__name__)
 
 def cdo(jwt_token):
     '''
-    Get All CDOs 
+    Get All CDOs
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
     return response
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
@@ -22,4 +23,5 @@ def fsbid_cdo_list_to_talentmap_cdo_list(data):
         "id": data.get("hru_id", None),
         "name": data.get("fullname", None),
         "email": data.get("email", None),
+        "isCurrentUser": data.get("isCurrentUser", None),
     }
