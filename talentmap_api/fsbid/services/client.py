@@ -34,7 +34,7 @@ def single_client(jwt_token, perdet_seq_num):
 
 def fsbid_clients_to_talentmap_clients(data):
     return {
-        "id": data.get("hru_id", None),
+        "id": data.get("perdet_seq_num", None),
         "name": data.get("per_full_name", None),
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": data.get("grade_code", None),
