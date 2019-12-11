@@ -129,12 +129,15 @@ def get_available_positions_csv(query, jwt_token, host=None):
         ])
     return response
 
-# Max number of similar positions to return
+# Max number of similar positions to return.
 SIMILAR_LIMIT = 3
 
 # Filters available positions by the criteria provides and by the position with the provided id
 def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
-    return list(filter(lambda i: str(id) != str(i["id"]), get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT}}, jwt_token, host)["results"]))
+    # Add 1 to the limit, since we'll be filtering out positions that match id
+    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
+    # Ensure we only return the limit, at most
+    return a[:SIMILAR_LIMIT]
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
