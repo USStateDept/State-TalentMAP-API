@@ -216,11 +216,16 @@ def get_post_bidding_considerations_url(post_id):
     else:
         return None
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None):
     '''
     Gets items from FSBid
     '''
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    formattedQuery = query
+    formattedQuery._mutable = True
+    if (ad_id != None):
+        formattedQuery['ad_id'] = ad_id
+    logger.info(query_mapping_function(formattedQuery))
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
