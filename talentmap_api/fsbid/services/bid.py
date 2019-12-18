@@ -72,8 +72,6 @@ def get_bid_status(statusCode, handshakeCode):
 
         statusCode - D → Deleted
     '''
-    if handshakeCode == 'Y':
-        return Bid.Status.handshake_offered
     if statusCode == 'C':
         return Bid.Status.closed
     if statusCode == 'P':
@@ -81,7 +79,10 @@ def get_bid_status(statusCode, handshakeCode):
     if statusCode == 'W':
         return Bid.Status.draft
     if statusCode == 'A':
-        return Bid.Status.submitted
+        if handshakeCode == 'Y':
+            return Bid.Status.handshake_accepted
+        else:
+            return Bid.Status.submitted
 
 
 def can_delete_bid(bidStatus, cycleStatus):
@@ -136,8 +137,8 @@ def fsbid_bid_to_talentmap_bid(data):
         "status": bidStatus,
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
-        "handshake_offered_date": data.get("ubw_hndshk_offrd_dt"),
-        "handshake_accepted_date": "",
+        "handshake_offered_date": "",
+        "handshake_accepted_date": ensure_date(data.get("ubw_hndshk_offrd_dt"), utc_offset=-5),
         "handshake_declined_date": "",
         "in_panel_date": "",
         "scheduled_panel_date": "",
