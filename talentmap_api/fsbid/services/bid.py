@@ -94,6 +94,7 @@ def can_delete_bid(bidStatus, cycleStatus):
 
 def fsbid_bid_to_talentmap_bid(data):
     bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'))
+    canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     return {
         "id": f"{data.get('perdet_seq_num')}_{data.get('cp_id')}",
         "bidcycle": data.get('cycle_nm_txt'),
@@ -133,7 +134,7 @@ def fsbid_bid_to_talentmap_bid(data):
             }
         },
         "waivers": [],
-        "can_delete": data.get('delete_id', True),
+        "can_delete": canDelete,
         "status": bidStatus,
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
