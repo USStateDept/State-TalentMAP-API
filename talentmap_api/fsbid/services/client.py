@@ -2,7 +2,9 @@ import requests
 import logging
 import jwt
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.available_positions as services_ap
 import csv
+from copy import deepcopy
 from datetime import datetime
 from django.conf import settings
 from urllib.parse import urlencode, quote
@@ -25,6 +27,56 @@ def client(jwt_token, hru_id, rl_cd):
         uri = uri + f'&request_params.rl_cd={rl_cd}'
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
+
+def client_suggestions(jwt_token, perdet_seq_num):
+    '''
+    Get a suggestion for a client
+    '''
+
+    # if less than LOW, try broader query
+    LOW = 5
+    # but also don't go too high
+    HIGH = 100
+    # but going over HIGH is preferred over FLOOR
+    FLOOR = 0
+
+    client = single_client(jwt_token, perdet_seq_num)
+    grade = client.get("grade")
+    skills = client.get("skills")
+    skills = deepcopy(skills)
+    mappedSkills = ','.join([str(x.get("code")) for x in skills])
+
+    values = {
+        "position__grade__code__in": grade,
+        "position__skill__code__in": mappedSkills,
+    }
+
+    # Dictionary for the next grade "up"
+    nextGrades = {
+        "08": "07",
+        "07": "06",
+        "06": "05",
+        "05": "04",
+        "04": "03",
+        "02": "01",
+    }
+
+    count = services_ap.get_available_positions_count(values, jwt_token)
+    count = int(count.get("count"))
+
+    # If we get too few results, try a broader query
+    if count < LOW and nextGrades.get(grade) is not None:
+        nextGrade = nextGrades.get(grade)
+        values2 = deepcopy(values)
+        values2["position__grade__code__in"] = f"{grade},{nextGrade}"
+        count2 = services_ap.get_available_positions_count(values2, jwt_token)
+        count2 = int(count2.get("count"))
+        # Only use our broader query if the first one <= FLOOR OR the second < HIGH, and the counts don't match
+        if (count <= FLOOR or count2 < HIGH) and count != count2:
+            values = values2
+
+    # Finally, return the query
+    return values
 
 def single_client(jwt_token, perdet_seq_num):
     '''

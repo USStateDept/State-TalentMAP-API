@@ -36,6 +36,14 @@ class FSBidClientView(BaseView):
         '''
         return Response(services.single_client(request.META['HTTP_JWT'], pk))
 
+class FSBidClientSuggestionsView(BaseView):
+
+    def get(self, request, pk):
+        '''
+        Gets suggestions for a single client by perdet_seq_num
+        '''
+        return Response(services.client_suggestions(request.META['HTTP_JWT'], pk))
+
 class FSBidClientCSVView(BaseView):
 
     schema = AutoSchema(
