@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.settings import OBC_URL
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,19 @@ def parseLanguage(lang):
             language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
             return language
 
+def parseLanguagesString(lang):
+    '''
+    Parses a language dictionary and turns it into a comma seperated string of languages
+    '''
+    if lang:
+        lang_str = ""
+        for l in lang:
+            if not lang_str:
+                lang_str = l["language"]
+            else:
+                lang_str += ", " + l["language"]
+
+        return lang_str
 
 def post_values(query):
     '''
@@ -138,14 +152,19 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
 
     return list(map(mapping_function, response.get("Data", {})))
 
-def get_fsbid_results(uri, jwt_token, mapping_function):
+def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     url = f"{API_ROOT}/{uri}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
-    
+
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
- 
+
+    # determine if the result is the current user
+    if email:
+        for a in response.get("Data"):
+            a['isCurrentUser'] = True if a['email'] == email else False
+
     return map(mapping_function, response.get("Data", {}))
 
 
@@ -174,12 +193,39 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0]["count(1)"]}
 
+def get_obc_id(post_id):
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None):
+    post = Post.objects.filter(_location_code=post_id)
+    if post.count() == 1:
+        for p in post:
+            return p.obc_id
+
+    return None
+
+def get_post_overview_url(post_id):
+    obc_id = get_obc_id(post_id)
+    if obc_id:
+        return f"{OBC_URL}/post/detail/{obc_id}"
+    else:
+        return None
+
+def get_post_bidding_considerations_url(post_id):
+    obc_id = get_obc_id(post_id)
+    if obc_id:
+        return f"{OBC_URL}/post/postdatadetails/{obc_id}"
+    else:
+        return None
+
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None):
     '''
     Gets items from FSBid
     '''
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    formattedQuery = query
+    formattedQuery._mutable = True
+    if (ad_id != None):
+        formattedQuery['ad_id'] = ad_id
+    logger.info(query_mapping_function(formattedQuery))
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:

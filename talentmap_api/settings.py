@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'djangosaml2',
     'simple_history',
+    "sslserver",
 
     # TalentMap Apps
     'talentmap_api.common',
@@ -474,6 +475,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
+EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 
 # remove actual values before committing
 AD_ID = 'DOMAIN\\USERNAME'
