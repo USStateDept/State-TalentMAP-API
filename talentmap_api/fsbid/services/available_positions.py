@@ -99,6 +99,14 @@ def get_available_positions_csv(query, jwt_token, host=None):
     ])
 
     for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        try:
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+        except:
+            posteddate = "None listed"
         writer.writerow([
             smart_str(record["position"]["title"]),
             smart_str("=\"%s\"" % record["position"]["position_number"]),
@@ -108,25 +116,28 @@ def get_available_positions_csv(query, jwt_token, host=None):
             smart_str(record["position"]["post"]["location"]["city"]),
             smart_str(record["position"]["post"]["location"]["country"]),
             smart_str(record["position"]["tour_of_duty"]),
-            smart_str(record["position"]["languages"]).strip('[]'),
+            smart_str(services.parseLanguagesString(record["position"]["languages"])),
             smart_str(record["position"]["post"]["has_service_needs_differential"]),
             smart_str(record["position"]["post"]["differential_rate"]),
             smart_str(record["position"]["post"]["danger_pay"]),
-            smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y')),
+            ted,
             smart_str(record["position"]["current_assignment"]["user"]),
             smart_str(record["bidcycle"]["name"]),
-            smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate,
             smart_str(record["status_code"]),
             smart_str(record["position"]["description"]["content"]),
         ])
     return response
 
-# Max number of similar positions to return
+# Max number of similar positions to return.
 SIMILAR_LIMIT = 3
 
 # Filters available positions by the criteria provides and by the position with the provided id
 def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
-    return list(filter(lambda i: str(id) != str(i["id"]), get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT}}, jwt_token, host)["results"]))
+    # Add 1 to the limit, since we'll be filtering out positions that match id
+    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
+    # Ensure we only return the limit, at most
+    return a[:SIMILAR_LIMIT]
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -153,6 +164,11 @@ def fsbid_ap_to_talentmap_ap(ap):
     Converts the response available position from FSBid to a format more in line with the Talentmap position
     '''
     designations = AvailablePositionDesignation.objects.filter(cp_id=ap.get("cp_id", None)).first()
+
+    hasHandShakeOffered = False
+    if ap.get("cp_status", None) == "HS":
+        hasHandShakeOffered = True
+
     return {
         "id": ap.get("cp_id", None),
         "status": None,
@@ -209,15 +225,15 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "id": None,
                 "code": ap.get("pos_location_code", None),
                 "tour_of_duty": ap.get("tod", None),
-                "post_overview_url": None,
-                "post_bidding_considerations_url": None,
+                "post_overview_url": services.get_post_overview_url(ap.get("pos_location_code", None)),
+                "post_bidding_considerations_url": services.get_post_bidding_considerations_url(ap.get("pos_location_code", None)),
                 "cost_of_living_adjustment": None,
                 "differential_rate": ap.get("bt_differential_rate_num", None),
                 "danger_pay": ap.get("bt_danger_pay_num", None),
                 "rest_relaxation_point": None,
                 "has_consumable_allowance": None,
                 "has_service_needs_differential": None,
-                "obc_id": None,
+                "obc_id": services.get_obc_id(ap.get("pos_location_code", None)),
                 "location": {
                     "country": ap.get("location_country", None),
                     "code": ap.get("pos_location_code", None),
@@ -246,15 +262,15 @@ def fsbid_ap_to_talentmap_ap(ap):
             "cycle_end_date": None,
             "active": None
         },
-        "bid_statistics": {
+        "bid_statistics": [{
             "id": None,
             "total_bids": ap.get("cp_ttl_bidder_qty", None),
             "in_grade": ap.get("cp_at_grd_qty", None),
             "at_skill": ap.get("cp_in_cone_qty", None),
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
-            "has_handshake_offered": None,
+            "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
-        }
+        }]
     }
 
 def convert_ap_query(query):
