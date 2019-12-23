@@ -59,7 +59,7 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
 
 
-def get_bid_status(statusCode, handshakeCode):
+def get_bid_status(statusCode, handshakeCode, assignmentCreateDate):
     '''
     Map the FSBid status code and handshake code to a TalentMap status
         statusCode - W → Draft
@@ -72,6 +72,8 @@ def get_bid_status(statusCode, handshakeCode):
 
         statusCode - D → Deleted
     '''
+    if assignmentCreateDate != None:
+        return Bid.Status.approved
     if statusCode == 'C':
         return Bid.Status.closed
     if statusCode == 'P':
@@ -93,7 +95,7 @@ def can_delete_bid(bidStatus, cycleStatus):
 
 
 def fsbid_bid_to_talentmap_bid(data):
-    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'))
+    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_create_date'))
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     return {
         "id": f"{data.get('perdet_seq_num')}_{data.get('cp_id')}",
@@ -143,7 +145,7 @@ def fsbid_bid_to_talentmap_bid(data):
         "handshake_declined_date": "",
         "in_panel_date": "",
         "scheduled_panel_date": "",
-        "approved_date": "",
+        "approved_date": ensure_date(data.get('assignment_create_date'), utc_offset=-5),
         "declined_date": "",
         "closed_date": "",
         "is_priority": False,
