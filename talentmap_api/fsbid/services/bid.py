@@ -36,7 +36,7 @@ def bid_on_position(employeeId, cyclePositionId, jwt_token):
     Adds a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id=${ad_id}"
+    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
@@ -46,7 +46,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     Submits a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id=${ad_id}"
+    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.put(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
@@ -55,7 +55,8 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     '''
     Removes a bid from the users bid list
     '''
-    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}"
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
 
 
