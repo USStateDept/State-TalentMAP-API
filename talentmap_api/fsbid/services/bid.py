@@ -59,7 +59,7 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
 
 
-def get_bid_status(statusCode, handshakeCode, assignmentCreateDate):
+def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeetingStatus):
     '''
     Map the FSBid status code and handshake code to a TalentMap status
         statusCode - W → Draft
@@ -71,12 +71,20 @@ def get_bid_status(statusCode, handshakeCode, assignmentCreateDate):
         statusCode - P → Paneled
 
         statusCode - D → Deleted
+
+        statusCode - C → Closed
+
+        statusCode - U → Unavailable
     '''
     if assignmentCreateDate != None:
         return Bid.Status.approved
     if statusCode == 'C':
         return Bid.Status.closed
+    if statusCode == 'U':
+        return Bid.Status.closed
     if statusCode == 'P':
+        return Bid.Status.in_panel
+    if panelMeetingStatus != None:
         return Bid.Status.in_panel
     if statusCode == 'W':
         return Bid.Status.draft
@@ -95,7 +103,7 @@ def can_delete_bid(bidStatus, cycleStatus):
 
 
 def fsbid_bid_to_talentmap_bid(data):
-    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_create_date'))
+    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_create_date'), data.get('panel_meeting_status'))
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     return {
         "id": f"{data.get('perdet_seq_num')}_{data.get('cp_id')}",
@@ -138,13 +146,14 @@ def fsbid_bid_to_talentmap_bid(data):
         "waivers": [],
         "can_delete": canDelete,
         "status": bidStatus,
+        "panel_status": data.get('panel_meeting_status', ''),
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
         "handshake_offered_date": "",
         "handshake_accepted_date": ensure_date(data.get("ubw_hndshk_offrd_dt"), utc_offset=-5),
         "handshake_declined_date": "",
-        "in_panel_date": "",
-        "scheduled_panel_date": "",
+        "in_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
+        "scheduled_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "approved_date": ensure_date(data.get('assignment_create_date'), utc_offset=-5),
         "declined_date": "",
         "closed_date": "",
