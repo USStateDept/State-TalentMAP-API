@@ -36,7 +36,7 @@ def bid_on_position(employeeId, cyclePositionId, jwt_token):
     Adds a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id=${ad_id}"
+    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
@@ -46,7 +46,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     Submits a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id=${ad_id}"
+    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.put(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
@@ -55,11 +55,12 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     '''
     Removes a bid from the users bid list
     '''
-    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}"
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
 
 
-def get_bid_status(statusCode, handshakeCode):
+def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeetingStatus):
     '''
     Map the FSBid status code and handshake code to a TalentMap status
         statusCode - W → Draft
@@ -71,10 +72,20 @@ def get_bid_status(statusCode, handshakeCode):
         statusCode - P → Paneled
 
         statusCode - D → Deleted
+
+        statusCode - C → Closed
+
+        statusCode - U → Unavailable
     '''
+    if assignmentCreateDate != None:
+        return Bid.Status.approved
     if statusCode == 'C':
         return Bid.Status.closed
+    if statusCode == 'U':
+        return Bid.Status.closed
     if statusCode == 'P':
+        return Bid.Status.in_panel
+    if panelMeetingStatus != None:
         return Bid.Status.in_panel
     if statusCode == 'W':
         return Bid.Status.draft
@@ -93,7 +104,7 @@ def can_delete_bid(bidStatus, cycleStatus):
 
 
 def fsbid_bid_to_talentmap_bid(data):
-    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'))
+    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_create_date'), data.get('panel_meeting_status'))
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     return {
         "id": f"{data.get('perdet_seq_num')}_{data.get('cp_id')}",
@@ -136,14 +147,15 @@ def fsbid_bid_to_talentmap_bid(data):
         "waivers": [],
         "can_delete": canDelete,
         "status": bidStatus,
+        "panel_status": data.get('panel_meeting_status', ''),
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
         "handshake_offered_date": "",
         "handshake_accepted_date": ensure_date(data.get("ubw_hndshk_offrd_dt"), utc_offset=-5),
         "handshake_declined_date": "",
-        "in_panel_date": "",
-        "scheduled_panel_date": "",
-        "approved_date": "",
+        "in_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
+        "scheduled_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
+        "approved_date": ensure_date(data.get('assignment_create_date'), utc_offset=-5),
         "declined_date": "",
         "closed_date": "",
         "is_priority": False,
