@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter, get_avatar_url
 from talentmap_api.common.decorators import respect_instance_signalling
 from talentmap_api.common.permissions import in_group_or_403
 
@@ -45,6 +45,10 @@ class UserProfile(StaticRepresentationModel):
         if self.date_of_birth:
             self.mandatory_retirement_date = ensure_date(self.date_of_birth) + relativedelta(years=65)
         super(UserProfile, self).save(*args, **kwargs)
+
+    @property
+    def avatar(self):
+        return get_avatar_url(self.user.email)
 
     @property
     def display_name(self):
