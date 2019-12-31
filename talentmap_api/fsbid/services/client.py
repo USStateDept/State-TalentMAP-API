@@ -20,7 +20,7 @@ def client(jwt_token, hru_id, rl_cd):
     Get Clients by CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Clients?request_params.ad_id={ad_id}"
+    uri = f"CDOClients?request_params.ad_id={ad_id}"
     if hru_id:
         uri = uri + f'&request_params.hru_id={hru_id}'
     if rl_cd:
@@ -83,14 +83,14 @@ def single_client(jwt_token, perdet_seq_num):
     Get a single client for a CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Clients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
+    uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return list(response)[0]
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     data = services.send_get_csv_request(
-        "Clients",
+        "CDOClients",
         query,
         convert_client_query,
         jwt_token,
