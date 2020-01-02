@@ -21,5 +21,6 @@ services:
       - DB_PORT=5432
       - DB_CHARSET=utf8
       - DEBUG=false
+      - DB_CLIENT=pg
 volumes:
   mock_pgdata:
