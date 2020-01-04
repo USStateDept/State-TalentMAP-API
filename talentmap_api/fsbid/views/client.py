@@ -19,7 +19,7 @@ class FSBidClientListView(BaseView):
         manual_fields=[
             coreapi.Field("hru_id", location='query', description='HRU id of the Agent'),
             coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
-            coreapi.Field("hasHandshake", location='query', description='Clients handshake status')
+            coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes')
         ]
     )
     def get(self, request):
