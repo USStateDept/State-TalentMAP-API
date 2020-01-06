@@ -27,7 +27,7 @@ def client(jwt_token, hru_id, rl_cd, hasHandshake):
         uri = uri + f'&request_params.rl_cd={rl_cd}'
     if hasHandshake:
         # Convert Front end request of true/false to Y/N for FSBid
-        hs_cd = convert_handshake(hasHandshake)
+        hs_cd = tmap_handshake_to_fsbid(hasHandshake)
         uri = uri + f'&request_params.hs_cd={hs_cd}'
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
@@ -144,7 +144,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
-        "hasHandshake": convert_handshake(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -157,7 +157,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
-        "hasHandshake": convert_handshake(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
 def convert_client_query(query):
@@ -197,12 +197,18 @@ def map_skill_codes(data):
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
 
-def convert_handshake(hs):
-    # FSBid expects Y/N param for handshakes, but TMap expects true/false
-    handshake_dictionary = {
+def fsbid_handshake_to_tmap(hs):
+    # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
+    fsbid_dictionary = {
         "Y": "true",
         "N": "false",
+    }
+    return fsbid_dictionary.get(hs, None)
+
+def tmap_handshake_to_fsbid(hs):
+    # Maps TMap true/false value to acceptable fsbid api params for handshake
+    tmap_dictionary = {
         "true": "Y",
         "false": "N"
     }
-    return handshake_dictionary.get(hs, None)
+    return tmap_dictionary.get(hs, None)
