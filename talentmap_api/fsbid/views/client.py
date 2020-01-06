@@ -20,13 +20,15 @@ class FSBidClientListView(BaseView):
             coreapi.Field("hru_id", location='query', description='HRU id of the Agent'),
             coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
             coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes')
+            coreapi.Field("q", location='query', description='Free Text')
         ]
     )
     def get(self, request):
         '''
         Gets all clients for a CDO
         '''
-        return Response(services.client(request.META['HTTP_JWT'], request.query_params.get('hru_id'), request.query_params.get('rl_cd'), request.query_params.get('hasHandshake')))
+        return Response(services.client(request.META['HTTP_JWT'], request.query_params.get('hru_id'), request.query_params.get('rl_cd'), request.query_params.get('hasHandshake'), request.query_params.get('q')))
+
 
 
 class FSBidClientView(BaseView):
