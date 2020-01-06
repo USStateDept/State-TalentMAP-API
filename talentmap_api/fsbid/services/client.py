@@ -15,7 +15,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def client(jwt_token, hru_id, rl_cd, q):
+def client(jwt_token, hru_id, rl_cd, hasHandshake, q):
     '''
     Get Clients by CDO
     '''
@@ -25,6 +25,10 @@ def client(jwt_token, hru_id, rl_cd, q):
         uri = uri + f'&request_params.hru_id={hru_id}'
     if rl_cd:
         uri = uri + f'&request_params.rl_cd={rl_cd}'
+    if hasHandshake:
+        # Convert Front end request of true/false to Y/N for FSBid
+        hs_cd = tmap_handshake_to_fsbid(hasHandshake)
+        uri = uri + f'&request_params.hs_cd={hs_cd}'
     if q:
         uri = uri + f'&request_params.freeText={q}'
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
@@ -142,6 +146,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -154,6 +159,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
 def convert_client_query(query):
@@ -166,6 +172,7 @@ def convert_client_query(query):
         "request_params.hru_id": query.get("hru_id", None),
         "request_params.rl_cd": query.get("rl_cd", None),
         "request_params.ad_id": query.get("ad_id", None),
+        "request_params.hasHandshake": query.get("hs_cd", None),
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
     }
@@ -191,3 +198,19 @@ def map_skill_codes(data):
         desc = data.get(f'skill{index}_code_desc', None)
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
+
+def fsbid_handshake_to_tmap(hs):
+    # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
+    fsbid_dictionary = {
+        "Y": "true",
+        "N": "false",
+    }
+    return fsbid_dictionary.get(hs, None)
+
+def tmap_handshake_to_fsbid(hs):
+    # Maps TMap true/false value to acceptable fsbid api params for handshake
+    tmap_dictionary = {
+        "true": "Y",
+        "false": "N"
+    }
+    return tmap_dictionary.get(hs, None)
