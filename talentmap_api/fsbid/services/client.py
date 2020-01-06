@@ -15,7 +15,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def client(jwt_token, hru_id, rl_cd):
+def client(jwt_token, hru_id, rl_cd, q):
     '''
     Get Clients by CDO
     '''
@@ -25,6 +25,8 @@ def client(jwt_token, hru_id, rl_cd):
         uri = uri + f'&request_params.hru_id={hru_id}'
     if rl_cd:
         uri = uri + f'&request_params.rl_cd={rl_cd}'
+    if q:
+        uri = uri + f'&request_params.freeText={q}'
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
