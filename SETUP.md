@@ -17,4 +17,6 @@ docker-compose run app python manage.py load_all_data talentmap_api/data/test_da
 docker-compose run app python manage.py create_demo_environment
 docker-compose run mock_fsbid npm run migrate
 docker-compose run mock_fsbid npm run seed
+docker-compose run mock_fsbid npm run migrate
+docker-compose run mock_fsbid npm run seed
 ```
