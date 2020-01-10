@@ -32,4 +32,4 @@ class UserPermissionSerializer(PrefetchedSerializer):
     
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "groups"]
+        fields = ["id", "username", "email", "first_name", "last_name", "groups"]
