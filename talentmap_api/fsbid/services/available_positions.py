@@ -70,64 +70,7 @@ def get_available_positions_csv(query, jwt_token, host=None):
         host
     )
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f"attachment; filename=available_positions_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
-
-    writer = csv.writer(response, csv.excel)
-    response.write(u'\ufeff'.encode('utf8'))
-
-    # write the headers
-    writer.writerow([
-        smart_str(u"Position"),
-        smart_str(u"Position Number"),
-        smart_str(u"Skill"),
-        smart_str(u"Grade"),
-        smart_str(u"Bureau"),
-        smart_str(u"Post City"),
-        smart_str(u"Post Country"),
-        smart_str(u"Tour of Duty"),
-        smart_str(u"Languages"),
-        smart_str(u"Service Needs Differential"),
-        smart_str(u"Post Differential"),
-        smart_str(u"Danger Pay"),
-        smart_str(u"TED"),
-        smart_str(u"Incumbent"),
-        smart_str(u"Bid Cycle/Season"),
-        smart_str(u"Posted Date"),
-        smart_str(u"Status Code"),
-        smart_str(u"Capsule Description"),
-    ])
-
-    for record in data:
-        try:
-            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
-        except:
-            ted = "None listed"
-        try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
-        except:
-            posteddate = "None listed"
-        writer.writerow([
-            smart_str(record["position"]["title"]),
-            smart_str("=\"%s\"" % record["position"]["position_number"]),
-            smart_str(record["position"]["skill"]),
-            smart_str("=\"%s\"" % record["position"]["grade"]),
-            smart_str(record["position"]["bureau"]),
-            smart_str(record["position"]["post"]["location"]["city"]),
-            smart_str(record["position"]["post"]["location"]["country"]),
-            smart_str(record["position"]["tour_of_duty"]),
-            smart_str(services.parseLanguagesString(record["position"]["languages"])),
-            smart_str(record["position"]["post"]["has_service_needs_differential"]),
-            smart_str(record["position"]["post"]["differential_rate"]),
-            smart_str(record["position"]["post"]["danger_pay"]),
-            ted,
-            smart_str(record["position"]["current_assignment"]["user"]),
-            smart_str(record["bidcycle"]["name"]),
-            posteddate,
-            smart_str(record["status_code"]),
-            smart_str(record["position"]["description"]["content"]),
-        ])
-    return response
+    return services.get_ap_and_pv_csv(data, "available_positions", True)
 
 # Max number of similar positions to return.
 SIMILAR_LIMIT = 3

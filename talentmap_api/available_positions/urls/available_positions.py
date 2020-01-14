@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/designation/$', views.AvailablePositionDesignationView.as_view({ **patch_update }), name='available_positions-AvailablePositionDesignation-designation'),
     url(r'^highlight/$', views.AvailablePositionHighlightListView.as_view(), name='view-highlighted-availablepositions'),
     url(r'^(?P<pk>[0-9]+)/highlight/$', views.AvailablePositionHighlightActionView.as_view(), name='available_positions-AvailablePositionDesignation-highlight'),
+    url(r'^allfavorites/$', views.FavoritesCSVView.as_view(), name='view-all-favorites'),
 ]
 
 urlpatterns += router.urls
