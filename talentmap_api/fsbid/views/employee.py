@@ -25,7 +25,7 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
           return Response(status=status.HTTP_404_NOT_FOUND)
 
         user = request.user.profile
-        user.emp_id = emp_id
+        user.emp_id = str(int(emp_id))
         user.save()
 
         auth_user = request.user
