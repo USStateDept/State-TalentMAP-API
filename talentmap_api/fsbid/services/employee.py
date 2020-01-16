@@ -22,8 +22,11 @@ def map_group_to_fsbid_role(jwt_token):
   '''
   Updates a user roles based on what we get back from FSBid
   '''
-  role = jwt.decode(jwt_token, verify=False).get('role')
-  return Group.objects.filter(name=ROLE_MAPPING.get(role)).first()
+  roles = jwt.decode(jwt_token, verify=False).get('role')
+  print(roles)
+  tm_roles = list(map(lambda z: ROLE_MAPPING.get(z), roles))
+  print(tm_roles)
+  return Group.objects.filter(name__in=tm_roles).all()
 
 # Mapping of FSBid roles (keys) to TalentMap permissions (values)
 ROLE_MAPPING = {
