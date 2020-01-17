@@ -1,6 +1,9 @@
 import requests
 import re
 import logging
+import csv
+from datetime import datetime
+import maya
 
 from urllib.parse import urlencode
 
@@ -9,6 +12,9 @@ from rest_framework import status
 
 from django.conf import settings
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 from talentmap_api.settings import OBC_URL
@@ -233,3 +239,66 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         return None
 
     return map(mapping_function, response.get("Data", {}))
+
+def get_ap_and_pv_csv(data, filename, ap=False):
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Position"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Skill"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Bureau"))
+    headers.append(smart_str(u"Post City"))
+    headers.append(smart_str(u"Post Country"))
+    headers.append(smart_str(u"Tour of Duty"))
+    headers.append(smart_str(u"Languages"))
+    if ap: headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Post Differential"))
+    headers.append(smart_str(u"Danger Pay"))
+    headers.append(smart_str(u"TED"))
+    headers.append(smart_str(u"Incumbent"))
+    headers.append(smart_str(u"Bid Cycle/Season"))
+    headers.append(smart_str(u"Posted Date"))
+    if ap: headers.append(smart_str(u"Status Code"))
+    if ap: headers.append(smart_str(u"Capsule Description"))
+    writer.writerow(headers)
+
+    for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        try:
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+        except:
+            posteddate = "None listed"
+
+        row = []
+        row.append(smart_str(record["position"]["title"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        row.append(smart_str(record["position"]["skill"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
+        row.append(smart_str(record["position"]["bureau"]))
+        row.append(smart_str(record["position"]["post"]["location"]["city"]))
+        row.append(smart_str(record["position"]["post"]["location"]["country"]))
+        row.append(smart_str(record["position"]["tour_of_duty"]))
+        row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
+        if ap: row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+        row.append(smart_str(record["position"]["post"]["differential_rate"]))
+        row.append(smart_str(record["position"]["post"]["danger_pay"]))
+        row.append(ted)
+        row.append(smart_str(record["position"]["current_assignment"]["user"]))
+        row.append(smart_str(record["bidcycle"]["name"]))
+        if ap: row.append(posteddate)
+        if ap: row.append(smart_str(record.get("status_code")))
+        row.append(smart_str(record["position"]["description"]["content"]))
+
+        writer.writerow(row)
+    return response
