@@ -12,9 +12,11 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation
 from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
 import talentmap_api.fsbid.services.available_positions as services
-
+import talentmap_api.fsbid.services.projected_vacancies as pvservices
+import talentmap_api.fsbid.services.common as comservices
 
 class AvailablePositionFavoriteListView(APIView):
 
@@ -33,6 +35,30 @@ class AvailablePositionFavoriteListView(APIView):
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
+class FavoritesCSVView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Return a list of all of the user's favorite positions.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        apdata = pvdata = []
+
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        if len(aps) > 0:
+            pos_nums = ','.join(aps)
+            apdata = services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+            
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        if len(pvs) > 0:
+            pos_nums = ','.join(pvs)
+            pvdata = pvservices.get_projected_vacancies(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+        
+        data = apdata.get('results') + pvdata.get('results')
+
+        return comservices.get_ap_and_pv_csv(data, "favorites", True)
 
 class AvailablePositionFavoriteActionView(APIView):
     '''
