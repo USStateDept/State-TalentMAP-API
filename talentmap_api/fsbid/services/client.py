@@ -146,7 +146,8 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -159,7 +160,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": data.get("emplid", None),
         "role_code": data.get("role_code", None),
         "pos_location_code": data.get("pos_location_code", None),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
     }
 
 def convert_client_query(query):
@@ -214,3 +216,28 @@ def tmap_handshake_to_fsbid(hs):
         "false": "N"
     }
     return tmap_dictionary.get(hs, None)
+
+def fsbid_classifications_to_tmap(cs):
+    tmap_dictionary = {
+        "3": "3rd Tour Bidders",
+        "4": "Tenured",
+        "6": "6/8 Rule",
+        "A": "Ambassador or Deputy Assistant Secretary",
+        "C": "Critical Need Language",
+        "C1": "Critical Need Language 1st Tour Complete",
+        "CC": "Critical Need Language Final Tour Complete",
+        "D": "Differential Bidder",
+        "F": "Fair Share Bidders",
+        "F1": "Pickering Fellows",
+        "F2": "Rangel Fellows",
+        "M": "Meritorious Step Increases",
+        "P": "Pickering/Rangel Fellows",
+        "R": "Recommended for Tenure",
+        "T": "Tandem Bidder"
+    }
+    tmap_classifications = [];
+    for i in cs:
+        if cs.get(i, "0") is not "0":
+            tmap_classifications.append(tmap_dictionary.get(i, None))
+    return tmap_classifications
+    
