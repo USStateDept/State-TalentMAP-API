@@ -236,8 +236,8 @@ def fsbid_classifications_to_tmap(cs):
         "T": "Tandem Bidder"
     }
     tmap_classifications = [];
-    for i in cs:
-        if cs.get(i, "0") is not "0":
-            tmap_classifications.append(tmap_dictionary.get(i, None))
+    for x in cs:
+        if cs.get(x, "0") is not "0":
+            tmap_classifications.append(tmap_dictionary.get(x, None))
     return tmap_classifications
     
