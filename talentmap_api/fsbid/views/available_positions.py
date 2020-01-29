@@ -77,6 +77,19 @@ class FSBidAvailablePositionView(BaseView):
 
         return Response(result)
 
+class FSBidUnavailablePositionView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, pk):
+        '''
+        Gets an unavailable position
+        '''
+        result = services.get_unavailable_position(pk, request.META['HTTP_JWT'])
+        if result is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(result)
 
 class FSBidAvailablePositionsSimilarView(BaseView):
 
