@@ -136,9 +136,13 @@ class UserProfileSerializer(PrefetchedSerializer):
 
     def get_cdo(self, obj):
         request = self.context['request']
-        jwt = request.META['HTTP_JWT']
-        user = UserProfile.objects.get(user=request.user)
-        return single_cdo(jwt, user.emp_id)
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return single_cdo(jwt, user.emp_id)
+        except:
+            return None
+
 
     class Meta:
         model = UserProfile
