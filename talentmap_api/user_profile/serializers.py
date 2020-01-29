@@ -53,12 +53,11 @@ class UserProfileShortSerializer(PrefetchedSerializer):
     email = serializers.CharField(source="user.email")
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
-    cdo = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "avatar", "cdo", "display_name"]
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "avatar", "display_name"]
 
 
 class ClientSerializer(PrefetchedSerializer):
