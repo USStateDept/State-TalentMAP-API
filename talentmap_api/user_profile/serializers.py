@@ -16,9 +16,6 @@ from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 class UserSerializer(PrefetchedSerializer):
     class Meta:
@@ -114,6 +111,7 @@ class ClientDetailSerializer(ClientSerializer):
 class UserProfileSerializer(PrefetchedSerializer):
     skills = StaticRepresentationField(read_only=True, many=True)
     grade = StaticRepresentationField(read_only=True)
+    cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
@@ -121,7 +119,8 @@ class UserProfileSerializer(PrefetchedSerializer):
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
     favorite_positions = serializers.SerializerMethodField()
-    cdo = serializers.SerializerMethodField()
+    # Use cdo_info so we don't have to break legacy CDO functionality
+    cdo_info = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -133,14 +132,14 @@ class UserProfileSerializer(PrefetchedSerializer):
             return ({ 'id': o['id'] } for o in aps)
         return []
 
-    def get_cdo(self, obj):
+    def get_cdo_info(self, obj):
         request = self.context['request']
         try:
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return single_cdo(jwt, user.emp_id)
         except:
-            return None
+            return {}
 
 
     class Meta:
@@ -149,6 +148,12 @@ class UserProfileSerializer(PrefetchedSerializer):
         nested = {
             "user": {
                 "class": UserSerializer,
+                "kwargs": {
+                    "read_only": True
+                }
+            },
+            "cdo": {
+                "class": UserProfileShortSerializer,
                 "kwargs": {
                     "read_only": True
                 }

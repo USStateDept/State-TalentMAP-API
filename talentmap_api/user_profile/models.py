@@ -22,6 +22,8 @@ class UserProfile(StaticRepresentationModel):
     mandatory_retirement_date = models.DateTimeField(null=True)
     phone_number = models.TextField(null=True)
 
+    cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
+
     language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
 
     skills = models.ManyToManyField('position.Skill')
