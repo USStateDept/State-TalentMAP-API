@@ -169,7 +169,7 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     # determine if the result is the current user
     if email:
         for a in response.get("Data"):
-            a['isCurrentUser'] = True if a['email'] == email else False
+            a['isCurrentUser'] = True if a.get('email', None) == email else False
 
     return map(mapping_function, response.get("Data", {}))
 
