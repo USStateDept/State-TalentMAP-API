@@ -10,6 +10,7 @@ from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
+from talentmap_api.fsbid.services.cdo import single_cdo
 
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
@@ -118,6 +119,8 @@ class UserProfileSerializer(PrefetchedSerializer):
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
     favorite_positions = serializers.SerializerMethodField()
+    # Use cdo_info so we don't have to break legacy CDO functionality
+    cdo_info = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -128,6 +131,16 @@ class UserProfileSerializer(PrefetchedSerializer):
             aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]
             return ({ 'id': o['id'] } for o in aps)
         return []
+
+    def get_cdo_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return single_cdo(jwt, user.emp_id)
+        except:
+            return {}
+
 
     class Meta:
         model = UserProfile
