@@ -2,6 +2,7 @@ import requests
 import logging
 import jwt
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 import csv
 from copy import deepcopy
@@ -91,7 +92,10 @@ def single_client(jwt_token, perdet_seq_num):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-    return list(response)[0]
+    cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
+    client = list(response)[0]
+    client['cdo'] = cdo
+    return client
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')

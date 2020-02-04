@@ -13,7 +13,9 @@ services:
       - mock_fsbid
     # use this to run in https server locally
     # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      bash -c "python show_logo.py
+      && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     environment:
