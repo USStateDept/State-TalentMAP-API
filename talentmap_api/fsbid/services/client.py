@@ -138,14 +138,15 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 def fsbid_clients_to_talentmap_clients(data):
     employee = data.get('employee', None)
-    position = data.get('currentPosition', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)    
     return {
-        "id": employee.get("per_seq_num", None),
-        "name": employee.get("per_full_name", None),
+        "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": employee.get("per_seq_num", None),
+        "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
@@ -153,14 +154,15 @@ def fsbid_clients_to_talentmap_clients(data):
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
     employee = data.get('employee', None)
-    position = data.get('currentPosition', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)
     return {
-         "id": employee.get("per_seq_num", None),
-        "name": employee.get("per_full_name", None),
+         "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
         "skills": '\n'.join(map_skill_codes_for_csv(employee)),
-        "employee_id": employee.get("per_seq_num", None),
+        "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
@@ -199,7 +201,7 @@ def map_skill_codes(data):
         if i == 1:
             index = ''
         code = data.get(f'per_skill{index}_code', None)
-        desc = data.get(f'per_skill{index}_desc', None)
+        desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
 
