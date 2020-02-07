@@ -165,7 +165,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
-        "skills": '\n'.join(map_skill_codes_for_csv(employee)),
+        "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
