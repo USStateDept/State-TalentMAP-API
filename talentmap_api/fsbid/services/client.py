@@ -16,22 +16,13 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def client(jwt_token, hru_id, rl_cd, hasHandshake, q):
+def client(jwt_token, query):
     '''
     Get Clients by CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}"
-    if hru_id:
-        uri = uri + f'&request_params.hru_id={hru_id}'
-    if rl_cd:
-        uri = uri + f'&request_params.rl_cd={rl_cd}'
-    if hasHandshake:
-        # Convert Front end request of true/false to Y/N for FSBid
-        hs_cd = tmap_handshake_to_fsbid(hasHandshake)
-        uri = uri + f'&request_params.hs_cd={hs_cd}'
-    if q:
-        uri = uri + f'&request_params.freeText={q}'
+    uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}"
+    print(uri)
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
