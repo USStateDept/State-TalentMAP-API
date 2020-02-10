@@ -139,27 +139,33 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 
 def fsbid_clients_to_talentmap_clients(data):
+    employee = data.get('employee', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)    
     return {
-        "id": data.get("perdet_seq_num", None),
-        "name": data.get("per_full_name", None),
+        "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "perdet_seq_number": data.get("perdet_seq_num", None),
-        "grade": data.get("grade_code", None),
-        "skills": map_skill_codes(data),
-        "employee_id": data.get("emplid", None),
-        "role_code": data.get("role_code", None),
-        "pos_location_code": data.get("pos_location_code", None),
+        "grade": employee.get("per_grade_code", None),
+        "skills": map_skill_codes(employee),
+        "employee_id": employee.get("pert_external_id", None),
+        "role_code": data.get("rl_cd", None),
+        "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
+    employee = data.get('employee', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)
     return {
-        "id": data.get("perdet_seq_num", None),
-        "name": data.get("per_full_name", None),
-        "grade": data.get("grade_code", None),
-        "skills": '\n'.join(map_skill_codes_for_csv(data)),
-        "employee_id": data.get("emplid", None),
-        "role_code": data.get("role_code", None),
-        "pos_location_code": data.get("pos_location_code", None),
+        "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "grade": employee.get("per_grade_code", None),
+        "skills": ' , '.join(map_skill_codes_for_csv(employee)),
+        "employee_id": employee.get("pert_external_id", None),
+        "role_code": data.get("rl_cd", None),
+        "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
@@ -182,21 +188,21 @@ def convert_client_query(query):
 def map_skill_codes_for_csv(data):
     skills = []
     for i in range(1,4):
-        index = i
+        index = f'_{i}'
         if i == 1:
             index = ''
-        desc = data.get(f'skill{index}_code_desc', None)
+        desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append(desc)
     return filter(lambda x: x is not None, skills)
 
 def map_skill_codes(data):
     skills = []
     for i in range(1,4):
-        index = i
+        index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'skill{index}_code', None)
-        desc = data.get(f'skill{index}_code_desc', None)
+        code = data.get(f'per_skill{index}_code', None)
+        desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
 
