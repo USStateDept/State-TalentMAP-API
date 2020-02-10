@@ -119,7 +119,6 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
-        smart_str(u"Perdet Seq Number"),
         smart_str(u"Skill"),
         smart_str(u"Grade"),
         smart_str(u"Employee ID"),
@@ -130,7 +129,6 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     for record in data:
         writer.writerow([
             smart_str(record["name"]),
-            smart_str("=\"%s\"" % record["perdet_seq_number"]),
             smart_str(record["skills"]),
             smart_str("=\"%s\"" % record["grade"]),
             smart_str("=\"%s\"" % record["employee_id"]),
@@ -157,7 +155,6 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
     return {
         "id": data.get("perdet_seq_num", None),
         "name": data.get("per_full_name", None),
-        "perdet_seq_number": data.get("perdet_seq_num", None),
         "grade": data.get("grade_code", None),
         "skills": '\n'.join(map_skill_codes_for_csv(data)),
         "employee_id": data.get("emplid", None),
