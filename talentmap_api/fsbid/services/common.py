@@ -141,14 +141,17 @@ sort_dict = {
 
 def sorting_values(sort):
     if sort is not None:
-        direction = 'asc'
-        if sort.startswith('-'):
-            direction = 'desc'
-            sort = sort_dict.get(sort[1:], None)
-        else:
-            sort = sort_dict.get(sort, None)
-        if sort is not None:
-            return f"{sort} {direction}"
+        results = []
+        for s in sort.split(','):
+            direction = 'asc'
+            if s.startswith('-'):
+                direction = 'desc'
+                s = sort_dict.get(s[1:], None)
+            else:
+                s = sort_dict.get(s, None)
+            if s is not None:
+                results.append(f"{s} {direction}")
+        return results
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):

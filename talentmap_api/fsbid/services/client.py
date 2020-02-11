@@ -174,6 +174,7 @@ def convert_client_query(query):
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
     }
+    print(urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote))
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def map_skill_codes_for_csv(data):
