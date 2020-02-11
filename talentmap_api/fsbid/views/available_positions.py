@@ -19,6 +19,8 @@ from talentmap_api.fsbid.views.base import BaseView
 
 import talentmap_api.fsbid.services.available_positions as services
 
+from talentmap_api.common.common_helpers import in_superuser_group
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,8 @@ class FSBidAvailablePositionsCSVView(BaseView):
         '''
         Gets all available positions
         '''
-        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        limit = 2000 if not in_superuser_group(request.user) else 9999999
+        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit)
 
 
 class FSBidAvailablePositionView(BaseView):

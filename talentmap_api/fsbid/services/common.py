@@ -133,7 +133,9 @@ sort_dict = {
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
     "position__position_number": "pos_num_text",
-    "posted_date": "cp_post_dt"
+    "posted_date": "cp_post_dt",
+    "skill": "skill",
+    "grade": "grade",
 }
 
 
@@ -222,7 +224,7 @@ def get_post_bidding_considerations_url(post_id):
     else:
         return None
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
     Gets items from FSBid
     '''
@@ -230,6 +232,8 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     formattedQuery._mutable = True
     if (ad_id != None):
         formattedQuery['ad_id'] = ad_id
+    if (limit != None):
+        formattedQuery['limit'] = limit
     logger.info(query_mapping_function(formattedQuery))
     url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec

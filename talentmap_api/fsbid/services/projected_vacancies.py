@@ -47,7 +47,7 @@ def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
     return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
 
-def get_projected_vacancies_csv(query, jwt_token, host=None):
+def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None):
     data = services.send_get_csv_request(
         "futureVacancies",
         query,
@@ -55,7 +55,9 @@ def get_projected_vacancies_csv(query, jwt_token, host=None):
         jwt_token,
         fsbid_pv_to_talentmap_pv,
         "/api/v1/fsbid/projected_vacancies/",
-        host
+        host,
+        None,
+        limit
     )
 
     return services.get_ap_and_pv_csv(data, "projected_vacancies", False)
