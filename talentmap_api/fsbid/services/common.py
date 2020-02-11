@@ -133,7 +133,9 @@ sort_dict = {
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
     "position__position_number": "pos_num_text",
-    "posted_date": "cp_post_dt"
+    "posted_date": "cp_post_dt",
+    "skill": "skill",
+    "grade": "grade",
 }
 
 
