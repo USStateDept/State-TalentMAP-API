@@ -71,7 +71,7 @@ def get_available_positions_count(query, jwt_token, host=None):
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
-def get_available_positions_csv(query, jwt_token, host=None):
+def get_available_positions_csv(query, jwt_token, host=None, limit=None):
     data = services.send_get_csv_request(
         "availablePositions",
         query,
@@ -79,7 +79,9 @@ def get_available_positions_csv(query, jwt_token, host=None):
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         "/api/v1/fsbid/available_positions/",
-        host
+        host,
+        None,
+        limit
     )
 
     return services.get_ap_and_pv_csv(data, "available_positions", True)
