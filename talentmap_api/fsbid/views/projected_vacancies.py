@@ -19,6 +19,8 @@ from talentmap_api.fsbid.filters import ProjectedVacancyFilter
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.projected_vacancies as services
 
+from talentmap_api.common.common_helpers import in_superuser_group
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -69,5 +71,5 @@ class FSBidProjectedVacanciesCSVView(BaseView):
     filter_class = ProjectedVacancyFilter
 
     def get(self, request, *args, **kwargs):
-        
-        return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        limit = 2000 if not in_superuser_group(request.user) else 9999999
+        return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit)
