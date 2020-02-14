@@ -125,12 +125,14 @@ def fsbid_ap_to_talentmap_ap(ap):
     hasHandShakeOffered = False
     if ap.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
-
+    ted = ensure_date(ap.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
+    if ted is None:
+        ted = ensure_date(ap.get("ted", None), utc_offset=-5)
     return {
         "id": ap.get("cp_id", None),
         "status": None,
         "status_code": ap.get("cp_status", None),
-        "ted": ensure_date(ap.get("ted", None), utc_offset=-5),
+        "ted": ted,
         "posted_date": ensure_date(ap.get("cp_post_dt", None), utc_offset=-5),
         "availability": {
             "availability": None,
