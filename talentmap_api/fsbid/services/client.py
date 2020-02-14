@@ -163,8 +163,8 @@ def hru_id_filter(query):
     results = []
     hru_id = query.get("hru_id", None)
     results += [hru_id] if hru_id is not None else []
-    hru_ids = query.get("hru_id__in", None)
-    results += hru_ids.split(',') if hru_ids is not None else []
+    hru_ids = services.convert_multi_value(query.get("hru_id__in", None))
+    results += hru_ids if hru_ids is not None else []
     return results if len(results) > 0 else None
 
 def convert_client_query(query):
