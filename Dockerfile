@@ -15,6 +15,6 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 COPY talentmap_api /app/talentmap_api/
-ADD wait-for-postgres.sh manage.py setup.cfg /app/
+ADD wait-for-postgres.sh manage.py setup.cfg show_logo.py /app/
 
 RUN chmod +x wait-for-postgres.sh

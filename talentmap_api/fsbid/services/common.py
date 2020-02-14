@@ -1,6 +1,9 @@
 import requests
 import re
 import logging
+import csv
+from datetime import datetime
+import maya
 
 from urllib.parse import urlencode
 
@@ -9,6 +12,9 @@ from rest_framework import status
 
 from django.conf import settings
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 from talentmap_api.settings import OBC_URL
@@ -127,20 +133,27 @@ sort_dict = {
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
     "position__position_number": "pos_num_text",
-    "posted_date": "cp_post_dt"
+    "posted_date": "cp_post_dt",
+    "skill": "skill",
+    "grade": "grade",
+    "client_skill": "per_skill_code",
+    "client_grade": "per_grade_code",
 }
 
 
 def sorting_values(sort):
     if sort is not None:
-        direction = 'asc'
-        if sort.startswith('-'):
-            direction = 'desc'
-            sort = sort_dict.get(sort[1:], None)
-        else:
-            sort = sort_dict.get(sort, None)
-        if sort is not None:
-            return f"{sort} {direction}"
+        results = []
+        for s in sort.split(','):
+            direction = 'asc'
+            if s.startswith('-'):
+                direction = 'desc'
+                s = sort_dict.get(s[1:], None)
+            else:
+                s = sort_dict.get(s, None)
+            if s is not None:
+                results.append(f"{s} {direction}")
+        return results
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
@@ -163,7 +176,7 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     # determine if the result is the current user
     if email:
         for a in response.get("Data"):
-            a['isCurrentUser'] = True if a['email'] == email else False
+            a['isCurrentUser'] = True if a.get('email', None) == email else False
 
     return map(mapping_function, response.get("Data", {}))
 
@@ -216,7 +229,7 @@ def get_post_bidding_considerations_url(post_id):
     else:
         return None
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
     Gets items from FSBid
     '''
@@ -224,6 +237,8 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     formattedQuery._mutable = True
     if (ad_id != None):
         formattedQuery['ad_id'] = ad_id
+    if (limit != None):
+        formattedQuery['limit'] = limit
     logger.info(query_mapping_function(formattedQuery))
     url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
@@ -233,3 +248,66 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         return None
 
     return map(mapping_function, response.get("Data", {}))
+
+def get_ap_and_pv_csv(data, filename, ap=False):
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Position"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Skill"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Bureau"))
+    headers.append(smart_str(u"Post City"))
+    headers.append(smart_str(u"Post Country"))
+    headers.append(smart_str(u"Tour of Duty"))
+    headers.append(smart_str(u"Languages"))
+    if ap: headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Post Differential"))
+    headers.append(smart_str(u"Danger Pay"))
+    headers.append(smart_str(u"TED"))
+    headers.append(smart_str(u"Incumbent"))
+    headers.append(smart_str(u"Bid Cycle/Season"))
+    headers.append(smart_str(u"Posted Date"))
+    if ap: headers.append(smart_str(u"Status Code"))
+    if ap: headers.append(smart_str(u"Capsule Description"))
+    writer.writerow(headers)
+
+    for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        try:
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+        except:
+            posteddate = "None listed"
+
+        row = []
+        row.append(smart_str(record["position"]["title"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        row.append(smart_str(record["position"]["skill"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
+        row.append(smart_str(record["position"]["bureau"]))
+        row.append(smart_str(record["position"]["post"]["location"]["city"]))
+        row.append(smart_str(record["position"]["post"]["location"]["country"]))
+        row.append(smart_str(record["position"]["tour_of_duty"]))
+        row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
+        if ap: row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+        row.append(smart_str(record["position"]["post"]["differential_rate"]))
+        row.append(smart_str(record["position"]["post"]["danger_pay"]))
+        row.append(ted)
+        row.append(smart_str(record["position"]["current_assignment"]["user"]))
+        row.append(smart_str(record["bidcycle"]["name"]))
+        if ap: row.append(posteddate)
+        if ap: row.append(smart_str(record.get("status_code")))
+        row.append(smart_str(record["position"]["description"]["content"]))
+
+        writer.writerow(row)
+    return response

@@ -25,19 +25,19 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
           return Response(status=status.HTTP_404_NOT_FOUND)
 
         user = request.user.profile
-        user.emp_id = emp_id
+        user.emp_id = str(int(emp_id))
         user.save()
 
         auth_user = request.user
         # Get the role from the token
-        current_role = services.map_group_to_fsbid_role(jwt)
-        if current_role is not None:
+        print('outside loop')
+        for current_role in services.map_group_to_fsbid_role(jwt):
           auth_user.groups.add(current_role)
           # Remove any roles that the user may have had but have been removed but retain the TM specific roles
           for tm_role in services.ROLE_MAPPING.values():
             if current_role.name != tm_role:
               auth_user.groups.remove(Group.objects.filter(name=tm_role).first())
           
-          auth_user.save()
+        auth_user.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -35,6 +35,18 @@ def get_available_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+def get_unavailable_position(id, jwt_token):
+    '''
+    Gets an indivdual unavailable position by id
+    '''
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_up_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
+
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -59,7 +71,7 @@ def get_available_positions_count(query, jwt_token, host=None):
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
-def get_available_positions_csv(query, jwt_token, host=None):
+def get_available_positions_csv(query, jwt_token, host=None, limit=None):
     data = services.send_get_csv_request(
         "availablePositions",
         query,
@@ -67,67 +79,12 @@ def get_available_positions_csv(query, jwt_token, host=None):
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         "/api/v1/fsbid/available_positions/",
-        host
+        host,
+        None,
+        limit
     )
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f"attachment; filename=available_positions_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
-
-    writer = csv.writer(response, csv.excel)
-    response.write(u'\ufeff'.encode('utf8'))
-
-    # write the headers
-    writer.writerow([
-        smart_str(u"Position"),
-        smart_str(u"Position Number"),
-        smart_str(u"Skill"),
-        smart_str(u"Grade"),
-        smart_str(u"Bureau"),
-        smart_str(u"Post City"),
-        smart_str(u"Post Country"),
-        smart_str(u"Tour of Duty"),
-        smart_str(u"Languages"),
-        smart_str(u"Service Needs Differential"),
-        smart_str(u"Post Differential"),
-        smart_str(u"Danger Pay"),
-        smart_str(u"TED"),
-        smart_str(u"Incumbent"),
-        smart_str(u"Bid Cycle/Season"),
-        smart_str(u"Posted Date"),
-        smart_str(u"Status Code"),
-        smart_str(u"Capsule Description"),
-    ])
-
-    for record in data:
-        try:
-            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
-        except:
-            ted = "None listed"
-        try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
-        except:
-            posteddate = "None listed"
-        writer.writerow([
-            smart_str(record["position"]["title"]),
-            smart_str("=\"%s\"" % record["position"]["position_number"]),
-            smart_str(record["position"]["skill"]),
-            smart_str("=\"%s\"" % record["position"]["grade"]),
-            smart_str(record["position"]["bureau"]),
-            smart_str(record["position"]["post"]["location"]["city"]),
-            smart_str(record["position"]["post"]["location"]["country"]),
-            smart_str(record["position"]["tour_of_duty"]),
-            smart_str(services.parseLanguagesString(record["position"]["languages"])),
-            smart_str(record["position"]["post"]["has_service_needs_differential"]),
-            smart_str(record["position"]["post"]["differential_rate"]),
-            smart_str(record["position"]["post"]["danger_pay"]),
-            ted,
-            smart_str(record["position"]["current_assignment"]["user"]),
-            smart_str(record["bidcycle"]["name"]),
-            posteddate,
-            smart_str(record["status_code"]),
-            smart_str(record["position"]["description"]["content"]),
-        ])
-    return response
+    return services.get_ap_and_pv_csv(data, "available_positions", True)
 
 # Max number of similar positions to return.
 SIMILAR_LIMIT = 3
@@ -168,12 +125,14 @@ def fsbid_ap_to_talentmap_ap(ap):
     hasHandShakeOffered = False
     if ap.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
-
+    ted = ensure_date(ap.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
+    if ted is None:
+        ted = ensure_date(ap.get("ted", None), utc_offset=-5)
     return {
         "id": ap.get("cp_id", None),
         "status": None,
         "status_code": ap.get("cp_status", None),
-        "ted": ensure_date(ap.get("ted", None), utc_offset=-5),
+        "ted": ted,
         "posted_date": ensure_date(ap.get("cp_post_dt", None), utc_offset=-5),
         "availability": {
             "availability": None,
@@ -273,7 +232,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         }]
     }
 
-def convert_ap_query(query):
+def convert_ap_query(query, cps_codes="OP,HS"):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -284,7 +243,7 @@ def convert_ap_query(query):
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
-        "request_params.cps_codes": services.convert_multi_value("OP,HS"),
+        "request_params.cps_codes": services.convert_multi_value(cps_codes),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
@@ -299,3 +258,6 @@ def convert_ap_query(query):
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_up_query(query):
+    return (convert_ap_query(query, "FP"))

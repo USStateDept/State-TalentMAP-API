@@ -1,3 +1,5 @@
+import coreapi
+
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 
@@ -6,15 +8,29 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins
+from rest_framework.schemas import AutoSchema
 
 from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation
 from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
 import talentmap_api.fsbid.services.available_positions as services
+import talentmap_api.fsbid.services.projected_vacancies as pvservices
+import talentmap_api.fsbid.services.common as comservices
 
+class AvailablePositionsFilter():
+    declared_filters = [
+        "exclude_available",
+        "exclude_projected",
+    ]
+
+    use_api = True
+
+    class Meta:
+        fields = "__all__"
 
 class AvailablePositionFavoriteListView(APIView):
 
@@ -33,6 +49,38 @@ class AvailablePositionFavoriteListView(APIView):
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
+class FavoritesCSVView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+    filter_class = AvailablePositionsFilter
+
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("exclude_available", type='boolean', location='query', description='Whether to exclude available positions'),
+            coreapi.Field("exclude_projected", type='boolean', location='query', description='Whether to exclude projected vacancies'),
+        ]
+    )
+
+    def get(self, request, *args, **kwargs):
+        """
+        Return a list of all of the user's favorite positions.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        data = []
+
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        if len(aps) > 0 and request.query_params.get('exclude_available') != 'true':
+            pos_nums = ','.join(aps)
+            apdata = services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+            data = data + apdata.get('results')
+
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        if len(pvs) > 0 and request.query_params.get('exclude_projected') != 'true':
+            pos_nums = ','.join(pvs)
+            pvdata = pvservices.get_projected_vacancies(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+            data = data + pvdata.get('results')
+
+        return comservices.get_ap_and_pv_csv(data, "favorites", True)
 
 class AvailablePositionFavoriteActionView(APIView):
     '''
