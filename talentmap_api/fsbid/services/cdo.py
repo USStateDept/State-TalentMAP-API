@@ -27,11 +27,16 @@ def single_cdo(jwt_token = None, perdet_seq_num = None):
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&request_params.perdet_seq_num={perdet_seq_num}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
-    cdo = list(response)[0]
-    initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
-    cdo['initials'] = initials
-    avatar = get_avatar_url(cdo['email'])
-    cdo['avatar'] = avatar
+    cdos = list(response)
+
+    if len(cdos) > 0:
+        cdo = list(response)[0]
+        initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
+        cdo['initials'] = initials
+        avatar = get_avatar_url(cdo['email'])
+        cdo['avatar'] = avatar
+    else:
+        cdo = {}
     return cdo
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
