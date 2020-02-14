@@ -177,9 +177,10 @@ def convert_client_query(query):
         "request_params.hru_id": hru_id_filter(query),
         "request_params.rl_cd": query.get("rl_cd", None),
         "request_params.ad_id": query.get("ad_id", None),
-        "request_params.hasHandshake": query.get("hs_cd", None),
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
+        "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
+        "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None))
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
