@@ -136,6 +136,8 @@ sort_dict = {
     "posted_date": "cp_post_dt",
     "skill": "skill",
     "grade": "grade",
+    "client_skill": "per_skill_code",
+    "client_grade": "per_grade_code",
 }
 
 
