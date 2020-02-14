@@ -18,6 +18,7 @@ class FSBidClientListView(BaseView):
     schema = AutoSchema(
         manual_fields=[
             coreapi.Field("hru_id", location='query', description='HRU id of the Agent'),
+            coreapi.Field("hru_id__in", location='query', description='HRU ids of the Agent (commma separated)'),
             coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
             coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes'),
             coreapi.Field("q", location='query', description='Free Text'),

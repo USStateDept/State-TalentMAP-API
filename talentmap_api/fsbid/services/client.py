@@ -22,7 +22,6 @@ def client(jwt_token, query):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}"
-    print(uri)
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
@@ -160,6 +159,14 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
     }
 
+def hru_id_filter(query):
+    results = []
+    hru_id = query.get("hru_id", None)
+    results += [hru_id] if hru_id is not None else []
+    hru_ids = query.get("hru_id__in", None)
+    results += hru_ids.split(',') if hru_ids is not None else []
+    return results if len(results) > 0 else None
+
 def convert_client_query(query):
     '''
     Converts TalentMap filters into FSBid filters
@@ -167,7 +174,7 @@ def convert_client_query(query):
     The TalentMap filters align with the client search filter naming
     '''
     values = {
-        "request_params.hru_id": query.get("hru_id", None),
+        "request_params.hru_id": hru_id_filter(query),
         "request_params.rl_cd": query.get("rl_cd", None),
         "request_params.ad_id": query.get("ad_id", None),
         "request_params.hasHandshake": query.get("hs_cd", None),
