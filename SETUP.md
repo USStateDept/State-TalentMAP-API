@@ -15,4 +15,6 @@ docker-compose run app python manage.py schedule_synchronization_job --set-defau
 docker-compose run app python manage.py synchronize_data --test
 docker-compose run app python manage.py load_all_data talentmap_api/data/test_data/real/
 docker-compose run app python manage.py create_demo_environment
+docker-compose run mock_fsbid npm run migrate
+docker-compose run mock_fsbid npm run seed
 ```

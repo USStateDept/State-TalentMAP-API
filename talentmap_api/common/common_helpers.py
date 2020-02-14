@@ -16,6 +16,8 @@ from django.core.exceptions import FieldError, ValidationError, PermissionDenied
 
 from django.db.models import Q
 
+from talentmap_api.settings import AVATAR_URL
+
 logger = logging.getLogger(__name__)
 
 LANGUAGE_FORMAL_NAMES = {
@@ -417,3 +419,18 @@ def serialize_instance(instance, serializer_string, many=False):
     Returns the object's serialized data.
     '''
     return locate(serializer_string)(instance, many=many).data
+
+def get_avatar_url(email):
+    '''
+    Generates the URLs for the user's profile picture,
+    with one that will return the default profile picture, to compare against.
+    '''
+    if email:
+        return {
+            's': f"{AVATAR_URL}?size=S&username={email}",
+            'm': f"{AVATAR_URL}?size=M&username={email}",
+            'l': f"{AVATAR_URL}?size=L&username={email}",
+            'compare': [f"{AVATAR_URL}?size=S&username=", f"{AVATAR_URL}?size=S&username={email}"]
+        }
+    else:
+        return {}

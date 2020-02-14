@@ -104,10 +104,11 @@ def can_delete_bid(bidStatus, cycleStatus):
 
 
 def fsbid_bid_to_talentmap_bid(data):
-    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_create_date'), data.get('panel_meeting_status'))
+    bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_date'), data.get('panel_meeting_status'))
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
+    cpId = int(float(data.get('cp_id')))
     return {
-        "id": f"{data.get('perdet_seq_num')}_{data.get('cp_id')}",
+        "id": f"{data.get('perdet_seq_num')}_{cpId}",
         "bidcycle": data.get('cycle_nm_txt'),
         "emp_id": data.get('perdet_seq_num'),
         "user": "",
@@ -124,7 +125,7 @@ def fsbid_bid_to_talentmap_bid(data):
             }
         ],
         "position": {
-            "id": data.get('cp_id'),
+            "id": cpId,
             "position_number": data.get('pos_num_text'),
             "status": "",
             "grade": data.get("pos_grade_code"),
@@ -155,7 +156,7 @@ def fsbid_bid_to_talentmap_bid(data):
         "handshake_declined_date": "",
         "in_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "scheduled_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
-        "approved_date": ensure_date(data.get('assignment_create_date'), utc_offset=-5),
+        "approved_date": ensure_date(data.get('assignment_date'), utc_offset=-5),
         "declined_date": "",
         "closed_date": "",
         "is_priority": False,

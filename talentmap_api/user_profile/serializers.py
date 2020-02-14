@@ -10,6 +10,7 @@ from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
+from talentmap_api.fsbid.services.cdo import single_cdo
 
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
@@ -48,11 +49,12 @@ class UserProfileShortSerializer(PrefetchedSerializer):
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
     initials = serializers.ReadOnlyField()
+    avatar = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "display_name"]
+        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "avatar", "display_name"]
 
 
 class ClientSerializer(PrefetchedSerializer):
@@ -61,11 +63,12 @@ class ClientSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     initials = serializers.ReadOnlyField()
+    avatar = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "display_name"]
+        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "avatar", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -111,20 +114,33 @@ class UserProfileSerializer(PrefetchedSerializer):
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
+    avatar = serializers.ReadOnlyField()
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
     favorite_positions = serializers.SerializerMethodField()
+    # Use cdo_info so we don't have to break legacy CDO functionality
+    cdo_info = serializers.SerializerMethodField()
 
-    def get_favorite_positions(self, obj):	
-        request = self.context['request']	
-        user = UserProfile.objects.get(user=request.user)	
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)	
-        if len(aps) > 0:	
-            pos_nums = ','.join(aps)	
-            aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]	
-            return ({ 'id': o['id'] } for o in aps)	
+    def get_favorite_positions(self, obj):
+        request = self.context['request']
+        user = UserProfile.objects.get(user=request.user)
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        if len(aps) > 0:
+            pos_nums = ','.join(aps)
+            aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]
+            return ({ 'id': o['id'] } for o in aps)
         return []
+
+    def get_cdo_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return single_cdo(jwt, user.emp_id)
+        except:
+            return {}
+
 
     class Meta:
         model = UserProfile
@@ -174,7 +190,7 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "display_name"]
+        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
         writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 

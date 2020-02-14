@@ -22,6 +22,15 @@ class FSBidCDOListView(BaseView):
         return Response(cdoServices.cdo(request.META['HTTP_JWT']))
 
 
+class FSBidCDOView(BaseView):
+
+    def get(self, request, pk):
+        '''
+        Gets a single cdo by client's perdet_seq_num
+        '''
+        return Response(cdoServices.single_cdo(request.META['HTTP_JWT'], pk))
+
+
 class FSBidListView(BaseView):
 
     permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
