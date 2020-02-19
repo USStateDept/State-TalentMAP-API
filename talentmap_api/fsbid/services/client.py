@@ -240,4 +240,16 @@ def fsbid_classifications_to_tmap(cs):
         if cs.get(x, "0") is not "0":
             tmap_classifications.append(tmap_dictionary.get(x, None))
     return tmap_classifications
+
+def get_client_classifications(jwt_token):
+    '''
+    Get single client's classifications
+    '''
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    uri = f"bidderTrackingPrograms?request_params.ad_id={ad_id}"
+    if perdet_seq_num:
+        uri = uri + f'&request_params.perdet_seq_num={perdet_seq_num}'
+
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_classifications_to_tmap)
+    return response
     
