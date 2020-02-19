@@ -71,8 +71,8 @@ class FSBidClientClassificationsListView(BaseView):
         ]
     )
 
-    def get(self, request, pk):
+    def get(self, request):
         '''
         Get classifications for single client
         '''
-        return services.get_client_classifications(request.META['HTTP_JWT'], request.query_params.get("perdet_seq_num"))
+        return Response(services.get_client_classifications(request.META['HTTP_JWT'], request.query_params.get('perdet_seq_num')))
