@@ -133,20 +133,27 @@ sort_dict = {
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
     "position__position_number": "pos_num_text",
-    "posted_date": "cp_post_dt"
+    "posted_date": "cp_post_dt",
+    "skill": "skill",
+    "grade": "grade",
+    "client_skill": "per_skill_code",
+    "client_grade": "per_grade_code",
 }
 
 
 def sorting_values(sort):
     if sort is not None:
-        direction = 'asc'
-        if sort.startswith('-'):
-            direction = 'desc'
-            sort = sort_dict.get(sort[1:], None)
-        else:
-            sort = sort_dict.get(sort, None)
-        if sort is not None:
-            return f"{sort} {direction}"
+        results = []
+        for s in sort.split(','):
+            direction = 'asc'
+            if s.startswith('-'):
+                direction = 'desc'
+                s = sort_dict.get(s[1:], None)
+            else:
+                s = sort_dict.get(s, None)
+            if s is not None:
+                results.append(f"{s} {direction}")
+        return results
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
@@ -169,7 +176,7 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     # determine if the result is the current user
     if email:
         for a in response.get("Data"):
-            a['isCurrentUser'] = True if a['email'] == email else False
+            a['isCurrentUser'] = True if a.get('email', None) == email else False
 
     return map(mapping_function, response.get("Data", {}))
 
@@ -222,7 +229,7 @@ def get_post_bidding_considerations_url(post_id):
     else:
         return None
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
     Gets items from FSBid
     '''
@@ -230,6 +237,8 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     formattedQuery._mutable = True
     if (ad_id != None):
         formattedQuery['ad_id'] = ad_id
+    if (limit != None):
+        formattedQuery['limit'] = limit
     logger.info(query_mapping_function(formattedQuery))
     url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec

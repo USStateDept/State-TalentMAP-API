@@ -23,6 +23,15 @@ def test_user_permission_endpoint(authorized_client, authorized_user):
     assert response.data["groups"] == [group.name]
     assert response.data["permissions"] == list(authorized_user.get_all_permissions())
 
+    response = authorized_client.get(f'/api/v1/permission/user/all/')
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    ao_group = mommy.make('auth.Group', name="superuser")
+    ao_group.user_set.add(authorized_user)
+
+    response = authorized_client.get(f'/api/v1/permission/user/all/')
+    assert response.status_code == status.HTTP_200_OK
+
 
 @pytest.mark.django_db(transaction=True)
 def test_group_action_endpoints(authorized_client, authorized_user):

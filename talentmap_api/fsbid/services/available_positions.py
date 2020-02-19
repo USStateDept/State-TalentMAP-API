@@ -35,6 +35,18 @@ def get_available_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+def get_unavailable_position(id, jwt_token):
+    '''
+    Gets an indivdual unavailable position by id
+    '''
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_up_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
+
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -59,7 +71,7 @@ def get_available_positions_count(query, jwt_token, host=None):
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
-def get_available_positions_csv(query, jwt_token, host=None):
+def get_available_positions_csv(query, jwt_token, host=None, limit=None):
     data = services.send_get_csv_request(
         "availablePositions",
         query,
@@ -67,7 +79,9 @@ def get_available_positions_csv(query, jwt_token, host=None):
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         "/api/v1/fsbid/available_positions/",
-        host
+        host,
+        None,
+        limit
     )
 
     return services.get_ap_and_pv_csv(data, "available_positions", True)
@@ -111,12 +125,14 @@ def fsbid_ap_to_talentmap_ap(ap):
     hasHandShakeOffered = False
     if ap.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
-
+    ted = ensure_date(ap.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
+    if ted is None:
+        ted = ensure_date(ap.get("ted", None), utc_offset=-5)
     return {
         "id": ap.get("cp_id", None),
         "status": None,
         "status_code": ap.get("cp_status", None),
-        "ted": ensure_date(ap.get("ted", None), utc_offset=-5),
+        "ted": ted,
         "posted_date": ensure_date(ap.get("cp_post_dt", None), utc_offset=-5),
         "availability": {
             "availability": None,
@@ -216,7 +232,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         }]
     }
 
-def convert_ap_query(query):
+def convert_ap_query(query, cps_codes="OP,HS"):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -227,7 +243,7 @@ def convert_ap_query(query):
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
-        "request_params.cps_codes": services.convert_multi_value("OP,HS"),
+        "request_params.cps_codes": services.convert_multi_value(cps_codes),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
@@ -242,3 +258,6 @@ def convert_ap_query(query):
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_up_query(query):
+    return (convert_ap_query(query, "FP"))

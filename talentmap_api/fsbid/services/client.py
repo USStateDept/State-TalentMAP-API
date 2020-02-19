@@ -2,6 +2,7 @@ import requests
 import logging
 import jwt
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 import csv
 from copy import deepcopy
@@ -15,22 +16,12 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def client(jwt_token, hru_id, rl_cd, hasHandshake, q):
+def client(jwt_token, query):
     '''
     Get Clients by CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}"
-    if hru_id:
-        uri = uri + f'&request_params.hru_id={hru_id}'
-    if rl_cd:
-        uri = uri + f'&request_params.rl_cd={rl_cd}'
-    if hasHandshake:
-        # Convert Front end request of true/false to Y/N for FSBid
-        hs_cd = tmap_handshake_to_fsbid(hasHandshake)
-        uri = uri + f'&request_params.hs_cd={hs_cd}'
-    if q:
-        uri = uri + f'&request_params.freeText={q}'
+    uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
@@ -91,7 +82,10 @@ def single_client(jwt_token, perdet_seq_num):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-    return list(response)[0]
+    cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
+    client = list(response)[0]
+    client['cdo'] = cdo
+    return client
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
@@ -115,7 +109,6 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
-        smart_str(u"Perdet Seq Number"),
         smart_str(u"Skill"),
         smart_str(u"Grade"),
         smart_str(u"Employee ID"),
@@ -126,7 +119,6 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     for record in data:
         writer.writerow([
             smart_str(record["name"]),
-            smart_str("=\"%s\"" % record["perdet_seq_number"]),
             smart_str(record["skills"]),
             smart_str("=\"%s\"" % record["grade"]),
             smart_str("=\"%s\"" % record["employee_id"]),
@@ -137,32 +129,45 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 
 def fsbid_clients_to_talentmap_clients(data):
+    employee = data.get('employee', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)    
     return {
-        "id": data.get("perdet_seq_num", None),
-        "name": data.get("per_full_name", None),
+        "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "perdet_seq_number": data.get("perdet_seq_num", None),
-        "grade": data.get("grade_code", None),
-        "skills": map_skill_codes(data),
-        "employee_id": data.get("emplid", None),
-        "role_code": data.get("role_code", None),
-        "pos_location_code": data.get("pos_location_code", None),
+        "grade": employee.get("per_grade_code", None),
+        "skills": map_skill_codes(employee),
+        "employee_id": employee.get("pert_external_id", None),
+        "role_code": data.get("rl_cd", None),
+        "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
+    employee = data.get('employee', None)
+    current_assignment = employee.get('currentAssignment', None)
+    position = current_assignment.get('currentPosition', None)
     return {
-        "id": data.get("perdet_seq_num", None),
-        "name": data.get("per_full_name", None),
-        "perdet_seq_number": data.get("perdet_seq_num", None),
-        "grade": data.get("grade_code", None),
-        "skills": '\n'.join(map_skill_codes_for_csv(data)),
-        "employee_id": data.get("emplid", None),
-        "role_code": data.get("role_code", None),
-        "pos_location_code": data.get("pos_location_code", None),
+        "id": employee.get("pert_external_id", None),
+        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "grade": employee.get("per_grade_code", None),
+        "skills": ' , '.join(map_skill_codes_for_csv(employee)),
+        "employee_id": employee.get("pert_external_id", None),
+        "role_code": data.get("rl_cd", None),
+        "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
     }
+
+def hru_id_filter(query):
+    results = []
+    hru_id = query.get("hru_id", None)
+    results += [hru_id] if hru_id is not None else []
+    hru_ids = services.convert_multi_value(query.get("hru_id__in", None))
+    results += hru_ids if hru_ids is not None else []
+    return results if len(results) > 0 else None
 
 def convert_client_query(query):
     '''
@@ -171,33 +176,34 @@ def convert_client_query(query):
     The TalentMap filters align with the client search filter naming
     '''
     values = {
-        "request_params.hru_id": query.get("hru_id", None),
+        "request_params.hru_id": hru_id_filter(query),
         "request_params.rl_cd": query.get("rl_cd", None),
         "request_params.ad_id": query.get("ad_id", None),
-        "request_params.hasHandshake": query.get("hs_cd", None),
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
+        "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
+        "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None))
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def map_skill_codes_for_csv(data):
     skills = []
     for i in range(1,4):
-        index = i
+        index = f'_{i}'
         if i == 1:
             index = ''
-        desc = data.get(f'skill{index}_code_desc', None)
+        desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append(desc)
     return filter(lambda x: x is not None, skills)
 
 def map_skill_codes(data):
     skills = []
     for i in range(1,4):
-        index = i
+        index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'skill{index}_code', None)
-        desc = data.get(f'skill{index}_code_desc', None)
+        code = data.get(f'per_skill{index}_code', None)
+        desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
 
