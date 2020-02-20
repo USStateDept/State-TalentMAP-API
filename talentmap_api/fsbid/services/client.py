@@ -142,7 +142,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
-        "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -158,7 +158,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
-        "classifications": fsbid_classifications_to_tmap(data.get("classifications"))
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
 def hru_id_filter(query):
@@ -224,6 +224,20 @@ def tmap_handshake_to_fsbid(hs):
     return tmap_dictionary.get(hs, None)
 
 def fsbid_classifications_to_tmap(cs):
+    tmap_classifications = []
+    if type(cs) is list:
+        for x in cs:
+            tmap_classifications.append({
+                "code": x.get('tp_code', None),
+                "text": x.get('tp_descr_txt', None)
+            })
+    else: 
+        tmap_classifications = {
+                "code": cs.get('tp_code', None),
+                "text": cs.get('tp_descr_txt', None)
+            }
+    return tmap_classifications
+    
     tmap_dictionary = {
         "3": "3rd Tour Bidders",
         "4": "Tenured",
@@ -241,20 +255,13 @@ def fsbid_classifications_to_tmap(cs):
         "R": "Recommended for Tenure",
         "T": "Tandem Bidder"
     }
-    tmap_classifications = [];
-    for x in cs:
-        if cs.get(x, "0") is not "0":
-            tmap_classifications.append(tmap_dictionary.get(x, None))
-    return tmap_classifications
 
-def get_client_classifications(jwt_token, perdet_seq_num):
+def get_all_classifications(jwt_token, perdet_seq_num):
     '''
-    Get single client's classifications
+    Get all classifications
     '''
-    uri = f"bidderTrackingPrograms?"
-    if perdet_seq_num:
-        uri = uri + f'&request_params.perdet_seq_num={perdet_seq_num}'
+    uri = f"bidderTrackingPrograms"
 
     response = services.get_fsbid_results(uri, jwt_token, fsbid_classifications_to_tmap)
     return response
-    
+

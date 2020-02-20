@@ -6,7 +6,7 @@ from talentmap_api.fsbid.views import client as views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    url(r'^$', views.FSBidClientClassificationsListView.as_view(), name='FSBid-client_classifications'),
+    url(r'^$', views.FSBidClassificationsListView.as_view(), name='FSBid-classifications'),
 ]
 
 urlpatterns += router.urls
