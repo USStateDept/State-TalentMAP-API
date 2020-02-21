@@ -110,8 +110,10 @@ def fsbid_locations_to_talentmap_locations(data):
 
 @staticmethod
 def fsbid_classifications_to_talentmap_classifications(data):
+    disabled_ind = data.get("disabled_ind", "N")
+
     return {
         "code": data.get("tp_code", None),
         "text": data.get("tp_descr_txt", None),
-        "disabled_ind": data.get("disabled_ind", None),
+        "disabled_ind": "true" if disabled_ind == "Y" else "false"
     }
