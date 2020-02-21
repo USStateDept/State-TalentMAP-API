@@ -235,6 +235,3 @@ def fsbid_classifications_to_tmap(cs):
             cs.get('tp_code', None),
         )
     return tmap_classifications
-
-
-
