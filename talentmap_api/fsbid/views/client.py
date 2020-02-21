@@ -64,17 +64,4 @@ class FSBidClientCSVView(BaseView):
         Exports all clients to CSV
         '''
         return services.get_client_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
-
-class FSBidClassificationsListView(BaseView):
-
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("perdet_seq_num", location='query', description='Client perdet_seq_num'),
-        ]
-    )
-
-    def get(self, request):
-        '''
-        Get classifications for single client
-        '''
-        return Response(services.get_all_classifications(request.META['HTTP_JWT'], request.query_params.get('perdet_seq_num')))
+        

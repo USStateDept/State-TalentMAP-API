@@ -49,7 +49,6 @@ urlpatterns = [
     url(r'^api/v1/fsbid/reference/', include('talentmap_api.fsbid.urls.reference')),
     url(r'^api/v1/fsbid/cdo/', include('talentmap_api.fsbid.urls.cdo')),
     url(r'^api/v1/fsbid/client/', include('talentmap_api.fsbid.urls.client')),
-    url(r'^api/v1/fsbid/bidderTrackingPrograms/', include('talentmap_api.fsbid.urls.bidderTrackingPrograms')),
     
 
     # Projected Vacancies

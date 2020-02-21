@@ -237,31 +237,6 @@ def fsbid_classifications_to_tmap(cs):
                 "text": cs.get('tp_descr_txt', None)
             }
     return tmap_classifications
-    
-    tmap_dictionary = {
-        "3": "3rd Tour Bidders",
-        "4": "Tenured",
-        "6": "6/8 Rule",
-        "A": "Ambassador or Deputy Assistant Secretary",
-        "C": "Critical Need Language",
-        "C1": "Critical Need Language 1st Tour Complete",
-        "CC": "Critical Need Language Final Tour Complete",
-        "D": "Differential Bidder",
-        "F": "Fair Share Bidders",
-        "F1": "Pickering Fellows",
-        "F2": "Rangel Fellows",
-        "M": "Meritorious Step Increases",
-        "P": "Pickering/Rangel Fellows",
-        "R": "Recommended for Tenure",
-        "T": "Tandem Bidder"
-    }
 
-def get_all_classifications(jwt_token, perdet_seq_num):
-    '''
-    Get all classifications
-    '''
-    uri = f"bidderTrackingPrograms"
 
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_classifications_to_tmap)
-    return response
 
