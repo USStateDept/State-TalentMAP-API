@@ -227,15 +227,13 @@ def fsbid_classifications_to_tmap(cs):
     tmap_classifications = []
     if type(cs) is list:
         for x in cs:
-            tmap_classifications.append({
-                "code": x.get('tp_code', None),
-                "text": x.get('tp_descr_txt', None)
-            })
+            tmap_classifications.append(
+                x.get('tp_code', None)
+            )
     else: 
-        tmap_classifications = {
-                "code": cs.get('tp_code', None),
-                "text": cs.get('tp_descr_txt', None)
-            }
+        tmap_classifications.append(
+            cs.get('tp_code', None),
+        )
     return tmap_classifications
 
 
