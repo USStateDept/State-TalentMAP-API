@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^codes/$', views.FSBidCodesView.as_view(), name='FSBid-skill-codes'),
     url(r'^cones/$', views.FSBidConesView.as_view(), name='FSBid-cones'),
     url(r'^locations/$', views.FSBidLocationsView.as_view(), name='FSBid-locations'),
+    url(r'^classifications/$', views.FSBidClassificationsView.as_view(), name='FSBid-classifications'),
 ]
 
 urlpatterns += router.urls

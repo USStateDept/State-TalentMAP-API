@@ -67,3 +67,7 @@ class FSBidConesView(BaseView):
         return newlist
 
     mod_function = modCones
+
+class FSBidClassificationsView(BaseView):
+    uri = "bidderTrackingPrograms"
+    mapping_function = services.fsbid_classifications_to_talentmap_classifications

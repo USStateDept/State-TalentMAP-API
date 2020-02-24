@@ -107,3 +107,11 @@ def fsbid_locations_to_talentmap_locations(data):
         "country": data.get("location_country", None),
         "is_domestic": data.get("is_domestic", None) == 1,
     }
+
+@staticmethod
+def fsbid_classifications_to_talentmap_classifications(data):
+    return {
+        "code": data.get("tp_code", None),
+        "text": data.get("tp_descr_txt", None),
+        "disabled_ind": data.get("disabled_ind", "N") == "Y"
+    }
