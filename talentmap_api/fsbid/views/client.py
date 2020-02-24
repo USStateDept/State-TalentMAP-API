@@ -31,8 +31,6 @@ class FSBidClientListView(BaseView):
         '''
         return Response(services.client(request.META['HTTP_JWT'], request.query_params))
 
-
-
 class FSBidClientView(BaseView):
 
     def get(self, request, pk):
@@ -64,3 +62,4 @@ class FSBidClientCSVView(BaseView):
         Exports all clients to CSV
         '''
         return services.get_client_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+

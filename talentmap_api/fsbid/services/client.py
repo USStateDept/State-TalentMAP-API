@@ -141,7 +141,8 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -156,7 +157,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location_code": position.get("pos_location_code", None),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd"))
+        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
 def hru_id_filter(query):
@@ -220,3 +222,16 @@ def tmap_handshake_to_fsbid(hs):
         "false": "N"
     }
     return tmap_dictionary.get(hs, None)
+
+def fsbid_classifications_to_tmap(cs):
+    tmap_classifications = []
+    if type(cs) is list:
+        for x in cs:
+            tmap_classifications.append(
+                x.get('tp_code', None)
+            )
+    else: 
+        tmap_classifications.append(
+            cs.get('tp_code', None),
+        )
+    return tmap_classifications
