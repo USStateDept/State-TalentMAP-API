@@ -140,7 +140,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "skills": map_skill_codes(employee),
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
-        "pos_location_code": position.get("pos_location_code", None),
+        "pos_location_code": map_location(position.get("currentLocation", None)),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
@@ -206,6 +206,15 @@ def map_skill_codes(data):
         desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append({ 'code': code, 'description': desc })
     return filter(lambda x: x.get('code', None) is not None, skills)
+
+def map_location(location):
+    city = location.get('city')
+    country = location.get('country')
+    state = location.get('state')
+    result = f"{city}, {country}"
+    if state and state.strip():
+        result = f"{city}, {state}"
+    return result
 
 def fsbid_handshake_to_tmap(hs):
     # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
