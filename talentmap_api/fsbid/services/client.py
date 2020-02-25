@@ -131,11 +131,11 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 def fsbid_clients_to_talentmap_clients(data):
     employee = data.get('employee', None)
     current_assignment = employee.get('currentAssignment', None)
-    position = current_assignment.get('currentPosition', None)    
+    position = current_assignment.get('currentPosition', None)
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
-        "perdet_seq_number": data.get("perdet_seq_num", None),
+        "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
         "employee_id": employee.get("pert_external_id", None),
