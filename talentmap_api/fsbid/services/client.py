@@ -211,7 +211,9 @@ def map_location(location):
     city = location.get('city')
     country = location.get('country')
     state = location.get('state')
-    result = f"{city}, {country}"
+    result = city
+    if country and country.strip():
+        result = f"{city}, {country}"
     if state and state.strip():
         result = f"{city}, {state}"
     return result
