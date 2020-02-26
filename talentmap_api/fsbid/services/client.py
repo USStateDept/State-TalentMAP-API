@@ -5,6 +5,7 @@ import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 import csv
+from talentmap_api.common.common_helpers import ensure_date
 from copy import deepcopy
 from datetime import datetime
 from django.conf import settings
@@ -21,7 +22,7 @@ def client(jwt_token, query):
     Get Clients by CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}"
+    uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}&request_params.currentAssignmentOnly=true"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     return response
 
@@ -80,7 +81,7 @@ def single_client(jwt_token, perdet_seq_num):
     Get a single client for a CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}"
+    uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
     client = list(response)[0]
@@ -130,8 +131,56 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 def fsbid_clients_to_talentmap_clients(data):
     employee = data.get('employee', None)
-    current_assignment = employee.get('currentAssignment', None)
-    position = current_assignment.get('currentPosition', None)
+    current_assignment = None
+    assignments = None
+    position = None
+    location = {}
+
+    if employee is not None:
+        current_assignment = employee.get('currentAssignment', None)
+
+    if employee.get('assignment', None) is not None:
+        assignments = employee.get('assignment', None)
+        # handle if array
+        if type(assignments) is type([]) and list(assignments):
+            current_assignment = list(assignments)[0]
+        # handle if object
+        if type(assignments) is type(dict()):
+            current_assignment = assignments
+            # remove current prefix
+            if assignments.get('currentPosition', None) is not None:
+                assignments['position'] = assignments['currentPosition']
+                assignments['position']['location'] = assignments['currentPosition']['currentLocation']
+                assignments = [].append(assignments)
+
+    if current_assignment is not None:
+        # handle if object
+        if current_assignment.get('currentPosition', None) is not None:
+            position = current_assignment.get('currentPosition', None)
+        # handle if array
+        if current_assignment.get('position', None) is not None:
+            position = current_assignment.get('position', None)
+
+    if current_assignment is not None and assignments and type(assignments) is type([]):
+        # remove the current assignment, since we'll pass it with current_assignment
+        assignments.pop(0)
+
+    if position is not None:
+        # handle if object
+        if position.get('currentLocation', None) is not None:
+            location = position.get('currentLocation', {})
+        # handle if array
+        if position.get('location', None) is not None:
+            location = position.get('location', {})
+
+    if current_assignment and current_assignment.get('currentPosition', None) is not None:
+        # remove current prefix
+        current_assignment['position'] = current_assignment['currentPosition']
+        current_assignment['position']['location'] = current_assignment['position']['currentLocation']
+
+    # first object in array, mapped
+    current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
@@ -140,9 +189,11 @@ def fsbid_clients_to_talentmap_clients(data):
         "skills": map_skill_codes(employee),
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
-        "pos_location": map_location(position.get("currentLocation", None)),
+        "pos_location": map_location(location),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
-        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
+        "current_assignment": current_assignment,
+        "assignments": fsbid_assignments_to_tmap(assignments)
     }
 
 def fsbid_clients_to_talentmap_clients_for_csv(data):
@@ -186,13 +237,13 @@ def convert_client_query(query):
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
-def map_skill_codes_for_csv(data):
+def map_skill_codes_for_csv(data, prefix = 'per'):
     skills = []
     for i in range(1,4):
         index = f'_{i}'
         if i == 1:
             index = ''
-        desc = data.get(f'per_skill{index}_code_desc', None)
+        desc = data.get(f'{prefix}_skill{index}_code_desc', None)
         skills.append(desc)
     return filter(lambda x: x is not None, skills)
 
@@ -241,8 +292,50 @@ def fsbid_classifications_to_tmap(cs):
             tmap_classifications.append(
                 x.get('tp_code', None)
             )
-    else: 
+    else:
         tmap_classifications.append(
             cs.get('tp_code', None),
         )
     return tmap_classifications
+
+def fsbid_assignments_to_tmap(assignments):
+    assignmentsCopy = []
+    tmap_assignments = []
+    if type(assignments) is type(dict()):
+        assignmentsCopy.append(assignments)
+    else:
+        assignmentsCopy = assignments
+    if type(assignmentsCopy) is type([]):
+        for x in assignmentsCopy:
+            pos = x.get('position', {})
+            loc = pos.get('location', {})
+            tmap_assignments.append(
+                {
+                    "id": x.get('asg_seq_num', None),
+                    "position_id": x.get('pos_seq_num', None),
+                    "start_date": x.get('asgd_eta_date', None),
+                    "end_date": x.get('asgd_etd_ted_date', None),
+                    "position": {
+                        "grade": pos.get("pos_grade_code", None),
+                        "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
+                        "skill_code": pos.get("pos_skill_code", None),
+                        "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
+                        "position_number":  pos.get('pos_seq_num', None),
+                        "title": pos.get("pos_title_desc", None),
+                        "post": {
+                            "code": loc.get("gvt_geoloc_cd", None),
+                            "post_overview_url": services.get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
+                            "post_bidding_considerations_url": services.get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
+                            "obc_id": services.get_obc_id(loc.get("gvt_geoloc_cd", None)),
+                            "location": {
+                                "country": loc.get("country", None),
+                                "code": loc.get("gvt_geoloc_cd", None),
+                                "city": loc.get("city", None),
+                                "state": loc.get("state", None),
+                            }
+                        },
+                        "language": pos.get("pos_position_lang_prof_desc", None)
+                    },
+                }
+            )
+    return tmap_assignments
