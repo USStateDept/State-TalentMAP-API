@@ -17,14 +17,32 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-def client(jwt_token, query):
+def client(jwt_token, query, host=None):
     '''
     Get Clients by CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}&{convert_client_query(query)}&request_params.currentAssignmentOnly=true"
+    uri = f"CDOClients"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
+
+    response = services.send_get_request(
+        uri,
+        query,
+        convert_client_query,
+        jwt_token,
+        fsbid_clients_to_talentmap_clients,
+        get_clients_count,
+        "/api/v1/fsbid/CDOClients/",
+        host
+    )
+
     return response
+
+def get_clients_count(query, jwt_token, host=None):
+    '''
+    Gets the total number of available positions for a filterset
+    '''
+    return services.send_count_request("CDOClients", query, convert_client_query, jwt_token, host)
 
 def client_suggestions(jwt_token, perdet_seq_num):
     '''
@@ -233,7 +251,11 @@ def convert_client_query(query):
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
         "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
-        "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None))
+        "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None)),
+        "request_params.page_index": int(query.get("page", 1)),
+        "request_params.page_size": query.get("limit", 25),
+        "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
+        "request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 

@@ -22,14 +22,16 @@ class FSBidClientListView(BaseView):
             coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
             coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes'),
             coreapi.Field("q", location='query', description='Free Text'),
-            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.')
+            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
+            coreapi.Field("page", location='query', type='integer', description='Page size'),
+            coreapi.Field("limit", location='query', type='integer', description='Page limit'),
         ]
     )
     def get(self, request):
         '''
         Gets all clients for a CDO
         '''
-        return Response(services.client(request.META['HTTP_JWT'], request.query_params))
+        return Response(services.client(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
 
 class FSBidClientView(BaseView):
 
@@ -62,4 +64,3 @@ class FSBidClientCSVView(BaseView):
         Exports all clients to CSV
         '''
         return services.get_client_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
-
