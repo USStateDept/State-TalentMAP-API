@@ -205,16 +205,12 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     newQuery = query.copy()
     countProp = "count(1)"
     if uri is 'CDOClients':
-        logger.info('equal')
         countProp = "count"
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
-    logger.info('HELLO')
-    logger.info(url)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    logger.info(response)
     return {"count": response["Data"][0][countProp]}
 
 def get_obc_id(post_id):
