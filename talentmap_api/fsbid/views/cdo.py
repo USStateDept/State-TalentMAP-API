@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -53,7 +55,13 @@ class FSBidListBidActionView(APIView):
         try:
             services.submit_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
             user = UserProfile.objects.get(user=self.request.user)
-            Notification.objects.create(owner=UserProfile.objects.get(emp_id=client_id),
+            try:
+                owner = UserProfile.objects.get(emp_id=client_id)
+            except ObjectDoesNotExist:
+                logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            Notification.objects.create(owner=owner,
                                         tags=['bidding'],
                                         message=f"Bid on position id={pk} has been submitted by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -85,7 +93,12 @@ class FSBidListPositionActionView(BaseView):
         '''
         services.bid_on_position(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
-        Notification.objects.create(owner=UserProfile.objects.get(emp_id=client_id),
+        try:
+            owner = UserProfile.objects.get(emp_id=client_id)
+        except ObjectDoesNotExist:
+            logger.info(f"User with emp_id={client_id} did not exist. No notification created for adding bid on position id={pk}.")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        Notification.objects.create(owner=owner,
                                         tags=['bidding'],
                                         message=f"Bid on position id={pk} has been added to your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -96,7 +109,12 @@ class FSBidListPositionActionView(BaseView):
         '''
         services.remove_bid(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
-        Notification.objects.create(owner=UserProfile.objects.get(emp_id=client_id),
+        try:
+            owner = UserProfile.objects.get(emp_id=client_id)
+        except ObjectDoesNotExist:
+            logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing bid on position id={pk}.")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        Notification.objects.create(owner=owner,
                                         tags=['bidding'],
                                         message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)

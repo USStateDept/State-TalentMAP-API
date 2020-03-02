@@ -107,8 +107,10 @@ def fsbid_bid_to_talentmap_bid(data):
     bidStatus = get_bid_status(data.get('bs_cd'), data.get('ubw_hndshk_offrd_flg'), data.get('assignment_date'), data.get('panel_meeting_status'))
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(float(data.get('cp_id')))
+    perdet = str(int(data.get('perdet_seq_num')))
+
     return {
-        "id": f"{data.get('perdet_seq_num')}_{cpId}",
+        "id": f"{perdet}_{cpId}",
         "bidcycle": data.get('cycle_nm_txt'),
         "emp_id": data.get('perdet_seq_num'),
         "user": "",

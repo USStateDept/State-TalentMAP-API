@@ -202,9 +202,16 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     Gets the total number of items for a filterset
     '''
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+    newQuery = query.copy()
+    countProp = "count(1)"
+    if uri is 'CDOClients':
+        countProp = "count"
+        newQuery['getCount'] = 'true'
+        newQuery['request_params.page_index'] = None
+        newQuery['request_params.page_size'] = None
+    url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    return {"count": response["Data"][0]["count(1)"]}
+    return {"count": response["Data"][0][countProp]}
 
 def get_obc_id(post_id):
 
