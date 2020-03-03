@@ -49,6 +49,19 @@ class AvailablePositionFavoriteListView(APIView):
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
+class AvailablePositionFavoriteIdsListView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        """
+        get:
+        Return a list of the ids of the user's favorite available positions.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        return Response(aps)
+
 class FavoritesCSVView(APIView):
 
     permission_classes = (IsAuthenticated,)
