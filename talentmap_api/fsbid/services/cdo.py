@@ -32,7 +32,7 @@ def single_cdo(jwt_token = None, perdet_seq_num = None):
     if response is not None:
         cdos = list(response)
 
-    if cdo and len(cdos) > 0:
+    if cdos and len(cdos) > 0:
         cdo = list(response)[0]
         initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
         cdo['initials'] = initials
