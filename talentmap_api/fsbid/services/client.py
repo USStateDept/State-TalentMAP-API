@@ -23,8 +23,7 @@ def client(jwt_token, query, host=None):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-
+    
     response = services.send_get_request(
         uri,
         query,
