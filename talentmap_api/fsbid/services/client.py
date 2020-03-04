@@ -23,7 +23,6 @@ def client(jwt_token, query, host=None):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients"
-
     response = services.send_get_request(
         uri,
         query,
