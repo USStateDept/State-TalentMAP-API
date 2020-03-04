@@ -23,7 +23,6 @@ def client(jwt_token, query, host=None):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
 
     response = services.send_get_request(
         uri,
@@ -42,7 +41,7 @@ def get_clients_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
-    return services.send_count_request("CDOClients", query, convert_client_query, jwt_token, host)
+    return services.send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
 
 def client_suggestions(jwt_token, perdet_seq_num):
     '''
@@ -238,7 +237,7 @@ def hru_id_filter(query):
     results += hru_ids if hru_ids is not None else []
     return results if len(results) > 0 else None
 
-def convert_client_query(query):
+def convert_client_query(query, isCount = None):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -257,7 +256,12 @@ def convert_client_query(query):
         "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
         "request_params.get_count": query.get("getCount", 'false'),
     }
+    if isCount:
+        values['request_params.page_size'] = None
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_client_count_query(query):
+    return convert_client_query(query, True)
 
 def map_skill_codes_for_csv(data, prefix = 'per'):
     skills = []
