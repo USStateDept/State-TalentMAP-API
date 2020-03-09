@@ -195,7 +195,10 @@ def fsbid_clients_to_talentmap_clients(data):
         current_assignment['position']['location'] = current_assignment['position']['currentLocation']
 
     # first object in array, mapped
-    current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+    try:
+        current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+    except:
+        current_assignment = {}
 
     return {
         "id": employee.get("pert_external_id", None),
