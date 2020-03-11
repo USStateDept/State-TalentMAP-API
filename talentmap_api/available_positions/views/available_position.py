@@ -36,6 +36,13 @@ class AvailablePositionFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("page", location='query', type='integer', description='Page size'),
+            coreapi.Field("limit", location='query', type='integer', description='Page limit'),
+        ]
+    )
+
     def get(self, request, *args, **kwargs):
         """
         get:
@@ -43,9 +50,13 @@ class AvailablePositionFavoriteListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        limit = request.query_params.get('limit', 12)
+        page = request.query_params.get('page', 1)
         if len(aps) > 0:
             pos_nums = ','.join(aps)
-            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit=500"), request.META['HTTP_JWT']))
+            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+                                                      request.META['HTTP_JWT'],
+                                                      f"{request.scheme}://{request.get_host()}"))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
@@ -70,6 +81,7 @@ class FavoritesCSVView(APIView):
 
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
         if len(aps) > 0 and request.query_params.get('exclude_available') != 'true':
+            # above is how we get the query params
             pos_nums = ','.join(aps)
             apdata = services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
             data = data + apdata.get('results')
