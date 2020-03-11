@@ -138,6 +138,8 @@ sort_dict = {
     "grade": "grade",
     "client_skill": "per_skill_code",
     "client_grade": "per_grade_code",
+    "client_last_name": "per_last_name",
+    "client_first_name": "per_first_name",
 }
 
 

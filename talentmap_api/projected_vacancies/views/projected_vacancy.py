@@ -47,6 +47,19 @@ class ProjectedVacancyFavoriteListView(APIView):
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
+class ProjectedVacancyFavoriteIdsListView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        """
+        get:
+        Return a list of the ids of the user's favorite projected vacancies.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        return Response(pvs)
+
 
 class ProjectedVacancyFavoriteActionView(APIView):
     '''
