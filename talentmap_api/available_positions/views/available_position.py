@@ -81,7 +81,6 @@ class FavoritesCSVView(APIView):
 
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
         if len(aps) > 0 and request.query_params.get('exclude_available') != 'true':
-            # above is how we get the query params
             pos_nums = ','.join(aps)
             apdata = services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
             data = data + apdata.get('results')
