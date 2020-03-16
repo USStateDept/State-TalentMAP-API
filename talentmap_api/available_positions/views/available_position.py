@@ -50,7 +50,7 @@ class AvailablePositionFavoriteListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
-        limit = request.query_params.get('limit', 12)
+        limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
         if len(aps) > 0:
             pos_nums = ','.join(aps)
