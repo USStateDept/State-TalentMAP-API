@@ -47,7 +47,7 @@ def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
     return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
 
-def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None):
+def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
         "futureVacancies",
         query,
@@ -60,7 +60,12 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None):
         limit
     )
 
-    return services.get_ap_and_pv_csv(data, "projected_vacancies", False)
+    response = services.get_ap_and_pv_csv(data, "projected_vacancies", False)
+    if includeLimit is True:
+        logger.info('applying limit')
+        response['Position-Limit'] = limit
+
+    return response
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
