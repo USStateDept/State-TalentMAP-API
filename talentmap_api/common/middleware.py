@@ -23,5 +23,5 @@ class ExposeHeadersMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        response['Access-Control-Expose-Headers'] = "Content-Disposition"
+        response['Access-Control-Expose-Headers'] = "Content-Disposition, Position-Limit"
         return response
