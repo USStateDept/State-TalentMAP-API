@@ -60,9 +60,10 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
         limit
     )
 
+    count = get_projected_vacancies_count(query, jwt_token)
     response = services.get_ap_and_pv_csv(data, "projected_vacancies", False)
-    if includeLimit is True:
-        logger.info('applying limit')
+
+    if includeLimit is True and count['count'] > limit:
         response['Position-Limit'] = limit
 
     return response
