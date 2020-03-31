@@ -25,8 +25,8 @@ class ProjectedVacancyFavoriteListView(APIView):
 
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='Page size'),
-            coreapi.Field("limit", location='query', type='integer', description='Page limit'),
+            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
+            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
         ]
     )
 
