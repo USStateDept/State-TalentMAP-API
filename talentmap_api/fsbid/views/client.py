@@ -23,8 +23,9 @@ class FSBidClientListView(BaseView):
             coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes'),
             coreapi.Field("q", location='query', description='Free Text'),
             coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
-            coreapi.Field("page", location='query', type='integer', description='Page size'),
-            coreapi.Field("limit", location='query', type='integer', description='Page limit'),
+            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
+            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
+            coreapi.Field("all_count", location='query', type='integer', description='Returns default value 99999 for front-end'),
         ]
     )
     def get(self, request):

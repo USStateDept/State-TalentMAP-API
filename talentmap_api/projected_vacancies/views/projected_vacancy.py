@@ -1,3 +1,5 @@
+import coreapi
+
 from django.shortcuts import render
 from django.http import QueryDict
 
@@ -6,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.schemas import AutoSchema
+
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
@@ -19,6 +23,13 @@ class ProjectedVacancyFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
+            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
+        ]
+    )
+
     def get(self, request, *args, **kwargs):
         """
         get:
@@ -26,9 +37,13 @@ class ProjectedVacancyFavoriteListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        limit = request.query_params.get('limit', 12)
+        page = request.query_params.get('page', 1)
         if len(pvs) > 0:
             pos_nums = ','.join(pvs)
-            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit=500"), request.META['HTTP_JWT']))
+            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+                                                             request.META['HTTP_JWT'],
+                                                             f"{request.scheme}://{request.get_host()}"))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
