@@ -200,9 +200,16 @@ def fsbid_clients_to_talentmap_clients(data):
     except:
         current_assignment = {}
 
+    initials = None
+    try:
+        initials = employee['per_first_name'][:1] + employee['per_last_name'][:1]
+    except:
+        initials = None
+
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "initials": initials,
         "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
