@@ -320,3 +320,64 @@ def get_ap_and_pv_csv(data, filename, ap=False):
 
         writer.writerow(row)
     return response
+
+def get_bids_csv(data, filename):
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Position"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Skill"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Bureau"))
+    headers.append(smart_str(u"Post City"))
+    headers.append(smart_str(u"Post Country"))
+    # headers.append(smart_str(u"Tour of Duty"))
+    # headers.append(smart_str(u"Languages"))
+    # headers.append(smart_str(u"Service Needs Differential"))
+    # headers.append(smart_str(u"Post Differential"))
+    # headers.append(smart_str(u"Danger Pay"))
+    # headers.append(smart_str(u"TED"))
+    # headers.append(smart_str(u"Incumbent"))
+    headers.append(smart_str(u"Bid Cycle"))
+    headers.append(smart_str(u"Bid Status"))
+    # headers.append(smart_str(u"Capsule Description"))
+    writer.writerow(headers)
+
+    for record in data:
+        # try:
+        #     ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        # except:
+        #     ted = "None listed"
+        # try:
+        #     posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+        # except:
+        #     posteddate = "None listed"
+
+        row = []
+        row.append(smart_str(record["position"]["title"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        row.append(smart_str(record["position"]["skill"]))
+        row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
+        row.append(smart_str(record["position"]["bureau"]))
+        row.append(smart_str(record["position"]["post"]["location"]["city"]))
+        row.append(smart_str(record["position"]["post"]["location"]["country"]))
+        # row.append(smart_str(record["position"]["tour_of_duty"]))
+        # row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
+        # row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+        # row.append(smart_str(record["position"]["post"]["differential_rate"]))
+        # row.append(smart_str(record["position"]["post"]["danger_pay"]))
+        # row.append(ted)
+        # row.append(smart_str(record["position"]["current_assignment"]["user"]))
+        row.append(smart_str(record["bidcycle"]))
+        row.append(smart_str(record.get("status")))
+        # row.append(smart_str(record["position"]["description"]["content"]))
+
+        writer.writerow(row)
+    return response
