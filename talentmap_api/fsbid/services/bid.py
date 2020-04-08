@@ -30,6 +30,17 @@ def user_bids(employee_id, jwt_token, position_id=None):
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     return [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
 
+def get_user_bids_csv(employee_id, jwt_token, position_id=None):
+    '''
+    Export bids for a user to CSV
+    '''
+    data = user_bids(employee_id, jwt_token, position_id)
+
+    response = services.get_bids_csv(list(data), "bids")
+
+    logger.info(response)
+
+    return response
 
 def bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
