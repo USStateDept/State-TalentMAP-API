@@ -39,7 +39,7 @@ idna==2.6
 isodate==0.6.0
 itsdangerous==0.24
 itypes==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 locustio==0.8.1
 lxml==4.2.1
 MarkupSafe==1.0
