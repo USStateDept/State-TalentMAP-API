@@ -22,7 +22,7 @@ def get_employee_perdet_seq_num(jwt_token):
 
 def get_employee_info(jwt_token, emp_id):
     '''
-    Gets the perdet_seq_num for the employee from FSBid
+    Gets the grade and skills for the employee from FSBid
     '''
     url = f"{FSBID_ROOT}/Persons?perdet_seq_num={emp_id}&request_params.page_size=1&request_params.page_index=1"
     employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
