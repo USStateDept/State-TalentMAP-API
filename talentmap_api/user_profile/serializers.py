@@ -110,8 +110,6 @@ class ClientDetailSerializer(ClientSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
-    skills = StaticRepresentationField(read_only=True, many=True)
-    grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
@@ -183,13 +181,6 @@ class UserProfileSerializer(PrefetchedSerializer):
             },
             "received_shares": {
                 "class": SharableSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "skills": {
-                "class": SkillSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
