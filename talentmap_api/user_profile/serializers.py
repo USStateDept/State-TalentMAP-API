@@ -15,6 +15,7 @@ from talentmap_api.fsbid.services.cdo import single_cdo
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
+from talentmap_api.fsbid.services.employee import get_employee_info
 
 
 class UserSerializer(PrefetchedSerializer):
@@ -121,6 +122,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     favorite_positions = serializers.SerializerMethodField()
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
+    employee_info = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -138,6 +140,16 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return single_cdo(jwt, user.emp_id)
+        except:
+            return {}
+
+
+    def get_employee_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return get_employee_info(jwt, user.emp_id)
         except:
             return {}
 
