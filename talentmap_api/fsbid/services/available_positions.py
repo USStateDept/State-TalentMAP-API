@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
@@ -249,7 +249,8 @@ def convert_ap_query(query):
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
-        "request_params.cps_codes": services.convert_multi_value(query.get("cps_codes")),
+        "request_params.cps_codes": services.convert_multi_value(
+            validate_values(query.get("cps_codes", "HS,OP"), ["HS", "OP"])),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
