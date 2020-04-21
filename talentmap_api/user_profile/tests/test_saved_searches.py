@@ -58,22 +58,6 @@ def test_saved_search_create_unfilterable_endpoint(authorized_client, authorized
 
 
 @pytest.mark.django_db()
-def test_saved_search_create_bad_filters(authorized_client, authorized_user):
-    # Test a valid endpoint with bad filters
-    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
-        {
-            "name": "Banana search",
-            "endpoint": "/api/v1/position/",
-            "filters": {
-                "asdf": ["05"]
-            }
-        }
-    ), content_type='application/json')
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db()
 def test_saved_search_create_in_array_filters(authorized_client, authorized_user):
     # Test a valid endpoint with declared (i.e. manual) filters
     response = authorized_client.post('/api/v1/searches/', data=json.dumps(
@@ -145,20 +129,6 @@ def test_saved_search_patch_bad_endpoint(authorized_client, authorized_user, tes
     response = authorized_client.patch(f'/api/v1/searches/{test_saved_search_fixture.id}/', data=json.dumps(
         {
             "endpoint": "/api/v1/asdf/"
-        }
-    ), content_type='application/json')
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db()
-def test_saved_search_patch_bad_filters(authorized_client, authorized_user, test_saved_search_fixture):
-    # Test patching bad filters
-    response = authorized_client.patch(f'/api/v1/searches/{test_saved_search_fixture.id}/', data=json.dumps(
-        {
-            "filters": {
-                "asdf": ["05"]
-            }
         }
     ), content_type='application/json')
 
