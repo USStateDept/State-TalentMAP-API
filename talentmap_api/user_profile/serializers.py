@@ -223,11 +223,15 @@ class SavedSearchSerializer(PrefetchedSerializer):
                 # Raise a validation error if the endpoint isn't good
                 raise ValidationError(f"Endpoint {endpoint} is not a valid API path")
 
+        """
+        Disabling validation, as the benefit is negligible and requires us to keep the
+        allowed fields up to date with FSBid API.
+        """
         # Get our list of filters, and verify that the specified filters are valid
-        if hasattr(view, "filter_class"):
-            validate_filters_exist(filters, view.filter_class)
-        else:
-            raise ValidationError("Specified endpoint does not support filters")
+        #if hasattr(view, "filter_class"):
+        #    validate_filters_exist(filters, view.filter_class)
+        #else:
+        #    raise ValidationError("Specified endpoint does not support filters")
 
         return data
 
