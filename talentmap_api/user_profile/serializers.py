@@ -17,8 +17,9 @@ from talentmap_api.fsbid.services.cdo import single_cdo
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
-from talentmap_api.fsbid.services.employee import get_employee_info
+from talentmap_api.fsbid.services.employee import get_employee_information
 
+logger = logging.getLogger(__name__)
 
 class UserSerializer(PrefetchedSerializer):
     class Meta:
@@ -149,7 +150,7 @@ class UserProfileSerializer(PrefetchedSerializer):
         try:
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
-            return get_employee_info(jwt, user.emp_id)
+            return get_employee_information(jwt, user.emp_id)
         except:
             return {}
 
