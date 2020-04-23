@@ -22,7 +22,6 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-
 def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
@@ -47,6 +46,18 @@ def get_unavailable_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+def get_all_position(id, jwt_token):
+    '''
+    Gets an indivdual position by id
+    '''
+
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_ap_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -268,3 +279,6 @@ def convert_ap_query(query):
 
 def convert_up_query(query):
     return (convert_ap_query(query, "FP"))
+
+def convert_all_query(query):
+    return (convert_ap_query(query, "FP,OP,HS"))
