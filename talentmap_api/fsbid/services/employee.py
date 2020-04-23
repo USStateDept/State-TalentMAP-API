@@ -4,8 +4,10 @@ import jwt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from talentmap_api.fsbid.services.client import map_skill_codes
 
 API_ROOT = settings.EMPLOYEES_API_URL
+FSBID_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +19,21 @@ def get_employee_perdet_seq_num(jwt_token):
     url = f"{API_ROOT}/userInfo?ad_id={ad_id}"
     employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return next(iter(employee.get('Data', [])), {}).get('perdet_seq_num')
+
+def get_employee_information(jwt_token, emp_id):
+    '''
+    Gets the grade and skills for the employee from FSBid
+    '''
+    url = f"{FSBID_ROOT}/Persons?request_params.per_seq_num={emp_id}"
+    employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    employee = next(iter(employee.get('Data', [])), {})
+    try:
+        return {
+            "skills": map_skill_codes(employee),
+            "grade": employee['per_grade_code']
+        }
+    except:
+        return {}
 
 def map_group_to_fsbid_role(jwt_token):
   '''
