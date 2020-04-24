@@ -354,8 +354,6 @@ def get_bids_csv(data, filename, jwt_token):
     for record in data:
         position_data = get_all_position(smart_str(record["position"]["id"]), jwt_token)
         if position_data is not None:
-            # Mike: my concern here was that I think that the data coming through for bids should only be
-            # for available positions, so would we even be wanting to use get_all_position or just get_available_position?
             try:
                 ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
             except:
