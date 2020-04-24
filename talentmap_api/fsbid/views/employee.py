@@ -28,13 +28,18 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
             user.save()
 
         auth_user = request.user
-        # Get the role from the token
-        for current_role in services.map_group_to_fsbid_role(jwt):
+
+        # Get the valid and mapped roles from the token
+        user_roles = services.map_group_to_fsbid_role(jwt)
+
+        # Add roles
+        for current_role in user_roles:
           auth_user.groups.add(current_role)
-          # Remove any roles that the user may have had but have been removed but retain the TM specific roles
-          for tm_role in services.ROLE_MAPPING.values():
-            if current_role.name != tm_role:
-              auth_user.groups.remove(Group.objects.filter(name=tm_role).first())
+
+        # Remove any roles that the user has lost since the last time they logged in
+        for role in services.ROLE_MAPPING.values():
+            if role not in user_roles.values_list('name', flat=True):
+                auth_user.groups.remove(Group.objects.filter(name=role).first())
 
         auth_user.save()
 
