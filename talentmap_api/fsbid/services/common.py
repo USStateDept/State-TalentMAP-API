@@ -364,7 +364,7 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
             row.append(smart_str(record["position"]["skill"]))
             row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
-            row.append(smart_str(record["position"]["bureau"]))
+            row.append(smart_str(position_data["position"]["bureau"]))
             row.append(smart_str(record["position"]["post"]["location"]["city"]))
             row.append(smart_str(record["position"]["post"]["location"]["country"]))
             row.append(smart_str(position_data["position"]["tour_of_duty"]))
