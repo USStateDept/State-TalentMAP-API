@@ -17,6 +17,8 @@ import datetime
 import saml2
 import saml2.saml
 
+from saml2.config import SPConfig
+
 
 # This supports swagger https
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -215,105 +217,116 @@ if ENABLE_SAML2:
         'surname': ('last_name', ),
     }
 
-    SAML_CONFIG = {
-        "strict": False,
+    def config_settings_loader(request):
+        isPublic = False
+        acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}"
+        if request.GET.get('public') is not None:
+            isPublic = True
+            acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}"
+        if isPublic is True:
+            acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING_PUBLIC')}"
+        conf = SPConfig()
 
-        # full path to the xmlsec1 binary program
-        'xmlsec_binary': get_delineated_environment_variable('SAML2_XMLSEC1_PATH'),
+        conf.load({
+            "strict": False,
 
-        # acceptable time differential, in seconds
-        'accepted_time_diff': 60,
+            # full path to the xmlsec1 binary program
+            'xmlsec_binary': get_delineated_environment_variable('SAML2_XMLSEC1_PATH'),
 
-        # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/metadata/",
+            # acceptable time differential, in seconds
+            'accepted_time_diff': 60,
 
-        # directory with attribute mapping
-        'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
+            # your entity id, usually your subdomain plus the url to the metadata view
+            'entityid': f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/metadata/",
 
-        # this block states what services we provide
-        'service': {
-            # We are a service provider
-            'sp': {
-                'name': 'TalentMAP',
-                'allow_unsolicited': True,
-                'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
-                'endpoints': {
-                    # url and binding to the assetion consumer service view
-                    # do not change the binding or service name
-                    'assertion_consumer_service': [
-                        (f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}",
-                            saml2.BINDING_HTTP_POST),
-                    ],
-                    # url and binding to the single logout service view
-                    # do not change the binding or service name
-                    'single_logout_service': [
-                        (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/ls/",
-                            saml2.BINDING_HTTP_REDIRECT),
-                        (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}ls/post",
-                            saml2.BINDING_HTTP_POST),
-                    ],
-                },
+            # directory with attribute mapping
+            'attribute_map_dir': os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'attribute_maps'),
 
-                # attributes that this project need to identify a user
-                'required_attributes': ['EmailAddress', 'nameidentifier', 'givenname', 'surname'],
-
-                # attributes that may be useful to have but not required
-                # TODO: What attributes are we getting back from DOS IdP?
-                'optional_attributes': [],
-
-                # in this section the list of IdPs we talk to are defined
-                'idp': {
-                    # the keys of this dictionary are entity ids
-                    get_delineated_environment_variable('SAML2_IDP_METADATA_ENDPOINT'): {
-                        'single_sign_on_service': {
-                            saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SSO_LOGIN_ENDPOINT'),
-                        },
-                        'single_logout_service': {
-                            saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SLO_LOGOUT_ENDPOINT'),
-                        },
+            # this block states what services we provide
+            'service': {
+                # We are a service provider
+                'sp': {
+                    'name': 'TalentMAP',
+                    'allow_unsolicited': True,
+                    'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                    'endpoints': {
+                        # url and binding to the assetion consumer service view
+                        # do not change the binding or service name
+                        'assertion_consumer_service': [
+                            (f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}",
+                                saml2.BINDING_HTTP_POST),
+                        ],
+                        # url and binding to the single logout service view
+                        # do not change the binding or service name
+                        'single_logout_service': [
+                            (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/ls/",
+                                saml2.BINDING_HTTP_REDIRECT),
+                            (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}ls/post",
+                                saml2.BINDING_HTTP_POST),
+                        ],
                     },
-                },  # End IDP config
-            },  # End SP config
-        },  # End Service config
 
-        # where the remote metadata is stored
-        'metadata': {
-            'local': [os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'remote_metadata', 'remote_metadata.xml')],
-        },
+                    # attributes that this project need to identify a user
+                    'required_attributes': ['EmailAddress', 'nameidentifier', 'givenname', 'surname'],
 
-        # set to 1 to output debugging information
-        'debug': get_delineated_environment_variable('SAML2_DEBUG'),
+                    # attributes that may be useful to have but not required
+                    # TODO: What attributes are we getting back from DOS IdP?
+                    'optional_attributes': [],
 
-        # Signing
-        'key_file': get_delineated_environment_variable('SAML2_SIGNING_KEY'),  # private part
-        'cert_file': get_delineated_environment_variable('SAML2_SIGNING_CERT'),  # public part
+                    # in this section the list of IdPs we talk to are defined
+                    'idp': {
+                        # the keys of this dictionary are entity ids
+                        get_delineated_environment_variable('SAML2_IDP_METADATA_ENDPOINT'): {
+                            'single_sign_on_service': {
+                                saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SSO_LOGIN_ENDPOINT'),
+                            },
+                            'single_logout_service': {
+                                saml2.BINDING_HTTP_REDIRECT: get_delineated_environment_variable('SAML2_IDP_SLO_LOGOUT_ENDPOINT'),
+                            },
+                        },
+                    },  # End IDP config
+                },  # End SP config
+            },  # End Service config
 
-        # Encryption
-        'encryption_keypairs': [{
-            'key_file': get_delineated_environment_variable('SAML2_ENCRYPTION_KEY'),  # private part
-            'cert_file': get_delineated_environment_variable('SAML2_ENCRYPTION_CERT'),  # public part
-        }],
-
-        # Our metadata
-        'contact_person': [
-            {
-                'given_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_FIRST_NAME'),
-                'sur_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_LAST_NAME'),
-                'company': get_delineated_environment_variable('SAML2_TECHNICAL_POC_COMPANY'),
-                'email_address': get_delineated_environment_variable('SAML2_TECHNICAL_POC_EMAIL'),
-                'contact_type': 'technical'
+            # where the remote metadata is stored
+            'metadata': {
+                'local': [os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'remote_metadata', 'remote_metadata.xml')],
             },
-            {
-                'given_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_FIRST_NAME'),
-                'sur_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_LAST_NAME'),
-                'company': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_COMPANY'),
-                'email_address': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_EMAIL'),
-                'contact_type': 'administrative'
-            },
-        ],
 
-        "valid_for": 24  # Our metadata is valid for 24-hours
-    }  # End SAML config
+            # set to 1 to output debugging information
+            'debug': get_delineated_environment_variable('SAML2_DEBUG'),
+
+            # Signing
+            'key_file': get_delineated_environment_variable('SAML2_SIGNING_KEY'),  # private part
+            'cert_file': get_delineated_environment_variable('SAML2_SIGNING_CERT'),  # public part
+
+            # Encryption
+            'encryption_keypairs': [{
+                'key_file': get_delineated_environment_variable('SAML2_ENCRYPTION_KEY'),  # private part
+                'cert_file': get_delineated_environment_variable('SAML2_ENCRYPTION_CERT'),  # public part
+            }],
+
+            # Our metadata
+            'contact_person': [
+                {
+                    'given_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_FIRST_NAME'),
+                    'sur_name': get_delineated_environment_variable('SAML2_TECHNICAL_POC_LAST_NAME'),
+                    'company': get_delineated_environment_variable('SAML2_TECHNICAL_POC_COMPANY'),
+                    'email_address': get_delineated_environment_variable('SAML2_TECHNICAL_POC_EMAIL'),
+                    'contact_type': 'technical'
+                },
+                {
+                    'given_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_FIRST_NAME'),
+                    'sur_name': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_LAST_NAME'),
+                    'company': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_COMPANY'),
+                    'email_address': get_delineated_environment_variable('SAML2_ADMINISTRATIVE_POC_EMAIL'),
+                    'contact_type': 'administrative'
+                },
+            ],
+
+            "valid_for": 24  # Our metadata is valid for 24-hours
+        })  # End SAML config
+        return conf
 
 LOGGING = {
     'version': 1,
@@ -477,6 +490,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
+
+SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
 # remove actual values before committing
 AD_ID = 'DOMAIN\\USERNAME'
