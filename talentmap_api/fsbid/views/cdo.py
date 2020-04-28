@@ -43,6 +43,19 @@ class FSBidListView(BaseView):
         '''
         return Response({ "results": services.user_bids(client_id, request.META['HTTP_JWT'])})
 
+class FSBidBidClientListCSVView(APIView):
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+
+    @classmethod
+    def get_extra_actions(cls):
+        return []
+
+    def get(self, request, client_id, **kwargs):
+        '''
+        Exports all bids for the client's user to CSV
+        '''
+        return services.get_user_bids_csv(client_id, request.META['HTTP_JWT'])
 
 class FSBidListBidActionView(APIView):
 
