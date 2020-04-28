@@ -55,7 +55,7 @@ psycopg2==2.7.4
 psycopg2-binary==2.7.4
 py==1.5.3
 pycparser==2.18
-pycryptodomex==3.6.0
+pycryptodomex==3.9.7
 pyflakes==1.6.0
 PyJWT==1.7.1
 pyOpenSSL==17.5.0
