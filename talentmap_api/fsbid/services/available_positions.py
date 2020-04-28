@@ -22,7 +22,6 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-
 def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
@@ -47,6 +46,17 @@ def get_unavailable_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+def get_all_position(id, jwt_token):
+    '''
+    Gets an indivdual position by id
+    '''
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_all_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -238,7 +248,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         }]
     }
 
-def convert_ap_query(query):
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -250,7 +260,7 @@ def convert_ap_query(query):
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
         "request_params.cps_codes": services.convert_multi_value(
-            validate_values(query.get("cps_codes", "HS,OP"), ["HS", "OP"])),
+            validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
@@ -267,4 +277,16 @@ def convert_ap_query(query):
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def convert_up_query(query):
-    return (convert_ap_query(query, "FP"))
+    '''
+    sends FP (Filled Position) status code to convert_ap_query
+    request_params.cps_codes of anything but FP will get removed from query
+    '''
+    return (convert_ap_query(query, ["FP"]))
+
+def convert_all_query(query):
+    '''
+    sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
+    to convert_ap_query request_params.cps_codes of anything
+    but FP, OP, or HS will get removed from query
+    '''
+    return (convert_ap_query(query, ["FP", "OP", "HS"]))

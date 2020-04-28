@@ -36,7 +36,7 @@ def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     '''
     data = user_bids(employee_id, jwt_token, position_id)
 
-    response = services.get_bids_csv(list(data), "bids")
+    response = services.get_bids_csv(list(data), "bids", jwt_token)
 
     logger.info(response)
 
