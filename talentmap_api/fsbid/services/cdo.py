@@ -21,7 +21,7 @@ def cdo(jwt_token):
 
 def single_cdo(jwt_token = None, perdet_seq_num = None):
     '''
-    Get a single client for a CDO
+    Get a single CDO
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     email = jwt.decode(jwt_token, verify=False).get('email')
