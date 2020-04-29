@@ -81,6 +81,50 @@ class FSBidListBidActionView(APIView):
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
 
+class FSBidListBidRegisterView(APIView):
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+
+    def put(self, request, pk, client_id):
+        '''
+        Registers a bid
+        '''
+        try:
+            services.register_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            user = UserProfile.objects.get(user=self.request.user)
+            try:
+                owner = UserProfile.objects.get(emp_id=client_id)
+            except ObjectDoesNotExist:
+                logger.info(f"User with emp_id={client_id} did not exist. No notification created for registering bid on position id={pk}.")
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            Notification.objects.create(owner=owner,
+                                        tags=['bidding'],
+                                        message=f"Bid on position id={pk} has been registered by CDO {user}")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+
+    def delete(self, request, pk, client_id):
+        '''
+        Unregisters a bid
+        '''
+        try:
+            services.unregister_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            user = UserProfile.objects.get(user=self.request.user)
+            try:
+                owner = UserProfile.objects.get(emp_id=client_id)
+            except ObjectDoesNotExist:
+                logger.info(f"User with emp_id={client_id} did not exist. No notification created for unregistering bid on position id={pk}.")
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            Notification.objects.create(owner=owner,
+                                        tags=['bidding'],
+                                        message=f"Bid on position id={pk} has been unregistered by CDO {user}")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+
 
 class FSBidListPositionActionView(BaseView):
     '''
