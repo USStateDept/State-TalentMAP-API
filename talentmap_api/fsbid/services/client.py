@@ -225,7 +225,12 @@ def fsbid_clients_to_talentmap_clients(data):
 def fsbid_clients_to_talentmap_clients_for_csv(data):
     employee = data.get('employee', None)
     current_assignment = employee.get('currentAssignment', None)
-    position = current_assignment.get('currentPosition', None)
+    pos_location = None
+    if current_assignment is not None:
+        position = current_assignment.get('currentPosition', None)
+        if position is not None:
+            pos_location = map_location(position.get("currentLocation", None))
+
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
@@ -233,7 +238,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
-        "pos_location": map_location(position.get("currentLocation", None)),
+        "pos_location": pos_location,
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
