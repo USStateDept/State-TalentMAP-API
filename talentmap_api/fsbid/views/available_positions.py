@@ -43,6 +43,7 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("q", location='query', description='Text search'),
+            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
         ]
     )
 
@@ -62,8 +63,12 @@ class FSBidAvailablePositionsCSVView(BaseView):
         '''
         Gets all available positions
         '''
-        limit = 2000 if not in_superuser_group(request.user) else 9999999
-        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit)
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
 
 class FSBidAvailablePositionView(BaseView):

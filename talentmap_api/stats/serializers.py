@@ -7,4 +7,5 @@ class LoginInstanceSerializer(PrefetchedSerializer):
 
     class Meta:
         model = LoginInstance
-        fields = ("id", "date_of_login")
+        fields = ["id", "date_of_login", "details"]
+        writable_fields = ("details")

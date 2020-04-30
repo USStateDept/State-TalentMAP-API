@@ -1,3 +1,5 @@
+import logging
+
 from django.http import QueryDict
 
 from django.core.exceptions import ValidationError
@@ -15,7 +17,9 @@ from talentmap_api.fsbid.services.cdo import single_cdo
 from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
+from talentmap_api.fsbid.services.employee import get_employee_information
 
+logger = logging.getLogger(__name__)
 
 class UserSerializer(PrefetchedSerializer):
     class Meta:
@@ -109,8 +113,6 @@ class ClientDetailSerializer(ClientSerializer):
 
 
 class UserProfileSerializer(PrefetchedSerializer):
-    skills = StaticRepresentationField(read_only=True, many=True)
-    grade = StaticRepresentationField(read_only=True)
     cdo = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
@@ -121,6 +123,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     favorite_positions = serializers.SerializerMethodField()
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
+    employee_info = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -138,6 +141,16 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return single_cdo(jwt, user.emp_id)
+        except:
+            return {}
+
+
+    def get_employee_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return get_employee_information(jwt, user.emp_id)
         except:
             return {}
 
@@ -171,13 +184,6 @@ class UserProfileSerializer(PrefetchedSerializer):
             },
             "received_shares": {
                 "class": SharableSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "skills": {
-                "class": SkillSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -223,11 +229,15 @@ class SavedSearchSerializer(PrefetchedSerializer):
                 # Raise a validation error if the endpoint isn't good
                 raise ValidationError(f"Endpoint {endpoint} is not a valid API path")
 
+        """
+        Disabling validation, as the benefit is negligible and requires us to keep the
+        allowed fields up to date with FSBid API.
+        """
         # Get our list of filters, and verify that the specified filters are valid
-        if hasattr(view, "filter_class"):
-            validate_filters_exist(filters, view.filter_class)
-        else:
-            raise ValidationError("Specified endpoint does not support filters")
+        #if hasattr(view, "filter_class"):
+        #    validate_filters_exist(filters, view.filter_class)
+        #else:
+        #    raise ValidationError("Specified endpoint does not support filters")
 
         return data
 

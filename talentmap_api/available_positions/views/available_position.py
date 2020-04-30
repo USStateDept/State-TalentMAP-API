@@ -36,6 +36,13 @@ class AvailablePositionFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
+            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
+        ]
+    )
+
     def get(self, request, *args, **kwargs):
         """
         get:
@@ -43,11 +50,28 @@ class AvailablePositionFavoriteListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        limit = request.query_params.get('limit', 15)
+        page = request.query_params.get('page', 1)
         if len(aps) > 0:
             pos_nums = ','.join(aps)
-            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit=500"), request.META['HTTP_JWT']))
+            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+                                                      request.META['HTTP_JWT'],
+                                                      f"{request.scheme}://{request.get_host()}"))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
+
+class AvailablePositionFavoriteIdsListView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        """
+        get:
+        Return a list of the ids of the user's favorite available positions.
+        """
+        user = UserProfile.objects.get(user=self.request.user)
+        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        return Response(aps)
 
 class FavoritesCSVView(APIView):
 

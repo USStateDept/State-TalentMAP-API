@@ -39,6 +39,7 @@ class UserLoginActionView(GenericViewSet):
         logger.info(f"User {self.request.user.id}:{self.request.user} is logging in")
         login_instance.user = user
         login_instance.date_of_login = datetime.datetime.now()
+        login_instance.details = request.data.get('details', {})
         login_instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
