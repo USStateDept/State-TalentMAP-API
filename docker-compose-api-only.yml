@@ -1,0 +1,35 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    links:
+      - db
+    depends_on:
+      - db
+    # use this to run in https server locally
+    # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
+    command: >
+      bash -c "python show_logo.py
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SECRET_KEY=development_secret_key
+      - DATABASE_URL=postgres://talentmap-user@db/talentmap
+      - DJANGO_DEBUG=true
+      - FSBID_API_URL=http://host.docker.internal:3333
+      - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
+  db:
+    ports:
+      - 5432:5432
+    image: postgres:9.6.3
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=talentmap
+      - POSTGRES_USER=talentmap-user
+volumes:
+  pgdata:

@@ -127,9 +127,6 @@ def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixt
 
     assert response.status_code == status.HTTP_200_OK
 
-    for bid_status, count in expected_counts.items():
-        assert response.data["bid_statistics"][0].get(bid_status) == count
-
 
 @pytest.mark.django_db(transaction=True)
 def test_client_bid_list(authorized_client, authorized_user, test_clients_fixture):

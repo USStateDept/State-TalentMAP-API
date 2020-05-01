@@ -52,7 +52,7 @@ class FSBidProjectedVacanciesListView(BaseView):
         return Response(services.get_projected_vacancies(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
 class FSBidProjectedVacancyView(BaseView):
-    
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -62,7 +62,7 @@ class FSBidProjectedVacancyView(BaseView):
         result = services.get_projected_vacancy(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
- 
+
         return Response(result)
 
 class FSBidProjectedVacanciesCSVView(BaseView):
@@ -71,5 +71,9 @@ class FSBidProjectedVacanciesCSVView(BaseView):
     filter_class = ProjectedVacancyFilter
 
     def get(self, request, *args, **kwargs):
-        limit = 2000 if not in_superuser_group(request.user) else 9999999
-        return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit)
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)

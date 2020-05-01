@@ -17,6 +17,4 @@ def test_employee_perdet_seq_num_actions(authorized_client, authorized_user):
 
         mock_get.return_value.json.return_value = {}
         response = authorized_client.put('/api/v1/fsbid/employee/perdet_seq_num/', HTTP_JWT=fake_jwt)
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-        
-
+        assert response.status_code == status.HTTP_204_NO_CONTENT

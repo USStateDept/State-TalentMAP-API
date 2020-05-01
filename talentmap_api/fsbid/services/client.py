@@ -23,8 +23,6 @@ def client(jwt_token, query, host=None):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-
     response = services.send_get_request(
         uri,
         query,
@@ -42,7 +40,7 @@ def get_clients_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
-    return services.send_count_request("CDOClients", query, convert_client_query, jwt_token, host)
+    return services.send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
 
 def client_suggestions(jwt_token, perdet_seq_num):
     '''
@@ -197,11 +195,21 @@ def fsbid_clients_to_talentmap_clients(data):
         current_assignment['position']['location'] = current_assignment['position']['currentLocation']
 
     # first object in array, mapped
-    current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+    try:
+        current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+    except:
+        current_assignment = {}
+
+    initials = None
+    try:
+        initials = employee['per_first_name'][:1] + employee['per_last_name'][:1]
+    except:
+        initials = None
 
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "initials": initials,
         "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
@@ -217,7 +225,12 @@ def fsbid_clients_to_talentmap_clients(data):
 def fsbid_clients_to_talentmap_clients_for_csv(data):
     employee = data.get('employee', None)
     current_assignment = employee.get('currentAssignment', None)
-    position = current_assignment.get('currentPosition', None)
+    pos_location = None
+    if current_assignment is not None:
+        position = current_assignment.get('currentPosition', None)
+        if position is not None:
+            pos_location = map_location(position.get("currentLocation", None))
+
     return {
         "id": employee.get("pert_external_id", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
@@ -225,7 +238,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
-        "pos_location": map_location(position.get("currentLocation", None)),
+        "pos_location": pos_location,
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
@@ -238,7 +251,7 @@ def hru_id_filter(query):
     results += hru_ids if hru_ids is not None else []
     return results if len(results) > 0 else None
 
-def convert_client_query(query):
+def convert_client_query(query, isCount = None):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -257,7 +270,12 @@ def convert_client_query(query):
         "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
         "request_params.get_count": query.get("getCount", 'false'),
     }
+    if isCount:
+        values['request_params.page_size'] = None
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_client_count_query(query):
+    return convert_client_query(query, True)
 
 def map_skill_codes_for_csv(data, prefix = 'per'):
     skills = []

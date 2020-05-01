@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.core.exceptions import ObjectDoesNotExist
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation
+from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
 from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
@@ -21,7 +21,6 @@ import talentmap_api.fsbid.services.common as services
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
-
 
 def get_available_position(id, jwt_token):
     '''
@@ -47,6 +46,17 @@ def get_unavailable_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+def get_all_position(id, jwt_token):
+    '''
+    Gets an indivdual position by id
+    '''
+    return services.get_individual(
+        "availablePositions",
+        id,
+        convert_all_query,
+        jwt_token,
+        fsbid_ap_to_talentmap_ap
+    )
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -71,7 +81,7 @@ def get_available_positions_count(query, jwt_token, host=None):
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
 
-def get_available_positions_csv(query, jwt_token, host=None, limit=None):
+def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
         "availablePositions",
         query,
@@ -84,7 +94,13 @@ def get_available_positions_csv(query, jwt_token, host=None, limit=None):
         limit
     )
 
-    return services.get_ap_and_pv_csv(data, "available_positions", True)
+    count = get_available_positions_count(query, jwt_token)
+    response = services.get_ap_and_pv_csv(data, "available_positions", True)
+
+    if includeLimit is True and count['count'] > limit:
+        response['Position-Limit'] = limit
+
+    return response
 
 # Max number of similar positions to return.
 SIMILAR_LIMIT = 3
@@ -232,7 +248,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         }]
     }
 
-def convert_ap_query(query, cps_codes="OP,HS"):
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -243,7 +259,8 @@ def convert_ap_query(query, cps_codes="OP,HS"):
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.freeText": query.get("q", None),
-        "request_params.cps_codes": services.convert_multi_value(cps_codes),
+        "request_params.cps_codes": services.convert_multi_value(
+            validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.bureaus": services.bureau_values(query),
         "request_params.overseas_ind": services.overseas_values(query),
@@ -260,4 +277,16 @@ def convert_ap_query(query, cps_codes="OP,HS"):
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def convert_up_query(query):
-    return (convert_ap_query(query, "FP"))
+    '''
+    sends FP (Filled Position) status code to convert_ap_query
+    request_params.cps_codes of anything but FP will get removed from query
+    '''
+    return (convert_ap_query(query, ["FP"]))
+
+def convert_all_query(query):
+    '''
+    sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
+    to convert_ap_query request_params.cps_codes of anything
+    but FP, OP, or HS will get removed from query
+    '''
+    return (convert_ap_query(query, ["FP", "OP", "HS"]))
