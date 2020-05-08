@@ -2,6 +2,17 @@ FROM python:3.6
 
 ENV PYTHONUNBUFFERED 1
 
+# Installing Oracle instant client
+WORKDIR    /opt/oracle
+RUN        apt-get update && apt-get install -y libaio1 wget unzip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip \
+            && unzip instantclient-basiclite-linuxx64.zip \
+            && rm -f instantclient-basiclite-linuxx64.zip \
+            && cd /opt/oracle/instantclient* \
+            && rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci \
+            && echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
+            && ldconfig
+
 # Note that we want postgresql-client so 'manage.py dbshell' works.
 # We want xmlsec1 to support SAML SSO
 RUN apt-get update && apt-get install -y postgresql-client xmlsec1

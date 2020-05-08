@@ -7,8 +7,10 @@ services:
       - 8000:8000
     links:
       - db
+      - oracle
     depends_on:
       - db
+      - oracle
     # use this to run in https server locally
     # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
     command: >
@@ -31,5 +33,16 @@ services:
     environment:
       - POSTGRES_DB=talentmap
       - POSTGRES_USER=talentmap-user
+  oracle:
+    ports:
+      - 1521:1521
+      - 32769:32769
+    image: container-registry.oracle.com/database/enterprise
+    volumes:
+      - oracle:/var/lib/oracle/data/
+    environment:
+      - POSTGRES_DB=talentmap
+      - POSTGRES_USER=talentmap-user
 volumes:
   pgdata:
+  oracle:

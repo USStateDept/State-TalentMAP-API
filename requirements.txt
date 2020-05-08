@@ -11,6 +11,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.1
 cryptography==2.9.2
+cx-Oracle==7.3.0
 dateutils==0.6.6
 decorator==4.2.1
 defusedxml==0.5.0
