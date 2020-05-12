@@ -107,6 +107,11 @@ def fsbid_pv_to_talentmap_pv(pv):
                     "city": pv.get("location_city", None),
                     "state": pv.get("location_state", None),
                 }
+                "isConsumable": pv.get("bt_consumable_allowance_flg", None) == "Y",
+                "isServiceNeedDifferential": pv.get("bt_service_needs_diff_flg", None) == "Y",
+                "isDifficultToStaff": pv.get("bt_most_difficult_to_staff_flg", None) == "Y",
+                "isEFMInside": pv.get("bt_inside_efm_employment_flg", None) == "Y",
+                "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
             },
             "current_assignment": {
                 "user": pv.get("incumbent", None),
@@ -165,5 +170,10 @@ def convert_pv_query(query):
         "fv_request_params.location_codes": services.post_values(query),
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
+        "fv_request_params.bt_consumable_allowance_flg:": services.post_indicator_values(query.get("isConsumable", None)),
+        "fv_request_params.bt_service_needs_diff_flg": services.post_indicator_values(query.get("isServiceNeedDifferential", None)),
+        "fv_request_params.bt_most_difficult_to_staff_flg": services.post_indicator_values(query.get("isDifficultToStaff", None)),
+        "fv_request_params.bt_inside_efm_employment_flg": services.post_indicator_values(query.get("isEFMInside", None)),
+        "fv_request_params.bt_outside_efm_employment_flg": services.post_indicator_values(query.get("isEFMOutside", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
