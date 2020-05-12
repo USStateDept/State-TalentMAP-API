@@ -99,7 +99,7 @@ def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
-    return services.send_count_request("positions/available/tandem", query, convert_ap_query, jwt_token, host)
+    return services.send_count_request("positions/available/tandem", query, convert_ap_tandem_query, jwt_token, host)
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -344,6 +344,8 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
         "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
         "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
+
+        "request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 

@@ -211,11 +211,12 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     newQuery = query.copy()
     countProp = "count(1)"
-    if uri is 'CDOClients' or uri is 'positions/futureVacancies/tandem' or uri is 'positions/available/tandem':
-        countProp = "count"
+    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
+    if uri in ('CDOClients'):
+        countProp = "count"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}

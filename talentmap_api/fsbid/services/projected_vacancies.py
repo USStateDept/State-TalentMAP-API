@@ -64,7 +64,7 @@ def get_projected_vacancies_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of tandem PVs for a filterset
     '''
-    return services.send_count_request("positions/futureVacancies/tandem", query, convert_pv_query, jwt_token, host)
+    return services.send_count_request("positions/futureVacancies/tandem", query, convert_pv_tandem_query, jwt_token, host)
 
 def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -231,7 +231,6 @@ def convert_pv_tandem_query(query):
         "fv_request_params.location_codes": services.post_values(query),
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
-
-
+        "fv_request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
