@@ -44,6 +44,7 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
         ]
     )
 
