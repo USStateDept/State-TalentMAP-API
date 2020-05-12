@@ -106,7 +106,7 @@ def fsbid_pv_to_talentmap_pv(pv):
                     "code": pv.get("pos_location_code", None),
                     "city": pv.get("location_city", None),
                     "state": pv.get("location_state", None),
-                }
+                },
                 "isConsumable": pv.get("bt_consumable_allowance_flg", None) == "Y",
                 "isServiceNeedDifferential": pv.get("bt_service_needs_diff_flg", None) == "Y",
                 "isDifficultToStaff": pv.get("bt_most_difficult_to_staff_flg", None) == "Y",
