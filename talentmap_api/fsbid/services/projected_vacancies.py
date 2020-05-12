@@ -102,7 +102,7 @@ def fsbid_pv_to_talentmap_pv(pv):
             "cycle_end_date": None,
             "active": True
         },
-        "tandem_nbr": ap.get("tandem_nbr", None), # Only appears in tandem searches
+        "tandem_nbr": pv.get("tandem_nbr", None), # Only appears in tandem searches
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
