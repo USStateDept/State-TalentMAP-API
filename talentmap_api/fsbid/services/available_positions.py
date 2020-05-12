@@ -154,9 +154,6 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": None,
             "reason": None
         },
-        "is_urgent_vacancy": getattr(designations, 'is_urgent_vacancy', False),
-        "is_volunteer": getattr(designations, 'is_volunteer', False),
-        "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "position": {
             "id": None,
             "grade": ap.get("pos_grade_code", None),

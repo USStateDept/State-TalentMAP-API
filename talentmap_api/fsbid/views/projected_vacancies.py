@@ -42,6 +42,11 @@ class FSBidProjectedVacanciesListView(BaseView):
             coreapi.Field("language_codes", location='query', description='Language code'),
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("id", location="query", description="Projected Vacancies ids"),
+            coreapi.Field("isConsumable", location='query', description='Post Indicator Flag (true/false)'),
+            coreapi.Field("isServiceNeedDifferential", location='query', description='Post Indicator Flag (true/false)'),
+            coreapi.Field("isDifficultToStaff", location='query', description='Post Indicator Flag (true/false)'),
+            coreapi.Field("isEFMInside", location='query', description='Post Indicator Flag (true/false)'),
+            coreapi.Field("isEFMOutside", location='query', description='Post Indicator Flag (true/false)'),
         ]
     )
 
