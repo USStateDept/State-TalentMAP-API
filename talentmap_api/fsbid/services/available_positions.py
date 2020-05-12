@@ -215,11 +215,6 @@ def fsbid_ap_to_talentmap_ap(ap):
                     "city": ap.get("location_city", None),
                     "state": ap.get("location_state", None),
                 },
-                "isConsumable": ap.get("bt_consumable_allowance_flg", None) == "Y",
-                "isServiceNeedDifferential": ap.get("bt_service_needs_diff_flg", None) == "Y",
-                "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
-                "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
-                "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
             },
             "latest_bidcycle": {
                 "id": ap.get("cycle_id", None),
@@ -250,7 +245,12 @@ def fsbid_ap_to_talentmap_ap(ap):
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
             "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
-        }]
+        }],
+        "isConsumable": ap.get("bt_consumable_allowance_flg", None) == "Y",
+        "isServiceNeedDifferential": ap.get("bt_service_needs_diff_flg", None) == "Y",
+        "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
+        "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
+        "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
 def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):

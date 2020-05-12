@@ -107,11 +107,6 @@ def fsbid_pv_to_talentmap_pv(pv):
                     "city": pv.get("location_city", None),
                     "state": pv.get("location_state", None),
                 },
-                "isConsumable": pv.get("bt_consumable_allowance_flg", None) == "Y",
-                "isServiceNeedDifferential": pv.get("bt_service_needs_diff_flg", None) == "Y",
-                "isDifficultToStaff": pv.get("bt_most_difficult_to_staff_flg", None) == "Y",
-                "isEFMInside": pv.get("bt_inside_efm_employment_flg", None) == "Y",
-                "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
             },
             "current_assignment": {
                 "user": pv.get("incumbent", None),
@@ -144,7 +139,12 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "content": pv.get("ppos_capsule_descr_txt", None),
                 "date_updated": ensure_date(pv.get("ppos_capsule_modify_dt", None), utc_offset=5),
             }
-        }
+        },
+        "isConsumable": pv.get("bt_consumable_allowance_flg", None) == "Y",
+        "isServiceNeedDifferential": pv.get("bt_service_needs_diff_flg", None) == "Y",
+        "isDifficultToStaff": pv.get("bt_most_difficult_to_staff_flg", None) == "Y",
+        "isEFMInside": pv.get("bt_inside_efm_employment_flg", None) == "Y",
+        "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
 def convert_pv_query(query):
