@@ -174,9 +174,6 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": None,
             "reason": None
         },
-        "is_urgent_vacancy": getattr(designations, 'is_urgent_vacancy', False),
-        "is_volunteer": getattr(designations, 'is_volunteer', False),
-        "is_hard_to_fill": getattr(designations, 'is_hard_to_fill', False),
         "tandem_nbr": ap.get("tandem_nbr", None), # Only appears in tandem searches
         "position": {
             "id": None,
@@ -235,7 +232,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                     "code": ap.get("pos_location_code", None),
                     "city": ap.get("location_city", None),
                     "state": ap.get("location_state", None),
-                }
+                },
             },
             "latest_bidcycle": {
                 "id": ap.get("cycle_id", None),
@@ -266,7 +263,12 @@ def fsbid_ap_to_talentmap_ap(ap):
             "in_grade_at_skill": ap.get("cp_at_grd_in_cone_qty", None),
             "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
-        }]
+        }],
+        "isConsumable": ap.get("bt_consumable_allowance_flg", None) == "Y",
+        "isServiceNeedDifferential": ap.get("bt_service_needs_diff_flg", None) == "Y",
+        "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
+        "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
+        "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
 def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
@@ -294,6 +296,12 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.location_codes": services.post_values(query),
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
+
+        "request_params.bt_consumable_allowance_flg": services.post_indicator_array_contains_val(query, "BT_CONSUMABLE_ALLOWANCE_FLG"),
+        "request_params.bt_service_needs_diff_flg": services.post_indicator_array_contains_val(query, "BT_SERVICE_NEEDS_DIFF_FLG"),
+        "request_params.bt_most_difficult_to_staff_flg": services.post_indicator_array_contains_val(query, "BT_MOST_DIFFICULT_TO_STAFF_FLG"),
+        "request_params.bt_inside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_INSIDE_EFM_EMPLOYMENT_FLG"),
+        "request_params.bt_outside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_OUTSIDE_EFM_EMPLOYMENT_FLG"),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
@@ -325,6 +333,11 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.location_codes": services.post_values(query),
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
+        "request_params.bt_consumable_allowance_flg": services.post_indicator_array_contains_val(query, "BT_CONSUMABLE_ALLOWANCE_FLG"),
+        "request_params.bt_service_needs_diff_flg": services.post_indicator_array_contains_val(query, "BT_SERVICE_NEEDS_DIFF_FLG"),
+        "request_params.bt_most_difficult_to_staff_flg": services.post_indicator_array_contains_val(query, "BT_MOST_DIFFICULT_TO_STAFF_FLG"),
+        "request_params.bt_inside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_INSIDE_EFM_EMPLOYMENT_FLG"),
+        "request_params.bt_outside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_OUTSIDE_EFM_EMPLOYMENT_FLG"),
 
         # Common filters
         "request_params.overseas_ind2": services.overseas_values(query),
@@ -332,6 +345,11 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
         "request_params.location_codes2": services.post_values(query),
         "request_params.freeText2": query.get("q", None),
+        "request_params.bt_consumable_allowance_flg2": services.post_indicator_array_contains_val(query, "BT_CONSUMABLE_ALLOWANCE_FLG"),
+        "request_params.bt_service_needs_diff_flg2": services.post_indicator_array_contains_val(query, "BT_SERVICE_NEEDS_DIFF_FLG"),
+        "request_params.bt_most_difficult_to_staff_flg2": services.post_indicator_array_contains_val(query, "BT_MOST_DIFFICULT_TO_STAFF_FLG"),
+        "request_params.bt_inside_efm_employment_flg2": services.post_indicator_array_contains_val(query, "BT_INSIDE_EFM_EMPLOYMENT_FLG"),
+        "request_params.bt_outside_efm_employment_flg2": services.post_indicator_array_contains_val(query, "BT_OUTSIDE_EFM_EMPLOYMENT_FLG"),
 
         # Tandem 2 filters
         "request_params.cps_codes2": services.convert_multi_value(

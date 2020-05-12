@@ -42,6 +42,7 @@ class FSBidProjectedVacanciesListView(BaseView):
             coreapi.Field("language_codes", location='query', description='Language code'),
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("id", location="query", description="Projected Vacancies ids"),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
         ]
     )
 

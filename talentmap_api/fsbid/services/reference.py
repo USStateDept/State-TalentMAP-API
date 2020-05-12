@@ -115,3 +115,10 @@ def fsbid_classifications_to_talentmap_classifications(data):
         "text": data.get("tp_descr_txt", None),
         "disabled_ind": data.get("disabled_ind", "N") == "Y"
     }
+
+@staticmethod
+def fsbid_post_indicators_to_talentmap_indicators(data):
+    return {
+        "code": data.get("bt_column_name", None),
+        "description": data.get("bt_column_desc", None)
+    }
