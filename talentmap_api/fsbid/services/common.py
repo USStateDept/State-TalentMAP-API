@@ -48,6 +48,15 @@ def convert_multi_value(val):
         return val.split(',')
 
 
+def post_indicator_array_contains_val(query, value):
+    array = query.get("position__post_indicator__in", "").split(",")
+    if value in array:
+        return post_indicator_values("true")
+    else:
+        # Return None, not false/"N"
+        return None
+
+
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
 LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
 

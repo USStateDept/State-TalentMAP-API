@@ -275,11 +275,12 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.location_codes": services.post_values(query),
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
-        "request_params.bt_consumable_allowance_flg": services.post_indicator_values(query.get("isConsumable", None)),
-        "request_params.bt_service_needs_diff_flg": services.post_indicator_values(query.get("isServiceNeedDifferential", None)),
-        "request_params.bt_most_difficult_to_staff_flg": services.post_indicator_values(query.get("isDifficultToStaff", None)),
-        "request_params.bt_inside_efm_employment_flg": services.post_indicator_values(query.get("isEFMInside", None)),
-        "request_params.bt_outside_efm_employment_flg": services.post_indicator_values(query.get("isEFMOutside", None)),
+
+        "request_params.bt_consumable_allowance_flg": services.post_indicator_array_contains_val(query, "BT_CONSUMABLE_ALLOWANCE_FLG"),
+        "request_params.bt_service_needs_diff_flg": services.post_indicator_array_contains_val(query, "BT_INSIDE_EFM_EMPLOYMENT_FLG"),
+        "request_params.bt_most_difficult_to_staff_flg": services.post_indicator_array_contains_val(query, "BT_OUTSIDE_EFM_EMPLOYMENT_FLG"),
+        "request_params.bt_inside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_MOST_DIFFICULT_TO_STAFF_FLG"),
+        "request_params.bt_outside_efm_employment_flg": services.post_indicator_array_contains_val(query, "BT_SERVICE_NEEDS_DIFF_FLG"),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 

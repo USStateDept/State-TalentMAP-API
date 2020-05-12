@@ -119,6 +119,6 @@ def fsbid_classifications_to_talentmap_classifications(data):
 @staticmethod
 def fsbid_post_indicators_to_talentmap_indicators(data):
     return {
-        "name": data.get("bt_column_name", None),
+        "code": data.get("bt_column_name", None),
         "description": data.get("bt_column_desc", None)
     }
