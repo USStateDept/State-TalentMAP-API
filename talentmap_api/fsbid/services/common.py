@@ -56,9 +56,9 @@ def post_indicator_values(flag):
     '''
     Handles mapping post indicator params to FSBid expected flag params
     '''
-    if flag is "true":
+    if flag == "true":
         return "Y"
-    elif flag is "false":
+    elif flag == "false":
         return "N"
 
 def parseLanguage(lang):
