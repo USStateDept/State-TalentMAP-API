@@ -73,5 +73,5 @@ class FSBidClassificationsView(BaseView):
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
 
 class FSBidPostIndicatorsView(BaseView):
-    uri = "postAttributes?codeTableName=PostIndicatorTable"
+    uri = "references/postAttributes?codeTableName=PostIndicatorTable"
     mapping_function = services.fsbid_post_indicators_to_talentmap_indicators
