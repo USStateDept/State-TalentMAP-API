@@ -52,6 +52,15 @@ def convert_multi_value(val):
 LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
 
 
+def post_indicator_values(flag):
+    '''
+    Handles mapping post indicator params to FSBid expected flag params
+    '''
+    if flag is "true":
+        return "Y"
+    elif flag is "false":
+        return "N"
+
 def parseLanguage(lang):
     '''
     Parses a language string from FSBid and turns it into what we want
