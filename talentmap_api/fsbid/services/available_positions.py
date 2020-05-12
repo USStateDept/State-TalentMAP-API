@@ -214,7 +214,7 @@ def fsbid_ap_to_talentmap_ap(ap):
                     "code": ap.get("pos_location_code", None),
                     "city": ap.get("location_city", None),
                     "state": ap.get("location_state", None),
-                }
+                },
                 "isConsumable": ap.get("bt_consumable_allowance_flg", None) == "Y",
                 "isServiceNeedDifferential": ap.get("bt_service_needs_diff_flg", None) == "Y",
                 "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
