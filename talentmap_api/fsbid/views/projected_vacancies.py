@@ -73,6 +73,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
             coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("q", location='query', description='Text search'),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
 
             # Tandem 2
             # Exclude post, post differentials, is_domestic
