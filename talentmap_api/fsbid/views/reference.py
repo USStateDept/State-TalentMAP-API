@@ -71,3 +71,11 @@ class FSBidConesView(BaseView):
 class FSBidClassificationsView(BaseView):
     uri = "bidderTrackingPrograms"
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
+
+class FSBidPostIndicatorsView(BaseView):
+    uri = "references/postAttributes?codeTableName=PostIndicatorTable"
+    mapping_function = services.fsbid_post_indicators_to_talentmap_indicators
+
+class FSBidUnaccompaniedStatusView(BaseView):
+    uri = "references/postAttributes?codeTableName=UnaccompaniedStatuses"
+    mapping_function = services.fsbid_us_to_talentmap_us

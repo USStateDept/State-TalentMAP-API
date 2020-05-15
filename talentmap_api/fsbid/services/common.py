@@ -96,21 +96,27 @@ def post_values(query):
         return results
 
 
-def bureau_values(query):
+def bureau_values(query, isTandem = False):
     '''
     Gets the ids for the functional/regional bureaus and maps to codes and their children
     '''
+    org = "org_has_groups"
+    bureau = "position__bureau__code__in"
+    if (isTandem):
+        org = "org_has_groups-tandem"
+        bureau = "position__bureau__code__in-tandem"
+
     results = []
     # functional bureau filter
-    if query.get("org_has_groups"):
-        func_bureaus = query.get("org_has_groups").split(",")
+    if query.get(org):
+        func_bureaus = query.get(org).split(",")
         func_org_codes = OrganizationGroup.objects.filter(id__in=func_bureaus).values_list("_org_codes", flat=True)
         # Flatten _org_codes
         func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
         results = results + list(func_bureau_codes)
     # Regional bureau filter
-    if query.get("position__bureau__code__in"):
-        regional_bureaus = query.get("position__bureau__code__in").split(",")
+    if query.get(bureau):
+        regional_bureaus = query.get(bureau).split(",")
         reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
         results = results + list(reg_org_codes)
     if len(results) > 0:
@@ -205,11 +211,12 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     newQuery = query.copy()
     countProp = "count(1)"
-    if uri is 'CDOClients':
-        countProp = "count"
+    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
+    if uri in ('CDOClients'):
+        countProp = "count"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}

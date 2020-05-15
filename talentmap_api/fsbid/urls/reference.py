@@ -17,6 +17,8 @@ urlpatterns = [
     url(r'^cones/$', views.FSBidConesView.as_view(), name='FSBid-cones'),
     url(r'^locations/$', views.FSBidLocationsView.as_view(), name='FSBid-locations'),
     url(r'^classifications/$', views.FSBidClassificationsView.as_view(), name='FSBid-classifications'),
+    url(r'^postindicators/$', views.FSBidPostIndicatorsView.as_view(), name='FSBid-post-indicators'),
+    url(r'^unaccompaniedstatuses/$', views.FSBidUnaccompaniedStatusView.as_view(), name='FSBid-unaccompanied-statuses'),
 ]
 
 urlpatterns += router.urls
