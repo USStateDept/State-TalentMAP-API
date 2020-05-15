@@ -45,6 +45,7 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
         ]
     )
 
@@ -77,6 +78,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
 
             # Tandem 2
             # Exclude post, post differentials, is_domestic

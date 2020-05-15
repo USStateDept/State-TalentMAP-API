@@ -264,6 +264,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
         }],
+        "unaccompaniedStatus": ap.get("us_desc_text", None),
         "isConsumable": ap.get("bt_consumable_allowance_flg", None) == "Y",
         "isServiceNeedDifferential": ap.get("bt_service_needs_diff_flg", None) == "Y",
         "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
@@ -297,6 +298,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
         "request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
@@ -329,6 +331,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
         "request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
 
         # Common filters
         "request_params.overseas_ind2": services.overseas_values(query),
@@ -337,6 +340,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.location_codes2": services.post_values(query),
         "request_params.freeText2": query.get("q", None),
         "request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
 
         # Tandem 2 filters
         "request_params.cps_codes2": services.convert_multi_value(

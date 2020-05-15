@@ -160,6 +160,7 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "date_updated": ensure_date(pv.get("ppos_capsule_modify_dt", None), utc_offset=5),
             }
         },
+        "unaccompaniedStatus": pv.get("us_desc_text", None),
         "isConsumable": pv.get("bt_consumable_allowance_flg", None) == "Y",
         "isServiceNeedDifferential": pv.get("bt_service_needs_diff_flg", None) == "Y",
         "isDifficultToStaff": pv.get("bt_most_difficult_to_staff_flg", None) == "Y",
@@ -194,6 +195,7 @@ def convert_pv_query(query):
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
         "fv_request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
 
         # Common filters
         "fv_request_params.freeText2": query.get("q", None),
@@ -202,6 +204,7 @@ def convert_pv_query(query):
         "fv_request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
         "fv_request_params.location_codes2": services.post_values(query),
         "fv_request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "fv_request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
 
         # Tandem 2 filters
         "fv_request_params.bid_seasons2": services.convert_multi_value(query.get("is_available_in_bidseason-tandem")),
@@ -239,6 +242,8 @@ def convert_pv_tandem_query(query):
         "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
         "fv_request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+
         "fv_request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
