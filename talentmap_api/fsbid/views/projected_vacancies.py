@@ -43,6 +43,7 @@ class FSBidProjectedVacanciesListView(BaseView):
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("id", location="query", description="Projected Vacancies ids"),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
         ]
     )
 
@@ -74,6 +75,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
 
             # Tandem 2
             # Exclude post, post differentials, is_domestic
