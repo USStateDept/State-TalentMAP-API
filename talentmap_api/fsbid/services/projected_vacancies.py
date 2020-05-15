@@ -243,6 +243,7 @@ def convert_pv_tandem_query(query):
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
         "fv_request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
         "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+
         "fv_request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
