@@ -23,6 +23,11 @@ class ProjectedVacancyFilter():
         "is_domestic",
         "q",
         "org_has_groups",
+        "isConsumable",
+        "isServiceNeedDifferential",
+        "isDifficultToStaff",
+        "isEFMInside",
+        "isEFMOutside",
     ]
 
     use_api = True
@@ -52,6 +57,11 @@ class AvailablePositionsFilter():
         "position__post__in",
         "is_overseas",
         "org_has_groups",
+        "isConsumable",
+        "isServiceNeedDifferential",
+        "isDifficultToStaff",
+        "isEFMInside",
+        "isEFMOutside",
     ]
 
     use_api = True
