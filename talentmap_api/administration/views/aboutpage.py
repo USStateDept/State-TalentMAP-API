@@ -25,13 +25,19 @@ class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericV
         '''
         Gets the AboutPage
         '''
+        print('-------------------------------------- in about page --------------------------------------')
+        print('AboutPage', AboutPage)
         queryset = get_object_or_404(AboutPage)
+        print('queryset:', queryset)
+        print('queryset.content:', queryset.content)
         return Response({"content": queryset.content})
 
     def partial_update(self, request, pk=None, format=None):
         '''
         Updates the AboutPage
         '''
+        print('-------------------------------------- updating about page --------------------------------------')
+        print('-------------------------------------- request.data:', request.data)
         hpb = AboutPage.objects.first()
         serializer = self.serializer_class(hpb, data=request.data, partial=True)
         if serializer.is_valid():

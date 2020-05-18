@@ -25,6 +25,7 @@ urlpatterns = [
     # Administration related resources
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
+    url(r'^api/v1/featureflags/', include('talentmap_api.administration.urls.featureflags')),
 
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
