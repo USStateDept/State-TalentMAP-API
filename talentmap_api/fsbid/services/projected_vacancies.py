@@ -174,7 +174,7 @@ def convert_pv_query(query):
         "fv_request_params.page_index": int(query.get("page", 1)),
         "fv_request_params.page_size": query.get("limit", 25),
 
-        "fv_request_params.get_count": query.get("getCount", 'false')
+        "fv_request_params.get_count": query.get("getCount", 'false'),
 
         # Tandem 1 filters
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),

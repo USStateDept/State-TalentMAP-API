@@ -67,7 +67,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
     schema = AutoSchema(
         manual_fields=[
             # Pagination
-            coreapi.Field("ordering", location='query', description='Ordering),
+            coreapi.Field("ordering", location='query', description='Ordering'),
             coreapi.Field("page", location='query', description='Page Index'),
             coreapi.Field("limit", location='query', description='Page Limit'),
 
@@ -79,7 +79,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
             coreapi.Field("language_codes", location='query', description='Language code'),
             coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
             coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__position_number__in", location='query', description='Position Numbers')
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
             coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
             coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
 
