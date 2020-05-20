@@ -75,9 +75,9 @@ def parseLanguagesString(lang):
         lang_str = ""
         for l in lang:
             if not lang_str:
-                lang_str = l["language"]
+                lang_str = l["representation"]
             else:
-                lang_str += ", " + l["language"]
+                lang_str += ", " + l["representation"]
 
         return lang_str
 
