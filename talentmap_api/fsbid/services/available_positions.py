@@ -99,7 +99,7 @@ def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
-    return services.send_count_request("positions/available/tandem", query, convert_ap_tandem_query, jwt_token, host)
+    return services.send_count_request("positions/available/tandem", query, convert_ap_query, jwt_token, host)
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(

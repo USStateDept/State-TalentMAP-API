@@ -47,7 +47,6 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("position__post__code__in", location='query', description='Post id'),
             coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("position__post__in", location='query', description='Post id'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
             coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
