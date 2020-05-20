@@ -137,3 +137,16 @@ class FSBidProjectedVacanciesCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
+class FSBidProjectedVacanciesTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
+
+    def get(self, request, *args, **kwargs):
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_projected_vacancies_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)

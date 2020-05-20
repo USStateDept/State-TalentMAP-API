@@ -129,6 +129,21 @@ class FSBidAvailablePositionsCSVView(BaseView):
             includeLimit = False
         return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
+class FSBidAvailablePositionsTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets all tandem available positions
+        '''
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_available_positions_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
 class FSBidAvailablePositionView(BaseView):
 
