@@ -95,13 +95,13 @@ class FavoritesCSVView(APIView):
         aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
         if len(aps) > 0 and request.query_params.get('exclude_available') != 'true':
             pos_nums = ','.join(aps)
-            apdata = services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+            apdata = services.get_available_positions(QueryDict(f"id={pos_nums}&limit={len(aps)}&page=1"), request.META['HTTP_JWT'])
             data = data + apdata.get('results')
 
         pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
         if len(pvs) > 0 and request.query_params.get('exclude_projected') != 'true':
             pos_nums = ','.join(pvs)
-            pvdata = pvservices.get_projected_vacancies(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])
+            pvdata = pvservices.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={len(pvs)}&page=1"), request.META['HTTP_JWT'])
             data = data + pvdata.get('results')
 
         return comservices.get_ap_and_pv_csv(data, "favorites", True)
