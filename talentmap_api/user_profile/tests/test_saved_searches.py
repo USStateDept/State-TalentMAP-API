@@ -58,46 +58,14 @@ def test_saved_search_create_unfilterable_endpoint(authorized_client, authorized
 
 
 @pytest.mark.django_db()
-def test_saved_search_create_in_array_filters(authorized_client, authorized_user):
-    # Test a valid endpoint with declared (i.e. manual) filters
-    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
-        {
-            "name": "Banana search",
-            "endpoint": "/api/v1/fsbid/available_positions/",
-            "filters": {
-                "position__grade__code__in": ["02", "03"]
-            }
-        }
-    ), content_type='application/json', HTTP_JWT='test')
-
-    assert response.status_code == status.HTTP_201_CREATED
-
-
-@pytest.mark.django_db()
-def test_saved_search_create_in_string_filters(authorized_client, authorized_user):
-    # Test a valid endpoint with declared (i.e. manual) filters
-    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
-        {
-            "name": "Banana search",
-            "endpoint": "/api/v1/fsbid/available_positions/",
-            "filters": {
-                "position__grade__code__in": "02, 03"
-            }
-        }
-    ), content_type='application/json', HTTP_JWT='test')
-
-    assert response.status_code == status.HTTP_201_CREATED
-
-
-@pytest.mark.django_db()
 def test_saved_search_create_declared_filters(authorized_client, authorized_user):
     # Test a valid endpoint with declared (i.e. manual) filters
     response = authorized_client.post('/api/v1/searches/', data=json.dumps(
         {
             "name": "Banana search",
-            "endpoint": "/api/v1/fsbid/available_positions/",
+            "endpoint": "/api/v1/organization/",
             "filters": {
-                "q": "german security"
+                "q": ["german security"],
             }
         }
     ), content_type='application/json', HTTP_JWT='test')
