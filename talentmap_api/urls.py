@@ -26,20 +26,6 @@ urlpatterns = [
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
 
-    # Position and position detail related resources
-    url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
-    url(r'^api/v1/skill/', include('talentmap_api.position.urls.skill')),
-    url(r'^api/v1/grade/', include('talentmap_api.position.urls.grade')),
-    url(r'^api/v1/capsule_description/', include('talentmap_api.position.urls.capsule_description')),
-
-    # Bidding endpoints
-    url(r'^api/v1/bid/', include('talentmap_api.bidding.urls.bid')),
-    url(r'^api/v1/bidcycle/', include('talentmap_api.bidding.urls.bidcycle')),
-    url(r'^api/v1/bidlist/', include('talentmap_api.bidding.urls.bidlist')),
-    url(r'^api/v1/survey/', include('talentmap_api.bidding.urls.survey')),
-    url(r'^api/v1/waiver/', include('talentmap_api.bidding.urls.waiver')),
-    url(r'^api/v1/cycleposition/', include('talentmap_api.bidding.urls.cycleposition')),
-
     # FSBId
     url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
     url(r'^api/v1/fsbid/projected_vacancies/', include('talentmap_api.fsbid.urls.projected_vacancies')),
@@ -71,7 +57,6 @@ urlpatterns = [
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
     url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
-    url(r'^api/v1/client/', include('talentmap_api.user_profile.urls.client')),
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),

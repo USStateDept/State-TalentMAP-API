@@ -6,9 +6,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
@@ -34,15 +32,6 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
     class Meta:
         model = UserProfile
         fields = ["first_name", "last_name", "email", "skills"]
-        nested = {
-            "skills": {
-                "class": SkillSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            }
-        }
 
 
 class UserProfileShortSerializer(PrefetchedSerializer):
@@ -78,21 +67,7 @@ class ClientSerializer(PrefetchedSerializer):
                 "kwargs": {
                     "read_only": True
                 }
-            },
-            "bid_statistics": {
-                "class": UserBidStatisticsSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "skills": {
-                "class": SkillSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
+            }
         }
 
 
@@ -149,12 +124,6 @@ class UserProfileSerializer(PrefetchedSerializer):
         nested = {
             "user": {
                 "class": UserSerializer,
-                "kwargs": {
-                    "read_only": True
-                }
-            },
-            "cdo": {
-                "class": UserProfileShortSerializer,
                 "kwargs": {
                     "read_only": True
                 }

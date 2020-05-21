@@ -12,8 +12,6 @@ from talentmap_api.integrations.management.commands.schedule_synchronization_job
 
 from talentmap_api.common.common_helpers import ensure_date
 
-from talentmap_api.position.tests.mommy_recipes import bidcycle_positions
-
 
 @pytest.mark.django_db(transaction=True)
 def test_soap_integrations():
@@ -108,53 +106,3 @@ def test_soap_job_tasks():
     task.save()
 
     assert task.priority == 0
-
-@pytest.mark.django_db(transaction=True)
-def test_soap_bidcycle_active():
-    call_command('schedule_synchronization_job', '--set-defaults')
-    assert BidCycle.objects.count() == 0
-
-    closing_bidcycle = BidCycle.objects.create(id=151, _id="151", name="Test Cycle", _cycle_status='P', active=False)
-    closing_bidcycle.save()
-    closing_bidcycle.refresh_from_db()
-
-    bidcycle_positions(_quantity=5)
-
-    assert BidCycle.objects.count() == 1
-
-    assert BidCycle.objects.get(_id="151").active == False
-    assert BidCycle.objects.get(_id="151")._cycle_status == 'P'
-
-    call_command('schedule_synchronization_job', 'bidding.BidCycle', '--reset')
-    call_command('synchronize_data', '--model', 'bidding.BidCycle', '--test')
-
-    assert BidCycle.objects.get(_id="151").active == True
-    assert BidCycle.objects.get(_id="151")._cycle_status == 'A'
-
-    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status == 'OP'
-    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'OP'
-
-@pytest.mark.django_db(transaction=True)
-def test_soap_bidcycle_close():
-    call_command('schedule_synchronization_job', '--set-defaults')
-    assert BidCycle.objects.count() == 0
-
-    closing_bidcycle = BidCycle.objects.create(id=138, _id="138", name="Test Cycle", _cycle_status='A', active=True)
-    closing_bidcycle.save()
-    closing_bidcycle.refresh_from_db()
-
-    bidcycle_positions(_quantity=5)
-
-    assert BidCycle.objects.count() == 1
-
-    assert BidCycle.objects.get(_id="138").active == True
-    assert BidCycle.objects.get(_id="138")._cycle_status == 'A'
-
-    call_command('schedule_synchronization_job', 'bidding.BidCycle', '--reset')
-    call_command('synchronize_data', '--model', 'bidding.BidCycle', '--test')
-
-    assert BidCycle.objects.get(_id="138").active == False
-    assert BidCycle.objects.get(_id="138")._cycle_status == 'C'
-
-    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status == 'MC'
-    assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'MC'
