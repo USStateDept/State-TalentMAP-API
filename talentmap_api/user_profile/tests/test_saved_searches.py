@@ -65,7 +65,7 @@ def test_saved_search_create_in_array_filters(authorized_client, authorized_user
             "name": "Banana search",
             "endpoint": "/api/v1/fsbid/available_positions/",
             "filters": {
-                "grade__code__in": ["05", "06"]
+                "position__grade__code__in": ["02", "03"]
             }
         }
     ), content_type='application/json', HTTP_JWT='test')
@@ -81,7 +81,7 @@ def test_saved_search_create_in_string_filters(authorized_client, authorized_use
             "name": "Banana search",
             "endpoint": "/api/v1/fsbid/available_positions/",
             "filters": {
-                "post__in": "254,123"
+                "position__grade__code__in": "02, 03"
             }
         }
     ), content_type='application/json', HTTP_JWT='test')
@@ -97,7 +97,7 @@ def test_saved_search_create_declared_filters(authorized_client, authorized_user
             "name": "Banana search",
             "endpoint": "/api/v1/fsbid/available_positions/",
             "filters": {
-                "q": ["german security"]
+                "q": "german security"
             }
         }
     ), content_type='application/json', HTTP_JWT='test')
