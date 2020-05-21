@@ -3,7 +3,6 @@ import pytest
 from django.core.management import call_command
 
 from talentmap_api.bidding.models import BidCycle, CyclePosition
-from talentmap_api.language.models import Language
 from talentmap_api.position.models import Grade, Skill, Position, SkillCone, CapsuleDescription
 from talentmap_api.organization.models import Organization, TourOfDuty, Post, Location, Country
 from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
@@ -22,8 +21,6 @@ def test_soap_integrations():
     call_command('schedule_synchronization_job', '--set-defaults')
     call_command('synchronize_data', '--test')
 
-    assert Language.objects.count() == 10
-    assert Language.objects.first().formal_description == LANGUAGE_FORMAL_NAMES.get(Language.objects.first().short_description)
     assert Country.objects.count() == 10
     assert Location.objects.count() == 10
     assert CapsuleDescription.objects.count() == 10
@@ -95,7 +92,7 @@ def test_soap_job_functions():
 
     job.refresh_from_db()
     assert job.last_synchronization == ensure_date("1975-01-01T00:00:00Z")
-        
+
     job.running = False
     job.save()
 

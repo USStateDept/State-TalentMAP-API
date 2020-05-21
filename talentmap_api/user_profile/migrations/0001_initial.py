@@ -15,7 +15,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('organization', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('language', '0001_initial'),
         ('position', '0001_initial'),
     ]
 
@@ -48,7 +47,6 @@ class Migration(migrations.Migration):
                 ('cdo', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='direct_reports', to='user_profile.UserProfile')),
                 ('favorite_positions', models.ManyToManyField(help_text='Positions which this user has designated as a favorite', related_name='favorited_by_users', to='position.Position')),
                 ('grade', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='position.Grade')),
-                ('language_qualifications', models.ManyToManyField(related_name='qualified_users', to='language.Qualification')),
                 ('primary_nationality', models.ForeignKey(help_text="The user's primary country of citizenship", null=True, on_delete=django.db.models.deletion.CASCADE, related_name='primary_citizens', to='organization.Country')),
                 ('secondary_nationality', models.ForeignKey(help_text="The user's secondary country of citizenship", null=True, on_delete=django.db.models.deletion.CASCADE, related_name='secondary_citizens', to='organization.Country')),
                 ('skill_code', models.ManyToManyField(to='position.Skill')),

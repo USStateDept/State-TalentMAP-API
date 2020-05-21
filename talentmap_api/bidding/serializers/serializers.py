@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.position.serializers import PositionSerializer, PositionBidStatisticsSerializer, LanguageQualificationSerializer, PostSerializer, CapsuleDescriptionSerializer
+from talentmap_api.position.serializers import PositionSerializer, PositionBidStatisticsSerializer, PostSerializer, CapsuleDescriptionSerializer
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
 from talentmap_api.position.models import Position
 
@@ -129,13 +129,6 @@ class CyclePositionSerializer(PrefetchedSerializer):
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
                 "kwargs": {
-                    "read_only": True
-                }
-            },
-            "languages": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "many": True,
                     "read_only": True
                 }
             },

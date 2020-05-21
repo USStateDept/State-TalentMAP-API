@@ -14,14 +14,6 @@ from talentmap_api.position.tests.mommy_recipes import bidcycle_positions
 # Might move this fixture to a session fixture if we end up needing languages elsewhere
 @pytest.fixture
 def test_position_endpoints_fixture():
-    # Create a specific language, proficiency, and qualification
-    language = mommy.make('language.Language', code="DE", long_description="German", short_description="Ger")
-    mommy.make('language.Language', code="FR", long_description="French", short_description="Fch")
-    proficiency = mommy.make('language.Proficiency', code="3")
-    proficiency_2 = mommy.make('language.Proficiency', code="4")
-    qualification = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency, reading_proficiency=proficiency)
-    qualification_2 = mommy.make('language.Qualification', language=language, spoken_proficiency=proficiency_2, reading_proficiency=proficiency_2)
-
     # Create some grades
     grade = mommy.make('position.Grade', code="00")
     grade_2 = mommy.make('position.Grade', code="01")
@@ -34,8 +26,8 @@ def test_position_endpoints_fixture():
 
     bc = mommy.make('bidding.BidCycle', active=True)
     # Create a position with the specific qualification
-    bc.positions.add(mommy.make('position.Position', languages=[qualification], grade=grade, skill=skill))
-    bc.positions.add(mommy.make('position.Position', languages=[qualification_2], grade=grade_2, skill=skill_2))
+    bc.positions.add(mommy.make('position.Position', grade=grade, skill=skill))
+    bc.positions.add(mommy.make('position.Position', grade=grade_2, skill=skill_2))
 
     is_overseas = [True, False]
     # Create some junk positions to add numbers
@@ -53,34 +45,6 @@ def test_position_list(client):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 10
-
-
-@pytest.mark.django_db()
-@pytest.mark.usefixtures("test_position_endpoints_fixture")
-def test_position_filtering(client):
-    response = client.get('/api/v1/position/?languages__language__name=German')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = client.get('/api/v1/position/?language_codes=DE')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_least=3')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=3')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_least=4')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = client.get('/api/v1/position/?languages__spoken_proficiency__at_most=4')
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
 
 
 @pytest.mark.django_db()
@@ -146,10 +110,6 @@ def test_skill_filtering(client):
 @pytest.mark.django_db()
 @pytest.mark.usefixtures("test_position_endpoints_fixture")
 @pytest.mark.parametrize("endpoint, available, expected_count", [
-    ("/api/v1/language/", True, 1),
-    ("/api/v1/language/", False, 1),
-    ("/api/v1/language_proficiency/", True, 2),
-    ("/api/v1/language_proficiency/", False, 0),
     ("/api/v1/grade/", True, 2),
     ("/api/v1/grade/", False, 8),
     ("/api/v1/skill/", True, 2),

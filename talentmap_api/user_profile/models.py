@@ -24,8 +24,6 @@ class UserProfile(StaticRepresentationModel):
 
     cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
 
-    language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
-
     skills = models.ManyToManyField('position.Skill')
 
     grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)

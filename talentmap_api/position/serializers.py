@@ -3,7 +3,6 @@ from rest_framework import serializers
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 
 from talentmap_api.position.models import Position, Grade, Skill, SkillCone, CapsuleDescription, Classification, PositionBidStatistics
-from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.organization.serializers import PostSerializer
 
 
@@ -81,7 +80,7 @@ class PositionListSerializer(PrefetchedSerializer):
 
     class Meta:
         model = Position
-        fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
+        fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "post",
                   "position_number",  "posted_date", "title", "availability"]
         nested = {
             "description": {
@@ -93,13 +92,6 @@ class PositionListSerializer(PrefetchedSerializer):
             },
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "languages": {
-                "class": LanguageQualificationSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True
@@ -167,13 +159,6 @@ class PositionSerializer(PrefetchedSerializer):
         nested = {
             "bid_statistics": {
                 "class": PositionBidStatisticsSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "languages": {
-                "class": LanguageQualificationSerializer,
                 "kwargs": {
                     "many": True,
                     "read_only": True

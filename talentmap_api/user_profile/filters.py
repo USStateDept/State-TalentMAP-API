@@ -7,9 +7,6 @@ from talentmap_api.bidding.filters import UserBidStatisticsFilter
 from talentmap_api.position.models import Grade, Skill
 from talentmap_api.position.filters import GradeFilter, SkillFilter
 
-from talentmap_api.language.filters import QualificationFilter
-from talentmap_api.language.models import Qualification
-
 from talentmap_api.user_profile.models import UserProfile
 
 from talentmap_api.organization.filters import CountryFilter
@@ -34,7 +31,6 @@ class UserProfileFilter(filters.FilterSet):
     cdo = filters.RelatedFilter('talentmap_api.user_profile.filters.UserProfileFilter', name='cdo', queryset=UserProfile.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skills = filters.RelatedFilter(SkillFilter, name='skills', queryset=Skill.objects.all())
-    language_qualifications = filters.RelatedFilter(QualificationFilter, name='language_qualifications', queryset=Qualification.objects.all())
     primary_nationality = filters.RelatedFilter(CountryFilter, name="primary_nationality", queryset=Country.objects.all())
     secondary_nationality = filters.RelatedFilter(CountryFilter, name="primary_nationality", queryset=Country.objects.all())
 
@@ -47,7 +43,6 @@ class UserProfileFilter(filters.FilterSet):
             "cdo": FOREIGN_KEY_LOOKUPS,
             "grade": FOREIGN_KEY_LOOKUPS,
             "skills": FOREIGN_KEY_LOOKUPS,
-            "language_qualifications": FOREIGN_KEY_LOOKUPS,
             "primary_nationality": FOREIGN_KEY_LOOKUPS,
             "secondary_nationality": FOREIGN_KEY_LOOKUPS
         }
@@ -90,7 +85,6 @@ class ClientFilter(UserProfileFilter):
             "skills__code",
             "skills__description",
             "skills__cone__name",
-            "language_qualifications__language__short_description",
             "primary_nationality__name",
             "secondary_nationality__name"
         ]

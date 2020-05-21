@@ -4,7 +4,6 @@ import logging
 import re
 
 from talentmap_api.common.xml_helpers import XMLloader, strip_extra_spaces, parse_boolean, parse_date, get_nested_tag
-from talentmap_api.language.models import Language, Proficiency
 from talentmap_api.position.models import Grade, Skill, Position, CapsuleDescription, SkillCone
 from talentmap_api.organization.models import Organization, Post, TourOfDuty, Location, Country
 
@@ -17,7 +16,6 @@ class Command(BaseCommand):
         super(Command, self).__init__(*args, **kwargs)
 
         self.modes = {
-            'languages': mode_languages,
             'proficiencies': mode_proficiencies,
             'grades': mode_grades,
             'skills': mode_skills,
@@ -58,20 +56,6 @@ class Command(BaseCommand):
             post_load_function(new_ids, updated_ids)
 
         self.logger.info(f"XML Load Report\n\tNew: {len(new_ids)}\n\tUpdated: {len(updated_ids)}\t\t")
-
-
-def mode_languages():
-    model = Language
-    instance_tag = "LANGUAGES:LANGUAGE"
-    collision_field = "code"
-    tag_map = {
-        "LANGUAGES:LANG_CODE": "code",
-        "LANGUAGES:LANG_LONG_DESC": "long_description",
-        "LANGUAGES:LANG_SHORT_DESC": "short_description",
-        "LANGUAGES:LANG_EFFECTIVE_DATE": parse_date("effective_date")
-    }
-
-    return (model, instance_tag, tag_map, collision_field, None)
 
 
 def mode_proficiencies():
@@ -175,15 +159,7 @@ def mode_positions():
         "POSITIONS:POS_SERVICE_TYPE_CODE": "_service_type_code",
         "POSITIONS:POS_GRADE_CODE": "_grade_code",
         "POSITIONS:POS_POST_CODE": "_post_code",
-        "POSITIONS:POS_LANGUAGE_1_CODE": "_language_1_code",
-        "POSITIONS:POS_LANGUAGE_2_CODE": "_language_2_code",
         "POSITIONS:POS_LOCATION_CODE": "_location_code",
-        "POSITIONS:POS_LANG_REQ_1_CODE": "_language_req_1_code",
-        "POSITIONS:POS_LANG_REQ_2_CODE": "_language_req_2_code",
-        "POSITIONS:POS_SPEAK_PROFICIENCY_1_CODE": "_language_1_spoken_proficiency_code",
-        "POSITIONS:POS_READ_PROFICIENCY_1_CODE": "_language_1_reading_proficiency_code",
-        "POSITIONS:POS_SPEAK_PROFICIENCY_2_CODE": "_language_2_spoken_proficiency_code",
-        "POSITIONS:POS_READ_PROFICIENCY_2_CODE": "_language_2_reading_proficiency_code",
         "POSITIONS:POS_CREATE_ID": "_create_id",
         "POSITIONS:POS_CREATE_DATE": parse_date("create_date"),
         "POSITIONS:POS_UPDATE_ID": "_update_id",

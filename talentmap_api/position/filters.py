@@ -8,9 +8,6 @@ import rest_framework_filters as filters
 from talentmap_api.bidding.models import BidCycle, CyclePosition
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, PositionBidStatistics, SkillCone
 
-from talentmap_api.language.filters import QualificationFilter
-from talentmap_api.language.models import Qualification
-
 from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
 from talentmap_api.organization.models import Organization, Post, TourOfDuty
 
@@ -85,8 +82,6 @@ class PositionBidStatisticsFilter(filters.FilterSet):
 
 
 class PositionFilter(filters.FilterSet):
-    languages = filters.RelatedFilter(QualificationFilter, name='languages', queryset=Qualification.objects.all())
-    language_codes = filters.Filter(name='language_codes', method="filter_language_codes")
     description = filters.RelatedFilter(CapsuleDescriptionFilter, name='description', queryset=CapsuleDescription.objects.all())
     grade = filters.RelatedFilter(GradeFilter, name='grade', queryset=Grade.objects.all())
     skill = filters.RelatedFilter(SkillFilter, name='skill', queryset=Skill.objects.all())
@@ -107,8 +102,6 @@ class PositionFilter(filters.FilterSet):
             "bureau__long_description",
             "skill__description",
             "skill__code",
-            "languages__language__long_description",
-            "languages__language__code",
             "post__location__code",
             "post__location__country__name",
             "post__location__country__code",
@@ -118,17 +111,6 @@ class PositionFilter(filters.FilterSet):
             "position_number"
         ]
     ))
-
-    def filter_language_codes(self, queryset, name, value):
-        '''
-        Returns a queryset of all languages that match the codes provided.
-        If NLR is provided, all positions with no language requirement will also be returned
-        '''
-        langs = value.split(',')
-        query = Q(languages__language__code__in=langs)
-        if 'NLR' in value:
-            query = query | Q(languages__isnull=True)
-        return queryset.filter(query).distinct()
 
     class Meta:
         model = Position
@@ -146,5 +128,4 @@ class PositionFilter(filters.FilterSet):
             "skill": FOREIGN_KEY_LOOKUPS,
             "grade": FOREIGN_KEY_LOOKUPS,
             "description": FOREIGN_KEY_LOOKUPS,
-            "languages": FOREIGN_KEY_LOOKUPS,
         }

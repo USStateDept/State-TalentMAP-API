@@ -23,7 +23,6 @@ from talentmap_api.common.xml_helpers import parse_boolean, parse_date, get_nest
 from talentmap_api.settings import get_delineated_environment_variable
 
 from talentmap_api.bidding.models import CyclePosition
-from talentmap_api.language.models import Proficiency
 from talentmap_api.user_profile.models import SavedSearch
 
 logger = logging.getLogger(__name__)
@@ -227,35 +226,6 @@ def mode_organizations(last_updated_date=None):
     return (soap_arguments, instance_tag, tag_map, collision_field, None, None)
 
 
-def mode_languages(last_updated_date=None):
-    # Request data
-    soap_arguments = {
-        "RequestorID": "TalentMAP",
-        "Action": "GET",
-        "RequestName": "language",
-        "MaximumOutputRows": 1000,
-        "Version": "0.01",
-        "DataFormat": "XML",
-        "InputParameters": "<languages><language></language></languages>"
-    }
-
-    # Response parsing data
-    instance_tag = "language"
-    collision_field = "code"
-    tag_map = {
-        "code": "code",
-        "long_description": "long_description",
-        "short_description": "short_description",
-    }
-
-    def post_load_function(model, new_ids, updated_ids):
-        # We need to ensure all appropriate proficiencies are existant
-        # as there is no current SOAP synchronization endpoint for these
-        Proficiency.create_defaults()
-
-    return (soap_arguments, instance_tag, tag_map, collision_field, post_load_function, None)
-
-
 def mode_countries(last_updated_date=None):
     # Request data
     soap_arguments = {
@@ -396,13 +366,7 @@ def mode_positions(last_updated_date=None):
         "is_overseas": parse_boolean("is_overseas"),
         "grade": "_grade_code",
         "tod_code": set_foreign_key_by_filters("tour_of_duty", "code", "__icontains"),
-        "language_code_1": "_language_1_code",
-        "language_code_2": "_language_2_code",
         "location_code": "_location_code",
-        "spoken_proficiency_1": "_language_1_spoken_proficiency_code",
-        "reading_proficiency_1": "_language_1_reading_proficiency_code",
-        "spoken_proficiency_2": "_language_2_spoken_proficiency_code",
-        "reading_proficiency_2": "_language_2_reading_proficiency_code",
         "create_date": parse_date("create_date"),
         "update_date": parse_date("update_date"),
         "effective_date": parse_date("effective_date"),
@@ -587,7 +551,6 @@ MODEL_HELPER_MAP = {
     "organization.Country": [mode_countries],
     "organization.Location": [mode_locations],
     "organization.Post": [mode_posts],
-    "language.Language": [mode_languages],
     "position.Position": [mode_positions],
     "bidding.BidCycle": [mode_cycles],
     "bidding.CyclePosition": [mode_cycle_positions],

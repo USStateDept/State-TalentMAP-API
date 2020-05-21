@@ -49,17 +49,12 @@ urlpatterns = [
     url(r'^api/v1/fsbid/reference/', include('talentmap_api.fsbid.urls.reference')),
     url(r'^api/v1/fsbid/cdo/', include('talentmap_api.fsbid.urls.cdo')),
     url(r'^api/v1/fsbid/client/', include('talentmap_api.fsbid.urls.client')),
-    
+
     # Projected Vacancies
     url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
-    
+
     # Available Positions
     url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
-
-    # Language and language related resources
-    url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
-    url(r'^api/v1/language_proficiency/', include('talentmap_api.language.urls.proficiency')),
-    url(r'^api/v1/language_qualification/', include('talentmap_api.language.urls.qualification')),
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),

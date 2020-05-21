@@ -13,7 +13,6 @@ import talentmap_api.bidding.models
 from talentmap_api.common.common_helpers import ensure_date, month_diff, safe_navigation
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
-from talentmap_api.language.models import Qualification
 from talentmap_api.bidding.models import CyclePosition
 
 
@@ -26,9 +25,6 @@ class Position(StaticRepresentationModel):
     position_number = models.TextField(null=True, help_text='The position number')
     description = models.OneToOneField('position.CapsuleDescription', on_delete=models.DO_NOTHING, related_name='position', null=True, help_text="A plain text description of the position")
     title = models.TextField(null=True, help_text='The position title')
-
-    # Positions can have any number of language requirements
-    languages = models.ManyToManyField('language.Qualification', related_name='positions')
 
     # Positions most often share their tour of duty with the post, but sometimes vary
     tour_of_duty = models.ForeignKey('organization.TourOfDuty', on_delete=models.DO_NOTHING, related_name='positions', null=True, help_text='The tour of duty of the post')
@@ -65,16 +61,7 @@ class Position(StaticRepresentationModel):
     _service_type_code = models.TextField(null=True)
     _grade_code = models.TextField(null=True)
     _post_code = models.TextField(null=True)
-    _language_1_code = models.TextField(null=True)
-    _language_2_code = models.TextField(null=True)
     _location_code = models.TextField(null=True)
-    # These are not the required languages, those are in language_1_code, etc.
-    _language_req_1_code = models.TextField(null=True)
-    _language_req_2_code = models.TextField(null=True)
-    _language_1_spoken_proficiency_code = models.TextField(null=True)
-    _language_1_reading_proficiency_code = models.TextField(null=True)
-    _language_2_spoken_proficiency_code = models.TextField(null=True)
-    _language_2_reading_proficiency_code = models.TextField(null=True)
     _create_id = models.TextField(null=True)
     _update_id = models.TextField(null=True)
     _jobcode_code = models.TextField(null=True)
@@ -160,21 +147,6 @@ class Position(StaticRepresentationModel):
         '''
         Update the position relationships
         '''
-        # Update language requirements
-        self.languages.clear()
-        if self._language_1_code:
-            qualification = Qualification.get_or_create_by_codes(self._language_1_code,
-                                                                 self._language_1_reading_proficiency_code,
-                                                                 self._language_1_spoken_proficiency_code)[0]
-            if qualification:
-                self.languages.add(qualification)
-        if self._language_2_code:
-            qualification = Qualification.get_or_create_by_codes(self._language_2_code,
-                                                                 self._language_2_reading_proficiency_code,
-                                                                 self._language_2_spoken_proficiency_code)[0]
-            if qualification:
-                self.languages.add(qualification)
-
         # Update grade
         if self._grade_code:
             self.grade = Grade.objects.filter(code=self._grade_code).first()

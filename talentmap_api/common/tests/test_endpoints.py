@@ -32,11 +32,6 @@ parameterized_data = [
     ('/api/v1/capsule_description/', 'position.CapsuleDescription', None, True),
     ('/api/v1/position/classification/', 'position.Classification', None, True),
 
-    # Language Endpoints
-    ('/api/v1/language/', 'language.Language', 'talentmap_api.language.tests.language', True),
-    ('/api/v1/language_proficiency/', 'language.Proficiency', 'talentmap_api.language.tests.proficiency', True),
-    ('/api/v1/language_qualification/', 'language.Qualification', None, True),
-
     # Organization Endpoints
     ('/api/v1/organization/', 'organization.Organization', 'talentmap_api.organization.tests.orphaned_organization', True),
     ('/api/v1/organization/group/', 'organization.OrganizationGroup', None, True),

@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('organization', '0001_initial'),
         ('bidding', '0001_initial'),
-        ('language', '0001_initial'),
     ]
 
     operations = [
@@ -101,15 +100,7 @@ class Migration(migrations.Migration):
                 ('_service_type_code', models.TextField(null=True)),
                 ('_grade_code', models.TextField(null=True)),
                 ('_post_code', models.TextField(null=True)),
-                ('_language_1_code', models.TextField(null=True)),
-                ('_language_2_code', models.TextField(null=True)),
                 ('_location_code', models.TextField(null=True)),
-                ('_language_req_1_code', models.TextField(null=True)),
-                ('_language_req_2_code', models.TextField(null=True)),
-                ('_language_1_spoken_proficiency_code', models.TextField(null=True)),
-                ('_language_1_reading_proficiency_code', models.TextField(null=True)),
-                ('_language_2_spoken_proficiency_code', models.TextField(null=True)),
-                ('_language_2_reading_proficiency_code', models.TextField(null=True)),
                 ('_create_id', models.TextField(null=True)),
                 ('_update_id', models.TextField(null=True)),
                 ('_jobcode_code', models.TextField(null=True)),
@@ -119,7 +110,6 @@ class Migration(migrations.Migration):
                 ('current_assignment', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='current_for_position', to='position.Assignment')),
                 ('description', models.OneToOneField(help_text='A plain text description of the position', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='position', to='position.CapsuleDescription')),
                 ('grade', models.ForeignKey(help_text='The job grade for this position', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='positions', to='position.Grade')),
-                ('languages', models.ManyToManyField(related_name='positions', to='language.Qualification')),
                 ('organization', models.ForeignKey(help_text='The organization for this position', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='organization_positions', to='organization.Organization')),
                 ('post', models.ForeignKey(help_text='The position post', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='positions', to='organization.Post')),
             ],

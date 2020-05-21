@@ -8,7 +8,6 @@ from rest_framework import serializers
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
 from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.language.serializers import LanguageQualificationSerializer
 from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
@@ -72,23 +71,12 @@ class ClientSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "avatar", "display_name"]
+        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "initials", "avatar", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
                 "kwargs": {
                     "read_only": True
-                }
-            },
-            "language_qualifications": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "representation"
-                    ],
-                    "many": True,
-                    "read_only": True,
                 }
             },
             "bid_statistics": {
@@ -171,17 +159,6 @@ class UserProfileSerializer(PrefetchedSerializer):
                     "read_only": True
                 }
             },
-            "language_qualifications": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "representation"
-                    ],
-                    "many": True,
-                    "read_only": True,
-                }
-            },
             "received_shares": {
                 "class": SharableSerializer,
                 "kwargs": {
@@ -196,8 +173,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
-        writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
+        fields = ["favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
+        writable_fields = ("favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):

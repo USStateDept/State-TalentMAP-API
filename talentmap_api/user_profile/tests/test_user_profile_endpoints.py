@@ -12,9 +12,6 @@ from talentmap_api.user_profile.models import UserProfile
 
 @pytest.fixture()
 def test_user_profile_fixture():
-    mommy.make("language.Qualification", id=1)
-    mommy.make("language.Qualification", id=2)
-
     mommy.make("bidding.CyclePosition", id=1)
     mommy.make("bidding.CyclePosition", id=2)
     mommy.make("bidding.CyclePosition", id=3)
@@ -58,22 +55,3 @@ def test_user_profile_favorites(authorized_client, authorized_user, test_user_pr
 
         assert resp.status_code == status.HTTP_200_OK
         assert len(resp.data["favorite_positions"]) == 0
-        assert len(resp.data["language_qualifications"]) == 0
-
-        resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
-            "language_qualifications": [1]
-        }), content_type="application/json")
-
-        assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.data["language_qualifications"]) == 1
-
-        assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [1]
-
-        resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
-            "language_qualifications": [2]
-        }), content_type="application/json")
-
-        assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.data["language_qualifications"]) == 1
-
-        assert list(authorized_user.profile.language_qualifications.values_list("id", flat=True)) == [2]
