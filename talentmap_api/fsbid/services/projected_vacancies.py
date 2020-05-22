@@ -49,7 +49,7 @@ def get_projected_vacancies_tandem(query, jwt_token, host=None):
         convert_pv_query,
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        get_projected_vacancies_count,
+        get_projected_vacancies_tandem_count,
         "/api/v1/fsbid/projected_vacancies/tandem/",
         host
     )
@@ -86,6 +86,28 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
         response['Position-Limit'] = limit
 
     return response
+
+def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
+    data = services.send_get_csv_request(
+        "positions/futureVacancies/tandem",
+        query,
+        convert_pv_query,
+        jwt_token,
+        fsbid_pv_to_talentmap_pv,
+        "/api/v1/fsbid/projected_vacancies/tandem/",
+        host,
+        None,
+        limit
+    )
+
+    count = get_projected_vacancies_tandem_count(query, jwt_token)
+    response = services.get_ap_and_pv_csv(data, "projected_vacancies", False, True)
+
+    if includeLimit is True and count['count'] > limit:
+        response['Position-Limit'] = limit
+
+    return response
+
 
 def fsbid_pv_to_talentmap_pv(pv):
     '''
