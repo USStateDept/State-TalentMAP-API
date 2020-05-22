@@ -44,10 +44,6 @@ urlpatterns = [
 
     # Organization and post related resources
     url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
-    url(r'^api/v1/orgpost/', include('talentmap_api.organization.urls.post')),
-    url(r'^api/v1/tour_of_duty/', include('talentmap_api.organization.urls.tour_of_duty')),
-    url(r'^api/v1/location/', include('talentmap_api.organization.urls.location')),
-    url(r'^api/v1/country/', include('talentmap_api.organization.urls.country')),
 
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
@@ -64,9 +60,6 @@ urlpatterns = [
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
-
-    # Feedback
-    url(r'^api/v1/feedback/', include('talentmap_api.feedback.urls.feedback')),
 
     # Data sync services
     url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
