@@ -41,11 +41,6 @@ class Command(BaseCommand):
 
                 position = Position.objects.get(id=positions.pop())
                 profile = UserProfile.objects.get(user=user)
-                profile.skills.add(position.skill)
-                profile.grade = position.grade
-                profile.primary_nationality = Country.objects.get(code="USA")
-                profile.date_of_birth = "1975-01-01T00:00:00Z"
-                profile.phone_number = "555-555-5555"
                 profile.emp_id = f"{user.first_name}_{user.last_name}"
                 profile.save()
 

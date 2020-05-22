@@ -31,7 +31,7 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["first_name", "last_name", "email", "skills"]
+        fields = ["first_name", "last_name", "email"]
 
 
 class UserProfileShortSerializer(PrefetchedSerializer):
@@ -46,21 +46,19 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "avatar", "display_name"]
+        fields = ["username", "first_name", "last_name", "email", "is_cdo", "initials", "avatar", "display_name"]
 
 
 class ClientSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
-    primary_nationality = StaticRepresentationField(read_only=True)
-    secondary_nationality = StaticRepresentationField(read_only=True)
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "initials", "avatar", "display_name"]
+        fields = ["id", "skills", "grade", "is_cdo", "bid_statistics", "user", "initials", "avatar", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
@@ -80,8 +78,6 @@ class UserProfileSerializer(PrefetchedSerializer):
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
-    primary_nationality = StaticRepresentationField(read_only=True)
-    secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
     favorite_positions = serializers.SerializerMethodField()
     # Use cdo_info so we don't have to break legacy CDO functionality
@@ -142,8 +138,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
-        writable_fields = ("favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
+        fields = ["favorite_positions", "initials", "avatar", "display_name"]
+        writable_fields = ("favorite_positions")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):

@@ -18,31 +18,11 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    date_of_birth = models.DateTimeField(null=True)
-    mandatory_retirement_date = models.DateTimeField(null=True)
-    phone_number = models.TextField(null=True)
-
-    cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
-
-    skills = models.ManyToManyField('position.Skill')
-
-    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)
-
     favorite_positions = models.ManyToManyField('bidding.CyclePosition', related_name='favorited_by_users', help_text="Cycle Positions which this user has designated as a favorite")
-
-    primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
-    secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
-
     emp_id = models.TextField(null=False, help_text="The user's employee id")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
-
-    def save(self, *args, **kwargs):
-        # Set the retirement date to the user's birthdate + 65 years
-        if self.date_of_birth:
-            self.mandatory_retirement_date = ensure_date(self.date_of_birth) + relativedelta(years=65)
-        super(UserProfile, self).save(*args, **kwargs)
 
     @property
     def avatar(self):

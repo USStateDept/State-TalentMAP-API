@@ -26,17 +26,11 @@ class UserFilter(filters.FilterSet):
 
 class UserProfileFilter(filters.FilterSet):
     user = filters.RelatedFilter(UserFilter, name='user', queryset=User.objects.all())
-    primary_nationality = filters.RelatedFilter(CountryFilter, name="primary_nationality", queryset=Country.objects.all())
-    secondary_nationality = filters.RelatedFilter(CountryFilter, name="primary_nationality", queryset=Country.objects.all())
 
     class Meta:
         model = UserProfile
         fields = {
-            "date_of_birth": DATE_LOOKUPS,
-            "phone_number": ALL_TEXT_LOOKUPS,
             "user": FOREIGN_KEY_LOOKUPS,
-            "primary_nationality": FOREIGN_KEY_LOOKUPS,
-            "secondary_nationality": FOREIGN_KEY_LOOKUPS
         }
 
 
