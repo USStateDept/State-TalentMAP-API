@@ -34,19 +34,6 @@ def test_user_public_profile_endpoint(authorized_client, authorized_user, test_u
 
 
 @pytest.mark.django_db(transaction=True)
-def test_user_profile_retirement_date(authorized_client, authorized_user, test_user_profile_fixture):
-    resp = authorized_client.patch('/api/v1/profile/', data=json.dumps({
-        "date_of_birth": "1000-01-01T00:00:00Z"
-    }), content_type="application/json")
-
-    assert resp.status_code == status.HTTP_200_OK
-
-    resp = authorized_client.get('/api/v1/profile/')
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data["mandatory_retirement_date"] == "1065-01-01T00:00:00Z"
-
-
-@pytest.mark.django_db(transaction=True)
 def test_user_profile_favorites(authorized_client, authorized_user, test_user_profile_fixture):
      with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
