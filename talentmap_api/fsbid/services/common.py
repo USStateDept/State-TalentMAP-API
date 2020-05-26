@@ -48,27 +48,9 @@ def convert_multi_value(val):
         return val.split(',')
 
 
-def post_indicator_array_contains_val(query, value):
-    array = query.get("position__post_indicator__in", "").split(",")
-    if value in array:
-        return post_indicator_values("true")
-    else:
-        # Return None, not false/"N"
-        return None
-
-
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
 LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
 
-
-def post_indicator_values(flag):
-    '''
-    Handles mapping post indicator params to FSBid expected flag params
-    '''
-    if flag == "true":
-        return "Y"
-    elif flag == "false":
-        return "N"
 
 def parseLanguage(lang):
     '''
@@ -93,9 +75,9 @@ def parseLanguagesString(lang):
         lang_str = ""
         for l in lang:
             if not lang_str:
-                lang_str = l["language"]
+                lang_str = l["representation"]
             else:
-                lang_str += ", " + l["language"]
+                lang_str += ", " + l["representation"]
 
         return lang_str
 
@@ -104,31 +86,33 @@ def post_values(query):
     Handles mapping locations and groups of locations to FSBid expected params
     '''
     results = []
-    if query.get("position__post__in"):
-        post_ids = query.get("position__post__in").split(",")
-        location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
-        results = results + list(location_codes)
     if query.get("position__post__code__in"):
         results = results + query.get("position__post__code__in").split(',')
     if len(results) > 0:
         return results
 
 
-def bureau_values(query):
+def bureau_values(query, isTandem = False):
     '''
     Gets the ids for the functional/regional bureaus and maps to codes and their children
     '''
+    org = "org_has_groups"
+    bureau = "position__bureau__code__in"
+    if (isTandem):
+        org = "org_has_groups-tandem"
+        bureau = "position__bureau__code__in-tandem"
+
     results = []
     # functional bureau filter
-    if query.get("org_has_groups"):
-        func_bureaus = query.get("org_has_groups").split(",")
+    if query.get(org):
+        func_bureaus = query.get(org).split(",")
         func_org_codes = OrganizationGroup.objects.filter(id__in=func_bureaus).values_list("_org_codes", flat=True)
         # Flatten _org_codes
         func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
         results = results + list(func_bureau_codes)
     # Regional bureau filter
-    if query.get("position__bureau__code__in"):
-        regional_bureaus = query.get("position__bureau__code__in").split(",")
+    if query.get(bureau):
+        regional_bureaus = query.get(bureau).split(",")
         reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
         results = results + list(reg_org_codes)
     if len(results) > 0:
@@ -223,11 +207,12 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     newQuery = query.copy()
     countProp = "count(1)"
-    if uri is 'CDOClients':
-        countProp = "count"
+    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
+    if uri in ('CDOClients'):
+        countProp = "count"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
@@ -275,7 +260,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
 
     return map(mapping_function, response.get("Data", {}))
 
-def get_ap_and_pv_csv(data, filename, ap=False):
+def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -300,9 +285,10 @@ def get_ap_and_pv_csv(data, filename, ap=False):
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle/Season"))
-    headers.append(smart_str(u"Posted Date"))
+    if ap: headers.append(smart_str(u"Posted Date"))
     if ap: headers.append(smart_str(u"Status Code"))
-    if ap: headers.append(smart_str(u"Capsule Description"))
+    if tandem: headers.append(smart_str(u"Tandem"))
+    headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
 
     for record in data:
@@ -333,6 +319,7 @@ def get_ap_and_pv_csv(data, filename, ap=False):
         row.append(smart_str(record["bidcycle"]["name"]))
         if ap: row.append(posteddate)
         if ap: row.append(smart_str(record.get("status_code")))
+        if tandem: row.append(smart_str(record.get("tandem_nbr")))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
