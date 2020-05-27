@@ -49,10 +49,11 @@ class AvailablePositionFavoriteListView(APIView):
         Return a list of all of the user's favorite available positions.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
         if len(aps) > 0:
+            get_ap_favorites.send(sender=self.__class__, user=user, request=request)
             pos_nums = ','.join(aps)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
                                                       request.META['HTTP_JWT'],
@@ -132,8 +133,12 @@ class AvailablePositionFavoriteActionView(APIView):
         Marks the available position as a favorite
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
+        if len(aps) >= FAVORITES_LIMIT:
+            return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+        else:
+            AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
         '''

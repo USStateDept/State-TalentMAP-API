@@ -247,3 +247,18 @@ def convert_pv_tandem_query(query):
         "fv_request_params.get_count": query.get("getCount", 'false'),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def get_pv_favorite_ids(query, jwt_token, host=None):
+    return services.send_get_request(
+        "futureVacancies",
+        query,
+        convert_pv_query,
+        jwt_token,
+        fsbid_favorites_to_talentmap_favorites_ids,
+        get_projected_vacancies_count,
+        "/api/v1/fsbid/projected_vacancies/",
+        host
+    ).get('results')
+
+def fsbid_favorites_to_talentmap_favorites_ids(pv):
+    return pv.get("fv_seq_num", None)

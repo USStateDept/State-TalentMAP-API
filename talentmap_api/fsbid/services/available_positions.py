@@ -372,3 +372,18 @@ def convert_all_query(query):
     but FP, OP, or HS will get removed from query
     '''
     return (convert_ap_query(query, ["FP", "OP", "HS"]))
+
+def get_ap_favorite_ids(query, jwt_token, host=None):
+    return services.send_get_request(
+        "availablePositions",
+        query,
+        convert_ap_query,
+        jwt_token,
+        fsbid_favorites_to_talentmap_favorites_ids,
+        get_available_positions_count,
+        "/api/v1/fsbid/available_positions/",
+        host
+    ).get('results')
+
+def fsbid_favorites_to_talentmap_favorites_ids(ap):
+    return ap.get("cp_id", None)
