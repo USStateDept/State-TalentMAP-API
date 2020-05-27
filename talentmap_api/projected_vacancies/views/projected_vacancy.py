@@ -2,6 +2,7 @@ import coreapi
 
 from django.shortcuts import render
 from django.http import QueryDict
+from django.conf import settings
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -18,6 +19,7 @@ from talentmap_api.user_profile.models import UserProfile
 
 import talentmap_api.fsbid.services.projected_vacancies as services
 
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 class ProjectedVacancyFavoriteListView(APIView):
 

@@ -3,6 +3,8 @@ import coreapi
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 
+from django.conf import settings
+
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
@@ -20,6 +22,8 @@ from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
+
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 class AvailablePositionsFilter():
     declared_filters = [
