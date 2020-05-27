@@ -31,19 +31,26 @@ class FSBidProjectedVacanciesListView(BaseView):
     filter_class = ProjectedVacancyFilter
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("is_available_in_bidseason", location='query', description='Bid Season id'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("position__post__in", location='query', description='Post id'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
-            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            # Pagination
+            coreapi.Field("ordering", location='query', description='Ordering'),
+            coreapi.Field("page", location='query', description='Page Index'),
+            coreapi.Field("limit", location='query', description='Page Limit'),
+
             coreapi.Field("id", location="query", description="Projected Vacancies ids"),
+            coreapi.Field("is_available_in_bidseason", location='query', description='Bid Season id'),
+            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
+            coreapi.Field("language_codes", location='query', description='Language code'),
+            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__code__in", location='query', description='Post id'),
+            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("q", location='query', description='Free Text'),
         ]
     )
 
@@ -59,34 +66,42 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
     filter_class = ProjectedVacancyFilter
     schema = AutoSchema(
         manual_fields=[
+            # Pagination
+            coreapi.Field("ordering", location='query', description='Ordering'),
+            coreapi.Field("page", location='query', description='Page Index'),
+            coreapi.Field("limit", location='query', description='Page Limit'),
+
+            coreapi.Field("getCount", location='query', description='Results Count'),
+
             # Tandem 1
-            coreapi.Field("is_available_in_bidseason", location='query', description='Bid Season id'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("id", location="query", description="Projected Vacancies ids"),
+            coreapi.Field("is_available_in_bidseason", location='query', description='Bid Season id'),
+            coreapi.Field("language_codes", location='query', description='Language code'),
+            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
 
             # Common
             coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("position__post__in", location='query', description='Post id'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__post__code__in", location='query', description='Post id'),
+            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("q", location='query', description='Text search'),
 
             # Tandem 2
             # Exclude post, post differentials, is_domestic
-            coreapi.Field("is_available_in_bidseason-tandem", location='query', description='Bid Season id - tandem'),
-            coreapi.Field("position__skill__code__in-tandem", location='query', description='Skill Code - tandem'),
-            coreapi.Field("position__grade__code__in-tandem", location='query', description='Grade Code - tandem'),
-            coreapi.Field("position__bureau__code__in-tandem", location='query', description='Bureau Code - tandem'),
-            coreapi.Field("position__post__tour_of_duty__code__in-tandem", location='query', description='TOD code - tandem'),
-            coreapi.Field("language_codes-tandem", location='query', description='Language code - tandem'),
             coreapi.Field("id-tandem", location="query", description="Available Position ids - tandem"),
-            coreapi.Field("q-tandem", location='query', description='Text search - tandem'),
+            coreapi.Field("is_available_in_bidseason-tandem", location='query', description='Bid Season id - tandem'),
+            coreapi.Field("language_codes-tandem", location='query', description='Language code - tandem'),
+            coreapi.Field("position__bureau__code__in-tandem", location='query', description='Bureau Code - tandem'),
+            coreapi.Field("position__grade__code__in-tandem", location='query', description='Grade Code - tandem'),
+            coreapi.Field("position__position_number__in-tandem", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__tour_of_duty__code__in-tandem", location='query', description='TOD code - tandem'),
+            coreapi.Field("position__skill__code__in-tandem", location='query', description='Skill Code - tandem'),
         ]
     )
 
@@ -122,3 +137,16 @@ class FSBidProjectedVacanciesCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
+class FSBidProjectedVacanciesTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
+
+    def get(self, request, *args, **kwargs):
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_projected_vacancies_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
