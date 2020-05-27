@@ -8,7 +8,7 @@ from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils.encoding import smart_str
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -17,6 +17,9 @@ from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionFavorite
 
 import talentmap_api.fsbid.services.common as services
+
+import logging
+logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
@@ -367,7 +370,7 @@ def convert_all_query(query):
 
 def archive_favorites(aps, request):
     fav_length = len(aps)
-    if fav_length >= FAVORITES_LIMIT or fav_length == 25:
+    if fav_length >= FAVORITES_LIMIT or fav_length == round(FAVORITES_LIMIT/2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison
@@ -381,15 +384,12 @@ def archive_favorites(aps, request):
                 outdated_ids.append(fav_id)
         if len(outdated_ids) > 0:
             AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
-            print("Available Position favorites archived")
-        else:
-            print("No favorites were archived")
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
         "availablePositions",
         query,
-        convert_ap_query,
+        convert_up_query,
         jwt_token,
         fsbid_favorites_to_talentmap_favorites_ids,
         get_available_positions_count,

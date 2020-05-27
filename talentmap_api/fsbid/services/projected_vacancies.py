@@ -8,7 +8,7 @@ from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils.encoding import smart_str
 
 from talentmap_api.common.common_helpers import ensure_date, safe_navigation
@@ -246,13 +246,13 @@ def convert_pv_query(query):
 
 def archive_favorites(pvs, request):
     favs_length = len(pvs)
-    if favs_length >= FAVORITES_LIMIT or favs_length == 25:
+    if favs_length >= FAVORITES_LIMIT or favs_length == round(FAVORITES_LIMIT/2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(pvs)
         # List favs is list of integers instead of strings for comparison
-        list_favs = list(map(lambda x: int(x), favs))
+        list_favs = list(map(lambda x: int(x), pvs))
         # Valid resulting ids from fsbid
-        returned_ids = pv_services.get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        returned_ids = get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         # Need to determine which ids need to be archived using comparison of lists above
         outdated_ids = []
         for fav_id in list_favs:
@@ -260,9 +260,6 @@ def archive_favorites(pvs, request):
                 outdated_ids.append(fav_id)
         if len(outdated_ids) > 0:
             ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
-            print("Projected Vacancy favorites were archived")
-        else:
-            print("No favorites were archived")
 
 def get_pv_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
