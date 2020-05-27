@@ -29,6 +29,8 @@ services:
     environment:
       - POSTGRES_DB=talentmap
       - POSTGRES_USER=talentmap-user
+    ports: 
+      - 4445:5432
   mock_db:
     image: postgres:9.6.3
     volumes:

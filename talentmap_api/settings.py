@@ -126,8 +126,6 @@ INSTALLED_APPS = [
     'talentmap_api.log_viewer',
     'talentmap_api.administration',
     'talentmap_api.stats'
-
-    'fsbid.apps.FsbidConfig'
 ]
 
 MIDDLEWARE = [

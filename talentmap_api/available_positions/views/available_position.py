@@ -57,7 +57,7 @@ class AvailablePositionFavoriteListView(APIView):
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
         if len(aps) > 0:
-            get_ap_favorites.send(sender=self.__class__, user=user, request=request)
+            services.archive_favorites(aps, request)
             pos_nums = ','.join(aps)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
                                                       request.META['HTTP_JWT'],
