@@ -6,16 +6,16 @@ default-python-node: &default-python-node
     CC_TEST_REPORTER_ID: b267008efa014a2c3a1ed266efebeb68bad762a948a54a443b4de581a92c45b0
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
     DJANGO_SECRET_KEY: ci_secret_key
-default-postgres-node: &default-postgres-node
-  image: circleci/postgres:9.6.2
+default-oracle-node: &default-oracle-node
+  image: container-registry.oracle.com/database/enterprise
   environment:
-    POSTGRES_USER: root
-    POSTGRES_DB: circle_test
+    - ORACLE_USER=talentmap
+    - ORACLE_PW=newpassword
 jobs:
   build:
     docker:
       - *default-python-node
-      - *default-postgres-node
+      - *default-oracle-node
     steps:
       - checkout
       - restore_cache:
@@ -51,7 +51,7 @@ jobs:
   pytest:
     docker:
       - *default-python-node
-      - *default-postgres-node
+      - *default-oracle-node
     steps:
       - checkout
       - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -70,7 +70,10 @@ jobs:
             . venv/bin/activate
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
-            DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
+            # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
+            DATABASE_URL: 127.0.0.1:1521/ORCLPDB1.localdomain
+            DATABASE_USER: root
+            DATABASE_PW: newpassword
             DJANGO_LOG_DIRECTORY: ./
       - run: ./cc-test-reporter after-build -t coverage.py --exit-code $?
       - store_artifacts:
