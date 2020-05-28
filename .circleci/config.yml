@@ -38,9 +38,9 @@ jobs:
             sudo rm -f instantclient-basiclite-linuxx64.zip \
             sudo rm -f instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip \
             sudo rm -f instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip \
-            cd /opt/oracle/instantclient* \
+            sudo cd /opt/oracle/instantclient* \
             sudo rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci \
-            echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
+            sudo echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
             sudo ldconfig
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
