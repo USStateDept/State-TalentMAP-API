@@ -91,6 +91,7 @@ jobs:
           name: Python Test Coverage
           command: |
             . venv/bin/activate
+            ./wait-for-oracle.sh 127.0.0.1
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
             # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
