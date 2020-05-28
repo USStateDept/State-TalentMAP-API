@@ -8,6 +8,9 @@ default-python-node: &default-python-node
     DJANGO_SECRET_KEY: ci_secret_key
 default-oracle-node: &default-oracle-node
   image: container-registry.oracle.com/database/enterprise
+  auth:
+    username: ${ORACLE_REG_U}
+    password: {ORACLE_REG_P}
   environment:
     ORACLE_USER: talentmap
     ORACLE_PW: newpassword
@@ -17,9 +20,6 @@ jobs:
       - *default-python-node
       - *default-oracle-node
     steps:
-      - run:
-        command: |
-          docker login container-registry.oracle.com -u ${ORACLE_REG_U} -p {ORACLE_REG_P}
       - checkout
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
