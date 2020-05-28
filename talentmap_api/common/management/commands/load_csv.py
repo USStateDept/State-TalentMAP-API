@@ -4,6 +4,7 @@ import logging
 
 from talentmap_api.common.xml_helpers import CSVloader
 from talentmap_api.glossary.models import GlossaryEntry
+from talentmap_api.organization.models import Obc
 
 
 class Command(BaseCommand):
@@ -15,6 +16,7 @@ class Command(BaseCommand):
 
         self.modes = {
             'glossary': mode_glossary_entry,
+            'obc': mode_obc_entry,
         }
 
     def add_arguments(self, parser):
@@ -53,6 +55,17 @@ def mode_glossary_entry():
         "title": "title",
         "definition": "definition",
         "link": "link",
+    }
+
+    return (model, tag_map, collision_field, None)
+
+def mode_obc_entry():
+    model = Obc
+    collision_field = "code"
+    tag_map = {
+        "code": "code",
+        "short_name": "short_name",
+        "obc_id": "obc_id",
     }
 
     return (model, tag_map, collision_field, None)

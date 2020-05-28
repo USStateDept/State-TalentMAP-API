@@ -11,16 +11,11 @@ from rest_framework import status
 
 from django.apps import apps
 
-from talentmap_api.bidding.tests.mommy_recipes import tz_aware_bidcycle
 from talentmap_api.user_profile.tests.mommy_recipes import owned_saved_search
 from talentmap_api.messaging.tests.mommy_recipes import owned_notification
 
 parameterized_fields = "endpoint, model, recipe, retrievable"
 parameterized_data = [
-    # Organization Endpoints
-    ('/api/v1/organization/', 'organization.Organization', 'talentmap_api.organization.tests.orphaned_organization', True),
-    ('/api/v1/organization/group/', 'organization.OrganizationGroup', None, True),
-
     # Permission Endpoints
     ('/api/v1/permission/group/', 'auth.Group', None, True),
 

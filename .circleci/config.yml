@@ -99,7 +99,7 @@ jobs:
       - *default-python-node
     steps:
       - checkout
-      - run: chmod +x wait-for-postgres.sh
+      - run: chmod +x wait-for-oracle.sh
       - run:
           name: Initialize Dummy Data Container
           command: |
@@ -110,7 +110,7 @@ jobs:
           command: |
             docker-compose -f $COMPOSE_FILE_NAME \
               run app bash -c \
-              "./wait-for-postgres.sh db && python manage.py migrate"
+              "./wait-for-oracle.sh oracle && python manage.py migrate"
       - run:
           name: Start Server
           command: docker-compose -f $COMPOSE_FILE_NAME up -d

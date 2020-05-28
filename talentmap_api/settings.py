@@ -94,7 +94,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.postgres',
 
     # Third-party
     'corsheaders',
@@ -118,7 +117,6 @@ INSTALLED_APPS = [
     'talentmap_api.bidding',
     'talentmap_api.permission',
     'talentmap_api.glossary',
-    'talentmap_api.integrations',
     'talentmap_api.feedback',
     'talentmap_api.projected_vacancies',
     'talentmap_api.available_positions',
@@ -412,11 +410,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,  # Consume these logs
         },
-        'talentmap_api.integrations': {
-            'handlers': ['console', 'sync'],
-            'level': 'INFO',
-            'propagate': False,  # Consume these logs
-        },
         'talentmap_api.saml2': {
             'handlers': ['console', 'auth'],
             'level': 'DEBUG',
@@ -440,7 +433,14 @@ WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 # Set up the DB from a connection string in the environment variable, DATABASE_URL
 # see https://github.com/kennethreitz/dj-database-url for more info
 
-DATABASES = {'default': dj_database_url.parse(get_delineated_environment_variable('DATABASE_URL'), conn_max_age=1)}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': get_delineated_environment_variable("DATABASE_URL"),
+        'USER': get_delineated_environment_variable("DATABASE_USER"),
+        'PASSWORD': get_delineated_environment_variable("DATABASE_PW"),
+    }
+}
 
 
 # Password validation

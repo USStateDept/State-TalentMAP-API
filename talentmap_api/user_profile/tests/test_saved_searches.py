@@ -13,9 +13,9 @@ def test_saved_search_fixture(authorized_user):
     return mommy.make('user_profile.SavedSearch',
                       name="Test search",
                       owner=authorized_user.profile,
-                      endpoint='/api/v1/position/',
+                      endpoint='/api/v1/fsbid/available_positions/',
                       filters={
-                          "position_number__startswith": ["56"],
+                          "q": "german",
                       })
 
 
@@ -58,22 +58,6 @@ def test_saved_search_create_unfilterable_endpoint(authorized_client, authorized
 
 
 @pytest.mark.django_db()
-def test_saved_search_create_declared_filters(authorized_client, authorized_user):
-    # Test a valid endpoint with declared (i.e. manual) filters
-    response = authorized_client.post('/api/v1/searches/', data=json.dumps(
-        {
-            "name": "Banana search",
-            "endpoint": "/api/v1/organization/",
-            "filters": {
-                "q": ["german security"],
-            }
-        }
-    ), content_type='application/json', HTTP_JWT='test')
-
-    assert response.status_code == status.HTTP_201_CREATED
-
-
-@pytest.mark.django_db()
 def test_saved_search_patch_bad_endpoint(authorized_client, authorized_user, test_saved_search_fixture):
     # Test patching a bad endpoint
     response = authorized_client.patch(f'/api/v1/searches/{test_saved_search_fixture.id}/', data=json.dumps(
@@ -90,11 +74,9 @@ def test_saved_search_patch_valid_filters(authorized_client, authorized_user, te
     # Test a valid endpoint with valid filters and new endpoint
     response = authorized_client.patch(f'/api/v1/searches/{test_saved_search_fixture.id}/', data=json.dumps(
         {
-            "endpoint": "/api/v1/organization/",
+            "endpoint": "/api/v1/fsbid/available_positions/",
             "filters": {
-                "code__startswith": ["56"],
-                "long_description__in": ["OFF OF THE AMB-AT-LARGE FOR COUNTER-TERRORISM", "OFFICE MANAGER"],
-                "bureau_organization__code__contains": ["6"]
+                "q": "german"
             }
         }
     ), content_type='application/json', HTTP_JWT='test')

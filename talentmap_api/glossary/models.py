@@ -6,8 +6,8 @@ class GlossaryEntry(models.Model):
     Represents an individual entry in the glossary
     """
 
-    title = models.TextField(null=False, unique=True)
-    definition = models.TextField(null=False)
+    title = models.CharField(max_length=50, null=False, unique=True)
+    definition = models.TextField(null=True)
     link = models.TextField(blank=True, default='')
 
     last_editing_user = models.ForeignKey('user_profile.UserProfile', on_delete=models.DO_NOTHING, related_name='edited_glossary', null=True, help_text="The last user to edit this glossary entry")

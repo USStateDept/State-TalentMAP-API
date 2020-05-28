@@ -42,27 +42,19 @@ urlpatterns = [
     # Available Positions
     url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
 
-    # Organization and post related resources
-    url(r'^api/v1/organization/', include('talentmap_api.organization.urls.organizations')),
-
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
     url(r'^api/v1/permission/group/', include('talentmap_api.permission.urls.group')),
 
     # Profile and account related resources
     url(r'^api/v1/profile/', include('talentmap_api.user_profile.urls.profile')),
-    url(r'^api/v1/share/', include('talentmap_api.messaging.urls.share')),
     url(r'^api/v1/searches/', include('talentmap_api.user_profile.urls.searches')),
 
     # Messaging related resources
     url(r'^api/v1/notification/', include('talentmap_api.messaging.urls.notification')),
-    url(r'^api/v1/task/', include('talentmap_api.messaging.urls.task')),
 
     # Glossary
     url(r'^api/v1/glossary/', include('talentmap_api.glossary.urls.glossary')),
-
-    # Data sync services
-    url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
 
     # Log viewing
     url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),

@@ -5,7 +5,7 @@ from talentmap_api.common.models import StaticRepresentationModel
 
 class AvailablePositionFavorite(StaticRepresentationModel):
 
-    cp_id = models.TextField(null=False)
+    cp_id = models.CharField(max_length=50, null=False)
     user = models.ForeignKey('user_profile.UserProfile', null=False, on_delete=models.DO_NOTHING, help_text="The user to which this favorite belongs")
 
     class Meta:
@@ -16,7 +16,7 @@ class AvailablePositionFavorite(StaticRepresentationModel):
 
 class AvailablePositionDesignation(models.Model):
 
-    cp_id = models.TextField(null=False, unique=True)
+    cp_id = models.CharField(max_length=50, null=False, unique=True)
 
     is_highlighted = models.BooleanField(default=False)
     is_urgent_vacancy = models.BooleanField(default=False)

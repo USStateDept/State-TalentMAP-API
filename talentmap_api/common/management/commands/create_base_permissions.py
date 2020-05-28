@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
         self.groups = [
             "bidder",
+            "cdo",
             "bureau_ao",
             "glossary_editors",
             "feedback_editors",

@@ -7,7 +7,6 @@ from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
 
@@ -121,13 +120,6 @@ class UserProfileSerializer(PrefetchedSerializer):
             "user": {
                 "class": UserSerializer,
                 "kwargs": {
-                    "read_only": True
-                }
-            },
-            "received_shares": {
-                "class": SharableSerializer,
-                "kwargs": {
-                    "many": True,
                     "read_only": True
                 }
             }

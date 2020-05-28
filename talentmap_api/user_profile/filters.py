@@ -3,12 +3,7 @@ import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import Bid
 
-from talentmap_api.position.models import Grade, Skill
-
 from talentmap_api.user_profile.models import UserProfile
-
-from talentmap_api.organization.filters import CountryFilter
-from talentmap_api.organization.models import Country
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -41,7 +36,5 @@ class ClientFilter(UserProfileFilter):
             "user__first_name",
             "user__last_name",
             "user__username",
-            "primary_nationality__name",
-            "secondary_nationality__name"
         ]
     ))

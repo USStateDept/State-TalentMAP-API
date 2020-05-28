@@ -5,8 +5,6 @@ import logging
 from django.contrib.auth.models import User
 from django.utils import timezone
 from talentmap_api.common.common_helpers import get_group_by_name
-from talentmap_api.position.models import Position
-from talentmap_api.organization.models import TourOfDuty, Country
 from talentmap_api.user_profile.models import UserProfile
 
 
@@ -27,8 +25,6 @@ class Command(BaseCommand):
     ]
 
     def handle(self, *args, **options):
-        positions = list(set(Position.objects.filter(bureau__code="150000").values_list('id', flat=True)))
-        positions = positions + list(set(Position.objects.filter(bureau__isnull=False).exclude(bureau__code="150000").order_by('bureau__code').values_list('id', flat=True)))
         for data in self.USERS:
             try:
                 try:
@@ -39,7 +35,6 @@ class Command(BaseCommand):
                 user.last_name = data[4]
                 user.save()
 
-                position = Position.objects.get(id=positions.pop())
                 profile = UserProfile.objects.get(user=user)
                 profile.emp_id = f"{user.first_name}_{user.last_name}"
                 profile.save()
@@ -47,20 +42,6 @@ class Command(BaseCommand):
                 # Add user to the bidder group
                 group = get_group_by_name("bidder")
                 group.user_set.add(user)
-
-                # Add the user to the editing group for their position
-                group = get_group_by_name(f"post_editors:{position.post.id}")
-                group.user_set.add(user)
-
-                if data[5]:
-                    group = get_group_by_name(f"bureau_ao")
-                    group.user_set.add(user)
-
-                    group = get_group_by_name(f"bureau_ao:150000")
-                    group.user_set.add(user)
-
-                if data[6]:
-                    UserProfile.objects.exclude(id=profile.id).update(cdo=profile)
 
                 for group in data[7]:
                     get_group_by_name(group).user_set.add(user)

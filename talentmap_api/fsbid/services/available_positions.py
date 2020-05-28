@@ -13,7 +13,6 @@ from django.utils.encoding import smart_str
 from django.core.exceptions import ObjectDoesNotExist
 
 from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
-from talentmap_api.bidding.models import BidCycle
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
 import talentmap_api.fsbid.services.common as services
@@ -324,6 +323,56 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
         "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
 
+    }
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
+    '''
+    Converts TalentMap tandem filters into FSBid tandem filters
+
+    The TalentMap tandem filters align with the position search filter naming
+    '''
+    values = {
+        # Pagination
+        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.page_index": int(query.get("page", 1)),
+        "request_params.page_size": query.get("limit", 25),
+
+        # Tandem 1 filters
+        "request_params.freeText": query.get("q", None),
+        "request_params.cps_codes": services.convert_multi_value(
+            validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
+        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
+        "request_params.bureaus": services.bureau_values(query),
+        "request_params.overseas_ind": services.overseas_values(query),
+        "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        "request_params.languages": services.convert_multi_value(query.get("language_codes")),
+        "request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        "request_params.location_codes": services.post_values(query),
+        "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
+
+        # Common filters
+        "request_params.overseas_ind2": services.overseas_values(query),
+        "request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        "request_params.location_codes2": services.post_values(query),
+        "request_params.freeText2": query.get("q", None),
+
+        # Tandem 2 filters
+        "request_params.cps_codes2": services.convert_multi_value(
+            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes)),
+        "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
+        "request_params.bureaus2": services.bureau_values(query), # TODO update bureau_values for tandem
+        "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
+        "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
+        "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
+        "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
+        "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
+        "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
