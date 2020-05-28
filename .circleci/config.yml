@@ -20,6 +20,7 @@ jobs:
       - *default-oracle-node
     steps:
       - checkout
+      - setup_remote_docker
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
