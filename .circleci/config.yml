@@ -17,6 +17,7 @@ jobs:
       - *default-python-node
       - *default-oracle-node
     steps:
+      - docker login container-registry.oracle.com -u ${ORACLE_REG_U} -p {ORACLE_REG_P}
       - checkout
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
