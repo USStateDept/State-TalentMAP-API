@@ -28,26 +28,6 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-            cd /opt
-            sudo mkdir oracle
-            cd ./oracle
-            sudo apt-get update && sudo apt-get install -y libaio1 wget unzip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
-            sudo unzip instantclient-basiclite-linuxx64.zip
-            sudo unzip instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo unzip instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
-            sudo rm -f instantclient-basiclite-linuxx64.zip
-            sudo rm -f instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo rm -f instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
-            cd /opt/oracle/instantclient*
-            sudo rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci
-            cd /etc/ld.so.conf.d
-            sudo touch oracle-instantclient.conf
-            sudo tee oracle-instantclient.conf <<<"/opt/oracle/instantclient_19_6"
-            cd /opt/oracle/instantclient*
-            sudo ldconfig
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
@@ -87,6 +67,26 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
+            cd /opt
+            sudo mkdir oracle
+            cd ./oracle
+            sudo apt-get update && sudo apt-get install -y libaio1 wget unzip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
+            sudo unzip instantclient-basiclite-linuxx64.zip
+            sudo unzip instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
+            sudo unzip instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
+            sudo rm -f instantclient-basiclite-linuxx64.zip
+            sudo rm -f instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
+            sudo rm -f instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
+            cd /opt/oracle/instantclient*
+            sudo rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci
+            cd /etc/ld.so.conf.d
+            sudo touch oracle-instantclient.conf
+            sudo tee oracle-instantclient.conf <<<"/opt/oracle/instantclient_19_6"
+            cd /opt/oracle/instantclient*
+            sudo ldconfig
       - run:
           name: Python Test Coverage
           command: |
