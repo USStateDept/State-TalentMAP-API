@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Installing Oracle instant client
 WORKDIR    /opt/oracle
-RUN        apt-get update && apt-get install -y libaio1 wget unzip alien \
+RUN        apt-get update && apt-get install -y libaio1 wget unzip \
             && wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip \
             && wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip \
             && wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip \
