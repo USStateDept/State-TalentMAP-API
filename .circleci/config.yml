@@ -10,7 +10,7 @@ default-oracle-node: &default-oracle-node
   image: container-registry.oracle.com/database/enterprise
   auth:
     username: ${ORACLE_REG_U}
-    password: {ORACLE_REG_P}
+    password: ${ORACLE_REG_P}
   environment:
     ORACLE_USER: talentmap
     ORACLE_PW: newpassword
