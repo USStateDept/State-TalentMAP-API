@@ -29,7 +29,7 @@ jobs:
             . venv/bin/activate
             pip install -r requirements.txt
             cd /opt
-            mkdir oracle
+            sudo mkdir oracle
             cd ./oracle
             sudo apt-get update && sudo apt-get install -y libaio1 wget unzip \
             sudo wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip \
