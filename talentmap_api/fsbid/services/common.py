@@ -92,12 +92,6 @@ def post_values(query):
         return results
 
 
-def bureau_values(query, isTandem = False):
-    # TODO is this needed?
-    results = []
-    return results
-
-
 def overseas_values(query):
     '''
     Maps the overseas/domestic filter to the proper value

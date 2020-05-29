@@ -290,7 +290,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "request_params.bureaus": services.bureau_values(query),
+        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
         "request_params.location_codes": services.post_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
@@ -317,7 +317,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
         "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
         "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "request_params.bureaus2": services.bureau_values(query, True), # pass True to indicate isTandem
+        "request_params.bureaus2": services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
         "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
         "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
         "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
@@ -343,7 +343,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.cps_codes": services.convert_multi_value(
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        "request_params.bureaus": services.bureau_values(query),
+        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
         "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
@@ -366,7 +366,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.cps_codes2": services.convert_multi_value(
             validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes)),
         "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
-        "request_params.bureaus2": services.bureau_values(query), # TODO update bureau_values for tandem
+        "request_params.bureaus2": services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
         "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
         "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
         "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
