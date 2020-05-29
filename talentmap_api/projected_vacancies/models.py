@@ -3,7 +3,7 @@ from django.db import models
 
 class ProjectedVacancyFavorite(models.Model):
 
-    fv_seq_num = models.CharField(max_length=50, null=False)
+    fv_seq_num = models.CharField(max_length=255, null=False)
     user = models.ForeignKey('user_profile.UserProfile', null=False, on_delete=models.DO_NOTHING, help_text="The user to which this favorite belongs")
 
     class Meta:

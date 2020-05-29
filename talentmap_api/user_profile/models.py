@@ -18,7 +18,7 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    emp_id = models.CharField(max_length=50, null=False, help_text="The user's employee id")
+    emp_id = models.CharField(max_length=255, null=False, help_text="The user's employee id")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"

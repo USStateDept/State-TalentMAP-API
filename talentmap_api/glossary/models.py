@@ -6,7 +6,7 @@ class GlossaryEntry(models.Model):
     Represents an individual entry in the glossary
     """
 
-    title = models.CharField(max_length=50, null=False, unique=True)
+    title = models.CharField(max_length=255, null=False, unique=True)
     definition = models.TextField(null=True)
     link = models.TextField(blank=True, default='')
 

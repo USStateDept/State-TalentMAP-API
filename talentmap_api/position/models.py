@@ -37,7 +37,7 @@ class Grade(StaticRepresentationModel):
         "08": 14,
     }
 
-    code = models.CharField(max_length=50, db_index=True, unique=True, null=False)
+    code = models.CharField(max_length=255, db_index=True, unique=True, null=False)
     rank = models.IntegerField(null=False, default=0)
 
     def __str__(self):
@@ -57,8 +57,8 @@ class Skill(StaticRepresentationModel):
     The skill model represents an individual job skill
     '''
 
-    code = models.CharField(max_length=50, db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
-    description = models.CharField(max_length=50, null=False, help_text="Text description of the job skill")
+    code = models.CharField(max_length=255, db_index=True, unique=True, null=False, help_text="4 character string code representation of the job skill")
+    description = models.CharField(max_length=255, null=False, help_text="Text description of the job skill")
 
     def __str__(self):
         return f"{self.description} ({self.code})"
@@ -73,7 +73,7 @@ class SkillCone(StaticRepresentationModel):
     The skill cone represents a grouping of skills
     '''
 
-    name = models.CharField(max_length=50, db_index=True, null=False, help_text="The name of the skill cone")
+    name = models.CharField(max_length=255, db_index=True, null=False, help_text="The name of the skill cone")
 
     # Data as loaded from XML
     _id = models.TextField(null=True)
@@ -133,8 +133,8 @@ class Classification(StaticRepresentationModel):
     Maintained as a separate model to support limiting visibility.
     '''
 
-    code = models.CharField(max_length=50, db_index=True, unique=True, null=False, help_text="The classification code")
-    description = models.CharField(max_length=50, null=False, help_text="Text description of the classification")
+    code = models.CharField(max_length=255, db_index=True, unique=True, null=False, help_text="The classification code")
+    description = models.CharField(max_length=255, null=False, help_text="Text description of the classification")
 
     def __str__(self):
         return f"{self.description} ({self.code})"
