@@ -15,7 +15,11 @@ services:
     # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
     command: >
       bash -c "python show_logo.py
-      && ./wait-for-oracle.sh oracle
+      && echo 'Starting...'
+      && ./wait-for-oracle.sh oracle:1521 sys Oradoc_db1 'as sysdba'
+      && echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/Oradoc_db1@//oracle:1521/orclpdb1.localdomain as sysdba @create-oracle-user.sql
+      && echo 'Oracle user created!'
+      && ./wait-for-oracle.sh oracle:1521 talentmap talentmap ''
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -23,18 +27,14 @@ services:
       - DJANGO_SECRET_KEY=development_secret_key
       - DATABASE_URL=oracle:1521/ORCLPDB1.localdomain
       - DATABASE_USER=talentmap
-      - DATABASE_PW=newpassword
+      - DATABASE_PW=talentmap
       - DJANGO_DEBUG=true
   oracle:
     ports:
       - 1521:1521
-      - 32769:32769
     image: container-registry.oracle.com/database/enterprise
     volumes:
       - oracle:/var/lib/oracle/data/
-    environment:
-      - ORACLE_USER=talentmap
-      - ORACLE_PW=newpassword
   mock_db:
     image: postgres:9.6.3
     volumes:
