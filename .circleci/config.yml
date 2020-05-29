@@ -60,6 +60,7 @@ jobs:
       - setup_remote_docker
       - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - run: chmod +x ./cc-test-reporter
+      - run: chmod +x ./wait-for-oracle.sh
       - run: ./cc-test-reporter before-build
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
@@ -89,16 +90,24 @@ jobs:
             cd /opt/oracle/instantclient*
             sudo ldconfig
       - run:
+          name: Create Oracle user
+          command: |
+            ./wait-for-oracle.sh 127.0.0.1:1521 sys Oradoc_db1 "as sysdba"
+            echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/Oradoc_db1@//127.0.0.1/orclpdb1.localdomain as sysdba @create-oracle-user.sql
+      - run:
+          name: Wait for Oracle
+          command: |
+            ./wait-for-oracle.sh 127.0.0.1:1521 talentmap talentmap ""
+      - run:
           name: Python Test Coverage
           command: |
             . venv/bin/activate
-            ./wait-for-oracle.sh 127.0.0.1:1521
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
             # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
             DATABASE_URL: 127.0.0.1:1521/ORCLPDB1.localdomain
-            DATABASE_USER: root
-            DATABASE_PW: newpassword
+            DATABASE_USER: talentmap
+            DATABASE_PW: talentmap
             DJANGO_LOG_DIRECTORY: ./
       - run: ./cc-test-reporter after-build -t coverage.py --exit-code $?
       - store_artifacts:

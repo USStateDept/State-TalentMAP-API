@@ -1,1 +1,1 @@
-SELECT * from DJANGO_MIGRATIONS;
+SELECT user FROM dual;
