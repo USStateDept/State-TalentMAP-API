@@ -4,7 +4,7 @@ import logging
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from talentmap_api.common.common_helpers import get_group_by_name
+from talentmap_api.common.common_helpers import get_group_by_name, get_permission_by_name
 from talentmap_api.user_profile.models import UserProfile
 
 
@@ -14,14 +14,14 @@ class Command(BaseCommand):
 
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [
-        ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, []),
+        ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, ["bidder"]),
         ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["feedback_editors"]),
-        ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, []),
+        ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, ["bidder"]),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
-        ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, []),
-        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, []),
-        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, []),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["feedback_editors"])
+        ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, ["bidder"]),
+        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder"]),
+        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["bidder", "cdo"]),
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder", "feedback_editors"])
     ]
 
     def handle(self, *args, **options):
@@ -39,13 +39,9 @@ class Command(BaseCommand):
                 profile.emp_id = f"{user.first_name}_{user.last_name}"
                 profile.save()
 
-                # Add user to the bidder group
-                group = get_group_by_name("bidder")
-                group.user_set.add(user)
-
                 for group in data[7]:
                     get_group_by_name(group).user_set.add(user)
 
-                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tSkill: {profile.skills}\n\tGrade: {profile.grade}\n\tGroups: {user.groups.all()}")
+                self.logger.info(f"Successfully created {user.first_name} {user.last_name}, {user.username} ({user.email})\n\tGroups: {user.groups.all()}")
             except Exception as e:
                 self.logger.info(f"Could not create {data}, {e}")
