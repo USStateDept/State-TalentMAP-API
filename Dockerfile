@@ -19,9 +19,8 @@ RUN        apt-get update && apt-get install -y libaio1 wget unzip \
             && echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
             && ldconfig
 
-# Note that we want postgresql-client so 'manage.py dbshell' works.
 # We want xmlsec1 to support SAML SSO
-RUN apt-get update && apt-get install -y postgresql-client xmlsec1
+RUN apt-get update && apt-get install -y xmlsec1
 
 RUN mkdir /app
 RUN mkdir /app/logs
@@ -32,7 +31,6 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 COPY talentmap_api /app/talentmap_api/
-ADD wait-for-it.sh wait-for-postgres.sh manage.py setup.cfg show_logo.py /app/
+ADD wait-for-oracle.sh manage.py setup.cfg show_logo.py /app/
 
-RUN chmod +x wait-for-it.sh
-RUN chmod +x wait-for-postgres.sh
+RUN chmod +x wait-for-oracle.sh
