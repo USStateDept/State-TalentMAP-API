@@ -11,6 +11,7 @@ from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from talentmap_api.administration.models import AboutPage
 from talentmap_api.administration.serializers.aboutpage import AboutPageSerializer
 
+from pprint import pprint
 
 class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet, APIView):
 
@@ -25,21 +26,28 @@ class AboutPageView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericV
         '''
         Gets the AboutPage
         '''
-        print('-------------------------------------- in about page --------------------------------------')
-        print('AboutPage', AboutPage)
         queryset = get_object_or_404(AboutPage)
+        print('-------------------------------------- in views/aboutpage.py retrieve --------------------------------------')
+        print('AboutPage model:', AboutPage)
         print('queryset:', queryset)
-        print('queryset.content:', queryset.content)
+        l = dir(queryset)
+        pprint(l)
+        print('------------------------------------------------------------------------------------------------------------')
         return Response({"content": queryset.content})
 
     def partial_update(self, request, pk=None, format=None):
         '''
         Updates the AboutPage
         '''
-        print('-------------------------------------- updating about page --------------------------------------')
-        print('-------------------------------------- request.data:', request.data)
         hpb = AboutPage.objects.first()
         serializer = self.serializer_class(hpb, data=request.data, partial=True)
+
+        print('-------------------------------------- in views/aboutpage.py partial_update --------------------------------------')
+        print('hpb:', hpb)
+        print('serializer:', serializer)
+        pprint('serializer.is_valid():', serializer.is_valid())
+        print('------------------------------------------------------------------------------------------------------------')
+
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_204_NO_CONTENT)

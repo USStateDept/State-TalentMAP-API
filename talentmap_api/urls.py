@@ -25,7 +25,6 @@ urlpatterns = [
     # Administration related resources
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
-    url(r'^api/v1/featureflags/', include('talentmap_api.administration.urls.featureflags')),
 
     # Position and position detail related resources
     url(r'^api/v1/position/', include('talentmap_api.position.urls.position')),
@@ -91,6 +90,9 @@ urlpatterns = [
 
     # Data sync services
     url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
+
+    # Feature Flags
+    url(r'^api/v1/featureflags/', include('talentmap_api.feature_flags.urls.featureflags')),
 
     # Log viewing
     url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),
