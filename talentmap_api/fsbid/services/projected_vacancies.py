@@ -244,9 +244,9 @@ def convert_pv_query(query):
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
-def archive_favorites(pvs, request):
+def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
     favs_length = len(pvs)
-    if favs_length >= FAVORITES_LIMIT or favs_length == round(FAVORITES_LIMIT/2):
+    if favs_length >= favoritesLimit or favs_length == round(favoritesLimit/2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(pvs)
         # List favs is list of integers instead of strings for comparison

@@ -368,9 +368,9 @@ def convert_all_query(query):
     '''
     return (convert_ap_query(query, ["FP", "OP", "HS"]))
 
-def archive_favorites(aps, request):
+def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
     fav_length = len(aps)
-    if fav_length >= FAVORITES_LIMIT or fav_length == round(FAVORITES_LIMIT/2):
+    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit/2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison

@@ -91,7 +91,9 @@ class ProjectedVacancyFavoriteActionView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
-        if len(pvs) >= FAVORITES_LIMIT:
+        services.archive_favorites(pvs, request)
+        pvs_after_archive = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
+        if len(pvs_after_archive) >= FAVORITES_LIMIT:
             return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
         else:
             pvf = ProjectedVacancyFavorite(user=user, fv_seq_num=pk)
