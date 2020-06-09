@@ -522,3 +522,5 @@ SWAGGER_SETTINGS = {
         },
     },
 }
+
+FAVORITES_LIMIT = 50
