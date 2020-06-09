@@ -138,7 +138,9 @@ class AvailablePositionFavoriteActionView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
-        if len(aps) >= FAVORITES_LIMIT:
+        services.archive_favorites(aps, request)
+        aps_after_archive = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
+        if len(aps_after_archive) >= FAVORITES_LIMIT:
             return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
         else:
             AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
