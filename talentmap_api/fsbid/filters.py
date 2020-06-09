@@ -28,6 +28,7 @@ class ProjectedVacancyFilter():
         "isDifficultToStaff",
         "isEFMInside",
         "isEFMOutside",
+        "positions__cpn_codes_in",
     ]
 
     use_api = True
@@ -62,6 +63,7 @@ class AvailablePositionsFilter():
         "isDifficultToStaff",
         "isEFMInside",
         "isEFMOutside",
+        "positions__cpn_codes_in",
     ]
 
     use_api = True
