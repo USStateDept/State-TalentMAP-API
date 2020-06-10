@@ -327,6 +327,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
         "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
 
         # Common filters
@@ -336,6 +337,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
         "request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
         "request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
+        "request_params.cpn_codes2": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText2": query.get("q", None),
 
         # Tandem 2 filters
