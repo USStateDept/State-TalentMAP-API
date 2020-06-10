@@ -277,7 +277,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     # write the headers
     headers = []
     headers.append(smart_str(u"Position"))
-    headers.append(smart_str(u"Position Number"))
+    if tandem: headers.append(smart_str(u"Tandem"))
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Bureau"))
@@ -293,7 +293,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Bid Cycle/Season"))
     if ap: headers.append(smart_str(u"Posted Date"))
     if ap: headers.append(smart_str(u"Status Code"))
-    if tandem: headers.append(smart_str(u"Tandem"))
+    headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
 
@@ -309,7 +309,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
         row = []
         row.append(smart_str(record["position"]["title"]))
-        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        if tandem: row.append(smart_str(record.get("tandem_nbr")))
         row.append(smart_str(record["position"]["skill"]))
         row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
         row.append(smart_str(record["position"]["bureau"]))
@@ -325,7 +325,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["bidcycle"]["name"]))
         if ap: row.append(posteddate)
         if ap: row.append(smart_str(record.get("status_code")))
-        if tandem: row.append(smart_str(record.get("tandem_nbr")))
+        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
