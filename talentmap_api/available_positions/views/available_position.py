@@ -3,6 +3,8 @@ import coreapi
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 
+from django.conf import settings
+
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
@@ -20,6 +22,8 @@ from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
+
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 class AvailablePositionsFilter():
     declared_filters = [
@@ -49,10 +53,11 @@ class AvailablePositionFavoriteListView(APIView):
         Return a list of all of the user's favorite available positions.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
         if len(aps) > 0:
+            services.archive_favorites(aps, request)
             pos_nums = ','.join(aps)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
                                                       request.META['HTTP_JWT'],
@@ -132,8 +137,14 @@ class AvailablePositionFavoriteActionView(APIView):
         Marks the available position as a favorite
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
+        services.archive_favorites(aps, request)
+        aps_after_archive = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
+        if len(aps_after_archive) >= FAVORITES_LIMIT:
+            return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+        else:
+            AvailablePositionFavorite.objects.get_or_create(user=user, cp_id=pk)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
         '''

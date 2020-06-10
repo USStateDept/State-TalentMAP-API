@@ -7,6 +7,7 @@ class AvailablePositionFavorite(StaticRepresentationModel):
 
     cp_id = models.TextField(null=False)
     user = models.ForeignKey('user_profile.UserProfile', null=False, on_delete=models.DO_NOTHING, help_text="The user to which this favorite belongs")
+    archived = models.BooleanField(default=False)
 
     class Meta:
         managed = True

@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
-from talentmap_api.settings import OBC_URL
+from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
 logger = logging.getLogger(__name__)
 
@@ -229,14 +229,20 @@ def get_obc_id(post_id):
 def get_post_overview_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
-        return f"{OBC_URL}/post/detail/{obc_id}"
+        return {
+            'internal': f"{OBC_URL}/post/detail/{obc_id}",
+            'external': f"{OBC_URL_EXTERNAL}/post/detail/{obc_id}"
+        }
     else:
         return None
 
 def get_post_bidding_considerations_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
-        return f"{OBC_URL}/post/postdatadetails/{obc_id}"
+        return {
+            'internal': f"{OBC_URL}/post/postdatadetails/{obc_id}",
+            'external': f"{OBC_URL_EXTERNAL}/post/postdatadetails/{obc_id}"
+        }
     else:
         return None
 

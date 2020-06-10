@@ -90,6 +90,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("position__cpn_codes__in", location='query', description='Use code values from /references/commuterposts/'),
             coreapi.Field("q", location='query', description='Text search'),
 
             # Tandem 2
@@ -122,7 +123,6 @@ class FSBidProjectedVacancyView(BaseView):
         result = services.get_projected_vacancy(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
         return Response(result)
 
 class FSBidProjectedVacanciesCSVView(BaseView):

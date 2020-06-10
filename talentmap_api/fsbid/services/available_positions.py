@@ -8,17 +8,21 @@ from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils.encoding import smart_str
 from django.core.exceptions import ObjectDoesNotExist
 
 from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
 from talentmap_api.bidding.models import BidCycle
-from talentmap_api.available_positions.models import AvailablePositionDesignation
+from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionFavorite
 
 import talentmap_api.fsbid.services.common as services
 
+import logging
+logger = logging.getLogger(__name__)
+
 API_ROOT = settings.FSBID_API_URL
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 logger = logging.getLogger(__name__)
 
@@ -323,6 +327,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
         "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
 
         # Common filters
@@ -332,6 +337,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
         "request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
         "request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
+        "request_params.cpn_codes2": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText2": query.get("q", None),
 
         # Tandem 2 filters
@@ -363,3 +369,35 @@ def convert_all_query(query):
     but FP, OP, or HS will get removed from query
     '''
     return (convert_ap_query(query, ["FP", "OP", "HS"]))
+
+def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
+    fav_length = len(aps)
+    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit/2):
+        # Pos nums is string to pass correctly to services url
+        pos_nums = ','.join(aps)
+        # List favs is list of integers instead of strings for comparison
+        list_favs = list(map(lambda x: int(x), aps))
+        # Ids from fsbid that have filled position code (double checks they are invalid)
+        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1&cps_codes=FP"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        # Need to determine which ids need to be archived using comparison of lists above
+        outdated_ids = []
+        for fav_id in list_favs:
+            if fav_id in returned_ids:
+                outdated_ids.append(fav_id)
+        if len(outdated_ids) > 0:
+            AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+
+def get_ap_favorite_ids(query, jwt_token, host=None):
+    return services.send_get_request(
+        "availablePositions",
+        query,
+        convert_up_query,
+        jwt_token,
+        fsbid_favorites_to_talentmap_favorites_ids,
+        get_available_positions_count,
+        "/api/v1/fsbid/available_positions/",
+        host
+    ).get('results')
+
+def fsbid_favorites_to_talentmap_favorites_ids(ap):
+    return ap.get("cp_id", None)

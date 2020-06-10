@@ -2,6 +2,7 @@ import coreapi
 
 from django.shortcuts import render
 from django.http import QueryDict
+from django.conf import settings
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -18,6 +19,7 @@ from talentmap_api.user_profile.models import UserProfile
 
 import talentmap_api.fsbid.services.projected_vacancies as services
 
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 class ProjectedVacancyFavoriteListView(APIView):
 
@@ -36,10 +38,11 @@ class ProjectedVacancyFavoriteListView(APIView):
         Return a list of all of the user's favorite projected vacancies.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         limit = request.query_params.get('limit', 12)
         page = request.query_params.get('page', 1)
         if len(pvs) > 0:
+            services.archive_favorites(pvs, request)
             pos_nums = ','.join(pvs)
             return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
                                                              request.META['HTTP_JWT'],
@@ -87,9 +90,15 @@ class ProjectedVacancyFavoriteActionView(APIView):
         Marks the projected vacancy as a favorite
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        pvf = ProjectedVacancyFavorite(user=user, fv_seq_num=pk)
-        pvf.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
+        services.archive_favorites(pvs, request)
+        pvs_after_archive = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
+        if len(pvs_after_archive) >= FAVORITES_LIMIT:
+            return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+        else:
+            pvf = ProjectedVacancyFavorite(user=user, fv_seq_num=pk)
+            pvf.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, format=None):
         '''
