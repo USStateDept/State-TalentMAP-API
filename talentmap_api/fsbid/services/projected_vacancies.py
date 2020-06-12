@@ -138,6 +138,10 @@ def fsbid_pv_to_talentmap_pv(pv):
                 services.parseLanguage(pv.get("lang1", None)),
                 services.parseLanguage(pv.get("lang2", None)),
             ])),
+            "commuterPost": {
+                "description": pv.get("cpn_desc", None),
+                "frequency": pv.get("cpn_freq_desc", None),
+            },
             "post": {
                 "tour_of_duty": pv.get("tod", None),
                 "post_overview_url": services.get_post_overview_url(pv.get("pos_location_code", None)),

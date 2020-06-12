@@ -240,6 +240,10 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "start_date": None,
                 "estimated_end_date": ensure_date(ap.get("ted", None), utc_offset=-5)
             },
+            "commuterPost": {
+                "description": ap.get("cpn_desc", None),
+                "frequency": ap.get("cpn_freq_desc", None),
+            },
             "post": {
                 "id": None,
                 "code": ap.get("pos_location_code", None),
