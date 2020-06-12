@@ -15,6 +15,8 @@ from talentmap_api.stats.models import LoginInstance
 from talentmap_api.stats.serializers import LoginInstanceSerializer
 from talentmap_api.stats.filters import LoginInstanceFilter
 
+from pprint import pprint
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,9 @@ class UserLoginActionView(GenericViewSet):
         login_instance.user = user
         login_instance.date_of_login = datetime.datetime.now()
         login_instance.details = request.data.get('details', {})
+        print('request.data:')
+        pprint(request.data)
+        # pprint(dir(request.data))
         login_instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
