@@ -54,20 +54,3 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
         instance.save()
         print('------------------------------------------------------------------------------------------------------------')
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
