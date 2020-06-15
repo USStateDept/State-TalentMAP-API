@@ -4,6 +4,7 @@ import csv
 from datetime import datetime
 import maya
 
+from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
@@ -48,7 +49,7 @@ def get_projected_vacancies_tandem(query, jwt_token, host=None):
     return services.send_get_request(
         "positions/futureVacancies/tandem",
         query,
-        convert_pv_query,
+        partial(convert_pv_query, isTandem=True),
         jwt_token,
         fsbid_pv_to_talentmap_pv,
         get_projected_vacancies_tandem_count,
@@ -66,7 +67,7 @@ def get_projected_vacancies_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of tandem PVs for a filterset
     '''
-    return services.send_count_request("positions/futureVacancies/tandem", query, convert_pv_query, jwt_token, host)
+    return services.send_count_request("positions/futureVacancies/tandem", query, partial(convert_pv_query, isTandem=True), jwt_token, host)
 
 def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -196,7 +197,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
-def convert_pv_query(query):
+def convert_pv_query(query, isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -226,26 +227,29 @@ def convert_pv_query(query):
         "fv_request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
         "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
         "fv_request_params.freeText": query.get("q", None),
+    }
 
+    if isTandem:
+        values["fv_request_params.order_by"] =  services.sorting_values('commuterPost,location')
         # Common filters
-        "fv_request_params.overseas_ind2": services.overseas_values(query),
-        "fv_request_params.location_codes2": services.post_values(query),
-        "fv_request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "fv_request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "fv_request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "fv_request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
-        "fv_request_params.freeText2": query.get("q", None),
+        values["fv_request_params.overseas_ind2"] = services.overseas_values(query)
+        values["fv_request_params.location_codes2"] = services.post_values(query)
+        values["fv_request_params.danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values["fv_request_params.differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values["fv_request_params.post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values["fv_request_params.us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values["fv_request_params.freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        "fv_request_params.seq_nums2": services.convert_multi_value(query.get("id-tandem", None)),
-        "fv_request_params.bid_seasons2": services.convert_multi_value(query.get("is_available_in_bidseason-tandem")),
-        "fv_request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "fv_request_params.bureaus2": services.bureau_values(query, True),
-        "fv_request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
-        "fv_request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
-        "fv_request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
-        "fv_request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
-    }
+        values["fv_request_params.seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values["fv_request_params.bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
+        values["fv_request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values["fv_request_params.bureaus2"] = services.bureau_values(query, True)
+        values["fv_request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values["fv_request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values["fv_request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values["fv_request_params.skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
+
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):

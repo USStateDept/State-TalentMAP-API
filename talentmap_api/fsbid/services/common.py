@@ -142,6 +142,8 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
+    "location": "location_city",
+    "commuterPost": "cpn_desc",
 }
 
 
