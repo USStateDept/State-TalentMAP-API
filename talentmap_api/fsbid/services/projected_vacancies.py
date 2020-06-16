@@ -203,55 +203,58 @@ def convert_pv_query(query, isTandem=False):
 
     The TalentMap filters align with the position search filter naming
     '''
+    prefix = "fv_request_params."
+
+    if isTandem: prefix = "request_params."
+
     values = {
         # Pagination
-        "fv_request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        "fv_request_params.page_index": int(query.get("page", 1)),
-        "fv_request_params.page_size": query.get("limit", 25),
+        f"{prefix}order_by": services.sorting_values(query.get("ordering", None)),
+        f"{prefix}page_index": int(query.get("page", 1)),
+        f"{prefix}page_size": query.get("limit", 25),
 
         # Tandem 1 filters
-        "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
-        "fv_request_params.bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
-        "fv_request_params.overseas_ind": services.overseas_values(query),
-        "fv_request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "fv_request_params.bureaus": services.bureau_values(query),
-        "fv_request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        "fv_request_params.location_codes": services.post_values(query),
-        "fv_request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "fv_request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        "fv_request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "fv_request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        "fv_request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
-        "fv_request_params.freeText": query.get("q", None),
+        f"{prefix}seq_nums": services.convert_multi_value(query.get("id", None)),
+        f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
+        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
+        f"{prefix}bureaus": services.bureau_values(query),
+        f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        f"{prefix}location_codes": services.post_values(query),
+        f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        f"{prefix}differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        f"{prefix}pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        f"{prefix}post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}freeText": query.get("q", None),
     }
 
     if not isTandem:
-        values["fv_request_params.get_count"]: query.get("getCount", 'false')
+        values[f"{prefix}get_count"]: query.get("getCount", 'false')
 
     if isTandem:
-        values["fv_request_params.order_by"] =  services.sorting_values('commuterPost,location')
-        values["fv_request_params.count"]: query.get("getCount", 'false')
+        values[f"{prefix}count"]: query.get("getCount", 'false')
+        values[f"{prefix}order_by"] = services.sorting_values('commuterPost,location')
         # Common filters
-        values["fv_request_params.overseas_ind2"] = services.overseas_values(query)
-        values["fv_request_params.location_codes2"] = services.post_values(query)
-        values["fv_request_params.danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
-        values["fv_request_params.differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
-        values["fv_request_params.post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
-        values["fv_request_params.us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
-        values["fv_request_params.freeText2"] = query.get("q", None)
+        values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
+        values[f"{prefix}location_codes2"] = services.post_values(query)
+        values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values[f"{prefix}post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values[f"{prefix}us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values[f"{prefix}freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        values["fv_request_params.seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
-        values["fv_request_params.bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
-        values["fv_request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
-        values["fv_request_params.bureaus2"] = services.bureau_values(query, True)
-        values["fv_request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
-        values["fv_request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
-        values["fv_request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
-        values["fv_request_params.skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
-
+        values[f"{prefix}seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values[f"{prefix}bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
+        values[f"{prefix}languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values[f"{prefix}bureaus2"] = services.bureau_values(query, True)
+        values[f"{prefix}grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
