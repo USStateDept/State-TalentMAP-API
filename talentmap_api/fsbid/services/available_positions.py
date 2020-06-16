@@ -313,8 +313,6 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
 
-        "request_params.get_count": query.get("getCount", 'false'),
-
         # Tandem 1 filters
         "request_params.cps_codes": services.convert_multi_value(
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
@@ -337,7 +335,11 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
 
     }
 
+    if not isTandem:
+        values["request_params.get_count"] = query.get("getCount", 'false')
+
     if isTandem:
+        values["request_params.count"] = query.get("getCount", 'false')
         values["request_params.order_by"] = services.sorting_values('commuterPost,location')
         # Common filters
         values["request_params.overseas_ind2"] = services.overseas_values(query)

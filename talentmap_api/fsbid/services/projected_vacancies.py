@@ -209,8 +209,6 @@ def convert_pv_query(query, isTandem=False):
         "fv_request_params.page_index": int(query.get("page", 1)),
         "fv_request_params.page_size": query.get("limit", 25),
 
-        "fv_request_params.get_count": query.get("getCount", 'false'),
-
         # Tandem 1 filters
         "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
         "fv_request_params.bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
@@ -229,8 +227,12 @@ def convert_pv_query(query, isTandem=False):
         "fv_request_params.freeText": query.get("q", None),
     }
 
+    if not isTandem:
+        values["fv_request_params.get_count"]: query.get("getCount", 'false')
+
     if isTandem:
         values["fv_request_params.order_by"] =  services.sorting_values('commuterPost,location')
+        values["fv_request_params.count"]: query.get("getCount", 'false')
         # Common filters
         values["fv_request_params.overseas_ind2"] = services.overseas_values(query)
         values["fv_request_params.location_codes2"] = services.post_values(query)
