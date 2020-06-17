@@ -77,5 +77,9 @@ class FSBidPostIndicatorsView(BaseView):
     mapping_function = services.fsbid_post_indicators_to_talentmap_indicators
 
 class FSBidUnaccompaniedStatusView(BaseView):
-    uri = "references/postAttributes?codeTableName=UnaccompaniedStatuses"
+    uri = "references/postAttributes?codeTableName=UnaccompaniedTable"
     mapping_function = services.fsbid_us_to_talentmap_us
+
+class FSBidCommuterPostsView(BaseView):
+    uri = "references/postAttributes?codeTableName=CommuterPostTable"
+    mapping_function = services.fsbid_commuter_posts_to_talentmap_commuter_posts

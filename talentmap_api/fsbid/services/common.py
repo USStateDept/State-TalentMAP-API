@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
-from talentmap_api.settings import OBC_URL
+from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +75,9 @@ def parseLanguagesString(lang):
         lang_str = ""
         for l in lang:
             if not lang_str:
-                lang_str = l["language"]
+                lang_str = l["representation"]
             else:
-                lang_str += ", " + l["language"]
+                lang_str += ", " + l["representation"]
 
         return lang_str
 
@@ -86,10 +86,6 @@ def post_values(query):
     Handles mapping locations and groups of locations to FSBid expected params
     '''
     results = []
-    if query.get("position__post__in"):
-        post_ids = query.get("position__post__in").split(",")
-        location_codes = Post.objects.filter(id__in=post_ids).values_list("_location_code", flat=True)
-        results = results + list(location_codes)
     if query.get("position__post__code__in"):
         results = results + query.get("position__post__code__in").split(',')
     if len(results) > 0:
@@ -146,6 +142,8 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
+    "location": "location_city",
+    "commuterPost": "cpn_desc",
 }
 
 
@@ -217,6 +215,8 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         newQuery['request_params.page_size'] = None
     if uri in ('CDOClients'):
         countProp = "count"
+    if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
+        countProp = "cnt"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
@@ -233,14 +233,20 @@ def get_obc_id(post_id):
 def get_post_overview_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
-        return f"{OBC_URL}/post/detail/{obc_id}"
+        return {
+            'internal': f"{OBC_URL}/post/detail/{obc_id}",
+            'external': f"{OBC_URL_EXTERNAL}/post/detail/{obc_id}"
+        }
     else:
         return None
 
 def get_post_bidding_considerations_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
-        return f"{OBC_URL}/post/postdatadetails/{obc_id}"
+        return {
+            'internal': f"{OBC_URL}/post/postdatadetails/{obc_id}",
+            'external': f"{OBC_URL_EXTERNAL}/post/postdatadetails/{obc_id}"
+        }
     else:
         return None
 
@@ -264,7 +270,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
 
     return map(mapping_function, response.get("Data", {}))
 
-def get_ap_and_pv_csv(data, filename, ap=False):
+def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -275,7 +281,7 @@ def get_ap_and_pv_csv(data, filename, ap=False):
     # write the headers
     headers = []
     headers.append(smart_str(u"Position"))
-    headers.append(smart_str(u"Position Number"))
+    if tandem: headers.append(smart_str(u"Tandem"))
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Bureau"))
@@ -289,9 +295,10 @@ def get_ap_and_pv_csv(data, filename, ap=False):
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle/Season"))
-    headers.append(smart_str(u"Posted Date"))
+    if ap: headers.append(smart_str(u"Posted Date"))
     if ap: headers.append(smart_str(u"Status Code"))
-    if ap: headers.append(smart_str(u"Capsule Description"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
 
     for record in data:
@@ -306,7 +313,7 @@ def get_ap_and_pv_csv(data, filename, ap=False):
 
         row = []
         row.append(smart_str(record["position"]["title"]))
-        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        if tandem: row.append(smart_str(record.get("tandem_nbr")))
         row.append(smart_str(record["position"]["skill"]))
         row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
         row.append(smart_str(record["position"]["bureau"]))
@@ -322,6 +329,7 @@ def get_ap_and_pv_csv(data, filename, ap=False):
         row.append(smart_str(record["bidcycle"]["name"]))
         if ap: row.append(posteddate)
         if ap: row.append(smart_str(record.get("status_code")))
+        row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)

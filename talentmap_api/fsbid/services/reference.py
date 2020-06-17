@@ -129,3 +129,11 @@ def fsbid_us_to_talentmap_us(data):
         "code": data.get("us_code", None),
         "description": data.get("us_desc_text", None)
     }
+
+@staticmethod
+def fsbid_commuter_posts_to_talentmap_commuter_posts(data):
+    return {
+        "code": data.get("cpn_code", 0),
+        "description": data.get("cpn_desc", None),
+        "cpn_freq_desc": data.get("cpn_freq_desc", None),
+    }
