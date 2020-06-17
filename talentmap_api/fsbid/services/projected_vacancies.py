@@ -213,8 +213,6 @@ def convert_pv_query(query, isTandem=False):
         f"{prefix}page_index": int(query.get("page", 1)),
         f"{prefix}page_size": query.get("limit", 25),
 
-        f"{prefix}get_count": query.get("getCount", 'false'),
-
         # Tandem 1 filters
         f"{prefix}seq_nums": services.convert_multi_value(query.get("id", None)),
         f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
@@ -233,7 +231,11 @@ def convert_pv_query(query, isTandem=False):
         f"{prefix}freeText": query.get("q", None),
     }
 
+    if not isTandem:
+        values[f"{prefix}get_count"]: query.get("getCount", 'false')
+
     if isTandem:
+        values[f"{prefix}count"] = query.get("getCount", 'false')
         values[f"{prefix}order_by"] = services.sorting_values('commuterPost,location')
         # Common filters
         values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
