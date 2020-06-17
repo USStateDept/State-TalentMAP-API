@@ -235,7 +235,7 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}get_count"]: query.get("getCount", 'false')
 
     if isTandem:
-        values[f"{prefix}count"]: query.get("getCount", 'false')
+        values[f"{prefix}count"] = query.get("getCount", 'false')
         values[f"{prefix}order_by"] = services.sorting_values('commuterPost,location')
         # Common filters
         values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
