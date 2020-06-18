@@ -100,7 +100,6 @@ jobs:
     docker:
       - *default-python-node
     steps:
-      - checkout
       - pylint/lint
   zap:
     docker:
