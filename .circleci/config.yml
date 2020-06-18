@@ -133,7 +133,6 @@ jobs:
           path: zap_results.md
           destination: zap/zap_results.md
 workflows:
-  version: 2
   build_and_test:
     jobs:
       - build
