@@ -1,5 +1,4 @@
 version: 2.1
-
 orbs:
   python-lint: qventus/python-lint@0.0.6
 default-python-node: &default-python-node
