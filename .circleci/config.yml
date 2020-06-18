@@ -136,8 +136,7 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - pylint/lint:
-          source: talentmap_api 
+      - pylint/lint
       #    requires:
       #      - build
       - bandit:
