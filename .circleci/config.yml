@@ -138,7 +138,7 @@ workflows:
     jobs:
       - build
       - ta-python/pylint:
-        requires:
+          requires:
             - ta-python/pylint
       - bandit:
           requires:
