@@ -387,7 +387,7 @@ def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison
         list_favs = list(map(lambda x: int(x), aps))
-        # Ids from fsbid that have filled position code (double checks they are invalid)
+        # Ids from fsbid that are returned
         returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         # Need to determine which ids need to be archived using comparison of lists above
         outdated_ids = []
