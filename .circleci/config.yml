@@ -135,9 +135,9 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - pylint/lint:
-          requires:
-            - build
+      - pylint/lint
+      #    requires:
+      #      - build
       - bandit:
           requires:
             - build
