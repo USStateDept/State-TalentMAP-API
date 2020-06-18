@@ -137,7 +137,8 @@ workflows:
     jobs:
       - build
       - pylint/lint:
-          checkout: true
+          steps:
+            - checkout
       #    requires:
       #      - build
       - bandit:
