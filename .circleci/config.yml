@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  ta-python: travelaudience/python@0.1.3
+  python-lint: qventus/python-lint@0.0.6
 default-python-node: &default-python-node
   image: circleci/python:3.6.1
   environment:
@@ -136,9 +136,7 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - ta-python/pylint:
-          requires:
-            - ta-python/pylint
+      - pylint/lint
       - bandit:
           requires:
             - build
