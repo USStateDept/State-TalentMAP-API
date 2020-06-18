@@ -31,6 +31,7 @@ class BidUpdateView(mixins.UpdateModelMixin,
     def perform_update(self, serializer):
         instance = serializer.save(status=Bid.Status.in_panel, in_panel_date=timezone.now())
         logger.info(f"User {self.request.user.id}:{self.request.user} setting status for bid {instance} to in_panel")
+            logger.info('CIRCLECI TESTING REMOVE')
 
     def get_object(self):
         bid = get_object_or_404(Bid, pk=self.request.parser_context.get("kwargs").get("pk"), status__in=[Bid.Status.handshake_accepted, Bid.Status.in_panel])
