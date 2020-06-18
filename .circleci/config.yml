@@ -1,5 +1,7 @@
-version: 2.0
+version: 2.1
 
+orbs:
+  python: travelaudience/python@0.1.3
 default-python-node: &default-python-node
   image: circleci/python:3.6.1
   environment:
@@ -135,6 +137,9 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - ta-python/pylint:
+        requires:
+            - ta-python/pylint
       - bandit:
           requires:
             - build
