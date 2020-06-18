@@ -136,6 +136,8 @@ workflows:
     jobs:
       - build
       - pylint/lint
+          requires:
+            - build
       - bandit:
           requires:
             - build
