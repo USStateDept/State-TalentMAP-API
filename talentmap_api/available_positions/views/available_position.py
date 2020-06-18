@@ -75,7 +75,7 @@ class AvailablePositionFavoriteIdsListView(APIView):
         Return a list of the ids of the user's favorite available positions.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         return Response(aps)
 
 class FavoritesCSVView(APIView):
@@ -97,13 +97,13 @@ class FavoritesCSVView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
         data = []
 
-        aps = AvailablePositionFavorite.objects.filter(user=user).values_list("cp_id", flat=True)
+        aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         if len(aps) > 0 and request.query_params.get('exclude_available') != 'true':
             pos_nums = ','.join(aps)
             apdata = services.get_available_positions(QueryDict(f"id={pos_nums}&limit={len(aps)}&page=1"), request.META['HTTP_JWT'])
             data = data + apdata.get('results')
 
-        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         if len(pvs) > 0 and request.query_params.get('exclude_projected') != 'true':
             pos_nums = ','.join(pvs)
             pvdata = pvservices.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={len(pvs)}&page=1"), request.META['HTTP_JWT'])
@@ -127,7 +127,7 @@ class AvailablePositionFavoriteActionView(APIView):
         Returns 204 if the available position is a favorite, otherwise, 404
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        if AvailablePositionFavorite.objects.filter(user=user, cp_id=pk).exists():
+        if AvailablePositionFavorite.objects.filter(user=user, cp_id=pk, archived=False).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)

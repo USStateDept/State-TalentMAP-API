@@ -60,7 +60,7 @@ class ProjectedVacancyFavoriteIdsListView(APIView):
         Return a list of the ids of the user's favorite projected vacancies.
         """
         user = UserProfile.objects.get(user=self.request.user)
-        pvs = ProjectedVacancyFavorite.objects.filter(user=user).values_list("fv_seq_num", flat=True)
+        pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         return Response(pvs)
 
 
@@ -80,7 +80,7 @@ class ProjectedVacancyFavoriteActionView(APIView):
         Returns 204 if the projected vacancy is a favorite, otherwise, 404
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        if ProjectedVacancyFavorite.objects.filter(user=user, fv_seq_num=pk).exists():
+        if ProjectedVacancyFavorite.objects.filter(user=user, fv_seq_num=pk, archived=False).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
