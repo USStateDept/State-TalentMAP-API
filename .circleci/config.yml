@@ -97,10 +97,11 @@ jobs:
           path: talentmap-api-dependencies.zip
           destination: talentmap-api-dependencies.zip
   lint:
+    docker:
+      - *default-python-node
     steps:
       - checkout
-      - pylint/lint:
-          checkout: false
+      - pylint/lint
   zap:
     docker:
       - *default-python-node
