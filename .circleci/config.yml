@@ -100,7 +100,8 @@ jobs:
     docker:
       - *default-python-node
     steps:
-      - pylint/lint
+      - pylint/lint:
+          compare-to-pr-root: false
   zap:
     docker:
       - *default-python-node
