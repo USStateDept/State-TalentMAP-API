@@ -272,8 +272,8 @@ def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
             for fav_id in list_favs:
                 if fav_id not in returned_ids:
                     outdated_ids.append(fav_id)
-        if len(outdated_ids) > 0:
-            ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+            if len(outdated_ids) > 0:
+                ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
 
 def get_pv_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(

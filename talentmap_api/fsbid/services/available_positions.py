@@ -395,8 +395,8 @@ def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
             for fav_id in list_favs:
                 if fav_id not in returned_ids:
                     outdated_ids.append(fav_id)
-        if len(outdated_ids) > 0:
-            AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+            if len(outdated_ids) > 0:
+                AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
