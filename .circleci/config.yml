@@ -96,6 +96,11 @@ jobs:
       - store_artifacts:
           path: talentmap-api-dependencies.zip
           destination: talentmap-api-dependencies.zip
+  lint:
+    steps:
+      - checkout
+      - pylint/lint:
+          checkout: false
   zap:
     docker:
       - *default-python-node
@@ -136,8 +141,9 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - pylint/lint:
-          checkout: true
+      - lint
+      # - pylint/lint:
+      #    checkout: true
       #    requires:
       #      - build
       - bandit:
