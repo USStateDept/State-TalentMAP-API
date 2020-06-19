@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  chariot: chariot/python@0.0.1
+  pylint: qventus/python-lint@0.0.6
 default-python-node: &default-python-node
   image: circleci/python:3.6.1
   environment:
@@ -100,20 +100,8 @@ jobs:
     docker:
       - *default-python-node
     steps:
-      - checkout
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
-      - run:
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
-      - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
-          paths:
-            - "venv"
-      - chariot/pylint:
-          directory: .
+      - pylint/lint:
+          compare-to-pr-root: false
   zap:
     docker:
       - *default-python-node
@@ -155,10 +143,6 @@ workflows:
     jobs:
       - build
       - lint
-      # - pylint/lint:
-      #    checkout: true
-      #    requires:
-      #      - build
       - bandit:
           requires:
             - build
