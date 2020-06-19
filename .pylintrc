@@ -33,7 +33,10 @@ load-plugins=
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=W0403,W0232,E1101,C0111
+# 6/19/20 - Disable C0103 to avoid needing to rename all of our variables.
+# 6/19/20 - Disable W0613 to avoid needing to remove unused arguments.
+# 6/19/20 - Disable logger string interpolation warning since performance gains are negligible.
+disable=W0403,W0232,E1101,C0111,C0103,W0613,W1203
 
 
 [REPORTS]
@@ -143,10 +146,10 @@ method-rgx=[a-z_][a-z0-9_]{2,30}$
 attr-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct argument names
-argument-rgx=[a-z_][a-z0-9_]{2,30}$
+# argument-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct variable names
-variable-rgx=[a-z_][a-z0-9_]{2,30}$
+# variable-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names
