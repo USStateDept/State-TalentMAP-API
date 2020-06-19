@@ -59,6 +59,7 @@ pycryptodomex==3.9.7
 pyflakes==1.6.0
 PyJWT==1.7.1
 pylint==2.5.3
+pylint-exit==1.1.0
 pyOpenSSL==17.5.0
 pysaml2==4.4.0
 pytest==3.5.0
