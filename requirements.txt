@@ -1,6 +1,7 @@
 appdirs==1.4.3
 asn1crypto==0.24.0
 attrs==17.4.0
+autopep8==1.5.3
 bandit==1.4.0
 cached-property==1.4.2
 certifi==2018.1.18

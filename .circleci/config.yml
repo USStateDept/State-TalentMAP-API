@@ -110,7 +110,7 @@ jobs:
           name: pylint
           command: |
             . venv/bin/activate
-            pylint ./talentmap_api/ --rcfile=./.pylintrc --output-format=text || pylint-exit --error-fail --warn-fail $?
+            pylint ./talentmap_api/ --rcfile=./.pylintrc --output-format=text || pylint-exit --error-fail $?
   zap:
     docker:
       - *default-python-node
