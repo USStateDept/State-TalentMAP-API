@@ -387,21 +387,22 @@ def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison
         list_favs = list(map(lambda x: int(x), aps))
-        # Ids from fsbid that have filled position code (double checks they are invalid)
-        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1&cps_codes=FP"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        # Ids from fsbid that are returned
+        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         # Need to determine which ids need to be archived using comparison of lists above
         outdated_ids = []
-        for fav_id in list_favs:
-            if fav_id in returned_ids:
-                outdated_ids.append(fav_id)
-        if len(outdated_ids) > 0:
-            AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+        if isinstance(returned_ids, list):
+            for fav_id in list_favs:
+                if fav_id not in returned_ids:
+                    outdated_ids.append(fav_id)
+            if len(outdated_ids) > 0:
+                AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
         "availablePositions",
         query,
-        convert_up_query,
+        convert_ap_query,
         jwt_token,
         fsbid_favorites_to_talentmap_favorites_ids,
         get_available_positions_count,
