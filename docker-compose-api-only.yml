@@ -15,13 +15,13 @@ services:
       bash -c "python show_logo.py
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
+      - nfsmount:/app
     environment:
       - DJANGO_SECRET_KEY=development_secret_key
       - DATABASE_URL=postgres://talentmap-user@db/talentmap
       - DJANGO_DEBUG=true
-      - FSBID_API_URL=http://host.docker.internal:3333
-      - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
+      - FSBID_API_URL=http://192.168.1.231:3333
+      - EMPLOYEES_API_URL=http://192.168.1.231:3333/Employees
   db:
     ports:
       - 5432:5432
@@ -33,3 +33,9 @@ services:
       - POSTGRES_USER=talentmap-user
 volumes:
   pgdata:
+  nfsmount:
+    driver: local
+    driver_opts:
+        type: nfs
+        o: addr=192.168.1.239,rw,nolock,hard,nointr,nfsvers=3
+        device: ":/System/Volumes/Data/${PWD}"
