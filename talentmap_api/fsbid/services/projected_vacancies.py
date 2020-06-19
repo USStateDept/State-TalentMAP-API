@@ -268,11 +268,12 @@ def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
         returned_ids = get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         # Need to determine which ids need to be archived using comparison of lists above
         outdated_ids = []
-        for fav_id in list_favs:
-            if fav_id not in returned_ids:
-                outdated_ids.append(fav_id)
-        if len(outdated_ids) > 0:
-            ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+        if isinstance(returned_ids, list):
+            for fav_id in list_favs:
+                if fav_id not in returned_ids:
+                    outdated_ids.append(fav_id)
+            if len(outdated_ids) > 0:
+                ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
 
 def get_pv_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
