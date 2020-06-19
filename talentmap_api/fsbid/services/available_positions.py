@@ -4,6 +4,7 @@ import csv
 from datetime import datetime
 import maya
 
+from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
@@ -84,7 +85,7 @@ def get_available_positions_tandem(query, jwt_token, host=None):
     return services.send_get_request(
         "positions/available/tandem",
         query,
-        convert_ap_query,
+        partial(convert_ap_query, isTandem=True),
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         get_available_positions_tandem_count,
@@ -103,7 +104,7 @@ def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
-    return services.send_count_request("positions/available/tandem", query, convert_ap_query, jwt_token, host)
+    return services.send_count_request("positions/available/tandem", query, partial(convert_ap_query, isTandem=True), jwt_token, host)
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -240,6 +241,10 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "start_date": None,
                 "estimated_end_date": ensure_date(ap.get("ted", None), utc_offset=-5)
             },
+            "commuterPost": {
+                "description": ap.get("cpn_desc", None),
+                "frequency": ap.get("cpn_freq_desc", None),
+            },
             "post": {
                 "id": None,
                 "code": ap.get("pos_location_code", None),
@@ -298,7 +303,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
-def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
     '''
@@ -307,8 +312,6 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
-
-        "request_params.get_count": query.get("getCount", 'false'),
 
         # Tandem 1 filters
         "request_params.cps_codes": services.convert_multi_value(
@@ -330,29 +333,36 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
 
+    }
+
+    if not isTandem:
+        values["request_params.get_count"] = query.get("getCount", 'false')
+
+    if isTandem:
+        values["request_params.count"] = query.get("getCount", 'false')
+        values["request_params.order_by"] = services.sorting_values('commuterPost,location')
         # Common filters
-        "request_params.overseas_ind2": services.overseas_values(query),
-        "request_params.location_codes2": services.post_values(query),
-        "request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
-        "request_params.cpn_codes2": services.convert_multi_value(query.get("position__cpn_codes__in")),
-        "request_params.freeText2": query.get("q", None),
+        values["request_params.overseas_ind2"] = services.overseas_values(query)
+        values["request_params.location_codes2"] = services.post_values(query)
+        values["request_params.danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values["request_params.differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values["request_params.post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values["request_params.us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values["request_params.cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
+        values["request_params.freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        "request_params.cps_codes2": services.convert_multi_value(
-            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
-        "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
-        "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "request_params.bureaus2": services.bureau_values(query, True), # pass True to indicate isTandem
-        "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
-        "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
-        "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
-        "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
+        values["request_params.cps_codes2"] = services.convert_multi_value(
+            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes))
+        values["request_params.cp_ids2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values["request_params.assign_cycles2"] = services.convert_multi_value(query.get("is_available_in_bidcycle-tandem"))
+        values["request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values["request_params.bureaus2"] = services.bureau_values(query, True) # pass True to indicate isTandem
+        values["request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values["request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values["request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values["request_params.skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
 
-    }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def convert_up_query(query):
@@ -377,21 +387,22 @@ def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison
         list_favs = list(map(lambda x: int(x), aps))
-        # Ids from fsbid that have filled position code (double checks they are invalid)
-        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1&cps_codes=FP"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        # Ids from fsbid that are returned
+        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         # Need to determine which ids need to be archived using comparison of lists above
         outdated_ids = []
-        for fav_id in list_favs:
-            if fav_id in returned_ids:
-                outdated_ids.append(fav_id)
-        if len(outdated_ids) > 0:
-            AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+        if isinstance(returned_ids, list):
+            for fav_id in list_favs:
+                if fav_id not in returned_ids:
+                    outdated_ids.append(fav_id)
+            if len(outdated_ids) > 0:
+                AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
         "availablePositions",
         query,
-        convert_up_query,
+        convert_ap_query,
         jwt_token,
         fsbid_favorites_to_talentmap_favorites_ids,
         get_available_positions_count,
