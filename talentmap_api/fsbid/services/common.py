@@ -142,6 +142,8 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
+    "location": "location_city",
+    "commuterPost": "cpn_desc",
 }
 
 
@@ -213,6 +215,8 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         newQuery['request_params.page_size'] = None
     if uri in ('CDOClients'):
         countProp = "count"
+    if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
+        countProp = "cnt"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
