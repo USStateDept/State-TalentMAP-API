@@ -37,14 +37,15 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
         '''
         Gets the Feature Flags file
         '''
-        print('-------------------------------------- in views/featureflags.py retrieve --------------------------------------')
-        queryset = FeatureFlags.objects.order_by('-date_updated')[0]
-        print('---------------------------------------------------------------------------------------------------------------')
-        return Response(queryset.feature_flags)
+        queryset = FeatureFlags.objects.order_by('-date_updated')
+        if not queryset:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            # queryset_ = queryset[0]
+            return Response(queryset[0].feature_flags)
 
 
     def perform_create(self, request):
-        print('-------------------------------------- in views/featureflags.py perform_create --------------------------------------')
         in_group_or_403(self.request.user, f"superuser")
         # in_group_or_403(self.request.user, f"sdfsdf")
         instance = FeatureFlags()
@@ -52,5 +53,4 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
         instance.feature_flags = request.data
         pprint(instance.feature_flags)
         instance.save()
-        print('------------------------------------------------------------------------------------------------------------')
         return Response(status=status.HTTP_204_NO_CONTENT)
