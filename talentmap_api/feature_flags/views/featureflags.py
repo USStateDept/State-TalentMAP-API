@@ -41,7 +41,6 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
         if not queryset:
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            # queryset_ = queryset[0]
             return Response(queryset[0].feature_flags)
 
 
