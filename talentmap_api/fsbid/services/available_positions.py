@@ -1,25 +1,15 @@
-import requests
 import logging
-import csv
-from datetime import datetime
-import maya
-
 from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
-from django.db.models import Q
-from django.http import HttpResponse, QueryDict
-from django.utils.encoding import smart_str
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import QueryDict
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
-from talentmap_api.bidding.models import BidCycle
+from talentmap_api.common.common_helpers import ensure_date, validate_values
 from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionFavorite
 
 import talentmap_api.fsbid.services.common as services
 
-import logging
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL

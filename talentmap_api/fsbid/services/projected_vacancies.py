@@ -1,18 +1,11 @@
-import requests
 import logging
-import csv
-from datetime import datetime
-import maya
-
 from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, QueryDict
-from django.utils.encoding import smart_str
+from django.http import QueryDict
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation
+from talentmap_api.common.common_helpers import ensure_date
 import talentmap_api.fsbid.services.common as services
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
@@ -139,7 +132,6 @@ def fsbid_pv_to_talentmap_pv(pv):
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "bureau": f"({pv.get('pos_bureau_short_desc', None)}) {pv.get('pos_bureau_long_desc', None)}",
-            "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "organization": f"({pv.get('org_short_desc', None)}) {pv.get('org_long_desc', None)}",
             "tour_of_duty": pv.get("tod", None),
             "languages": list(filter(None, [

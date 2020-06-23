@@ -11,18 +11,16 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 
 from talentmap_api.common.cache.views import CachedViewSet
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin, ActionDependentSerializerMixin
-from talentmap_api.common.common_helpers import has_permission_or_403, in_group_or_403
+from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-from talentmap_api.bidding.models import Bid, Waiver, CyclePosition
-from talentmap_api.bidding.serializers.serializers import BidSerializer, WaiverSerializer, CyclePositionSerializer
-from talentmap_api.bidding.filters import BidFilter, WaiverFilter
+from talentmap_api.bidding.models import Waiver, CyclePosition
+from talentmap_api.bidding.serializers.serializers import WaiverSerializer
+from talentmap_api.bidding.filters import WaiverFilter
 
 from talentmap_api.position.models import Position, Classification
 from talentmap_api.position.filters import PositionFilter
 from talentmap_api.position.serializers import PositionSerializer, PositionListSerializer, PositionWritableSerializer, ClassificationSerializer
-
-from talentmap_api.user_profile.models import UserProfile
 
 
 class PositionListView(FieldLimitableSerializerMixin,
