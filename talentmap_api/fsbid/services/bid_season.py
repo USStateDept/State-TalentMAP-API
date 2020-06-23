@@ -12,6 +12,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def get_bid_seasons(bsn_future_vacancy_ind, jwt_token):
     # set future vacancy indicator - default to 'Y'
     future_vacancy_ind = bsn_future_vacancy_ind if bsn_future_vacancy_ind else 'Y'

@@ -9,6 +9,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def cdo(jwt_token):
     '''
     Get All CDOs
@@ -19,7 +20,8 @@ def cdo(jwt_token):
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
     return response
 
-def single_cdo(jwt_token = None, perdet_seq_num = None):
+
+def single_cdo(jwt_token=None, perdet_seq_num=None):
     '''
     Get a single CDO
     '''
@@ -44,6 +46,7 @@ def single_cdo(jwt_token = None, perdet_seq_num = None):
     else:
         cdo = {}
     return cdo
+
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     return {

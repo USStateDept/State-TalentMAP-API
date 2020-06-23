@@ -27,6 +27,7 @@ FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 logger = logging.getLogger(__name__)
 
+
 def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
@@ -38,6 +39,7 @@ def get_available_position(id, jwt_token):
         jwt_token,
         fsbid_ap_to_talentmap_ap
     )
+
 
 def get_unavailable_position(id, jwt_token):
     '''
@@ -51,6 +53,7 @@ def get_unavailable_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+
 def get_all_position(id, jwt_token):
     '''
     Gets an indivdual position by id
@@ -62,6 +65,7 @@ def get_all_position(id, jwt_token):
         jwt_token,
         fsbid_ap_to_talentmap_ap
     )
+
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -77,6 +81,7 @@ def get_available_positions(query, jwt_token, host=None):
         "/api/v1/fsbid/available_positions/",
         host
     )
+
 
 def get_available_positions_tandem(query, jwt_token, host=None):
     '''
@@ -100,11 +105,13 @@ def get_available_positions_count(query, jwt_token, host=None):
     '''
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
+
 def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
     return services.send_count_request("positions/available/tandem", query, partial(convert_ap_query, isTandem=True), jwt_token, host)
+
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -149,15 +156,19 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
 
     return response
 
+
 # Max number of similar positions to return.
 SIMILAR_LIMIT = 3
 
 # Filters available positions by the criteria provides and by the position with the provided id
+
+
 def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
     # Add 1 to the limit, since we'll be filtering out positions that match id
-    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
+    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit": SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
     # Ensure we only return the limit, at most
     return a[:SIMILAR_LIMIT]
+
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -201,7 +212,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": None,
             "reason": None
         },
-        "tandem_nbr": ap.get("tandem_nbr", None), # Only appears in tandem searches
+        "tandem_nbr": ap.get("tandem_nbr", None),  # Only appears in tandem searches
         "position": {
             "id": None,
             "grade": ap.get("pos_grade_code", None),
@@ -303,6 +314,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
+
 def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
@@ -357,7 +369,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
         values["request_params.cp_ids2"] = services.convert_multi_value(query.get("id-tandem", None))
         values["request_params.assign_cycles2"] = services.convert_multi_value(query.get("is_available_in_bidcycle-tandem"))
         values["request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
-        values["request_params.bureaus2"] = services.bureau_values(query, True) # pass True to indicate isTandem
+        values["request_params.bureaus2"] = services.bureau_values(query, True)  # pass True to indicate isTandem
         values["request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
         values["request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values["request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
@@ -365,12 +377,14 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
+
 def convert_up_query(query):
     '''
     sends FP (Filled Position) status code to convert_ap_query
     request_params.cps_codes of anything but FP will get removed from query
     '''
     return (convert_ap_query(query, ["FP"]))
+
 
 def convert_all_query(query):
     '''
@@ -380,9 +394,10 @@ def convert_all_query(query):
     '''
     return (convert_ap_query(query, ["FP", "OP", "HS"]))
 
+
 def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
     fav_length = len(aps)
-    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit/2):
+    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit / 2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(aps)
         # List favs is list of integers instead of strings for comparison
@@ -398,6 +413,7 @@ def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
             if len(outdated_ids) > 0:
                 AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
+
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
         "availablePositions",
@@ -409,6 +425,7 @@ def get_ap_favorite_ids(query, jwt_token, host=None):
         "/api/v1/fsbid/available_positions/",
         host
     ).get('results')
+
 
 def fsbid_favorites_to_talentmap_favorites_ids(ap):
     return ap.get("cp_id", None)

@@ -67,6 +67,7 @@ def parseLanguage(lang):
             language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
             return language
 
+
 def parseLanguagesString(lang):
     '''
     Parses a language dictionary and turns it into a comma seperated string of languages
@@ -81,6 +82,7 @@ def parseLanguagesString(lang):
 
         return lang_str
 
+
 def post_values(query):
     '''
     Handles mapping locations and groups of locations to FSBid expected params
@@ -92,7 +94,7 @@ def post_values(query):
         return results
 
 
-def bureau_values(query, isTandem = False):
+def bureau_values(query, isTandem=False):
     '''
     Gets the ids for the functional/regional bureaus and maps to codes and their children
     '''
@@ -170,9 +172,10 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
         return None
     return list(map(mapping_function, response.get("Data", {})))
 
+
 def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     url = f"{API_ROOT}/{uri}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
@@ -221,6 +224,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
 
+
 def get_obc_id(post_id):
 
     post = Post.objects.filter(_location_code=post_id)
@@ -229,6 +233,7 @@ def get_obc_id(post_id):
             return p.obc_id
 
     return None
+
 
 def get_post_overview_url(post_id):
     obc_id = get_obc_id(post_id)
@@ -240,6 +245,7 @@ def get_post_overview_url(post_id):
     else:
         return None
 
+
 def get_post_bidding_considerations_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
@@ -249,6 +255,7 @@ def get_post_bidding_considerations_url(post_id):
         }
     else:
         return None
+
 
 def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
@@ -270,6 +277,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
 
     return map(mapping_function, response.get("Data", {}))
 
+
 def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
     response = HttpResponse(content_type='text/csv')
@@ -281,7 +289,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     # write the headers
     headers = []
     headers.append(smart_str(u"Position"))
-    if tandem: headers.append(smart_str(u"Tandem"))
+    if tandem:
+        headers.append(smart_str(u"Tandem"))
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Bureau"))
@@ -289,14 +298,17 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
-    if ap: headers.append(smart_str(u"Service Needs Differential"))
+    if ap:
+        headers.append(smart_str(u"Service Needs Differential"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle/Season"))
-    if ap: headers.append(smart_str(u"Posted Date"))
-    if ap: headers.append(smart_str(u"Status Code"))
+    if ap:
+        headers.append(smart_str(u"Posted Date"))
+    if ap:
+        headers.append(smart_str(u"Status Code"))
     headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
@@ -313,7 +325,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
         row = []
         row.append(smart_str(record["position"]["title"]))
-        if tandem: row.append(smart_str(record.get("tandem_nbr")))
+        if tandem:
+            row.append(smart_str(record.get("tandem_nbr")))
         row.append(smart_str(record["position"]["skill"]))
         row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
         row.append(smart_str(record["position"]["bureau"]))
@@ -321,19 +334,23 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["post"]["location"]["country"]))
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
-        if ap: row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+        if ap:
+            row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
         row.append(smart_str(record["bidcycle"]["name"]))
-        if ap: row.append(posteddate)
-        if ap: row.append(smart_str(record.get("status_code")))
+        if ap:
+            row.append(posteddate)
+        if ap:
+            row.append(smart_str(record.get("status_code")))
         row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
     return response
+
 
 def get_bids_csv(data, filename, jwt_token):
     from talentmap_api.fsbid.services.available_positions import get_all_position

@@ -28,11 +28,13 @@ class FSBidClientListView(BaseView):
             coreapi.Field("all_count", location='query', type='integer', description='Returns default value 99999 for front-end'),
         ]
     )
+
     def get(self, request):
         '''
         Gets all clients for a CDO
         '''
         return Response(services.client(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
+
 
 class FSBidClientView(BaseView):
 
@@ -42,6 +44,7 @@ class FSBidClientView(BaseView):
         '''
         return Response(services.single_client(request.META['HTTP_JWT'], pk))
 
+
 class FSBidClientSuggestionsView(BaseView):
 
     def get(self, request, pk):
@@ -49,6 +52,7 @@ class FSBidClientSuggestionsView(BaseView):
         Gets suggestions for a single client by perdet_seq_num
         '''
         return Response(services.client_suggestions(request.META['HTTP_JWT'], pk))
+
 
 class FSBidClientCSVView(BaseView):
 

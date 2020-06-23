@@ -60,6 +60,7 @@ class FSBidProjectedVacanciesListView(BaseView):
         '''
         return Response(services.get_projected_vacancies(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidProjectedVacanciesTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -112,6 +113,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
         '''
         return Response(services.get_projected_vacancies_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidProjectedVacancyView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -125,6 +127,7 @@ class FSBidProjectedVacancyView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(result)
 
+
 class FSBidProjectedVacanciesCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -137,6 +140,7 @@ class FSBidProjectedVacanciesCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
 
 class FSBidProjectedVacanciesTandemCSVView(BaseView):
 

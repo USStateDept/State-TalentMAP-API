@@ -34,7 +34,7 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
 
         # Add roles
         for current_role in user_roles:
-          auth_user.groups.add(current_role)
+            auth_user.groups.add(current_role)
 
         # Remove any roles that the user has lost since the last time they logged in
         for role in services.ROLE_MAPPING.values():

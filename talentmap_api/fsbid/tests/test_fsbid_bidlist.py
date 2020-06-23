@@ -27,9 +27,10 @@ bid = {
     "location_city": "WASHINGTON",
     "location_state": "DC",
     "location_country": "USA"
-  }
+}
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
+
 
 @pytest.fixture
 def test_bidder_fixture(authorized_user):
@@ -42,7 +43,7 @@ def test_bidder_fixture(authorized_user):
 def test_bidlist_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = { 'Data': [bid] }
+        mock_get.return_value.json.return_value = {'Data': [bid]}
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
         assert response.json()['results'][0]['emp_id'] == [bid][0]['perdet_seq_num']
 
@@ -53,12 +54,12 @@ def test_bidlist_position_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
         # returns 404 when no position is found
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = { 'Data': [] }
+        mock_get.return_value.json.return_value = {'Data': []}
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
         assert response.status_code == status.HTTP_404_NOT_FOUND
         # returns 204 when position is found
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = { 'Data': [bid] }
+        mock_get.return_value.json.return_value = {'Data': [bid]}
         response = authorized_client.get(f'/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
         assert response.status_code == status.HTTP_204_NO_CONTENT
 

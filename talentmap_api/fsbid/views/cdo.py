@@ -15,6 +15,7 @@ import talentmap_api.fsbid.services.cdo as cdoServices
 import logging
 logger = logging.getLogger(__name__)
 
+
 class FSBidCDOListView(BaseView):
 
     def get(self, request):
@@ -41,7 +42,8 @@ class FSBidListView(BaseView):
         '''
         Gets all bids for the client user
         '''
-        return Response({ "results": services.user_bids(client_id, request.META['HTTP_JWT'])})
+        return Response({"results": services.user_bids(client_id, request.META['HTTP_JWT'])})
+
 
 class FSBidBidClientListCSVView(APIView):
 
@@ -56,6 +58,7 @@ class FSBidBidClientListCSVView(APIView):
         Exports all bids for the client's user to CSV
         '''
         return services.get_user_bids_csv(client_id, request.META['HTTP_JWT'])
+
 
 class FSBidListBidActionView(APIView):
 
@@ -80,6 +83,7 @@ class FSBidListBidActionView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+
 
 class FSBidListBidRegisterView(APIView):
 
@@ -156,8 +160,8 @@ class FSBidListPositionActionView(BaseView):
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for adding bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
         Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been added to your bid list by CDO {user}")
+                                    tags=['bidding'],
+                                    message=f"Bid on position id={pk} has been added to your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, client_id, format=None):
@@ -172,6 +176,6 @@ class FSBidListPositionActionView(BaseView):
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
         Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
+                                    tags=['bidding'],
+                                    message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)

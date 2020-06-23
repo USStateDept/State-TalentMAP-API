@@ -19,6 +19,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def user_bids(employee_id, jwt_token, position_id=None):
     '''
     Get bids for a user on a position or all if no position
@@ -29,6 +30,7 @@ def user_bids(employee_id, jwt_token, position_id=None):
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     return [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
+
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     '''
@@ -42,6 +44,7 @@ def get_user_bids_csv(employee_id, jwt_token, position_id=None):
 
     return response
 
+
 def bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     Adds a bid on a position
@@ -51,6 +54,7 @@ def bid_on_position(employeeId, cyclePositionId, jwt_token):
     response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
+
 
 def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
@@ -62,6 +66,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     response.raise_for_status()
     return response
 
+
 def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     Submits a bid on a position
@@ -72,6 +77,7 @@ def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     response.raise_for_status()
     return response
 
+
 def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     Submits a bid on a position
@@ -81,6 +87,7 @@ def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
     response.raise_for_status()
     return response
+
 
 def remove_bid(employeeId, cyclePositionId, jwt_token):
     '''

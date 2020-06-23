@@ -17,6 +17,7 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
+
 def client(jwt_token, query, host=None):
     '''
     Get Clients by CDO
@@ -36,11 +37,13 @@ def client(jwt_token, query, host=None):
 
     return response
 
+
 def get_clients_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
     return services.send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
+
 
 def client_suggestions(jwt_token, perdet_seq_num):
     '''
@@ -92,6 +95,7 @@ def client_suggestions(jwt_token, perdet_seq_num):
     # Finally, return the query
     return values
 
+
 def single_client(jwt_token, perdet_seq_num):
     '''
     Get a single client for a CDO
@@ -103,6 +107,7 @@ def single_client(jwt_token, perdet_seq_num):
     client = list(response)[0]
     client['cdo'] = cdo
     return client
+
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
@@ -222,6 +227,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "assignments": fsbid_assignments_to_tmap(assignments)
     }
 
+
 def fsbid_clients_to_talentmap_clients_for_csv(data):
     employee = data.get('employee', None)
     current_assignment = employee.get('currentAssignment', None)
@@ -243,6 +249,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
+
 def hru_id_filter(query):
     results = []
     hru_id = query.get("hru_id", None)
@@ -251,7 +258,8 @@ def hru_id_filter(query):
     results += hru_ids if hru_ids is not None else []
     return results if len(results) > 0 else None
 
-def convert_client_query(query, isCount = None):
+
+def convert_client_query(query, isCount=None):
     '''
     Converts TalentMap filters into FSBid filters
 
@@ -274,12 +282,14 @@ def convert_client_query(query, isCount = None):
         values['request_params.page_size'] = None
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
+
 def convert_client_count_query(query):
     return convert_client_query(query, True)
 
-def map_skill_codes_for_csv(data, prefix = 'per'):
+
+def map_skill_codes_for_csv(data, prefix='per'):
     skills = []
-    for i in range(1,4):
+    for i in range(1, 4):
         index = f'_{i}'
         if i == 1:
             index = ''
@@ -287,16 +297,18 @@ def map_skill_codes_for_csv(data, prefix = 'per'):
         skills.append(desc)
     return filter(lambda x: x is not None, skills)
 
+
 def map_skill_codes(data):
     skills = []
-    for i in range(1,4):
+    for i in range(1, 4):
         index = f'_{i}'
         if i == 1:
             index = ''
         code = data.get(f'per_skill{index}_code', None)
         desc = data.get(f'per_skill{index}_code_desc', None)
-        skills.append({ 'code': code, 'description': desc })
+        skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
+
 
 def map_location(location):
     city = location.get('city')
@@ -309,6 +321,7 @@ def map_location(location):
         result = f"{city}, {state}"
     return result
 
+
 def fsbid_handshake_to_tmap(hs):
     # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
     fsbid_dictionary = {
@@ -317,6 +330,7 @@ def fsbid_handshake_to_tmap(hs):
     }
     return fsbid_dictionary.get(hs, None)
 
+
 def tmap_handshake_to_fsbid(hs):
     # Maps TMap true/false value to acceptable fsbid api params for handshake
     tmap_dictionary = {
@@ -324,6 +338,7 @@ def tmap_handshake_to_fsbid(hs):
         "false": "N"
     }
     return tmap_dictionary.get(hs, None)
+
 
 def fsbid_classifications_to_tmap(cs):
     tmap_classifications = []
@@ -337,6 +352,7 @@ def fsbid_classifications_to_tmap(cs):
             cs.get('tp_code', None),
         )
     return tmap_classifications
+
 
 def fsbid_assignments_to_tmap(assignments):
     assignmentsCopy = []
@@ -360,7 +376,7 @@ def fsbid_assignments_to_tmap(assignments):
                         "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
                         "skill_code": pos.get("pos_skill_code", None),
                         "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
-                        "position_number":  pos.get('pos_seq_num', None),
+                        "position_number": pos.get('pos_seq_num', None),
                         "title": pos.get("pos_title_desc", None),
                         "post": {
                             "code": loc.get("gvt_geoloc_cd", None),

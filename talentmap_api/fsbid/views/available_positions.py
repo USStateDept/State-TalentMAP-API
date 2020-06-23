@@ -61,6 +61,7 @@ class FSBidAvailablePositionsListView(BaseView):
         '''
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -114,6 +115,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
         '''
         return Response(services.get_available_positions_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -129,6 +131,7 @@ class FSBidAvailablePositionsCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
 
 class FSBidAvailablePositionsTandemCSVView(BaseView):
 
@@ -146,6 +149,7 @@ class FSBidAvailablePositionsTandemCSVView(BaseView):
             includeLimit = False
         return services.get_available_positions_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
+
 class FSBidAvailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -160,6 +164,7 @@ class FSBidAvailablePositionView(BaseView):
 
         return Response(result)
 
+
 class FSBidUnavailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -173,6 +178,7 @@ class FSBidUnavailablePositionView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
 
 class FSBidAvailablePositionsSimilarView(BaseView):
 

@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 import logging
 logger = logging.getLogger(__name__)
 
+
 class BaseView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -26,8 +27,8 @@ class BaseView(APIView):
         if results is None:
             logger.warning(f"Invalid response from '\{self.uri}'.")
             return Response({"detail": "FSBID returned error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        if callable(self.mod_function): 
+
+        if callable(self.mod_function):
             results = self.mod_function(results)
-        
+
         return Response(results)
