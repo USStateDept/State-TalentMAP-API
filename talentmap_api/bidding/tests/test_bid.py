@@ -143,7 +143,7 @@ def test_bid_ao_actions(authorized_client, authorized_user):
 
     in_bureau_pos = mommy.make('position.Position', bureau=bureau)
     in_bureau_position = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=in_bureau_pos)
-    out_of_bureau_pos= mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
+    out_of_bureau_pos = mommy.make('position.Position', bureau=mommy.make('organization.Organization', code='asdfasd'))
     out_of_bureau_position = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=out_of_bureau_pos)
 
     bidcycle.positions.add(in_bureau_pos)

@@ -13,6 +13,7 @@ def test_language_model_fixture():
     mommy.make('language.Proficiency', code="3+")
     mommy.make('language.Proficiency', code="3")
 
+
 @pytest.mark.django_db()
 def test_model_save():
     lang = Language.objects.create(code="AD", short_description="Arabic-Mod")
@@ -28,6 +29,7 @@ def test_model_save():
     assert lang.formal_description != None
     assert lang.formal_description == LANGUAGE_FORMAL_NAMES.get("Serbo-Croa")
     assert lang.formal_description == "Serbo-Croatian (Croatian)"
+
 
 @pytest.mark.django_db()
 def test_proficiency_comparisons():

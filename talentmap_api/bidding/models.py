@@ -1,5 +1,3 @@
-import logging
-
 from django.utils import timezone
 from django.db.models import Q, Value, Case, When, BooleanField
 from django.db import models
@@ -14,6 +12,7 @@ from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.messaging.models import Notification
 from talentmap_api.user_profile.models import UserProfile
+
 
 class CyclePosition(StaticRepresentationModel):
     '''
@@ -34,7 +33,7 @@ class CyclePosition(StaticRepresentationModel):
     is_hard_to_fill = models.BooleanField(default=False)
 
     _cp_id = models.TextField(null=True)
-    
+
     @property
     def similar_positions(self):
         '''
@@ -57,7 +56,7 @@ class CyclePosition(StaticRepresentationModel):
             q_obj = models.Q(**base_criteria)
             queryset = all_pos_queryset.filter(q_obj).exclude(id=self.id)
         return queryset
-    
+
     @property
     def availability(self):
         '''
@@ -74,7 +73,7 @@ class CyclePosition(StaticRepresentationModel):
                 "availability": False,
                 "reason": "This position is not in an available bid cycle",
             }
-    
+
     def can_accept_new_bids(self, bidcycle):
         '''
         Evaluates if this position can accept new bids for the given bidcycle
@@ -103,51 +102,10 @@ class CyclePosition(StaticRepresentationModel):
     def __str__(self):
         return f"[{self.position.position_number}] {self.position.title} ({self.position.post})"
 
-    @property
-    def availability(self):
-        '''
-        Evaluates if this cycle position can accept new bids in it's latest bidcycle
-        '''
-        if self.bidcycle:
-            available, reason = self.can_accept_new_bids(self.bidcycle)
-            return {
-                "availability": available,
-                "reason": reason,
-            }
-        else:
-            return {
-                "availability": False,
-                "reason": "This position is not in an available bid cycle",
-            }
-    
-    def can_accept_new_bids(self, bidcycle):
-        '''
-        Evaluates if this position can accept new bids for the given bidcycle
-
-        Args:
-            - bidcycle (Object) - The Bidcycle object to evaluate if this position can accept a bid
-
-        Returns:
-            - Boolean - True if the position can accept new bids for the cycle, otherwise False
-            - String - An explanation of why this position is not biddable
-        '''
-        # Filter this positions bid by bidcycle and our Q object
-        q_obj = Bid.get_unavailable_status_filter()
-        fulfilling_bids = Bid.objects.filter(position__id=self.id).filter(q_obj)
-        if fulfilling_bids.exists():
-            messages = {
-                Bid.Status.handshake_offered: "This position has an outstanding handshake",
-                Bid.Status.handshake_accepted: "This position has an accepted handshake",
-                Bid.Status.in_panel: "This position is currently due for paneling",
-                Bid.Status.approved: "This position has been filled",
-            }
-            return False, messages[fulfilling_bids.first().status]
-
-        return True, ""
-
     class Meta:
         managed = True
         ordering = ["bidcycle__cycle_start_date"]
+
 
 class BidCycle(StaticRepresentationModel):
     '''
@@ -189,6 +147,7 @@ class BidCycle(StaticRepresentationModel):
         managed = True
         ordering = ["cycle_start_date"]
 
+
 class StatusSurvey(models.Model):
     '''
     The status survey model represents eligiblity status self-identification information
@@ -199,7 +158,7 @@ class StatusSurvey(models.Model):
     bidcycle = models.ForeignKey(BidCycle, on_delete=models.DO_NOTHING, related_name="status_surveys")
 
     is_differential_bidder = models.BooleanField(default=False)
-    
+
     class Meta:
         managed = True
         ordering = ["bidcycle"]
@@ -409,6 +368,7 @@ def bidcycle_positions_update(sender, instance, action, reverse, model, pk_set, 
                 pos.latest_bidcycle = None
             pos.save()
 
+
 @receiver(post_save, sender=BidCycle, dispatch_uid="bidcycle_active_changed")
 def bidcycle_active_changed(sender, instance, **kwargs):
     '''
@@ -421,6 +381,7 @@ def bidcycle_active_changed(sender, instance, **kwargs):
         else:
             pos.latest_bidcycle = None
         pos.save()
+
 
 @receiver(pre_save, sender=Bid, dispatch_uid="bid_status_changed")
 def bid_status_changed(sender, instance, **kwargs):

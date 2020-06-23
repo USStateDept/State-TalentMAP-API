@@ -228,6 +228,7 @@ def test_bidcycle_actions(authorized_client, authorized_user):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+
 @skip('Cycle position model complicates this')
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidcycle_fixture")

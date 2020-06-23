@@ -7,6 +7,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Filter handles not having database tables backing the model
+
+
 class ProjectedVacancyFilter():
     declared_filters = [
         "projectedVacancy",

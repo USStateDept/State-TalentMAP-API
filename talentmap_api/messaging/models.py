@@ -5,6 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 
 from djchoices import DjangoChoices, ChoiceItem
 
+
 class Notification(models.Model):
     '''
     This model represents an individual notification item

@@ -1,7 +1,6 @@
-import requests
-import logging
-import os
 from zipfile import ZipFile, is_zipfile
+
+import os
 
 from talentmap_api.settings import get_delineated_environment_variable
 log_dir = get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/')
