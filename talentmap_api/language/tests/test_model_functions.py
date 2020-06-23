@@ -19,14 +19,14 @@ def test_model_save():
     lang = Language.objects.create(code="AD", short_description="Arabic-Mod")
     lang.save()
 
-    assert lang.formal_description != None
+    assert lang.formal_description is not None
     assert lang.formal_description == LANGUAGE_FORMAL_NAMES.get("Arabic-Mod")
 
     lang.refresh_from_db()
     lang.short_description = "Serbo-Croa"
     lang.save()
 
-    assert lang.formal_description != None
+    assert lang.formal_description is not None
     assert lang.formal_description == LANGUAGE_FORMAL_NAMES.get("Serbo-Croa")
     assert lang.formal_description == "Serbo-Croatian (Croatian)"
 

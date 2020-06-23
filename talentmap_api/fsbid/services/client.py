@@ -1,17 +1,17 @@
-import requests
+import csv
 import logging
+from copy import deepcopy
+from datetime import datetime
+from urllib.parse import urlencode, quote
+from django.conf import settings
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 import jwt
+
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
-import csv
 from talentmap_api.common.common_helpers import ensure_date
-from copy import deepcopy
-from datetime import datetime
-from django.conf import settings
-from urllib.parse import urlencode, quote
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -22,8 +22,7 @@ def client(jwt_token, query, host=None):
     '''
     Get Clients by CDO
     '''
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients"
+    uri = "CDOClients"
     response = services.send_get_request(
         uri,
         query,

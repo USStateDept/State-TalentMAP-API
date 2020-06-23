@@ -5,7 +5,7 @@ import re
 from pydoc import locate
 
 from dateutil.relativedelta import relativedelta
-from dateutil import parser, tz
+from dateutil import parser
 
 from django.contrib.auth.models import Group, Permission
 from django.urls import resolve
@@ -462,7 +462,7 @@ def validate_values(query_val, accepted_values):
     validated_list = []
 
     for val in query_val_list:
-        if (val.upper() in accepted_values_upper):
+        if val.upper() in accepted_values_upper:
             validated_list.append(val.upper())
 
     validated_list = list(set(validated_list))

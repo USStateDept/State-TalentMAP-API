@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import Mock, patch
+import pytest
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile

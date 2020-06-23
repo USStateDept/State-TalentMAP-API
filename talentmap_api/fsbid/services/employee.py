@@ -1,5 +1,5 @@
-import requests
 import logging
+import requests
 import jwt
 
 from django.conf import settings

@@ -1,10 +1,6 @@
-import requests
 import logging
 import jwt
-import json
-import itertools
-
-from datetime import datetime
+import requests
 
 from django.conf import settings
 
@@ -117,7 +113,7 @@ def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeeting
 
         statusCode - U → Unavailable
     '''
-    if assignmentCreateDate != None:
+    if assignmentCreateDate is not None:
         return Bid.Status.approved
     if statusCode == 'C':
         return Bid.Status.closed
@@ -125,7 +121,7 @@ def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeeting
         return Bid.Status.closed
     if statusCode == 'P':
         return Bid.Status.in_panel
-    if panelMeetingStatus != None:
+    if panelMeetingStatus is not None:
         return Bid.Status.in_panel
     if statusCode == 'W':
         return Bid.Status.draft
@@ -167,14 +163,14 @@ def fsbid_bid_to_talentmap_bid(data):
         "user": "",
         "bid_statistics": [
             {
-              "id": "",
-              "bidcycle": data.get('cycle_nm_txt'),
-              "total_bids": data.get('cp_ttl_bidder_qty'),
-              "in_grade": data.get('cp_at_grd_qty'),
-              "at_skill": data.get('cp_in_cone_qty'),
-              "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
-              "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
-              "has_handshake_accepted": False
+                "id": "",
+                "bidcycle": data.get('cycle_nm_txt'),
+                "total_bids": data.get('cp_ttl_bidder_qty'),
+                "in_grade": data.get('cp_at_grd_qty'),
+                "at_skill": data.get('cp_in_cone_qty'),
+                "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
+                "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
+                "has_handshake_accepted": False
             }
         ],
         "position": {

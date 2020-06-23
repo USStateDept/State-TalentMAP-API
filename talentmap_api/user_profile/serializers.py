@@ -1,20 +1,18 @@
 import logging
 
 from django.http import QueryDict
-
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
+from talentmap_api.common.common_helpers import resolve_path_to_view
+from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
+from talentmap_api.position.serializers import SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
-
-from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
 from talentmap_api.fsbid.services.employee import get_employee_information

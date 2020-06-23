@@ -1,8 +1,7 @@
-import requests
 import logging
 import jwt
-import talentmap_api.fsbid.services.common as services
 from django.conf import settings
+import talentmap_api.fsbid.services.common as services
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL

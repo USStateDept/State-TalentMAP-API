@@ -100,7 +100,7 @@ def bureau_values(query, isTandem=False):
     '''
     org = "org_has_groups"
     bureau = "position__bureau__code__in"
-    if (isTandem):
+    if isTandem:
         org = "org_has_groups-tandem"
         bureau = "position__bureau__code__in-tandem"
 
@@ -216,7 +216,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
-    if uri in ('CDOClients'):
+    if uri in 'CDOClients':
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
@@ -263,9 +263,9 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     '''
     formattedQuery = query
     formattedQuery._mutable = True
-    if (ad_id != None):
+    if ad_id is not None:
         formattedQuery['ad_id'] = ad_id
-    if (limit != None):
+    if limit is not None:
         formattedQuery['limit'] = limit
     logger.info(query_mapping_function(formattedQuery))
     url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"

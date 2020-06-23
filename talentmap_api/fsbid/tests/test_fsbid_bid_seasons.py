@@ -1,7 +1,6 @@
+from unittest.mock import Mock, patch
 import pytest
 from model_mommy import mommy
-from unittest.mock import Mock, patch
-from rest_framework import status
 
 bs = {
     "bsn_id": "1",

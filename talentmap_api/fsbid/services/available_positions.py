@@ -373,7 +373,7 @@ def convert_up_query(query):
     sends FP (Filled Position) status code to convert_ap_query
     request_params.cps_codes of anything but FP will get removed from query
     '''
-    return (convert_ap_query(query, ["FP"]))
+    return convert_ap_query(query, ["FP"])
 
 
 def convert_all_query(query):
@@ -382,7 +382,7 @@ def convert_all_query(query):
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return (convert_ap_query(query, ["FP", "OP", "HS"]))
+    return convert_ap_query(query, ["FP", "OP", "HS"])
 
 
 def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
