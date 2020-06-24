@@ -10,7 +10,7 @@ from dateutil import parser
 from django.contrib.auth.models import Group, Permission
 from django.urls import resolve
 from django.http import QueryDict
-from django.utils.six.moves.urllib.parse import urlparse
+from django.utils.six.moves.urllib.parse import urlparse  # pylint: disable=import-error
 from django.utils.datastructures import MultiValueDict
 
 from django.core.exceptions import FieldError, ValidationError, PermissionDenied

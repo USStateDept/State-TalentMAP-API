@@ -4,7 +4,7 @@ from django.contrib.postgres.search import SearchVector
 
 from rest_framework_filters.backends import DjangoFilterBackend
 
-from rest_framework import filters
+from rest_framework import filters as restFilters
 import rest_framework_filters as drff_filters
 
 from django.core.exceptions import FieldDoesNotExist
@@ -29,7 +29,7 @@ class DisabledHTMLFilterBackend(DjangoFilterBackend):
         return ""
 
 
-class RelatedOrderingFilter(filters.OrderingFilter):
+class RelatedOrderingFilter(restFilters.OrderingFilter):
     """
     Django rest framework does not natively support ordering by a nested object's
     data, to allow this, we override "is_valid_field" to verify that the ordering
