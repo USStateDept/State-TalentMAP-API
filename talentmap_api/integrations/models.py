@@ -136,7 +136,7 @@ class SynchronizationJob(models.Model):
                         soap_arguments['PaginationStartKey'] = previous_lpsk
                         logger.info(f"Requesting page from primary key: {loader.last_pagination_start_key}")
                     else:
-                        logger.info(f"Requesting first page")
+                        logger.info("Requesting first page")
 
                     # Get the data
                     response_xml = None

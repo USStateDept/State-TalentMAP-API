@@ -29,7 +29,7 @@ def get_log(log_name):
             else:
                 with open(f"{file_name}", 'r') as f:
                     lines = f.read()
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             return None
     return {
         "data": lines

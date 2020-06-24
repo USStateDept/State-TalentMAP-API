@@ -25,6 +25,7 @@ import talentmap_api.fsbid.services.common as comservices
 
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
+
 class AvailablePositionsFilter():
     declared_filters = [
         "exclude_available",
@@ -35,6 +36,7 @@ class AvailablePositionsFilter():
 
     class Meta:
         fields = "__all__"
+
 
 class AvailablePositionFavoriteListView(APIView):
 
@@ -60,10 +62,11 @@ class AvailablePositionFavoriteListView(APIView):
             services.archive_favorites(aps, request)
             pos_nums = ','.join(aps)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
-                                                      request.META['HTTP_JWT'],
-                                                      f"{request.scheme}://{request.get_host()}"))
+                                                             request.META['HTTP_JWT'],
+                                                             f"{request.scheme}://{request.get_host()}"))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
+
 
 class AvailablePositionFavoriteIdsListView(APIView):
 
@@ -77,6 +80,7 @@ class AvailablePositionFavoriteIdsListView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         return Response(aps)
+
 
 class FavoritesCSVView(APIView):
 
@@ -110,6 +114,7 @@ class FavoritesCSVView(APIView):
             data = data + pvdata.get('results')
 
         return comservices.get_ap_and_pv_csv(data, "favorites", True)
+
 
 class AvailablePositionFavoriteActionView(APIView):
     '''
@@ -156,8 +161,8 @@ class AvailablePositionFavoriteActionView(APIView):
 
 
 class AvailablePositionDesignationView(mixins.UpdateModelMixin,
-                                   FieldLimitableSerializerMixin,
-                                   GenericViewSet):
+                                       FieldLimitableSerializerMixin,
+                                       GenericViewSet):
     '''
     partial_update:
     Updates an available position designation
@@ -173,7 +178,7 @@ class AvailablePositionDesignationView(mixins.UpdateModelMixin,
     def get_object(self):
         queryset = self.get_queryset()
         pk = self.kwargs.get('pk', None)
-        obj, _ = queryset.get_or_create(cp_id=pk)       
+        obj, _ = queryset.get_or_create(cp_id=pk)
         self.check_object_permissions(self.request, obj)
         return obj
 
@@ -197,6 +202,7 @@ class AvailablePositionHighlightListView(APIView):
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT']))
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
+
 
 class AvailablePositionHighlightActionView(APIView):
     '''

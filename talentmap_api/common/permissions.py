@@ -32,6 +32,6 @@ def isDjangoGroupMemberOrReadOnly(group_name):
                 in_superuser_group(request.user) or in_group_or_403(request.user, group_name)
                 return True
             except BaseException:
-                return (request.method in permissions.SAFE_METHODS)
+                return request.method in permissions.SAFE_METHODS
 
     return IsDjangoGroupMemberOrReadOnly

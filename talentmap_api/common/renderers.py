@@ -5,7 +5,7 @@ from django import forms
 from rest_framework_csv.renderers import CSVRenderer
 
 
-class PaginatedCSVRenderer (CSVRenderer):
+class PaginatedCSVRenderer(CSVRenderer):
     '''
     Modified from https://github.com/mjumbewu/django-rest-framework-csv
     Supports CSV rendering on paginated views
