@@ -56,10 +56,11 @@ class AvailablePositionFavoriteListView(APIView):
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
+        ordering = request.query_params.get('ordering', None)
         if len(aps) > 0:
             services.archive_favorites(aps, request)
             pos_nums = ','.join(aps)
-            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+            return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
                                                       request.META['HTTP_JWT'],
                                                       f"{request.scheme}://{request.get_host()}"))
         else:
