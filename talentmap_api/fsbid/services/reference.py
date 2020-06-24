@@ -1,5 +1,7 @@
 import logging
 
+import requests  # pylint: disable=unused-import
+
 from django.conf import settings
 
 API_ROOT = settings.FSBID_API_URL

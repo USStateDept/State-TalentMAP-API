@@ -2,6 +2,8 @@ import logging
 from functools import partial
 from urllib.parse import urlencode, quote
 
+import requests  # pylint: disable=unused-import
+
 from django.conf import settings
 from django.http import QueryDict
 

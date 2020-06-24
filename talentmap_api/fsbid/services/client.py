@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 import jwt
 
+import requests  # pylint: disable=unused-import
+
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
