@@ -1,9 +1,8 @@
-import rest_framework_filters as filters
+import logging
 
 import talentmap_api.fsbid.services.projected_vacancies as pv_services
 import talentmap_api.fsbid.services.available_positions as ap_services
 
-import logging
 logger = logging.getLogger(__name__)
 
 # Filter handles not having database tables backing the model

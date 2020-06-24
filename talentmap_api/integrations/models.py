@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 
 from dateutil.relativedelta import relativedelta
 from dateutil import tz
@@ -13,7 +12,7 @@ from django.contrib.postgres.fields import JSONField
 
 from requests.exceptions import Timeout as TimeoutException
 
-from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client, generate_soap_header
+from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 from talentmap_api.settings import get_delineated_environment_variable

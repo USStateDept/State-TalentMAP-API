@@ -1,10 +1,5 @@
-from dateutil.relativedelta import relativedelta
+import logging
 
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
@@ -16,7 +11,6 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 
 import talentmap_api.fsbid.services.bid as services
 
-import logging
 logger = logging.getLogger(__name__)
 
 

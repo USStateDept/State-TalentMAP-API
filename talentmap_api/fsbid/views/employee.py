@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,7 +9,6 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
 
-import logging
 logger = logging.getLogger(__name__)
 
 

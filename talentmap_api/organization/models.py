@@ -1,11 +1,11 @@
+import logging
+
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-
-import logging
 
 import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel

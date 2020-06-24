@@ -1,18 +1,12 @@
-import requests
 import re
 import logging
 import csv
 from datetime import datetime
 import maya
-
-from urllib.parse import urlencode
-
-from rest_framework.response import Response
-from rest_framework import status
+import requests
 
 from django.conf import settings
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 

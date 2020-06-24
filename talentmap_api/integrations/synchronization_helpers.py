@@ -2,11 +2,11 @@
 This file contains a variety of helper functions for data synchronization
 '''
 
-from requests import Session
-
 import logging
 import os
 import re
+
+from requests import Session
 
 import zeep
 from zeep.transports import Transport

@@ -1,12 +1,13 @@
-from rest_framework.views import APIView
+import logging
 
-import talentmap_api.fsbid.services.common as common
+from rest_framework.views import APIView
 
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-import logging
+import talentmap_api.fsbid.services.common as common
+
 logger = logging.getLogger(__name__)
 
 

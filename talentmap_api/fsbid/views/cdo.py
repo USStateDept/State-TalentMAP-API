@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +14,6 @@ from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
 
-import logging
 logger = logging.getLogger(__name__)
 
 
