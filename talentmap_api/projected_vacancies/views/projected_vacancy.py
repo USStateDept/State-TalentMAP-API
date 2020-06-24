@@ -41,10 +41,11 @@ class ProjectedVacancyFavoriteListView(APIView):
         pvs = ProjectedVacancyFavorite.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         limit = request.query_params.get('limit', 12)
         page = request.query_params.get('page', 1)
+        ordering = request.query_params.get('ordering', None)
         if len(pvs) > 0:
             services.archive_favorites(pvs, request)
             pos_nums = ','.join(pvs)
-            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+            return Response(services.get_projected_vacancies(QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
                                                              request.META['HTTP_JWT'],
                                                              f"{request.scheme}://{request.get_host()}"))
         else:

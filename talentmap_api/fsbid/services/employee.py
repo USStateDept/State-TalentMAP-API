@@ -24,7 +24,7 @@ def get_employee_information(jwt_token, emp_id):
     '''
     Gets the grade and skills for the employee from FSBid
     '''
-    url = f"{FSBID_ROOT}/Persons?request_params.per_seq_num={emp_id}"
+    url = f"{FSBID_ROOT}/Persons?request_params.perdet_seq_num={emp_id}"
     employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     employee = next(iter(employee.get('Data', [])), {})
     try:
