@@ -65,7 +65,6 @@ class AvailablePositionFavoriteListView(APIView):
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
                                                              request.META['HTTP_JWT'],
                                                              f"{request.scheme}://{request.get_host()}"))
-
         else:
             return Response({"count": 0, "next": None, "previous": None, "results": []})
 
