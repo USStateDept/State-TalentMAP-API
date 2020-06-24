@@ -92,6 +92,9 @@ disable=W0403,
         c-extension-no-member,
         signature-differs,
         lost-exception,
+        unnecessary-pass,
+        no-else-continue,
+
 
 [REPORTS]
 
@@ -125,7 +128,7 @@ comment=no
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=230
+max-line-length=240
 
 # Maximum number of lines in a module
 max-module-lines=1000

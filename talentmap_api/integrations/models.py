@@ -253,7 +253,7 @@ class SynchronizationTask(models.Model):
         super(SynchronizationTask, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"SynchronizationTask"
+        return "SynchronizationTask"
 
     class Meta:
         managed = True

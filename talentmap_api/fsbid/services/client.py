@@ -56,9 +56,9 @@ def client_suggestions(jwt_token, perdet_seq_num):
     # but going over HIGH is preferred over FLOOR
     FLOOR = 0
 
-    client = single_client(jwt_token, perdet_seq_num)
-    grade = client.get("grade")
-    skills = client.get("skills")
+    CLIENT = single_client(jwt_token, perdet_seq_num)
+    grade = CLIENT.get("grade")
+    skills = CLIENT.get("skills")
     skills = deepcopy(skills)
     mappedSkills = ','.join([str(x.get("code")) for x in skills])
 
@@ -103,9 +103,9 @@ def single_client(jwt_token, perdet_seq_num):
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
-    client = list(response)[0]
-    client['cdo'] = cdo
-    return client
+    CLIENT = list(response)[0]
+    CLIENT['cdo'] = cdo
+    return CLIENT
 
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):

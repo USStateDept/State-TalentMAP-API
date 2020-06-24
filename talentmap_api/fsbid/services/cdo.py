@@ -35,16 +35,16 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
 
     if cdos and len(cdos) > 0:
         try:
-            cdo = cdos[0]
+            CDO = cdos[0]
             initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
-            cdo['initials'] = initials
+            CDO['initials'] = initials
             avatar = get_avatar_url(cdo['email'])
-            cdo['avatar'] = avatar
+            CDO['avatar'] = avatar
         except:
-            cdo = {}
+            CDO = {}
     else:
-        cdo = {}
-    return cdo
+        CDO = {}
+    return CDO
 
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
