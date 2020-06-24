@@ -10,7 +10,7 @@ import datetime
 from io import StringIO
 import defusedxml.lxml as ET
 
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict  # pylint: disable=unused-import
 
 
 class XMLloader():
