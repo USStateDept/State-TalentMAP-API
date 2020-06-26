@@ -1,6 +1,5 @@
 import datetime
 from django.shortcuts import get_object_or_404
-# from django.http import Http404
 
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
@@ -18,7 +17,6 @@ from talentmap_api.feature_flags.serializers.featureflags import FeatureFlagsSer
 import logging
 logger = logging.getLogger(__name__)
 
-from pprint import pprint
 
 class FeatureFlagsView(mixins.RetrieveModelMixin,
                        mixins.UpdateModelMixin,
@@ -50,6 +48,5 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
         instance = FeatureFlags()
         logger.info(f"User {self.request.user.id}:{self.request.user} creating feature_flags entry {instance}")
         instance.feature_flags = request.data
-        pprint(instance.feature_flags)
         instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
