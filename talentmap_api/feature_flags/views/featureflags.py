@@ -26,7 +26,6 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
 
     serializer_class = FeatureFlagsSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('superuser'))
-    # permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('sdkfsjkhf'))
 
     def get_queryset(self):
         return FeatureFlagsSerializer.objects.last()
@@ -44,7 +43,6 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
 
     def perform_create(self, request):
         in_group_or_403(self.request.user, f"superuser")
-        # in_group_or_403(self.request.user, f"sdfsdf")
         instance = FeatureFlags()
         logger.info(f"User {self.request.user.id}:{self.request.user} creating feature_flags entry {instance}")
         instance.feature_flags = request.data
