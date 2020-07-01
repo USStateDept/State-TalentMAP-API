@@ -91,6 +91,9 @@ urlpatterns = [
     # Data sync services
     url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
 
+    # Feature Flags
+    url(r'^api/v1/featureflags/', include('talentmap_api.feature_flags.urls.featureflags')),
+
     # Log viewing
     url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),
 
