@@ -125,6 +125,7 @@ INSTALLED_APPS = [
     'talentmap_api.available_positions',
     'talentmap_api.log_viewer',
     'talentmap_api.administration',
+    'talentmap_api.feature_flags',
     'talentmap_api.stats'
 ]
 
