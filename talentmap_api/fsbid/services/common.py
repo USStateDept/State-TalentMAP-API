@@ -140,6 +140,7 @@ sort_dict = {
     "client_first_name": "per_first_name",
     "location": "location_city",
     "commuterPost": "cpn_desc",
+    "tandem": "tandem_nbr",
 }
 
 
