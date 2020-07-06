@@ -49,8 +49,8 @@ class CyclePositionListView(FieldLimitableSerializerMixin,
 
 
 class CyclePositionBidListView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
+                               mixins.ListModelMixin,
+                               GenericViewSet):
     """
     list:
     Return a list of all of the cycle position's bids.
@@ -72,8 +72,8 @@ class CyclePositionBidListView(FieldLimitableSerializerMixin,
 
 
 class CyclePositionSimilarView(FieldLimitableSerializerMixin,
-                          mixins.ListModelMixin,
-                          GenericViewSet):
+                               mixins.ListModelMixin,
+                               GenericViewSet):
     """
     list:
     Return a list of similar cycle positions to the specified position.
@@ -91,8 +91,9 @@ class CyclePositionSimilarView(FieldLimitableSerializerMixin,
         self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
 
+
 class CyclePositionHighlightListView(FieldLimitableSerializerMixin,
-                                ReadOnlyModelViewSet):
+                                     ReadOnlyModelViewSet):
     """
     list:
     Return a list of all currently highlighted positions
@@ -105,6 +106,7 @@ class CyclePositionHighlightListView(FieldLimitableSerializerMixin,
         queryset = CyclePosition.objects.annotate(highlight_count=Count('position__highlighted_by_org')).filter(highlight_count__gt=0, bidcycle__active=True, status_code__in=["HS", "OP"])
         queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
+
 
 class CyclePositionFavoriteListView(FieldLimitableSerializerMixin,
                                     ReadOnlyModelViewSet):
@@ -121,6 +123,7 @@ class CyclePositionFavoriteListView(FieldLimitableSerializerMixin,
         queryset = UserProfile.objects.get(user=self.request.user).favorite_positions.all()
         queryset = self.serializer_class.prefetch_model(CyclePosition, queryset)
         return queryset
+
 
 class CyclePositionFavoriteActionView(APIView):
     '''
@@ -155,6 +158,7 @@ class CyclePositionFavoriteActionView(APIView):
         '''
         UserProfile.objects.get(user=self.request.user).favorite_positions.remove(CyclePosition.objects.get(id=pk))
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class CyclePositionDesignationView(mixins.UpdateModelMixin,
                                    FieldLimitableSerializerMixin,

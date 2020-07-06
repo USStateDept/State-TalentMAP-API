@@ -2,15 +2,15 @@
 This file contains helpers for loading data into the database from XML files
 '''
 
-import defusedxml.lxml as ET
 import logging
 import re
 import csv
 import datetime
 
 from io import StringIO
+import defusedxml.lxml as ET
 
-from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
+from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict  # pylint: disable=unused-import
 
 
 class XMLloader():

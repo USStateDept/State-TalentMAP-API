@@ -14,9 +14,8 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.CyclePositionListView.as_view({**get_retrieve}), name='bidding.CyclePosition-detail'),
     url(r'^(?P<pk>[0-9]+)/bids/$', views.CyclePositionBidListView.as_view(get_list), name='bidding.CyclePosition-bids'),
     url(r'^(?P<pk>[0-9]+)/similar/$', views.CyclePositionSimilarView.as_view(get_list), name='bidding.CyclePosition-similar'),
-    url(r'^(?P<pk>[0-9]+)/designation/$', views.CyclePositionDesignationView.as_view({ **patch_update }), name='bidding.CyclePosition-designation'),
+    url(r'^(?P<pk>[0-9]+)/designation/$', views.CyclePositionDesignationView.as_view({**patch_update}), name='bidding.CyclePosition-designation'),
 ]
-
 
 
 urlpatterns += router.urls

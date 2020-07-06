@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from rest_framework import routers
 
-from talentmap_api.common.urls import patch_update
 from talentmap_api.fsbid.views import employee as views
 
 router = routers.SimpleRouter()

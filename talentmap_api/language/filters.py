@@ -2,13 +2,9 @@ import rest_framework_filters as filters
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models import Q
 
-from talentmap_api.position.models import Position
-from talentmap_api.bidding.models import BidCycle
-
-
 from talentmap_api.language.models import Qualification, Proficiency, Language
 from talentmap_api.common.filters import multi_field_filter, negate_boolean_filter
-from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class LanguageFilter(filters.FilterSet):

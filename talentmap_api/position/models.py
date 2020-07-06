@@ -1,16 +1,9 @@
 import itertools
 
-from django.db.models import OuterRef, Subquery
 from django.db import models
-from djchoices import DjangoChoices, ChoiceItem
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
-from django.utils import timezone
-
-from dateutil.relativedelta import relativedelta
 
 import talentmap_api.bidding.models
-from talentmap_api.common.common_helpers import ensure_date, month_diff, safe_navigation
+from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.organization.models import Organization, Post
 from talentmap_api.language.models import Qualification

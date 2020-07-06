@@ -193,10 +193,11 @@ class ShareView(FieldLimitableSerializerMixin,
         return Response({"message": f"Position shared internally to user with email {email}"}, status=status.HTTP_202_ACCEPTED)
 
     def get_email_formatter(self, type):
-        formatter = None
         if type == "position":
             def formatter(instance):
                 return f"This position has been shared with you via TalentMAP\n\n" \
                        f"\tPosition Number: {instance.position_number}\n\tPosition Title: {instance.title}\n" \
                        f"\tPost: {instance.post}"
+        else:
+            formatter = None
         return formatter

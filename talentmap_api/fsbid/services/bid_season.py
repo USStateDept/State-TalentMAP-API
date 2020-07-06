@@ -1,16 +1,14 @@
-import requests
 import logging
-
-from datetime import datetime
+import requests
 
 from django.conf import settings
 
 from talentmap_api.common.common_helpers import ensure_date
-import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
+
 
 def get_bid_seasons(bsn_future_vacancy_ind, jwt_token):
     # set future vacancy indicator - default to 'Y'

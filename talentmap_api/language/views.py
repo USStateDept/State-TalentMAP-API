@@ -1,10 +1,9 @@
 from rest_framework import mixins
-from talentmap_api.common.cache.views import CachedViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from talentmap_api.common.cache.views import CachedViewSet
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import ActionDependentSerializerMixin, FieldLimitableSerializerMixin
-
 from talentmap_api.language.models import Language, Proficiency, Qualification
 from talentmap_api.language.serializers import LanguageSerializer, LanguageProficiencySerializer, LanguageQualificationSerializer, LanguageQualificationWritableSerializer
 from talentmap_api.language.filters import LanguageFilter, ProficiencyFilter, QualificationFilter

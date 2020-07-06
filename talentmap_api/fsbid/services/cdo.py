@@ -1,13 +1,13 @@
-import requests
 import logging
 import jwt
-import talentmap_api.fsbid.services.common as services
 from django.conf import settings
+import talentmap_api.fsbid.services.common as services
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
+
 
 def cdo(jwt_token):
     '''
@@ -19,7 +19,8 @@ def cdo(jwt_token):
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
     return response
 
-def single_cdo(jwt_token = None, perdet_seq_num = None):
+
+def single_cdo(jwt_token=None, perdet_seq_num=None):
     '''
     Get a single CDO
     '''
@@ -34,16 +35,17 @@ def single_cdo(jwt_token = None, perdet_seq_num = None):
 
     if cdos and len(cdos) > 0:
         try:
-            cdo = cdos[0]
+            CDO = cdos[0]
             initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
-            cdo['initials'] = initials
+            CDO['initials'] = initials
             avatar = get_avatar_url(cdo['email'])
-            cdo['avatar'] = avatar
+            CDO['avatar'] = avatar
         except:
-            cdo = {}
+            CDO = {}
     else:
-        cdo = {}
-    return cdo
+        CDO = {}
+    return CDO
+
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     return {
