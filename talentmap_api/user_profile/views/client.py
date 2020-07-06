@@ -89,6 +89,7 @@ class CdoClientSurveyView(FieldLimitableSerializerMixin,
         self.serializer_class.prefetch_model(StatusSurvey, queryset)
         return queryset
 
+
 class CdoClientBidView(FieldLimitableSerializerMixin,
                        ActionDependentSerializerMixin,
                        mixins.ListModelMixin,

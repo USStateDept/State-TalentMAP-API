@@ -1,22 +1,19 @@
-from dateutil.relativedelta import relativedelta
+import logging
 
-from django.db.models.constants import LOOKUP_SEP
-from django.db.models import Q, Subquery
-from django.utils import timezone
+from django.db.models import Q
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import BidCycle, CyclePosition
+from talentmap_api.bidding.models import BidCycle
 from talentmap_api.position.models import Position, Grade, Skill, CapsuleDescription, PositionBidStatistics, SkillCone
 
 from talentmap_api.language.filters import QualificationFilter
 from talentmap_api.language.models import Qualification
 
-from talentmap_api.organization.filters import OrganizationFilter, PostFilter, TourOfDutyFilter
-from talentmap_api.organization.models import Organization, Post, TourOfDuty
+from talentmap_api.organization.filters import OrganizationFilter, PostFilter
+from talentmap_api.organization.models import Organization, Post
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS, INTEGER_LOOKUPS, NumberInFilter
 
-import logging
 logger = logging.getLogger(__name__)
 
 

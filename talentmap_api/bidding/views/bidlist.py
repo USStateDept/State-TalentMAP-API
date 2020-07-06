@@ -1,4 +1,4 @@
-from dateutil.relativedelta import relativedelta
+import logging
 
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
@@ -19,7 +19,6 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-import logging
 logger = logging.getLogger(__name__)
 
 

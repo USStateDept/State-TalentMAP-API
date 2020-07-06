@@ -1,19 +1,12 @@
+import logging
 import coreapi
 
-from dateutil.relativedelta import relativedelta
-
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
 
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 
@@ -21,7 +14,6 @@ import talentmap_api.fsbid.services.available_positions as services
 
 from talentmap_api.common.common_helpers import in_superuser_group
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -60,6 +52,7 @@ class FSBidAvailablePositionsListView(BaseView):
         Gets all available positions
         '''
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+
 
 class FSBidAvailablePositionsTandemListView(BaseView):
 
@@ -114,6 +107,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
         '''
         return Response(services.get_available_positions_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -129,6 +123,7 @@ class FSBidAvailablePositionsCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
 
 class FSBidAvailablePositionsTandemCSVView(BaseView):
 
@@ -146,6 +141,7 @@ class FSBidAvailablePositionsTandemCSVView(BaseView):
             includeLimit = False
         return services.get_available_positions_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
+
 class FSBidAvailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -160,6 +156,7 @@ class FSBidAvailablePositionView(BaseView):
 
         return Response(result)
 
+
 class FSBidUnavailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -173,6 +170,7 @@ class FSBidUnavailablePositionView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
 
 class FSBidAvailablePositionsSimilarView(BaseView):
 

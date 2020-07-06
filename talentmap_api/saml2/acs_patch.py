@@ -63,7 +63,7 @@ def assertion_consumer_service(request,
     """
     attribute_mapping = attribute_mapping or get_custom_setting('SAML_ATTRIBUTE_MAPPING', {'uid': ('username', )})
     create_unknown_user = create_unknown_user if create_unknown_user is not None else \
-                          get_custom_setting('SAML_CREATE_UNKNOWN_USER', True)
+        get_custom_setting('SAML_CREATE_UNKNOWN_USER', True)
     conf = get_config('talentmap_api.settings.config_settings_loader', request)
     try:
         xmlstr = request.POST['SAMLResponse']
@@ -75,7 +75,7 @@ def assertion_consumer_service(request,
 
     oq_cache = OutstandingQueriesCache(request.session)
     outstanding_queries = oq_cache.outstanding_queries()
-    
+
     resp_kwargs = {
         "outstanding_queries": outstanding_queries,
         "outstanding_certs": None,
@@ -121,9 +121,9 @@ def assertion_consumer_service(request,
 
     available_attributes = response.ava
     logger.debug(f"Parse SAML response, available attributes: {available_attributes}")
-    
+
     # Get the user
-    user, _ = User.objects.get_or_create(email=available_attributes['name'][0], username=available_attributes['name'][0]) # for some reason this comes back as name
+    user, _ = User.objects.get_or_create(email=available_attributes['name'][0], username=available_attributes['name'][0])  # for some reason this comes back as name
     user.first_name = available_attributes['givenname'][0]
     user.last_name = available_attributes['surname'][0]
     user.save()

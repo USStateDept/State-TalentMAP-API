@@ -1,7 +1,6 @@
-from django.core.management.base import BaseCommand
-
 import logging
 
+from django.core.management.base import BaseCommand
 from django.core.management import call_command
 
 from talentmap_api.integrations.models import SynchronizationJob

@@ -1,13 +1,11 @@
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.contrib.postgres.search import SearchVector
+from django.core.exceptions import FieldDoesNotExist
 
 from rest_framework_filters.backends import DjangoFilterBackend
-
-from rest_framework import filters
+from rest_framework import filters as restFilters
 import rest_framework_filters as drff_filters
-
-from django.core.exceptions import FieldDoesNotExist
 
 # Common filters for string-type objects
 DATETIME_LOOKUPS = ['exact', 'gte', 'gt', 'lte', 'lt', 'range', 'year',
@@ -29,7 +27,7 @@ class DisabledHTMLFilterBackend(DjangoFilterBackend):
         return ""
 
 
-class RelatedOrderingFilter(filters.OrderingFilter):
+class RelatedOrderingFilter(restFilters.OrderingFilter):
     """
     Django rest framework does not natively support ordering by a nested object's
     data, to allow this, we override "is_valid_field" to verify that the ordering

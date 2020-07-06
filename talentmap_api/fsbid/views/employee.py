@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,7 +9,6 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +35,7 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
 
         # Add roles
         for current_role in user_roles:
-          auth_user.groups.add(current_role)
+            auth_user.groups.add(current_role)
 
         # Remove any roles that the user has lost since the last time they logged in
         for role in services.ROLE_MAPPING.values():

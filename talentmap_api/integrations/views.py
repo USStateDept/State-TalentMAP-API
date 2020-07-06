@@ -1,19 +1,22 @@
+import logging
+
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import mixins
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+
 from django.shortcuts import get_object_or_404
 from django.core.management import call_command
+
 from talentmap_api.integrations.models import SynchronizationJob, SynchronizationTask
-from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.integrations.serializers import SynchronizationJobSerializer, SynchronizationTaskSerializer
+
+from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
+from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-import logging
 logger = logging.getLogger(__name__)
 
 

@@ -1,25 +1,24 @@
 import logging
 
 from django.http import QueryDict
-
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer, CyclePositionSerializer
+from talentmap_api.common.common_helpers import resolve_path_to_view
+from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import PositionSerializer, SkillSerializer
+from talentmap_api.position.serializers import SkillSerializer
 from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
-
-from django.contrib.auth.models import User
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
 from talentmap_api.fsbid.services.employee import get_employee_information
 
 logger = logging.getLogger(__name__)
+
 
 class UserSerializer(PrefetchedSerializer):
     class Meta:
@@ -132,7 +131,7 @@ class UserProfileSerializer(PrefetchedSerializer):
         if len(aps) > 0:
             pos_nums = ','.join(aps)
             aps = get_available_positions(QueryDict(f"id={pos_nums}"), request.META['HTTP_JWT'])["results"]
-            return ({ 'id': o['id'] } for o in aps)
+            return ({'id': o['id']} for o in aps)
         return []
 
     def get_cdo_info(self, obj):
@@ -141,9 +140,8 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return single_cdo(jwt, user.emp_id)
-        except:
+        except BaseException:
             return {}
-
 
     def get_employee_info(self, obj):
         request = self.context['request']
@@ -151,9 +149,8 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return get_employee_information(jwt, user.emp_id)
-        except:
+        except BaseException:
             return {}
-
 
     class Meta:
         model = UserProfile
@@ -222,7 +219,7 @@ class SavedSearchSerializer(PrefetchedSerializer):
         # Get our viewset using the endpoint
         try:
             view = resolve_path_to_view(endpoint)
-        except:
+        except BaseException:
             view = None
         finally:
             if not view:
@@ -234,9 +231,9 @@ class SavedSearchSerializer(PrefetchedSerializer):
         allowed fields up to date with FSBid API.
         """
         # Get our list of filters, and verify that the specified filters are valid
-        #if hasattr(view, "filter_class"):
+        # if hasattr(view, "filter_class"):
         #    validate_filters_exist(filters, view.filter_class)
-        #else:
+        # else:
         #    raise ValidationError("Specified endpoint does not support filters")
 
         return data

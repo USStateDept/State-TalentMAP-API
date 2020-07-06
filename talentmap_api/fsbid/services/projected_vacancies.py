@@ -1,18 +1,13 @@
-import requests
 import logging
-import csv
-from datetime import datetime
-import maya
-
 from functools import partial
 from urllib.parse import urlencode, quote
 
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse, QueryDict
-from django.utils.encoding import smart_str
+import requests  # pylint: disable=unused-import
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation
+from django.conf import settings
+from django.http import QueryDict
+
+from talentmap_api.common.common_helpers import ensure_date
 import talentmap_api.fsbid.services.common as services
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
@@ -20,6 +15,7 @@ API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 logger = logging.getLogger(__name__)
+
 
 def get_projected_vacancy(id, jwt_token):
     '''
@@ -33,6 +29,7 @@ def get_projected_vacancy(id, jwt_token):
         fsbid_pv_to_talentmap_pv
     )
 
+
 def get_projected_vacancies(query, jwt_token, host=None):
     return services.send_get_request(
         "futureVacancies",
@@ -44,6 +41,7 @@ def get_projected_vacancies(query, jwt_token, host=None):
         "/api/v1/fsbid/projected_vacancies/",
         host
     )
+
 
 def get_projected_vacancies_tandem(query, jwt_token, host=None):
     return services.send_get_request(
@@ -57,17 +55,20 @@ def get_projected_vacancies_tandem(query, jwt_token, host=None):
         host
     )
 
+
 def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
     Gets the total number of PVs for a filterset
     '''
     return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
 
+
 def get_projected_vacancies_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of tandem PVs for a filterset
     '''
     return services.send_count_request("positions/futureVacancies/tandem", query, partial(convert_pv_query, isTandem=True), jwt_token, host)
+
 
 def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -89,6 +90,7 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
         response['Position-Limit'] = limit
 
     return response
+
 
 def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -127,12 +129,11 @@ def fsbid_pv_to_talentmap_pv(pv):
             "cycle_end_date": None,
             "active": True
         },
-        "tandem_nbr": pv.get("tandem_nbr", None), # Only appears in tandem searches
+        "tandem_nbr": pv.get("tandem_nbr", None),  # Only appears in tandem searches
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "bureau": f"({pv.get('pos_bureau_short_desc', None)}) {pv.get('pos_bureau_long_desc', None)}",
-            "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "organization": f"({pv.get('org_short_desc', None)}) {pv.get('org_long_desc', None)}",
             "tour_of_duty": pv.get("tod", None),
             "languages": list(filter(None, [
@@ -197,6 +198,7 @@ def fsbid_pv_to_talentmap_pv(pv):
         "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
+
 def convert_pv_query(query, isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
@@ -205,7 +207,8 @@ def convert_pv_query(query, isTandem=False):
     '''
     prefix = "fv_request_params."
 
-    if isTandem: prefix = "request_params."
+    if isTandem:
+        prefix = "request_params."
 
     values = {
         # Pagination
@@ -257,9 +260,10 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
+
 def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
     favs_length = len(pvs)
-    if favs_length >= favoritesLimit or favs_length == round(favoritesLimit/2):
+    if favs_length >= favoritesLimit or favs_length == round(favoritesLimit / 2):
         # Pos nums is string to pass correctly to services url
         pos_nums = ','.join(pvs)
         # List favs is list of integers instead of strings for comparison
@@ -275,6 +279,7 @@ def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
             if len(outdated_ids) > 0:
                 ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
 
+
 def get_pv_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
         "futureVacancies",
@@ -286,6 +291,7 @@ def get_pv_favorite_ids(query, jwt_token, host=None):
         "/api/v1/fsbid/projected_vacancies/",
         host
     ).get('results')
+
 
 def fsbid_favorites_to_talentmap_favorites_ids(pv):
     return pv.get("fv_seq_num", None)

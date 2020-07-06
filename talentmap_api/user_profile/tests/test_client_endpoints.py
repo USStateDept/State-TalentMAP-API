@@ -84,6 +84,7 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 9
 
+
 @pytest.mark.django_db(transaction=True)
 def test_client_list(authorized_client, authorized_user, test_clients_fixture):
     response = authorized_client.get('/api/v1/client/')

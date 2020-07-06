@@ -1,9 +1,9 @@
 from django.conf.urls import url
+from rest_framework import routers
 
 from talentmap_api.position.views import capsule_description as views
 from talentmap_api.common.urls import get_retrieve, get_list, patch_update
 
-from rest_framework import routers
 
 router = routers.SimpleRouter()
 

@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
@@ -15,7 +16,6 @@ from talentmap_api.stats.models import LoginInstance
 from talentmap_api.stats.serializers import LoginInstanceSerializer
 from talentmap_api.stats.filters import LoginInstanceFilter
 
-import logging
 logger = logging.getLogger(__name__)
 
 

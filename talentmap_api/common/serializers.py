@@ -33,6 +33,7 @@ class PrefetchedSerializer(serializers.ModelSerializer):
 
     }
     '''
+
     def __init__(self, *args, **kwargs):
         override_fields = kwargs.pop("override_fields", [])
         override_exclude = kwargs.pop("override_exclude", [])

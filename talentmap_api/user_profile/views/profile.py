@@ -13,7 +13,6 @@ from talentmap_api.user_profile.serializers import (UserProfileSerializer,
                                                     UserProfileWritableSerializer)
 
 
-
 class UserProfileView(FieldLimitableSerializerMixin,
                       mixins.RetrieveModelMixin,
                       mixins.UpdateModelMixin,

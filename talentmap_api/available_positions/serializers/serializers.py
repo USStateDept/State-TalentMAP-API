@@ -1,6 +1,7 @@
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
+
 class AvailablePositionDesignationSerializer(PrefetchedSerializer):
 
     class Meta:

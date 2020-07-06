@@ -1,6 +1,5 @@
 import datetime
 import logging
-import os
 
 from dateutil.relativedelta import relativedelta
 from dateutil import tz
@@ -13,7 +12,7 @@ from django.contrib.postgres.fields import JSONField
 
 from requests.exceptions import Timeout as TimeoutException
 
-from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client, generate_soap_header
+from talentmap_api.integrations.synchronization_helpers import get_synchronization_information, get_soap_client
 from talentmap_api.common.xml_helpers import XMLloader
 from talentmap_api.common.common_helpers import ensure_date, xml_etree_to_dict
 from talentmap_api.settings import get_delineated_environment_variable
@@ -136,7 +135,7 @@ class SynchronizationJob(models.Model):
                         soap_arguments['PaginationStartKey'] = previous_lpsk
                         logger.info(f"Requesting page from primary key: {loader.last_pagination_start_key}")
                     else:
-                        logger.info(f"Requesting first page")
+                        logger.info("Requesting first page")
 
                     # Get the data
                     response_xml = None
@@ -253,7 +252,7 @@ class SynchronizationTask(models.Model):
         super(SynchronizationTask, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"SynchronizationTask"
+        return "SynchronizationTask"
 
     class Meta:
         managed = True
