@@ -118,7 +118,7 @@ def get_available_positions_csv(query, jwt_token, host=None, limit=None, include
         limit
     )
 
-    count = get_available_positions_tandem_count(query, jwt_token)
+    count = get_available_positions_count(query, jwt_token)
     response = services.get_ap_and_pv_csv(data, "available_positions", True)
 
     if includeLimit is True and count['count'] > limit:
@@ -131,7 +131,7 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
     data = services.send_get_csv_request(
         "positions/available/tandem",
         query,
-        convert_ap_query,
+        partial(convert_ap_query, isTandem=True),
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         "/api/v1/fsbid/available_positions/tandem/",
@@ -140,7 +140,7 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
         limit
     )
 
-    count = get_available_positions_count(query, jwt_token)
+    count = get_available_positions_tandem_count(query, jwt_token)
     response = services.get_ap_and_pv_csv(data, "available_positions_tandem", True, True)
 
     if includeLimit is True and count['count'] > limit:
