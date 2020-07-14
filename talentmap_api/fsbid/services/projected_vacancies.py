@@ -96,7 +96,7 @@ def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, 
     data = services.send_get_csv_request(
         "positions/futureVacancies/tandem",
         query,
-        convert_pv_query,
+        partial(convert_pv_query, isTandem=True),
         jwt_token,
         fsbid_pv_to_talentmap_pv,
         "/api/v1/fsbid/projected_vacancies/tandem/",
