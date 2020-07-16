@@ -60,7 +60,7 @@ class AvailablePositionFavoriteListView(APIView):
         page = request.query_params.get('page', 1)
         ordering = request.query_params.get('ordering', None)
         if len(aps) > 0:
-            services.archive_favorites(aps, request)
+            comservices.archive_favorites(aps, request)
             pos_nums = ','.join(aps)
             return Response(services.get_available_positions(QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
                                                              request.META['HTTP_JWT'],
@@ -144,7 +144,7 @@ class AvailablePositionFavoriteActionView(APIView):
         '''
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
-        services.archive_favorites(aps, request)
+        comservices.archive_favorites(aps, request)
         aps_after_archive = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
         if len(aps_after_archive) >= FAVORITES_LIMIT:
             return Response({"limit": FAVORITES_LIMIT}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
