@@ -104,9 +104,8 @@ class BureauPositionsFilter():
 
     use_api = True
 
-    # Used when saving a search to determine the number of records returned
     def get_count(query, jwt_token):
-        return bureau_services.get_available_positions_count(query, jwt_token)
+        return bureau_services.get_bureau_positions_count(query, jwt_token)
 
     class Meta:
         fields = "__all__"

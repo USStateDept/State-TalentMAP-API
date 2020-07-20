@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def get_bureau_position(id, jwt_token):
     '''
-    Gets an indivdual available position by id
+    Gets an indivdual bureau position by id
     '''
     return services.get_individual(
         "availablePositions",
@@ -31,7 +31,7 @@ def get_bureau_position(id, jwt_token):
 
 def get_bureau_positions(query, jwt_token, host=None):
     '''
-    Gets available positions
+    Gets all bureau positions
     '''
     return services.send_get_request(
         "availablePositions",
@@ -62,15 +62,10 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
         "/api/v1/fsbid/available_positions/",
         host,
         None,
-        limit
     )
 
     count = get_bureau_positions_count(query, jwt_token)
     response = services.get_ap_and_pv_csv(data, "available_positions", True)
-
-    if includeLimit is True and count['count'] > limit:
-        response['Position-Limit'] = limit
-
     return response
 
 

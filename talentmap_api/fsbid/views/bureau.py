@@ -47,7 +47,7 @@ class FSBidBureauPositionsListView(BaseView):
 
     def get(self, request, *args, **kwargs):
         '''
-        Gets all available positions
+        Gets all bureau positions
         '''
         return Response(services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
@@ -59,7 +59,7 @@ class FSBidBureauPositionsCSVView(BaseView):
 
     def get(self, request, *args, **kwargs):
         '''
-        Gets all available positions
+        Gets all bureau positions for export
         '''
         limit = 9999999
         includeLimit = False
@@ -72,7 +72,7 @@ class FSBidBureauPositionView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets an available position
+        Gets a bureau position
         '''
         result = services.get_bureau_position(pk, request.META['HTTP_JWT'])
         if result is None:
