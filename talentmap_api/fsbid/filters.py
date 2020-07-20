@@ -2,6 +2,7 @@ import logging
 
 import talentmap_api.fsbid.services.projected_vacancies as pv_services
 import talentmap_api.fsbid.services.available_positions as ap_services
+import talentmap_api.fsbid.services.bureau as bureau_services
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,40 @@ class AvailablePositionsFilter():
     # Used when saving a search to determine the number of records returned
     def get_count(query, jwt_token):
         return ap_services.get_available_positions_count(query, jwt_token)
+
+    class Meta:
+        fields = "__all__"
+
+class BureauPositionsFilter():
+    declared_filters = [
+        "is_available_in_bidcycle",
+        "position__skill__code__in",
+        "position__grade__code__in",
+        "position__bureau__code__in",
+        "is_domestic",
+        "position__post__code__in",
+        "position__post__tour_of_duty__code__in",
+        "position__post__differential_rate__in",
+        "language_codes",
+        "position__post__danger_pay__in",
+        "is_available_in_current_bidcycle",
+        "q",
+        "position__post__code__in",
+        "is_overseas",
+        "org_has_groups",
+        "isConsumable",
+        "isServiceNeedDifferential",
+        "isDifficultToStaff",
+        "isEFMInside",
+        "isEFMOutside",
+        "position__cpn_codes__in",
+    ]
+
+    use_api = True
+
+    # Used when saving a search to determine the number of records returned
+    def get_count(query, jwt_token):
+        return bureau_services.get_available_positions_count(query, jwt_token)
 
     class Meta:
         fields = "__all__"
