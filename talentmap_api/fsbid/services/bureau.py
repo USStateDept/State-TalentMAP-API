@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 
-logger = logging.getLogger(__name__)
-
 
 def get_bureau_position(id, jwt_token):
     '''

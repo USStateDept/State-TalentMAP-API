@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
-logger = logging.getLogger(__name__)
-
 
 def get_available_position(id, jwt_token):
     '''
