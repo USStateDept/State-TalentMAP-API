@@ -110,13 +110,13 @@ class FavoritesTandemCSVView(APIView):
         # PV Tandem
         pvs = ProjectedFavoriteTandem.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         if request.query_params.get('exclude_projected') != 'true' and pvs:
-            pv_pos_nums = ','.join(pv_pos_nums)
+            pv_pos_nums = ','.join(pvs)
             pvdata = pvservices.get_projected_vacancies(
                 QueryDict(f"id={pv_pos_nums}&limit={len(pvs)}&page=1"),
                 request.META['HTTP_JWT'],
                 f"{request.scheme}://{request.get_host()}")
             data = data + pvdata.get('results')
-        return comservices.get_ap_and_pv_csv(data, "favorites", True)
+        return comservices.get_ap_and_pv_csv(data, "tandem-favorites", True)
 
 
 class AvailableFavoriteTandemActionView(APIView):
