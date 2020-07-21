@@ -119,7 +119,6 @@ class UserProfileSerializer(PrefetchedSerializer):
     primary_nationality = StaticRepresentationField(read_only=True)
     secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
-    favorite_positions = serializers.SerializerMethodField()
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
     employee_info = serializers.SerializerMethodField()
@@ -193,8 +192,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
-        writable_fields = ("language_qualifications", "favorite_positions", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
+        fields = ["language_qualifications""primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
+        writable_fields = ("language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):

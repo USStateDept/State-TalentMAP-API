@@ -5,11 +5,9 @@ from urllib.parse import urlencode, quote
 import requests  # pylint: disable=unused-import
 
 from django.conf import settings
-from django.http import QueryDict
 
 from talentmap_api.common.common_helpers import ensure_date
-import talentmap_api.fsbid.services.common as services
-from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
+from talentmap_api.fsbid.services import common as services
 
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
@@ -260,25 +258,6 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-
-
-def archive_favorites(pvs, request, favoritesLimit=FAVORITES_LIMIT):
-    favs_length = len(pvs)
-    if favs_length >= favoritesLimit or favs_length == round(favoritesLimit / 2):
-        # Pos nums is string to pass correctly to services url
-        pos_nums = ','.join(pvs)
-        # List favs is list of integers instead of strings for comparison
-        list_favs = list(map(lambda x: int(x), pvs))
-        # Valid resulting ids from fsbid
-        returned_ids = get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
-        # Need to determine which ids need to be archived using comparison of lists above
-        outdated_ids = []
-        if isinstance(returned_ids, list):
-            for fav_id in list_favs:
-                if fav_id not in returned_ids:
-                    outdated_ids.append(fav_id)
-            if len(outdated_ids) > 0:
-                ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
 
 
 def get_pv_favorite_ids(query, jwt_token, host=None):
