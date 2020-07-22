@@ -36,9 +36,9 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
     if cdos and len(cdos) > 0:
         try:
             CDO = cdos[0]
-            initials = "".join([x for x in cdo['email'] if x.isupper()][:2][::-1])
+            initials = "".join([x for x in CDO['email'] if x.isupper()][:2][::-1])
             CDO['initials'] = initials
-            avatar = get_avatar_url(cdo['email'])
+            avatar = get_avatar_url(CDO['email'])
             CDO['avatar'] = avatar
         except:
             CDO = {}
