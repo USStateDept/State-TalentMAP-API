@@ -10,9 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='userprofile',
-            name='favorite_positions',
-            field=models.ManyToManyField(help_text='Cycle Positions which this user has designated as a favorite', related_name='favorited_by_users', to='bidding.CyclePosition'),
-        ),
     ]

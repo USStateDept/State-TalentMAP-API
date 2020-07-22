@@ -2,15 +2,13 @@ import logging
 from functools import partial
 from urllib.parse import urlencode, quote
 
+from django.conf import settings
 import requests  # pylint: disable=unused-import
 
-from django.conf import settings
-from django.http import QueryDict
-
+from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, validate_values
-from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionFavorite
+from talentmap_api.available_positions.models import AvailablePositionDesignation
 
-import talentmap_api.fsbid.services.common as services
 
 logger = logging.getLogger(__name__)
 
@@ -386,25 +384,6 @@ def convert_all_query(query):
     but FP, OP, or HS will get removed from query
     '''
     return convert_ap_query(query, ["FP", "OP", "HS"])
-
-
-def archive_favorites(aps, request, favoritesLimit=FAVORITES_LIMIT):
-    fav_length = len(aps)
-    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit / 2):
-        # Pos nums is string to pass correctly to services url
-        pos_nums = ','.join(aps)
-        # List favs is list of integers instead of strings for comparison
-        list_favs = list(map(lambda x: int(x), aps))
-        # Ids from fsbid that are returned
-        returned_ids = get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
-        # Need to determine which ids need to be archived using comparison of lists above
-        outdated_ids = []
-        if isinstance(returned_ids, list):
-            for fav_id in list_favs:
-                if fav_id not in returned_ids:
-                    outdated_ids.append(fav_id)
-            if len(outdated_ids) > 0:
-                AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 
 def get_ap_favorite_ids(query, jwt_token, host=None):

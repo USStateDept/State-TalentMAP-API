@@ -2,20 +2,30 @@ import re
 import logging
 import csv
 from datetime import datetime
-import maya
 import requests
 
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.http import QueryDict
+
+import maya
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
+from talentmap_api.available_positions.models import AvailablePositionFavorite
+from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
+from talentmap_api.available_tandem.models import AvailableFavoriteTandem
+from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
+from talentmap_api.fsbid.services import available_positions as apservices
+from talentmap_api.fsbid.services import projected_vacancies as pvservices
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -407,3 +417,30 @@ def get_bids_csv(data, filename, jwt_token):
 
             writer.writerow(row)
     return response
+
+
+def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
+    fav_length = len(ids)
+    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit / 2):
+        # Pos nums is string to pass correctly to services url
+        pos_nums = ','.join(ids)
+        # List favs is list of integers instead of strings for comparison
+        list_favs = list(map(lambda x: int(x), ids))
+        # Ids from fsbid that are returned
+        if isPV:
+            returned_ids = pvservices.get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        else:
+            returned_ids = apservices.get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        # Need to determine which ids need to be archived using comparison of lists above
+        outdated_ids = []
+        if isinstance(returned_ids, list):
+            for fav_id in list_favs:
+                if fav_id not in returned_ids:
+                    outdated_ids.append(fav_id)
+            if len(outdated_ids) > 0:
+                if isPV:
+                    ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+                    ProjectedFavoriteTandem.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+                else:
+                    AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+                    AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
