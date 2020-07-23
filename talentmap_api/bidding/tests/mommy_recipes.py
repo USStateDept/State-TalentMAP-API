@@ -13,6 +13,7 @@ cycleposition = Recipe(
     bidcycle=foreign_key('bidcycle'),
 )
 
+
 def tz_aware_bidcycle():
     # Make a bidcycle with proper datetimes for TZ comparison
     return mommy.make(BidCycle,

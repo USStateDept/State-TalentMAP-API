@@ -8,6 +8,7 @@ from talentmap_api.position.serializers import PositionSerializer, PositionBidSt
 from talentmap_api.bidding.models import BidCycle, Bid, StatusSurvey, UserBidStatistics, Waiver, CyclePosition
 from talentmap_api.position.models import Position
 
+
 class BidCycleSerializer(PrefetchedSerializer):
 
     def validate(self, data):
@@ -254,6 +255,7 @@ class WaiverClientSerializer(PrefetchedSerializer):
         fields = "__all__"
         writable_fields = ("bid", "position", "type", "category", "description")
 
+
 class CyclePositionListSerializer(PrefetchedSerializer):
     status = StaticRepresentationField(read_only=True)
     status_code = StaticRepresentationField(read_only=True)
@@ -294,6 +296,7 @@ class CyclePositionListSerializer(PrefetchedSerializer):
                 }
             }
         }
+
 
 class CyclePositionDesignationSerializer(PrefetchedSerializer):
 

@@ -27,3 +27,4 @@ class AvailablePositionDesignation(models.Model):
     class Meta:
         managed = True
         ordering = ["cp_id"]
+

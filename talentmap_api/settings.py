@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import dj_database_url
 import datetime
+import dj_database_url
 
 import saml2
 import saml2.saml
@@ -123,9 +123,13 @@ INSTALLED_APPS = [
     'talentmap_api.feedback',
     'talentmap_api.projected_vacancies',
     'talentmap_api.available_positions',
+    'talentmap_api.projected_tandem',
+    'talentmap_api.available_tandem',
     'talentmap_api.log_viewer',
     'talentmap_api.administration',
-    'talentmap_api.stats'
+    'talentmap_api.feature_flags',
+    'talentmap_api.stats',
+    'talentmap_api.fsbid'
 ]
 
 MIDDLEWARE = [
@@ -254,15 +258,15 @@ if ENABLE_SAML2:
                         # do not change the binding or service name
                         'assertion_consumer_service': [
                             (f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}",
-                                saml2.BINDING_HTTP_POST),
+                             saml2.BINDING_HTTP_POST),
                         ],
                         # url and binding to the single logout service view
                         # do not change the binding or service name
                         'single_logout_service': [
                             (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}saml2/ls/",
-                                saml2.BINDING_HTTP_REDIRECT),
+                             saml2.BINDING_HTTP_REDIRECT),
                             (f"{get_delineated_environment_variable('SAML2_NETWORK_LOCATION')}ls/post",
-                                saml2.BINDING_HTTP_POST),
+                             saml2.BINDING_HTTP_POST),
                         ],
                     },
 
@@ -500,16 +504,16 @@ OBC_URL_EXTERNAL = get_delineated_environment_variable('OBC_URL_EXTERNAL', 'http
 
 # defaults from https://pypi.org/project/django-cors-headers/ plus our custom headers
 CORS_ALLOW_HEADERS = [
-'accept',
-'accept-encoding',
-'authorization',
-'content-type',
-'dnt',
-'jwt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'jwt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 SWAGGER_SETTINGS = {

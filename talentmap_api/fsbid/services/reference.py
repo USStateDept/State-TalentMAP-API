@@ -1,11 +1,13 @@
-import requests
 import logging
+
+import requests  # pylint: disable=unused-import
 
 from django.conf import settings
 
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
+
 
 @staticmethod
 def fsbid_danger_pay_to_talentmap_danger_pay(data):
@@ -14,6 +16,7 @@ def fsbid_danger_pay_to_talentmap_danger_pay(data):
         "code": data.get("pay_percent_num", None),
         "description": data.get("pay_percentage_text", None)
     }
+
 
 @staticmethod
 def fsbid_cycles_to_talentmap_cycles(data):
@@ -25,6 +28,7 @@ def fsbid_cycles_to_talentmap_cycles(data):
         "cycle_end_date": None,
         "cycle_start_date": None
     }
+
 
 @staticmethod
 def fsbid_bureaus_to_talentmap_bureaus(data):
@@ -42,6 +46,7 @@ def fsbid_bureaus_to_talentmap_bureaus(data):
         "short_description": data.get("bureau_short_desc", None)
     }
 
+
 @staticmethod
 def fsbid_differential_rates_to_talentmap_differential_rates(data):
     return {
@@ -50,6 +55,7 @@ def fsbid_differential_rates_to_talentmap_differential_rates(data):
         "description": data.get("pay_percentage_text", None)
     }
 
+
 @staticmethod
 def fsbid_grade_to_talentmap_grade(data):
     return {
@@ -57,6 +63,7 @@ def fsbid_grade_to_talentmap_grade(data):
         "code": data.get("grade_code", None),
         "description": None
     }
+
 
 @staticmethod
 def fsbid_languages_to_talentmap_languages(data):
@@ -69,6 +76,7 @@ def fsbid_languages_to_talentmap_languages(data):
         "effective_date": None
     }
 
+
 @staticmethod
 def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
     return {
@@ -80,6 +88,7 @@ def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
         "short_description": data.get("long_desc", None)
     }
 
+
 @staticmethod
 def fsbid_codes_to_talentmap_codes(data):
     return {
@@ -89,6 +98,7 @@ def fsbid_codes_to_talentmap_codes(data):
         "description": data.get("skill_descr", None)
     }
 
+
 @staticmethod
 def fsbid_codes_to_talentmap_cones(data):
     return {
@@ -97,6 +107,7 @@ def fsbid_codes_to_talentmap_cones(data):
         "category": data.get("jc_nm_txt", None),
         "description": data.get("skill_descr", None)
     }
+
 
 @staticmethod
 def fsbid_locations_to_talentmap_locations(data):
@@ -108,6 +119,7 @@ def fsbid_locations_to_talentmap_locations(data):
         "is_domestic": data.get("is_domestic", None) == 1,
     }
 
+
 @staticmethod
 def fsbid_classifications_to_talentmap_classifications(data):
     return {
@@ -116,6 +128,7 @@ def fsbid_classifications_to_talentmap_classifications(data):
         "disabled_ind": data.get("disabled_ind", "N") == "Y"
     }
 
+
 @staticmethod
 def fsbid_post_indicators_to_talentmap_indicators(data):
     return {
@@ -123,12 +136,14 @@ def fsbid_post_indicators_to_talentmap_indicators(data):
         "description": data.get("bt_column_desc", None)
     }
 
+
 @staticmethod
 def fsbid_us_to_talentmap_us(data):
     return {
         "code": data.get("us_code", None),
         "description": data.get("us_desc_text", None)
     }
+
 
 @staticmethod
 def fsbid_commuter_posts_to_talentmap_commuter_posts(data):

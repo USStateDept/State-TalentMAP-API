@@ -1,27 +1,31 @@
-import requests
 import re
 import logging
 import csv
 from datetime import datetime
-import maya
-
-from urllib.parse import urlencode
-
-from rest_framework.response import Response
-from rest_framework import status
+import requests
 
 from django.conf import settings
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.http import QueryDict
+
+import maya
 
 from talentmap_api.organization.models import Post, Organization, OrganizationGroup
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
+from talentmap_api.available_positions.models import AvailablePositionFavorite
+from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
+from talentmap_api.available_tandem.models import AvailableFavoriteTandem
+from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
+from talentmap_api.fsbid.services import available_positions as apservices
+from talentmap_api.fsbid.services import projected_vacancies as pvservices
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -67,6 +71,7 @@ def parseLanguage(lang):
             language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
             return language
 
+
 def parseLanguagesString(lang):
     '''
     Parses a language dictionary and turns it into a comma seperated string of languages
@@ -81,6 +86,7 @@ def parseLanguagesString(lang):
 
         return lang_str
 
+
 def post_values(query):
     '''
     Handles mapping locations and groups of locations to FSBid expected params
@@ -92,13 +98,13 @@ def post_values(query):
         return results
 
 
-def bureau_values(query, isTandem = False):
+def bureau_values(query, isTandem=False):
     '''
     Gets the ids for the functional/regional bureaus and maps to codes and their children
     '''
     org = "org_has_groups"
     bureau = "position__bureau__code__in"
-    if (isTandem):
+    if isTandem:
         org = "org_has_groups-tandem"
         bureau = "position__bureau__code__in-tandem"
 
@@ -144,6 +150,7 @@ sort_dict = {
     "client_first_name": "per_first_name",
     "location": "location_city",
     "commuterPost": "cpn_desc",
+    "tandem": "tandem_nbr",
 }
 
 
@@ -170,9 +177,10 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
         return None
     return list(map(mapping_function, response.get("Data", {})))
 
+
 def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     url = f"{API_ROOT}/{uri}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json() # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
@@ -213,13 +221,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
-    if uri in ('CDOClients'):
+    if uri in 'CDOClients':
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
     url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
+
 
 def get_obc_id(post_id):
 
@@ -229,6 +238,7 @@ def get_obc_id(post_id):
             return p.obc_id
 
     return None
+
 
 def get_post_overview_url(post_id):
     obc_id = get_obc_id(post_id)
@@ -240,6 +250,7 @@ def get_post_overview_url(post_id):
     else:
         return None
 
+
 def get_post_bidding_considerations_url(post_id):
     obc_id = get_obc_id(post_id)
     if obc_id:
@@ -250,15 +261,16 @@ def get_post_bidding_considerations_url(post_id):
     else:
         return None
 
+
 def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
     Gets items from FSBid
     '''
     formattedQuery = query
     formattedQuery._mutable = True
-    if (ad_id != None):
+    if ad_id is not None:
         formattedQuery['ad_id'] = ad_id
-    if (limit != None):
+    if limit is not None:
         formattedQuery['limit'] = limit
     logger.info(query_mapping_function(formattedQuery))
     url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
@@ -269,6 +281,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         return None
 
     return map(mapping_function, response.get("Data", {}))
+
 
 def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
@@ -281,7 +294,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     # write the headers
     headers = []
     headers.append(smart_str(u"Position"))
-    if tandem: headers.append(smart_str(u"Tandem"))
+    if tandem:
+        headers.append(smart_str(u"Tandem"))
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Bureau"))
@@ -289,14 +303,17 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
-    if ap: headers.append(smart_str(u"Service Needs Differential"))
+    if ap:
+        headers.append(smart_str(u"Service Needs Differential"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle/Season"))
-    if ap: headers.append(smart_str(u"Posted Date"))
-    if ap: headers.append(smart_str(u"Status Code"))
+    if ap:
+        headers.append(smart_str(u"Posted Date"))
+    if ap:
+        headers.append(smart_str(u"Status Code"))
     headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
@@ -313,7 +330,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
         row = []
         row.append(smart_str(record["position"]["title"]))
-        if tandem: row.append(smart_str(record.get("tandem_nbr")))
+        if tandem:
+            row.append(smart_str(record.get("tandem_nbr")))
         row.append(smart_str(record["position"]["skill"]))
         row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
         row.append(smart_str(record["position"]["bureau"]))
@@ -321,19 +339,23 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["post"]["location"]["country"]))
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
-        if ap: row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+        if ap:
+            row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
         row.append(smart_str(record["bidcycle"]["name"]))
-        if ap: row.append(posteddate)
-        if ap: row.append(smart_str(record.get("status_code")))
+        if ap:
+            row.append(posteddate)
+        if ap:
+            row.append(smart_str(record.get("status_code")))
         row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
     return response
+
 
 def get_bids_csv(data, filename, jwt_token):
     from talentmap_api.fsbid.services.available_positions import get_all_position
@@ -395,3 +417,30 @@ def get_bids_csv(data, filename, jwt_token):
 
             writer.writerow(row)
     return response
+
+
+def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
+    fav_length = len(ids)
+    if fav_length >= favoritesLimit or fav_length == round(favoritesLimit / 2):
+        # Pos nums is string to pass correctly to services url
+        pos_nums = ','.join(ids)
+        # List favs is list of integers instead of strings for comparison
+        list_favs = list(map(lambda x: int(x), ids))
+        # Ids from fsbid that are returned
+        if isPV:
+            returned_ids = pvservices.get_pv_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        else:
+            returned_ids = apservices.get_ap_favorite_ids(QueryDict(f"id={pos_nums}&limit=999999&page=1"), request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        # Need to determine which ids need to be archived using comparison of lists above
+        outdated_ids = []
+        if isinstance(returned_ids, list):
+            for fav_id in list_favs:
+                if fav_id not in returned_ids:
+                    outdated_ids.append(fav_id)
+            if len(outdated_ids) > 0:
+                if isPV:
+                    ProjectedVacancyFavorite.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+                    ProjectedFavoriteTandem.objects.filter(fv_seq_num__in=outdated_ids).update(archived=True)
+                else:
+                    AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+                    AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)

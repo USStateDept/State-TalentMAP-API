@@ -2,11 +2,11 @@
 This file contains a variety of helper functions for data synchronization
 '''
 
-from requests import Session
-
 import logging
 import os
 import re
+
+from requests import Session
 
 import zeep
 from zeep.transports import Transport
@@ -60,7 +60,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
             parser = ET._etree.XMLParser(recover=True)
 
             # Load the soap integration test data for that request name
-            xml = os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'soap_integration', f'empty.xml')
+            xml = os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'soap_integration', 'empty.xml')
             if paginationstartkey == "":
                 xml = os.path.join(settings.BASE_DIR, 'talentmap_api', 'data', 'test_data', 'soap_integration', f'{requestname}.xml')
 
@@ -92,7 +92,7 @@ def get_soap_client(cert=None, soap_function="", test=False):
             logger.info(f'Setting SSL verification cert to {cert}')
             session.verify = cert
         else:
-            logger.info(f'Ignoring self-signed certification errors.')
+            logger.info('Ignoring self-signed certification errors.')
             session.verify = False
         transport = Transport(session=session)
 

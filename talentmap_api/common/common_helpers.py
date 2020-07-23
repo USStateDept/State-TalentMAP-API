@@ -5,12 +5,12 @@ import re
 from pydoc import locate
 
 from dateutil.relativedelta import relativedelta
-from dateutil import parser, tz
+from dateutil import parser
 
 from django.contrib.auth.models import Group, Permission
 from django.urls import resolve
 from django.http import QueryDict
-from django.utils.six.moves.urllib.parse import urlparse
+from django.utils.six.moves.urllib.parse import urlparse  # pylint: disable=import-error
 from django.utils.datastructures import MultiValueDict
 
 from django.core.exceptions import FieldError, ValidationError, PermissionDenied
@@ -267,6 +267,7 @@ def get_filtered_queryset(filter_class, filters):
 
     return queryset
 
+
 def format_filter(filters):
     new_filters = MultiValueDict()
 
@@ -279,6 +280,7 @@ def format_filter(filters):
     query_params = QueryDict('', mutable=True)
     query_params.update(new_filters)
     return query_params
+
 
 def get_permission_by_name(name):
     '''
@@ -327,7 +329,7 @@ def in_group_or_403(user, group_name):
     '''
     try:
         group = get_group_by_name(group_name)
-    except:
+    except BaseException:
         raise PermissionDenied
     if group not in user.groups.all():
         raise PermissionDenied
@@ -358,7 +360,7 @@ def in_superuser_group(user):
     try:
         group = get_group_by_name("superuser")
         return group in user.groups.all()
-    except:
+    except BaseException:
         return False
 
 
@@ -421,6 +423,7 @@ def serialize_instance(instance, serializer_string, many=False):
     '''
     return locate(serializer_string)(instance, many=many).data
 
+
 def get_avatar_url(email):
     '''
     Generates the URLs for the user's profile picture,
@@ -436,17 +439,19 @@ def get_avatar_url(email):
     else:
         return {}
 
+
 def prep_string_for_list(str_val):
     '''
     preps a string to split on commas
     # '   ok , hi, bonjour foo , ok    bar, ' converts  to 'ok,hi,bonjour,foo,ok,bar'
     '''
     # Replace all white-space characters with a comma:
-    str_val_one = re.sub("\s", ",", str_val)
+    str_val_one = re.sub(r"\s", ",", str_val)
     # Remove commas from the start and end of string:
     str_val_two = str_val_one.strip(',')
     # Replace multiple commas with one
     return re.sub(",+", ",", str_val_two)
+
 
 def validate_values(query_val, accepted_values):
     '''
@@ -457,7 +462,7 @@ def validate_values(query_val, accepted_values):
     validated_list = []
 
     for val in query_val_list:
-        if (val.upper() in accepted_values_upper):
+        if val.upper() in accepted_values_upper:
             validated_list.append(val.upper())
 
     validated_list = list(set(validated_list))

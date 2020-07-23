@@ -49,12 +49,14 @@ urlpatterns = [
     url(r'^api/v1/fsbid/reference/', include('talentmap_api.fsbid.urls.reference')),
     url(r'^api/v1/fsbid/cdo/', include('talentmap_api.fsbid.urls.cdo')),
     url(r'^api/v1/fsbid/client/', include('talentmap_api.fsbid.urls.client')),
-    
+
     # Projected Vacancies
     url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
-    
+    url(r'^api/v1/projected_vacancy/tandem/', include('talentmap_api.projected_tandem.urls.projected_tandem')),
+
     # Available Positions
     url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
+    url(r'^api/v1/available_position/tandem/', include('talentmap_api.available_tandem.urls.available_tandem')),
 
     # Language and language related resources
     url(r'^api/v1/language/', include('talentmap_api.language.urls.languages')),
@@ -90,6 +92,9 @@ urlpatterns = [
 
     # Data sync services
     url(r'^api/v1/data_sync/', include('talentmap_api.integrations.urls.data_sync_actions')),
+
+    # Feature Flags
+    url(r'^api/v1/featureflags/', include('talentmap_api.feature_flags.urls.featureflags')),
 
     # Log viewing
     url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),

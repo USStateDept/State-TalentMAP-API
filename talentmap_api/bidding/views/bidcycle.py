@@ -1,3 +1,4 @@
+import logging
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.views import APIView
@@ -18,7 +19,6 @@ from talentmap_api.bidding.filters import BidCycleFilter
 from talentmap_api.bidding.serializers.serializers import BidCycleSerializer, BidCycleStatisticsSerializer
 from talentmap_api.user_profile.models import SavedSearch
 
-import logging
 logger = logging.getLogger(__name__)
 
 

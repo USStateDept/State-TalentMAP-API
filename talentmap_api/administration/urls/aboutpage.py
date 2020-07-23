@@ -7,7 +7,7 @@ from talentmap_api.administration.views import aboutpage as views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-  url(r'^$', views.AboutPageView.as_view({**get_retrieve, ** patch_update}), name='administration.aboutpage'),
+    url(r'^$', views.AboutPageView.as_view({**get_retrieve, ** patch_update}), name='administration.aboutpage'),
 ]
 
 urlpatterns += router.urls

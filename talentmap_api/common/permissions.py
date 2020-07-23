@@ -13,7 +13,7 @@ def isDjangoGroupMember(group_name):
             try:
                 in_superuser_group(request.user) or in_group_or_403(request.user, group_name)
                 return True
-            except:
+            except BaseException:
                 return False
 
     return IsDjangoGroupMember
@@ -31,7 +31,7 @@ def isDjangoGroupMemberOrReadOnly(group_name):
             try:
                 in_superuser_group(request.user) or in_group_or_403(request.user, group_name)
                 return True
-            except:
-                return (request.method in permissions.SAFE_METHODS)
+            except BaseException:
+                return request.method in permissions.SAFE_METHODS
 
     return IsDjangoGroupMemberOrReadOnly

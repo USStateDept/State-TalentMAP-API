@@ -1,7 +1,6 @@
+from unittest.mock import Mock, patch
 import pytest
 from model_mommy import mommy
-from unittest.mock import Mock, patch
-from rest_framework import status
 
 bs = {
     "bsn_id": "1",
@@ -12,6 +11,7 @@ bs = {
 }
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
+
 
 @pytest.fixture
 def test_bidder_fixture(authorized_user):
@@ -24,6 +24,6 @@ def test_bidder_fixture(authorized_user):
 def test_bid_seasons_actions(authorized_client, authorized_user):
     with patch('talentmap_api.fsbid.services.bid_season.requests.get') as mock_get:
         mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = { "Data": [bs], "return_code": 0 }
+        mock_get.return_value.json.return_value = {"Data": [bs], "return_code": 0}
         response = authorized_client.get('/api/v1/fsbid/bid_seasons/', HTTP_JWT=fake_jwt)
         assert response.json()[0]['id'] == [bs][0]['bsn_id']
