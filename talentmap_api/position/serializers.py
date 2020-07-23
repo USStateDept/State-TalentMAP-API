@@ -82,7 +82,7 @@ class PositionListSerializer(PrefetchedSerializer):
     class Meta:
         model = Position
         fields = ["id", "grade", "skill", "bureau", "organization", "tour_of_duty", "languages", "post",
-                  "position_number",  "posted_date", "title", "availability"]
+                  "position_number", "posted_date", "title", "availability"]
         nested = {
             "description": {
                 "class": CapsuleDescriptionSerializer,
@@ -202,6 +202,7 @@ class PositionSerializer(PrefetchedSerializer):
                 }
             },
         }
+
 
 class GradeSerializer(PrefetchedSerializer):
 

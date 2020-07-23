@@ -1,6 +1,5 @@
-from django.db import models
-
 import logging
+from django.db import models
 
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import LANGUAGE_FORMAL_NAMES
@@ -130,7 +129,7 @@ class Qualification(StaticRepresentationModel):
         spoken_proficiency = Proficiency.objects.filter(code=spoken_proficiency_code)
 
         if language.count() != 1 or reading_proficiency.count() != 1 or spoken_proficiency.count() != 1:
-            logging.getLogger(__name__).warn(f"Tried to create language qualification, but failed: {language_code} ({language.count()}) {reading_proficiency_code} ({reading_proficiency.count()}) {spoken_proficiency_code} ({spoken_proficiency.count()})")
+            logging.getLogger(__name__).warn(f"Lang qual failed: {language_code} ({language.count()}) {reading_proficiency_code}({reading_proficiency.count()}) {spoken_proficiency_code}({spoken_proficiency.count()})")
             return None, False
 
         return Qualification.objects.get_or_create(language=language.first(), reading_proficiency=reading_proficiency.first(), spoken_proficiency=spoken_proficiency.first())

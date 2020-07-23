@@ -1,19 +1,12 @@
+import logging
 import coreapi
 
-from dateutil.relativedelta import relativedelta
-
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
 
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 
@@ -21,7 +14,6 @@ import talentmap_api.fsbid.services.available_positions as services
 
 from talentmap_api.common.common_helpers import in_superuser_group
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -31,21 +23,27 @@ class FSBidAvailablePositionsListView(BaseView):
     filter_class = AvailablePositionsFilter
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("position__post__in", location='query', description='Post id'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
-            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
-            coreapi.Field("id", location="query", description="Available Position ids"),
-            coreapi.Field("q", location='query', description='Text search'),
+            # Pagination
+            coreapi.Field("ordering", location='query', description='Ordering'),
+            coreapi.Field("page", location='query', description='Page Index'),
+            coreapi.Field("limit", location='query', description='Page Limit'),
+
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
+            coreapi.Field("id", location="query", description="Available Position ids"),
+            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
+            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
+            coreapi.Field("language_codes", location='query', description='Language code'),
+            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__code__in", location='query', description='Post id'),
+            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("q", location='query', description='Text search'),
         ]
     )
 
@@ -55,42 +53,51 @@ class FSBidAvailablePositionsListView(BaseView):
         '''
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
     schema = AutoSchema(
         manual_fields=[
+            # Pagination
+            coreapi.Field("ordering", location='query', description='Ordering'),
+            coreapi.Field("page", location='query', description='Page Index'),
+            coreapi.Field("limit", location='query', description='Page Limit'),
+
+            coreapi.Field("getCount", location='query', description='Results Count'),
+
             # Tandem 1
-            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
-            coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
+            coreapi.Field("id", location="query", description="Available Position ids"),
+            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
+            coreapi.Field("language_codes", location='query', description='Language code'),
+            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code - tandem'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
 
             # Common
             coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("position__post__in", location='query', description='Post id'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__post__code__in", location='query', description='Post id'),
+            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("q", location='query', description='Text search'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("position__cpn_codes__in", location='query', description='Use code values from /references/commuterposts/'),
+            coreapi.Field("q", location='query', description='Text search'),
 
             # Tandem 2
-            # Exclude post, post differentials, is_domestic
-            coreapi.Field("is_available_in_bidcycle-tandem", location='query', description='Bid Cycle id - tandem'),
-            coreapi.Field("position__skill__code__in-tandem", location='query', description='Skill Code - tandem'),
-            coreapi.Field("position__grade__code__in-tandem", location='query', description='Grade Code - tandem'),
-            coreapi.Field("position__bureau__code__in-tandem", location='query', description='Bureau Code - tandem'),
-            coreapi.Field("position__post__tour_of_duty__code__in-tandem", location='query', description='TOD code - tandem'),
-            coreapi.Field("language_codes-tandem", location='query', description='Language code - tandem'),
-            coreapi.Field("id-tandem", location="query", description="Available Position ids - tandem"),
-            coreapi.Field("q-tandem", location='query', description='Text search - tandem'),
             coreapi.Field("cps_codes-tandem", location='query', description='Handshake status (HS,OP) - tandem'),
+            coreapi.Field("id-tandem", location="query", description="Available Position ids - tandem"),
+            coreapi.Field("is_available_in_bidcycle-tandem", location='query', description='Bid Cycle id - tandem'),
+            coreapi.Field("language_codes-tandem", location='query', description='Language code - tandem'),
+            coreapi.Field("position__bureau__code__in-tandem", location='query', description='Bureau Code - tandem'),
+            coreapi.Field("position__grade__code__in-tandem", location='query', description='Grade Code - tandem'),
+            coreapi.Field("position__position_number__in-tandem", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__tour_of_duty__code__in-tandem", location='query', description='TOD code - tandem'),
+            coreapi.Field("position__skill__code__in-tandem", location='query', description='Skill Code - tandem'),
         ]
     )
 
@@ -99,6 +106,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
         Gets all tandem available positions
         '''
         return Response(services.get_available_positions_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+
 
 class FSBidAvailablePositionsCSVView(BaseView):
 
@@ -117,6 +125,23 @@ class FSBidAvailablePositionsCSVView(BaseView):
         return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
 
+class FSBidAvailablePositionsTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets all tandem available positions
+        '''
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_available_positions_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
+
 class FSBidAvailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -131,6 +156,7 @@ class FSBidAvailablePositionView(BaseView):
 
         return Response(result)
 
+
 class FSBidUnavailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -144,6 +170,7 @@ class FSBidUnavailablePositionView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
 
 class FSBidAvailablePositionsSimilarView(BaseView):
 

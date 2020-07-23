@@ -21,7 +21,7 @@ def test_bidlist_fixture():
     for i in range(5):
         position = mommy.make('position.Position', post=post)
         bidcycle.positions.add(position)
-    
+
 
 @pytest.fixture
 def test_bidder_fixture(authorized_user):
@@ -33,7 +33,7 @@ def test_bidder_fixture(authorized_user):
 def test_can_accept_new_bids_function(authorized_client, authorized_user, test_bidlist_fixture):
     active_cycle = BidCycle.objects.first()
     nonactive_cycle = mommy.make(BidCycle, id=2, active=False)
-    
+
     in_cycle_position = CyclePosition.objects.filter(bidcycle=active_cycle).first()
     out_of_cycle_position = mommy.make('bidding.CyclePosition', bidcycle=nonactive_cycle)
 
@@ -41,6 +41,7 @@ def test_can_accept_new_bids_function(authorized_client, authorized_user, test_b
     assert not out_of_cycle_position.position.can_accept_new_bids(active_cycle)[0]
 
     assert not in_cycle_position.position.can_accept_new_bids(nonactive_cycle)[0]
+
 
 @skip('Cycle position model complicates this')
 @pytest.mark.django_db(transaction=True)

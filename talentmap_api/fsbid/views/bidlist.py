@@ -1,10 +1,5 @@
-from dateutil.relativedelta import relativedelta
+import logging
 
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
@@ -16,7 +11,6 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 
 import talentmap_api.fsbid.services.bid as services
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +27,8 @@ class FSBidListView(APIView):
         Gets all bids for the current user
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        return Response({ "results": services.user_bids(user.emp_id, request.META['HTTP_JWT'])})
+        return Response({"results": services.user_bids(user.emp_id, request.META['HTTP_JWT'])})
+
 
 class FSBidBidListCSVView(APIView):
 

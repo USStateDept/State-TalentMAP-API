@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class HomepageBanner(models.Model):
     '''
     The banner for the homepage

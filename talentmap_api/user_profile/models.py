@@ -1,16 +1,13 @@
-from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 
 from dateutil.relativedelta import relativedelta
 
-from django.contrib.postgres.fields import JSONField
-
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter, get_avatar_url
-from talentmap_api.common.decorators import respect_instance_signalling
 from talentmap_api.common.permissions import in_group_or_403
 
 from talentmap_api.messaging.models import Notification
@@ -29,8 +26,6 @@ class UserProfile(StaticRepresentationModel):
     skills = models.ManyToManyField('position.Skill')
 
     grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)
-
-    favorite_positions = models.ManyToManyField('bidding.CyclePosition', related_name='favorited_by_users', help_text="Cycle Positions which this user has designated as a favorite")
 
     primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
     secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
@@ -91,7 +86,7 @@ class UserProfile(StaticRepresentationModel):
         try:
             in_group_or_403(self.user, 'cdo')
             return True
-        except:
+        except BaseException:
             return False
 
     class Meta:
@@ -136,7 +131,6 @@ class SavedSearch(models.Model):
             count = int(filter_class.get_count(query_params, jwt_token).get('count', 0))
         else:
             count = self.get_queryset().count()
-
 
         if self.count != count:
             # Create a notification for this saved search's owner if the amount has increased

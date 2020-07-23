@@ -84,6 +84,7 @@ def test_client_statistics(authorized_client, authorized_user, test_clients_fixt
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 9
 
+
 @pytest.mark.django_db(transaction=True)
 def test_client_list(authorized_client, authorized_user, test_clients_fixture):
     response = authorized_client.get('/api/v1/client/')
@@ -96,34 +97,6 @@ def test_client_list(authorized_client, authorized_user, test_clients_fixture):
 def test_client_retrieve(authorized_client, authorized_user, test_clients_fixture):
     client_id = authorized_user.profile.direct_reports.first().id
     response = authorized_client.get(f'/api/v1/client/{client_id}/')
-
-    assert response.status_code == status.HTTP_200_OK
-
-
-@pytest.mark.django_db(transaction=True)
-def test_client_bid_counts(authorized_client, authorized_user, test_clients_fixture):
-    client = authorized_user.profile.direct_reports.first()
-
-    position = mommy.make('position.Position')
-    bidcycle = mommy.make('bidding.BidCycle', active=True)
-    bidcycle.positions.add(position)
-    cp = mommy.make('bidding.CyclePosition', bidcycle=bidcycle, position=position)
-
-    statuses = list(Bid.Status.choices)
-
-    status_counts = list(zip(range(1, len(statuses) + 1), statuses))
-
-    for item in status_counts:
-        mommy.make('bidding.Bid', bidcycle=bidcycle, position=cp, user=client, status=item[1][0], _quantity=item[0])
-
-    expected_counts = {x[1][1]: x[0] for x in status_counts}
-
-    # Delete a random bid
-    random_bid = Bid.objects.all().order_by('?').first()
-    expected_counts[random_bid.status] = expected_counts[random_bid.status] - 1
-    random_bid.delete()
-
-    response = authorized_client.get(f'/api/v1/client/{client.id}/')
 
     assert response.status_code == status.HTTP_200_OK
 

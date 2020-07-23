@@ -46,7 +46,6 @@ class Migration(migrations.Migration):
                 ('mandatory_retirement_date', models.DateField(null=True)),
                 ('phone_number', models.TextField(null=True)),
                 ('cdo', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='direct_reports', to='user_profile.UserProfile')),
-                ('favorite_positions', models.ManyToManyField(help_text='Positions which this user has designated as a favorite', related_name='favorited_by_users', to='position.Position')),
                 ('grade', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='position.Grade')),
                 ('language_qualifications', models.ManyToManyField(related_name='qualified_users', to='language.Qualification')),
                 ('primary_nationality', models.ForeignKey(help_text="The user's primary country of citizenship", null=True, on_delete=django.db.models.deletion.CASCADE, related_name='primary_citizens', to='organization.Country')),

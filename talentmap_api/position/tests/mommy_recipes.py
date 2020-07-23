@@ -49,14 +49,6 @@ def cycle_position(*args, **kwargs):
     cycle = mommy.make(BidCycle, active=True)
     return mommy.make(CyclePosition, position=pos, bidcycle=cycle)
 
-def favorite_position():
-    pos = mommy.make(Position)
-    pos.classifications.add(mommy.make(Classification))
-    up = UserProfile.objects.last()
-    cp = mommy.make(CyclePosition, position=pos)
-    up.favorite_positions.add(cp)
-    up.save()
-    return cp
 
 
 def highlighted_position():

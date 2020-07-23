@@ -95,7 +95,7 @@ def test_soap_job_functions():
 
     job.refresh_from_db()
     assert job.last_synchronization == ensure_date("1975-01-01T00:00:00Z")
-        
+
     job.running = False
     job.save()
 
@@ -104,6 +104,7 @@ def test_soap_job_functions():
     job.refresh_from_db()
     assert job.running == False
 
+
 @pytest.mark.django_db(transaction=True)
 def test_soap_job_tasks():
     task = SynchronizationTask()
@@ -111,6 +112,7 @@ def test_soap_job_tasks():
     task.save()
 
     assert task.priority == 0
+
 
 @pytest.mark.django_db(transaction=True)
 def test_soap_bidcycle_active():
@@ -136,6 +138,7 @@ def test_soap_bidcycle_active():
 
     assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status == 'OP'
     assert CyclePosition.objects.filter(bidcycle=closing_bidcycle).first().status_code == 'OP'
+
 
 @pytest.mark.django_db(transaction=True)
 def test_soap_bidcycle_close():

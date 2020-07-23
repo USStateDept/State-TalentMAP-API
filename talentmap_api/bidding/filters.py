@@ -7,6 +7,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.position.models import Position
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, INTEGER_LOOKUPS, FOREIGN_KEY_LOOKUPS, NumberInFilter
 
+
 class BidCycleFilter(filters.FilterSet):
 
     class Meta:
@@ -135,7 +136,7 @@ class CyclePositionFilter(filters.FilterSet):
         Returns a queryset of all positions who are in the specified bidcycle(s)
         '''
         return queryset.filter(bidcycle_id__in=value.split(','), bidcycle__active=True, status_code__in=["OP", "HS"])
-    
+
     class Meta:
         model = CyclePosition
         fields = "__all__"
