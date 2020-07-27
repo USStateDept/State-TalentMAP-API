@@ -25,7 +25,16 @@ from talentmap_api.fsbid.services import projected_vacancies as pvservices
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+HRDATA_URL = settings.HRDATA_URL
+HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+
+def get_employee_profile_urls(clientid):
+    suffix = f"Employees/{clientid}/EmployeeProfileReportByCDO"
+    return {
+        "internal": f"{HRDATA_URL}/{suffix}",
+        "external": f"{HRDATA_URL_EXTERNAL}/{suffix}",
+    }
 
 
 def get_pagination(query, count, base_url, host=None):
