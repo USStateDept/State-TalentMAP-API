@@ -228,7 +228,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": services.get_employee_profile_urls(employee.get("pert_external_id", None)),
+        "employee_profile_url": services.get_employee_profile_urls(employee.get("perdet_seq_num", None)),
     }
 
 
