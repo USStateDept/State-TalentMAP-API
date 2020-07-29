@@ -7,7 +7,7 @@ from rest_framework.schemas import AutoSchema
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.fsbid.filters import AvailablePositionsFilter
+from talentmap_api.fsbid.filters import BureauPositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 
 import talentmap_api.fsbid.services.bureau as services
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class FSBidBureauPositionsListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_class = AvailablePositionsFilter
+    filter_class = BureauPositionsFilter
     schema = AutoSchema(
         manual_fields=[
             # Pagination
@@ -26,7 +26,7 @@ class FSBidBureauPositionsListView(BaseView):
             coreapi.Field("page", location='query', description='Page Index'),
             coreapi.Field("limit", location='query', description='Page Limit'),
 
-            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
+            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP,FP)'),
             coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
             coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
@@ -55,7 +55,7 @@ class FSBidBureauPositionsListView(BaseView):
 class FSBidBureauPositionsCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_class = AvailablePositionsFilter
+    filter_class = BureauPositionsFilter
 
     def get(self, request, *args, **kwargs):
         '''
