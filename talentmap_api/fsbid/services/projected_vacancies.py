@@ -229,6 +229,7 @@ def convert_pv_query(query, isTandem=False):
         f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
         f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
         f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         f"{prefix}freeText": query.get("q", None),
     }
 
@@ -246,6 +247,7 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
         values[f"{prefix}post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
         values[f"{prefix}us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values[f"{prefix}cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
         values[f"{prefix}freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
