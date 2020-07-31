@@ -493,6 +493,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
+HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://localhost:3333/HR')
+HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://localhost:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
