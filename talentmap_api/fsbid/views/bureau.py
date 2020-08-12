@@ -79,3 +79,24 @@ class FSBidBureauPositionView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
+
+class FSBidBureauPositionBidsView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = BureauPositionsFilter
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("ordering", location='query', description='Ordering'),
+        ]
+    )
+
+    def get(self, request, pk):
+        '''
+        Gets a bureau position's bids
+        '''
+        result = services.get_bureau_position_bids(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        if result is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(result)

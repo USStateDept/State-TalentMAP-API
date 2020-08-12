@@ -1,5 +1,7 @@
 import logging
 from urllib.parse import urlencode, quote
+from functools import partial
+from copy import deepcopy
 
 import requests  # pylint: disable=unused-import
 
@@ -8,6 +10,7 @@ from django.conf import settings
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.cdo as cdoservices
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +69,48 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
     response = services.get_ap_and_pv_csv(data, "available_positions", True)
     return response
 
+
+def get_bureau_position_bids(id, query, jwt_token, host):
+    '''
+    Gets all bids on an indivdual bureau position by id
+    '''
+    new_query = deepcopy(query)
+    new_query["id"] = id
+    return services.get_results(
+        "cyclePositions/bidders",
+        new_query,
+        convert_bp_bids_query,
+        jwt_token,
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+    )
+
+
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
+    '''
+    Formats the response bureau position bids from FSBid
+    '''
+
+    cdo = None
+    emp_id = bid.get("perdet_seq_num", None)
+    if emp_id is not None:
+        cdo = cdoservices.single_cdo(jwt, emp_id)
+
+    hasHandShakeOffered = False
+    if bid.get("handshake_code", None) == "HS":
+        hasHandShakeOffered = True
+    ted = ensure_date(bid.get("TED", None), utc_offset=-5)
+    return {
+        "emp_id": emp_id,
+        "name": bid.get("full_name"),
+        "grade": bid.get("grade_code"),
+        "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
+        "skill_code": bid.get("skill_code", None),
+        "language": bid.get("language_txt", None),
+        "ted": ted,
+        "has_handshake_offered": hasHandShakeOffered,
+        "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
+        "cdo": cdo,
+    }
 
 
 def fsbid_bureau_positions_to_talentmap(bp):
@@ -219,6 +264,18 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
         "request_params.get_count": query.get("getCount", 'false'),
+    }
+
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+
+def convert_bp_bids_query(query):
+    '''
+    Converts TalentMap filters into FSBid filters
+    '''
+    values = {
+        "cp_id": query.get("id", None),
+        "order_by": services.sorting_values(query.get("ordering", None)),
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
