@@ -15,6 +15,7 @@ import talentmap_api.fsbid.services.cdo as cdoservices
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+CP_API_ROOT = settings.CP_API_URL
 
 
 def get_bureau_position(id, jwt_token):
@@ -77,11 +78,12 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     new_query = deepcopy(query)
     new_query["id"] = id
     return services.get_results(
-        "cyclePositions/bidders",
+        "bidders",
         new_query,
         convert_bp_bids_query,
         jwt_token,
         partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        CP_API_ROOT,
     )
 
 
@@ -274,9 +276,11 @@ def convert_bp_bids_query(query):
     Converts TalentMap filters into FSBid filters
     '''
     values = {
-        "cp_id": query.get("id", None),
-        "order_by": services.sorting_values(query.get("ordering", None)),
-        "handshake_code": query.get("handshake_code", None)
+        "request_params.cp_id": query.get("id", None),
+        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.handshake_code": query.get("handshake_code", None),
+        "request_params.page_size": 500,
+        "request_params.page_index": 1,
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
