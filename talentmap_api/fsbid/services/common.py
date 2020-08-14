@@ -160,6 +160,9 @@ sort_dict = {
     "location": "location_city",
     "commuterPost": "cpn_desc",
     "tandem": "tandem_nbr",
+    "bidder_grade": "grade_code",
+    "bidder_skill": "skill_desc",
+    "bidder_hs": "handshake_code",
 }
 
 

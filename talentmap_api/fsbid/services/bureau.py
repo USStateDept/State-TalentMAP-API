@@ -276,6 +276,7 @@ def convert_bp_bids_query(query):
     values = {
         "cp_id": query.get("id", None),
         "order_by": services.sorting_values(query.get("ordering", None)),
+        "handshake_code": query.get("handshake_code", None)
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
