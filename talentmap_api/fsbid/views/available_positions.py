@@ -1,5 +1,7 @@
 import logging
 import coreapi
+import math
+import random
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
@@ -181,3 +183,29 @@ class FSBidAvailablePositionsSimilarView(BaseView):
         Gets similar available positions to the position provided
         '''
         return Response(services.get_similar_available_positions(pk, request.META['HTTP_JWT']))
+
+
+class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets a random set of 3 featured positions
+        '''
+
+        count = services.get_available_positions_count(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")["count"]
+
+        if count is 0:
+            return Response({})
+
+        pageLimit = int(request.query_params["limit"])
+        randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
+
+        if not request.GET._mutable:
+            request.GET._mutable = True
+
+        request.query_params["page"] = str(randomPage)
+        request.GET._mutable = False
+
+        return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
