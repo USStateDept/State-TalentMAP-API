@@ -200,7 +200,7 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
             return Response({})
 
         pageLimit = int(request.query_params["limit"])
-        randomPage = random.randint(1, math.ceil(count / pageLimit))
+        randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
 
         if not request.GET._mutable:
             request.GET._mutable = True
