@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class FSBidAvailablePositionsListView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
     schema = AutoSchema(
@@ -56,6 +57,7 @@ class FSBidAvailablePositionsListView(BaseView):
 
 
 class FSBidAvailablePositionsTandemListView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
     schema = AutoSchema(
@@ -109,6 +111,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
 
 
 class FSBidAvailablePositionsCSVView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
 
@@ -125,6 +128,7 @@ class FSBidAvailablePositionsCSVView(BaseView):
 
 
 class FSBidAvailablePositionsTandemCSVView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
 
@@ -141,6 +145,7 @@ class FSBidAvailablePositionsTandemCSVView(BaseView):
 
 
 class FSBidAvailablePositionView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -155,6 +160,7 @@ class FSBidAvailablePositionView(BaseView):
 
 
 class FSBidUnavailablePositionView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -169,6 +175,7 @@ class FSBidUnavailablePositionView(BaseView):
 
 
 class FSBidAvailablePositionsSimilarView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, pk):
@@ -179,6 +186,7 @@ class FSBidAvailablePositionsSimilarView(BaseView):
 
 
 class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
