@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^tandem/$', views.FSBidAvailablePositionsTandemListView.as_view(), name="available-positions-FSBid-available-positions-actions"),
     url(r'^tandem/export/$', views.FSBidAvailablePositionsTandemCSVView.as_view(), name="available-positions-FSBid-available-positions-actions"),
     url(r'^$', views.FSBidAvailablePositionsListView.as_view(), name="available-positions-FSBid-available-positions-actions"),
+    url(r'^featuredPositions/$', views.FSBidAvailablePositionsFeaturedPositionsView.as_view(), name="available-positions-FSBid-available-positions-featured-positions"),
 ]
 
 urlpatterns += router.urls
