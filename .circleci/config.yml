@@ -95,7 +95,7 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            sleep 3m
+            sleep 18m
             ./wait-for-oracle.sh 127.0.0.1:1521/talentmap sys talentmap 'as sysdba'
             echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/talentmap@//127.0.0.1/talentmap as sysdba @create-oracle-user.sql
       - run:
@@ -110,8 +110,8 @@ jobs:
           environment:
             # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
             DATABASE_URL: 127.0.0.1:1521/talentmappdb
-            DATABASE_USER: talentmap
-            DATABASE_PW: talentmap
+            DATABASE_USER: talentmap1
+            DATABASE_PW: talentmap1
             DJANGO_LOG_DIRECTORY: ./
       - run: ./cc-test-reporter after-build -t coverage.py --exit-code $?
       - store_artifacts:
