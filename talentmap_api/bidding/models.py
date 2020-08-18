@@ -212,6 +212,7 @@ class Bid(StaticRepresentationModel):
         declined = ChoiceItem("declined")
         closed = ChoiceItem("closed")
         handshake_needs_registered = ChoiceItem("handshake_needs_registered", "handshake_needs_registered")
+        handshake_registered = ChoiceItem("handshake_registered", "handshake_registered")
 
     status = models.TextField(default=Status.draft, choices=Status.choices)
 
