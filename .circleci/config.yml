@@ -8,9 +8,6 @@ default-python-node: &default-python-node
     DJANGO_SECRET_KEY: ci_secret_key
 default-oracle-node: &default-oracle-node
   image: banglamon/oracle193db:19.3.0-ee
-  auth:
-    username: ${ORACLE_REG_U}
-    password: ${ORACLE_REG_P}
   environment:
     ORACLE_SID: talentmap
     ORACLE_PDB: talentmappdb
