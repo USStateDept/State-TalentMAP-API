@@ -106,7 +106,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "title": bp.get("pos_title_desc", None),
             "is_overseas": None,
             "create_date": None,
-            "update_date": bp.get("last_updated_date", None),
+            "update_date": ensure_date(bp.get("last_updated_date", None), utc_offset=-5),
             "update_user": bp.get("last_updated_user", None),
             "effective_date": None,
             "posted_date": ensure_date(bp.get("cp_post_dt", None), utc_offset=-5),
