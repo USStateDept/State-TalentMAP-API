@@ -95,7 +95,10 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            sleep 18m
+            sleep 9m
+            echo "Waiting for Oracle installation to complete..."
+            sleep 9m
+            echo "Waiting for Oracle installation to complete..."
             ./wait-for-oracle.sh 127.0.0.1:1521/talentmap sys talentmap 'as sysdba'
             echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/talentmap@//127.0.0.1/talentmap as sysdba @create-oracle-user.sql
       - run:
