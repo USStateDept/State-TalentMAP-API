@@ -7,12 +7,14 @@ default-python-node: &default-python-node
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
     DJANGO_SECRET_KEY: ci_secret_key
 default-oracle-node: &default-oracle-node
-  image: container-registry.oracle.com/database/enterprise
+  image: banglamon/oracle193db:19.3.0-ee
   auth:
     username: ${ORACLE_REG_U}
     password: ${ORACLE_REG_P}
   environment:
-    ORACLE_PWD: testing12345
+    ORACLE_SID: talentmap
+    ORACLE_PDB: talentmappdb
+    ORACLE_PWD: talentmap
 jobs:
   build:
     docker:
@@ -96,12 +98,12 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521 sys Oradoc_db1 "as sysdba"
-            echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/Oradoc_db1@//127.0.0.1/orclpdb1.localdomain as sysdba @create-oracle-user.sql
+            ./wait-for-oracle.sh oracle:1521/talentmap sys talentmap 'as sysdba'
+            echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/talentmap@//127.0.0.1/talentmap as sysdba @create-oracle-user.sql
       - run:
           name: Wait for Oracle
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521 talentmap talentmap ""
+            ./wait-for-oracle.sh 127.0.0.1:1521/talentmappdb talentmap1 talentmap1 ""
       - run:
           name: Python Test Coverage
           command: |
@@ -109,7 +111,7 @@ jobs:
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
             # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
-            DATABASE_URL: 127.0.0.1:1521/ORCLPDB1.localdomain
+            DATABASE_URL: 127.0.0.1:1521/talentmappdb
             DATABASE_USER: talentmap
             DATABASE_PW: talentmap
             DJANGO_LOG_DIRECTORY: ./

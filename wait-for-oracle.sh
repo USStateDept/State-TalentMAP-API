@@ -10,7 +10,7 @@ suffix="$4"
 shift
 
 checkOracle() {
-  echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host"/ORCLPDB1.localdomain "$suffix" @healthcheck.sql | grep -q 'USER'
+  echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'USER'
 }
 
 retries=300
