@@ -25,6 +25,7 @@ class FSBidBureauPositionsListView(BaseView):
             coreapi.Field("ordering", location='query', description='Ordering'),
             coreapi.Field("page", location='query', description='Page Index'),
             coreapi.Field("limit", location='query', description='Page Limit'),
+            coreapi.Field("getCount", location='query', description='true/false to return total results'),
 
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP,FP)'),
             coreapi.Field("id", location="query", description="Available Position ids"),

@@ -230,7 +230,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     newQuery = query.copy()
     countProp = "count(1)"
-    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem'):
+    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
