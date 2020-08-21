@@ -1,4 +1,4 @@
-version: 2.0
+version: 2.1
 
 default-python-node: &default-python-node
   image: circleci/python:3.6.1
@@ -89,7 +89,7 @@ jobs:
             sudo rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci
             cd /etc/ld.so.conf.d
             sudo touch oracle-instantclient.conf
-            sudo tee oracle-instantclient.conf <<<"/opt/oracle/instantclient_19_6"
+            sudo tee oracle-instantclient.conf \<\<\<"/opt/oracle/instantclient_19_6"
             cd /opt/oracle/instantclient*
             sudo ldconfig
       - run:
