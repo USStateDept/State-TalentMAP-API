@@ -5,6 +5,7 @@ from jsonfield import JSONField
 
 from djchoices import DjangoChoices, ChoiceItem
 
+
 class Notification(models.Model):
     '''
     This model represents an individual notification item

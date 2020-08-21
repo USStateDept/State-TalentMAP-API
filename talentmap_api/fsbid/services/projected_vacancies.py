@@ -1,22 +1,19 @@
-import requests
 import logging
-import csv
-from datetime import datetime
-import maya
-
+from functools import partial
 from urllib.parse import urlencode, quote
 
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
+import requests  # pylint: disable=unused-import
 
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation
-import talentmap_api.fsbid.services.common as services
+from django.conf import settings
+
+from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.fsbid.services import common as services
 
 API_ROOT = settings.FSBID_API_URL
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
 logger = logging.getLogger(__name__)
+
 
 def get_projected_vacancy(id, jwt_token):
     '''
@@ -30,6 +27,7 @@ def get_projected_vacancy(id, jwt_token):
         fsbid_pv_to_talentmap_pv
     )
 
+
 def get_projected_vacancies(query, jwt_token, host=None):
     return services.send_get_request(
         "futureVacancies",
@@ -42,17 +40,19 @@ def get_projected_vacancies(query, jwt_token, host=None):
         host
     )
 
+
 def get_projected_vacancies_tandem(query, jwt_token, host=None):
     return services.send_get_request(
         "positions/futureVacancies/tandem",
         query,
-        convert_pv_query,
+        partial(convert_pv_query, isTandem=True),
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        get_projected_vacancies_count,
+        get_projected_vacancies_tandem_count,
         "/api/v1/fsbid/projected_vacancies/tandem/",
         host
     )
+
 
 def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
@@ -60,11 +60,13 @@ def get_projected_vacancies_count(query, jwt_token, host=None):
     '''
     return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
 
+
 def get_projected_vacancies_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of tandem PVs for a filterset
     '''
-    return services.send_count_request("positions/futureVacancies/tandem", query, convert_pv_query, jwt_token, host)
+    return services.send_count_request("positions/futureVacancies/tandem", query, partial(convert_pv_query, isTandem=True), jwt_token, host)
+
 
 def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -87,6 +89,29 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
 
     return response
 
+
+def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
+    data = services.send_get_csv_request(
+        "positions/futureVacancies/tandem",
+        query,
+        partial(convert_pv_query, isTandem=True),
+        jwt_token,
+        fsbid_pv_to_talentmap_pv,
+        "/api/v1/fsbid/projected_vacancies/tandem/",
+        host,
+        None,
+        limit
+    )
+
+    count = get_projected_vacancies_tandem_count(query, jwt_token)
+    response = services.get_ap_and_pv_csv(data, "projected_vacancies", False, True)
+
+    if includeLimit is True and count['count'] > limit:
+        response['Position-Limit'] = limit
+
+    return response
+
+
 def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
@@ -102,18 +127,21 @@ def fsbid_pv_to_talentmap_pv(pv):
             "cycle_end_date": None,
             "active": True
         },
-        "tandem_nbr": pv.get("tandem_nbr", None), # Only appears in tandem searches
+        "tandem_nbr": pv.get("tandem_nbr", None),  # Only appears in tandem searches
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "bureau": f"({pv.get('pos_bureau_short_desc', None)}) {pv.get('pos_bureau_long_desc', None)}",
-            "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
             "organization": f"({pv.get('org_short_desc', None)}) {pv.get('org_long_desc', None)}",
             "tour_of_duty": pv.get("tod", None),
             "languages": list(filter(None, [
                 services.parseLanguage(pv.get("lang1", None)),
                 services.parseLanguage(pv.get("lang2", None)),
             ])),
+            "commuterPost": {
+                "description": pv.get("cpn_desc", None),
+                "frequency": pv.get("cpn_freq_desc", None),
+            },
             "post": {
                 "tour_of_duty": pv.get("tod", None),
                 "post_overview_url": services.get_post_overview_url(pv.get("pos_location_code", None)),
@@ -168,54 +196,84 @@ def fsbid_pv_to_talentmap_pv(pv):
         "isEFMOutside": pv.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
-def convert_pv_query(query):
+
+def convert_pv_query(query, isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
 
     The TalentMap filters align with the position search filter naming
     '''
+    prefix = "fv_request_params."
+
+    if isTandem:
+        prefix = "request_params."
+
     values = {
         # Pagination
-        "fv_request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        "fv_request_params.page_index": int(query.get("page", 1)),
-        "fv_request_params.page_size": query.get("limit", 25),
-
-        "fv_request_params.get_count": query.get("getCount", 'false'),
+        f"{prefix}order_by": services.sorting_values(query.get("ordering", None)),
+        f"{prefix}page_index": int(query.get("page", 1)),
+        f"{prefix}page_size": query.get("limit", 25),
 
         # Tandem 1 filters
-        "fv_request_params.seq_nums": services.convert_multi_value(query.get("id", None)),
-        "fv_request_params.bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
-        "fv_request_params.overseas_ind": services.overseas_values(query),
-        "fv_request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "fv_request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
-        "fv_request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        "fv_request_params.location_codes": services.post_values(query),
-        "fv_request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "fv_request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "fv_request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        "fv_request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "fv_request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        "fv_request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        "fv_request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
-        "fv_request_params.freeText": query.get("q", None),
+        f"{prefix}seq_nums": services.convert_multi_value(query.get("id", None)),
+        f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
+        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
+        f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
+        f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        f"{prefix}location_codes": services.post_values(query),
+        f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        f"{prefix}differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        f"{prefix}pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        f"{prefix}post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}freeText": query.get("q", None),
+    }
 
+    if not isTandem:
+        values[f"{prefix}get_count"]: query.get("getCount", 'false')
+
+    if isTandem:
+        ordering = query.get("ordering", None)
+        values[f"{prefix}count"] = query.get("getCount", 'false')
+        values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,tandem,{ordering}")
         # Common filters
-        "fv_request_params.overseas_ind2": services.overseas_values(query),
-        "fv_request_params.location_codes2": services.post_values(query),
-        "fv_request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "fv_request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "fv_request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "fv_request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
-        "fv_request_params.freeText2": query.get("q", None),
+        values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
+        values[f"{prefix}location_codes2"] = services.post_values(query)
+        values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values[f"{prefix}post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values[f"{prefix}us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values[f"{prefix}cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
+        values[f"{prefix}freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        "fv_request_params.seq_nums2": services.convert_multi_value(query.get("id-tandem", None)),
-        "fv_request_params.bid_seasons2": services.convert_multi_value(query.get("is_available_in_bidseason-tandem")),
-        "fv_request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "fv_request_params.bureaus2": services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
-        "fv_request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
-        "fv_request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
-        "fv_request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
-        "fv_request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
-    }
+        values[f"{prefix}seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values[f"{prefix}bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
+        values[f"{prefix}languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values[f"{prefix}bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
+        values[f"{prefix}grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+
+def get_pv_favorite_ids(query, jwt_token, host=None):
+    return services.send_get_request(
+        "futureVacancies",
+        query,
+        convert_pv_query,
+        jwt_token,
+        fsbid_favorites_to_talentmap_favorites_ids,
+        get_projected_vacancies_count,
+        "/api/v1/fsbid/projected_vacancies/",
+        host
+    ).get('results')
+
+
+def fsbid_favorites_to_talentmap_favorites_ids(pv):
+    return pv.get("fv_seq_num", None)

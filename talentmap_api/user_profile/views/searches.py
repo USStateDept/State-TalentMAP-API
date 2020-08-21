@@ -50,6 +50,7 @@ class SavedSearchView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         return get_prefetched_filtered_queryset(SavedSearch, self.serializer_class, owner=self.request.user.profile)
 
+
 class SavedSearchListCountView(APIView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)

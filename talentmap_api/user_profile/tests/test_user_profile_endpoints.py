@@ -1,5 +1,5 @@
-import pytest
 import json
+import pytest
 
 from unittest.mock import Mock, patch
 
@@ -17,6 +17,7 @@ def test_user_token_endpoint(authorized_client, authorized_user):
 
     assert resp.status_code == status.HTTP_200_OK
 
+
 @pytest.mark.django_db(transaction=True)
 def test_user_public_profile_endpoint(authorized_client, authorized_user):
     user_profile = UserProfile.objects.last()
@@ -25,14 +26,3 @@ def test_user_public_profile_endpoint(authorized_client, authorized_user):
 
     assert resp.status_code == status.HTTP_200_OK
     assert resp.data["first_name"] == user_profile.user.first_name
-
-
-@pytest.mark.django_db(transaction=True)
-def test_user_profile_favorites(authorized_client, authorized_user):
-     with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
-        mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = {"Data": []}
-        resp = authorized_client.get('/api/v1/profile/')
-
-        assert resp.status_code == status.HTTP_200_OK
-        assert len(resp.data["favorite_positions"]) == 0

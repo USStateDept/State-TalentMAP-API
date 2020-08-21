@@ -7,8 +7,6 @@ from model_mommy.recipe import seq
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.user_profile.models import SavedSearch
-
 
 @pytest.fixture
 def test_bidcycle_fixture(authorized_user):

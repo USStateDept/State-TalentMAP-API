@@ -15,13 +15,13 @@ class Command(BaseCommand):
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [
         ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, ["bidder"]),
-        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["feedback_editors"]),
+        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, []),
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, ["bidder"]),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, ["bidder"]),
         ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder"]),
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["bidder", "cdo"]),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder", "feedback_editors"])
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder"])
     ]
 
     def handle(self, *args, **options):

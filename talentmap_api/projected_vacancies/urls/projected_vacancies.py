@@ -3,8 +3,6 @@ from rest_framework import routers
 
 from talentmap_api.projected_vacancies.views import projected_vacancy as views
 
-from talentmap_api.common.urls import get_list
-
 router = routers.SimpleRouter()
 
 urlpatterns = [

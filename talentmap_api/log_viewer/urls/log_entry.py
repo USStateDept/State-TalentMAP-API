@@ -1,8 +1,8 @@
 from django.conf.urls import url
 
-from talentmap_api.log_viewer.views import log_entry as views
-
 from rest_framework import routers
+
+from talentmap_api.log_viewer.views import log_entry as views
 
 router = routers.SimpleRouter()
 

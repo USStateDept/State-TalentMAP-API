@@ -1,25 +1,20 @@
-import requests
 import logging
-import csv
-from datetime import datetime
-import maya
-
+from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
-from django.db.models import Q
-from django.http import HttpResponse
-from django.utils.encoding import smart_str
-from django.core.exceptions import ObjectDoesNotExist
+import requests  # pylint: disable=unused-import
 
+from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
-import talentmap_api.fsbid.services.common as services
-
-API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
+
+API_ROOT = settings.FSBID_API_URL
+FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+
 
 def get_available_position(id, jwt_token):
     '''
@@ -33,6 +28,7 @@ def get_available_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+
 def get_unavailable_position(id, jwt_token):
     '''
     Gets an indivdual unavailable position by id
@@ -45,6 +41,7 @@ def get_unavailable_position(id, jwt_token):
         fsbid_ap_to_talentmap_ap
     )
 
+
 def get_all_position(id, jwt_token):
     '''
     Gets an indivdual position by id
@@ -56,6 +53,7 @@ def get_all_position(id, jwt_token):
         jwt_token,
         fsbid_ap_to_talentmap_ap
     )
+
 
 def get_available_positions(query, jwt_token, host=None):
     '''
@@ -72,6 +70,7 @@ def get_available_positions(query, jwt_token, host=None):
         host
     )
 
+
 def get_available_positions_tandem(query, jwt_token, host=None):
     '''
     Gets available positions
@@ -79,7 +78,7 @@ def get_available_positions_tandem(query, jwt_token, host=None):
     return services.send_get_request(
         "positions/available/tandem",
         query,
-        convert_ap_query,
+        partial(convert_ap_query, isTandem=True),
         jwt_token,
         fsbid_ap_to_talentmap_ap,
         get_available_positions_tandem_count,
@@ -94,11 +93,13 @@ def get_available_positions_count(query, jwt_token, host=None):
     '''
     return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
 
+
 def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
-    return services.send_count_request("positions/available/tandem", query, convert_ap_query, jwt_token, host)
+    return services.send_count_request("positions/available/tandem", query, partial(convert_ap_query, isTandem=True), jwt_token, host)
+
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
@@ -121,15 +122,41 @@ def get_available_positions_csv(query, jwt_token, host=None, limit=None, include
 
     return response
 
+
+def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
+    data = services.send_get_csv_request(
+        "positions/available/tandem",
+        query,
+        partial(convert_ap_query, isTandem=True),
+        jwt_token,
+        fsbid_ap_to_talentmap_ap,
+        "/api/v1/fsbid/available_positions/tandem/",
+        host,
+        None,
+        limit
+    )
+
+    count = get_available_positions_tandem_count(query, jwt_token)
+    response = services.get_ap_and_pv_csv(data, "available_positions_tandem", True, True)
+
+    if includeLimit is True and count['count'] > limit:
+        response['Position-Limit'] = limit
+
+    return response
+
+
 # Max number of similar positions to return.
 SIMILAR_LIMIT = 3
 
 # Filters available positions by the criteria provides and by the position with the provided id
+
+
 def filter_available_positions_exclude_self(id, criteria, jwt_token, host):
     # Add 1 to the limit, since we'll be filtering out positions that match id
-    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit":SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
+    a = list(filter(lambda i: float(id) != i["id"], get_available_positions({**criteria, **{"limit": SIMILAR_LIMIT + 1}}, jwt_token, host)["results"]))
     # Ensure we only return the limit, at most
     return a[:SIMILAR_LIMIT]
+
 
 def get_similar_available_positions(id, jwt_token, host=None):
     '''
@@ -173,7 +200,7 @@ def fsbid_ap_to_talentmap_ap(ap):
             "availability": None,
             "reason": None
         },
-        "tandem_nbr": ap.get("tandem_nbr", None), # Only appears in tandem searches
+        "tandem_nbr": ap.get("tandem_nbr", None),  # Only appears in tandem searches
         "position": {
             "id": None,
             "grade": ap.get("pos_grade_code", None),
@@ -212,6 +239,10 @@ def fsbid_ap_to_talentmap_ap(ap):
                 "status": None,
                 "start_date": None,
                 "estimated_end_date": ensure_date(ap.get("ted", None), utc_offset=-5)
+            },
+            "commuterPost": {
+                "description": ap.get("cpn_desc", None),
+                "frequency": ap.get("cpn_freq_desc", None),
             },
             "post": {
                 "id": None,
@@ -271,7 +302,8 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
     }
 
-def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
+
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
     '''
@@ -280,8 +312,6 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
-
-        "request_params.get_count": query.get("getCount", 'false'),
 
         # Tandem 1 filters
         "request_params.cps_codes": services.convert_multi_value(
@@ -300,30 +330,40 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
         "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
 
+    }
+
+    if not isTandem:
+        values["request_params.get_count"] = query.get("getCount", 'false')
+
+    if isTandem:
+        ordering = query.get("ordering", None)
+        values["request_params.count"] = query.get("getCount", 'false')
+        values["request_params.order_by"] = services.sorting_values(f"commuterPost,location,tandem,{ordering}")
         # Common filters
-        "request_params.overseas_ind2": services.overseas_values(query),
-        "request_params.location_codes2": services.post_values(query),
-        "request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.post_ind2": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "request_params.us_codes2": services.convert_multi_value(query.get("position__us_codes__in")),
-        "request_params.freeText2": query.get("q", None),
+        values["request_params.overseas_ind2"] = services.overseas_values(query)
+        values["request_params.location_codes2"] = services.post_values(query)
+        values["request_params.danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values["request_params.differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values["request_params.post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values["request_params.us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values["request_params.cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
+        values["request_params.freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        "request_params.cps_codes2": services.convert_multi_value(
-            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
-        "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
-        "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "request_params.bureaus2": services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
-        "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
-        "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
-        "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
-        "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
+        values["request_params.cps_codes2"] = services.convert_multi_value(
+            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes))
+        values["request_params.cp_ids2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values["request_params.assign_cycles2"] = services.convert_multi_value(query.get("is_available_in_bidcycle-tandem"))
+        values["request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values["request_params.bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem"))
+        values["request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values["request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values["request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values["request_params.skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
 
-    }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
@@ -381,7 +421,8 @@ def convert_up_query(query):
     sends FP (Filled Position) status code to convert_ap_query
     request_params.cps_codes of anything but FP will get removed from query
     '''
-    return (convert_ap_query(query, ["FP"]))
+    return convert_ap_query(query, ["FP"])
+
 
 def convert_all_query(query):
     '''
@@ -389,4 +430,21 @@ def convert_all_query(query):
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return (convert_ap_query(query, ["FP", "OP", "HS"]))
+    return convert_ap_query(query, ["FP", "OP", "HS"])
+
+
+def get_ap_favorite_ids(query, jwt_token, host=None):
+    return services.send_get_request(
+        "availablePositions",
+        query,
+        convert_ap_query,
+        jwt_token,
+        fsbid_favorites_to_talentmap_favorites_ids,
+        get_available_positions_count,
+        "/api/v1/fsbid/available_positions/",
+        host
+    ).get('results')
+
+
+def fsbid_favorites_to_talentmap_favorites_ids(ap):
+    return ap.get("cp_id", None)

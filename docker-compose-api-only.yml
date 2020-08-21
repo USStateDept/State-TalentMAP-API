@@ -29,6 +29,7 @@ services:
       - DJANGO_DEBUG=true
       - FSBID_API_URL=http://host.docker.internal:3333
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
+      - CP_API_URL=http://host.docker.internal:3333/cyclePositions
   oracle:
     ports:
       - 1521:1521

@@ -1,7 +1,6 @@
-import requests
-import logging
-import os
 from zipfile import ZipFile, is_zipfile
+
+import os
 
 from talentmap_api.settings import get_delineated_environment_variable
 log_dir = get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/talentmap/')
@@ -30,7 +29,7 @@ def get_log(log_name):
             else:
                 with open(f"{file_name}", 'r') as f:
                     lines = f.read()
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             return None
     return {
         "data": lines

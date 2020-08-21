@@ -13,6 +13,7 @@ class IE11Middleware:
         response['Cache-Control'] = "no-cache,no-store"
         return response
 
+
 class ExposeHeadersMiddleware:
     '''
     Informs the browser to allow the reading of certain headers.

@@ -29,7 +29,7 @@ class PermissionGroupMembersSerializer(PrefetchedSerializer):
 
 class UserPermissionSerializer(PrefetchedSerializer):
     groups = PermissionGroupSerializer(many=True)
-    
+
     class Meta:
         model = User
         fields = ["id", "username", "email", "first_name", "last_name", "groups"]

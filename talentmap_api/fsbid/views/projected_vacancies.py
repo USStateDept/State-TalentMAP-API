@@ -1,19 +1,12 @@
+import logging
 import coreapi
 
-from dateutil.relativedelta import relativedelta
-
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
 
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import ProjectedVacancyFilter
 
 from talentmap_api.fsbid.views.base import BaseView
@@ -21,7 +14,6 @@ import talentmap_api.fsbid.services.projected_vacancies as services
 
 from talentmap_api.common.common_helpers import in_superuser_group
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -60,6 +52,7 @@ class FSBidProjectedVacanciesListView(BaseView):
         '''
         return Response(services.get_projected_vacancies(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidProjectedVacanciesTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -90,6 +83,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("position__cpn_codes__in", location='query', description='Use code values from /references/commuterposts/'),
             coreapi.Field("q", location='query', description='Text search'),
 
             # Tandem 2
@@ -111,6 +105,7 @@ class FSBidProjectedVacanciesTandemListView(BaseView):
         '''
         return Response(services.get_projected_vacancies_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidProjectedVacancyView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -122,8 +117,8 @@ class FSBidProjectedVacancyView(BaseView):
         result = services.get_projected_vacancy(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
         return Response(result)
+
 
 class FSBidProjectedVacanciesCSVView(BaseView):
 
@@ -137,3 +132,17 @@ class FSBidProjectedVacanciesCSVView(BaseView):
             limit = 9999999
             includeLimit = False
         return services.get_projected_vacancies_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
+
+class FSBidProjectedVacanciesTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = ProjectedVacancyFilter
+
+    def get(self, request, *args, **kwargs):
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_projected_vacancies_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)

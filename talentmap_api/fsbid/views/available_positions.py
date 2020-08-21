@@ -1,19 +1,14 @@
+import logging
 import coreapi
+import math
+import random
 
-from dateutil.relativedelta import relativedelta
-
-from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
 
 from rest_framework.response import Response
 from rest_framework import status
 
-from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 
@@ -21,7 +16,6 @@ import talentmap_api.fsbid.services.available_positions as services
 
 from talentmap_api.common.common_helpers import in_superuser_group
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -61,6 +55,7 @@ class FSBidAvailablePositionsListView(BaseView):
         '''
         return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -92,6 +87,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
             coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("position__cpn_codes__in", location='query', description='Use code values from /references/commuterposts/'),
             coreapi.Field("q", location='query', description='Text search'),
 
             # Tandem 2
@@ -113,6 +109,7 @@ class FSBidAvailablePositionsTandemListView(BaseView):
         '''
         return Response(services.get_available_positions_tandem(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
+
 class FSBidAvailablePositionsCSVView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -130,6 +127,23 @@ class FSBidAvailablePositionsCSVView(BaseView):
         return services.get_available_positions_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
 
 
+class FSBidAvailablePositionsTandemCSVView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets all tandem available positions
+        '''
+        includeLimit = True
+        limit = 2000
+        if in_superuser_group(request.user):
+            limit = 9999999
+            includeLimit = False
+        return services.get_available_positions_tandem_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}", limit, includeLimit)
+
+
 class FSBidAvailablePositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -143,6 +157,7 @@ class FSBidAvailablePositionView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
 
 class FSBidUnavailablePositionView(BaseView):
 
@@ -158,6 +173,7 @@ class FSBidUnavailablePositionView(BaseView):
 
         return Response(result)
 
+
 class FSBidAvailablePositionsSimilarView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -167,3 +183,29 @@ class FSBidAvailablePositionsSimilarView(BaseView):
         Gets similar available positions to the position provided
         '''
         return Response(services.get_similar_available_positions(pk, request.META['HTTP_JWT']))
+
+
+class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets a random set of 3 featured positions
+        '''
+
+        count = services.get_available_positions_count(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")["count"]
+
+        if count is 0:
+            return Response({})
+
+        pageLimit = int(request.query_params["limit"])
+        randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
+
+        if not request.GET._mutable:
+            request.GET._mutable = True
+
+        request.query_params["page"] = str(randomPage)
+        request.GET._mutable = False
+
+        return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
