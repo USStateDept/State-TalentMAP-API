@@ -1,1 +1,1 @@
-SELECT user FROM dual;
+select CONTROLFILE_TYPE from v$database;
