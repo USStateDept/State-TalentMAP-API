@@ -100,7 +100,7 @@ jobs:
       - run:
           name: Wait for Oracle
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521/talentmappdb talentmap1 talentmap1 ""
+            ./wait-for-oracle.sh 127.0.0.1:1521/talentmappdb talentmap1 talentmap1 "" true
       - run:
           name: Python Test Coverage
           command: |

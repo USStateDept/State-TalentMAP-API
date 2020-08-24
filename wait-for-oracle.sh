@@ -7,10 +7,15 @@ host="$1"
 user="$2"
 password="$3"
 suffix="$4"
+alt="$5"
 shift
 
 checkOracle() {
-  echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'CURRENT'
+  if $alt; then
+    echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck-alt.sql | grep -q 'USER'
+  else
+    echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'CURRENT'
+  fi
 }
 
 retries=300
