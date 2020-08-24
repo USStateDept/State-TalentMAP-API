@@ -15,8 +15,7 @@ services:
       bash -c "python show_logo.py
       && echo 'Starting...'
       && ./wait-for-oracle.sh oracle:1521/talentmap sys talentmap 'as sysdba'
-      && echo exit | /opt/oracle/instantclient*/sqlplus -L -S sys/talentmap@//oracle:1521/talentmap as sysdba @create-oracle-user.sql
-      && echo 'Oracle user created!'
+      && ./create-oracle-user.sh oracle:1521/talentmap sys talentmap 'as sysdba'
       && ./wait-for-oracle.sh oracle:1521/talentmappdb talentmap1 talentmap1 '' true
       && python manage.py runserver 0.0.0.0:8000"
     volumes:

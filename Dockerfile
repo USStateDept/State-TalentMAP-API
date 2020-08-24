@@ -31,6 +31,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 COPY talentmap_api /app/talentmap_api/
-ADD wait-for-oracle.sh manage.py setup.cfg show_logo.py /app/
+ADD wait-for-oracle.sh create-oracle-user.sh manage.py setup.cfg show_logo.py /app/
 
 RUN chmod +x wait-for-oracle.sh
+RUN chmod +x create-oracle-user.sh
