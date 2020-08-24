@@ -1,1 +1,1 @@
-select CONTROLFILE_TYPE from v$database;
+select name, open_mode from v$pdbs;
