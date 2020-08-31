@@ -81,7 +81,7 @@ class SavedSearch(models.Model):
     '''
     owner = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, related_name="saved_searches")
 
-    name = models.TextField(default="Saved Search", help_text="The name of the saved search")
+    name = models.CharField(max_length=255, null=False, default="Saved Search", help_text="The name of the saved search")
     endpoint = models.TextField(help_text="The endpoint for this search and filter")
 
     '''
