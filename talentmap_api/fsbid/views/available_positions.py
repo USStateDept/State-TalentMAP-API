@@ -197,7 +197,7 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
         count = services.get_available_positions_count(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")["count"]
 
         if count is 0:
-            return Response({})
+            return Response([])
 
         pageLimit = int(request.query_params["limit"])
         randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
