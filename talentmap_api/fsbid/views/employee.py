@@ -1,6 +1,7 @@
 import logging
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -45,3 +46,14 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
         auth_user.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class FSBidBureauUserPermissionsView(BaseView):
+    permission_classes = (IsAuthenticatedOrReadOnly, isDjangoGroupMemberOrReadOnly('bureau_user'))
+    '''
+    Get an employee's assigned bureau
+    '''
+    def get(self, request):
+        result = services.get_bureau_permissions(request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        if result is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(result)

@@ -57,3 +57,18 @@ ROLE_MAPPING = {
     "CDO3": "cdo",
     "Bureau": "bureau_user",
 }
+
+def get_bureau_permissions(jwt_token, host=None):
+    '''
+    Gets a list of bureau codes assigned to the bureau_user
+    '''
+    url = f"{FSBID_ROOT}/bureauPermissions"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    return map(map_bureau_permissions, response.get("Data", {}))
+
+def map_bureau_permissions(data):
+    return {
+        "code": data.get('bur', None),
+        "long_description": data.get('bureau_long_desc', None),
+        "short_description": data.get('bureau_short_desc', None),
+    }
