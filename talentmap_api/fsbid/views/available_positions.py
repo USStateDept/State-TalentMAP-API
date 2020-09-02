@@ -201,11 +201,7 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
 
         pageLimit = int(request.query_params["limit"])
         randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
+        newQueryParams = request.query_params.copy()
+        newQueryParams["page"] = str(randomPage)
 
-        if not request.GET._mutable:
-            request.GET._mutable = True
-
-        request.query_params["page"] = str(randomPage)
-        request.GET._mutable = False
-
-        return Response(services.get_available_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_available_positions(newQueryParams, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))

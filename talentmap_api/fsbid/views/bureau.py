@@ -25,6 +25,7 @@ class FSBidBureauPositionsListView(BaseView):
             coreapi.Field("ordering", location='query', description='Ordering'),
             coreapi.Field("page", location='query', description='Page Index'),
             coreapi.Field("limit", location='query', description='Page Limit'),
+            coreapi.Field("getCount", location='query', description='true/false to return total results'),
 
             coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP,FP)'),
             coreapi.Field("id", location="query", description="Available Position ids"),
@@ -75,6 +76,27 @@ class FSBidBureauPositionView(BaseView):
         Gets a bureau position
         '''
         result = services.get_bureau_position(pk, request.META['HTTP_JWT'])
+        if result is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(result)
+
+
+class FSBidBureauPositionBidsView(BaseView):
+
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = BureauPositionsFilter
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("ordering", location='query', description='Ordering'),
+        ]
+    )
+
+    def get(self, request, pk):
+        '''
+        Gets a bureau position's bids
+        '''
+        result = services.get_bureau_position_bids(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

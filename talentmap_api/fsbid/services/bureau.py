@@ -1,5 +1,7 @@
 import logging
 from urllib.parse import urlencode, quote
+from functools import partial
+from copy import deepcopy
 
 import requests  # pylint: disable=unused-import
 
@@ -8,10 +10,12 @@ from django.conf import settings
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.cdo as cdoservices
 
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+CP_API_ROOT = settings.CP_API_URL
 
 
 def get_bureau_position(id, jwt_token):
@@ -19,7 +23,7 @@ def get_bureau_position(id, jwt_token):
     Gets an indivdual bureau position by id
     '''
     return services.get_individual(
-        "availablePositions",
+        "cyclePositions",
         id,
         convert_bp_query,
         jwt_token,
@@ -32,13 +36,13 @@ def get_bureau_positions(query, jwt_token, host=None):
     Gets all bureau positions
     '''
     return services.send_get_request(
-        "availablePositions",
+        "cyclePositions",
         query,
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
         get_bureau_positions_count,
-        "/api/v1/fsbid/available_positions/",
+        "/api/v1/fsbid/cyclePositions/",
         host
     )
 
@@ -47,32 +51,74 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("availablePositionsCount", query, convert_bp_query, jwt_token, host)
+    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
-        "availablePositions",
+        "cyclePositions",
         query,
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        "/api/v1/fsbid/available_positions/",
+        "/api/v1/fsbid/cyclePositions/",
         host,
         None,
     )
 
     count = get_bureau_positions_count(query, jwt_token)
-    response = services.get_ap_and_pv_csv(data, "available_positions", True)
+    response = services.get_ap_and_pv_csv(data, "cycle_positions", True)
     return response
 
+
+def get_bureau_position_bids(id, query, jwt_token, host):
+    '''
+    Gets all bids on an indivdual bureau position by id
+    '''
+    new_query = deepcopy(query)
+    new_query["id"] = id
+    return services.get_results(
+        "bidders",
+        new_query,
+        convert_bp_bids_query,
+        jwt_token,
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        CP_API_ROOT,
+    )
+
+
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
+    '''
+    Formats the response bureau position bids from FSBid
+    '''
+
+    cdo = None
+    emp_id = bid.get("perdet_seq_num", None)
+    if emp_id is not None:
+        cdo = cdoservices.single_cdo(jwt, emp_id)
+
+    hasHandShakeOffered = False
+    if bid.get("handshake_code", None) == "HS":
+        hasHandShakeOffered = True
+    ted = ensure_date(bid.get("TED", None), utc_offset=-5)
+    return {
+        "emp_id": emp_id,
+        "name": bid.get("full_name"),
+        "grade": bid.get("grade_code"),
+        "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
+        "skill_code": bid.get("skill_code", None),
+        "language": bid.get("language_txt", None),
+        "ted": ted,
+        "has_handshake_offered": hasHandShakeOffered,
+        "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
+        "cdo": cdo,
+    }
 
 
 def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
-
     hasHandShakeOffered = False
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
@@ -107,7 +153,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "title": bp.get("pos_title_desc", None),
             "is_overseas": None,
             "create_date": None,
-            "update_date": None,
+            "update_date": ensure_date(bp.get("last_updated_date", None), utc_offset=-5),
+            "update_user": bp.get("last_updated_user", None),
             "effective_date": None,
             "posted_date": ensure_date(bp.get("cp_post_dt", None), utc_offset=-5),
             "description": {
@@ -122,6 +169,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             },
             "current_assignment": {
                 "user": bp.get("incumbent", None),
+                "user_perdet_seq_num": bp.get("incumbent_perdet_seq_num", None),
                 "tour_of_duty": bp.get("tod", None),
                 "status": None,
                 "start_date": None,
@@ -218,7 +266,22 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
         "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
-        "request_params.get_count": query.get("getCount", 'false'),
+        "request_params.count": query.get("getCount", 'false'),
+    }
+
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+
+def convert_bp_bids_query(query):
+    '''
+    Converts TalentMap filters into FSBid filters
+    '''
+    values = {
+        "request_params.cp_id": query.get("id", None),
+        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.handshake_code": query.get("handshake_code", None),
+        "request_params.page_size": 500,
+        "request_params.page_index": 1,
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
