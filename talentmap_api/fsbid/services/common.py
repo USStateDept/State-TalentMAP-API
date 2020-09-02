@@ -421,7 +421,10 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(ted)
             row.append(smart_str(position_data["position"]["current_assignment"]["user"]))
             row.append(smart_str(record["bidcycle"]))
-            row.append(smart_str(record.get("status")))
+            if record.get("status") == "handshake_accepted":
+                row.append(smart_str("handshake_registered"))
+            else:
+                row.append(smart_str(record.get("status")))
             row.append(smart_str(position_data["position"]["description"]["content"]))
 
             writer.writerow(row)
