@@ -25,7 +25,17 @@ from talentmap_api.fsbid.services import projected_vacancies as pvservices
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
+CP_API_ROOT = settings.CP_API_URL
+HRDATA_URL = settings.HRDATA_URL
+HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+
+def get_employee_profile_urls(clientid):
+    suffix = f"Employees/{clientid}/EmployeeProfileReportByCDO"
+    return {
+        "internal": f"{HRDATA_URL}/{suffix}",
+        "external": f"{HRDATA_URL_EXTERNAL}/{suffix}",
+    }
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -151,6 +161,9 @@ sort_dict = {
     "location": "location_city",
     "commuterPost": "cpn_desc",
     "tandem": "tandem_nbr",
+    "bidder_grade": "grade_code",
+    "bidder_skill": "skill_desc",
+    "bidder_hs": "handshake_code",
 }
 
 
@@ -169,8 +182,8 @@ def sorting_values(sort):
         return results
 
 
-def get_results(uri, query, query_mapping_function, jwt_token, mapping_function):
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(query)}"
+def get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+    url = f"{api_root}/{uri}?{query_mapping_function(query)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
@@ -217,7 +230,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
     '''
     newQuery = query.copy()
     countProp = "count(1)"
-    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem'):
+    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
@@ -412,7 +425,10 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(ted)
             row.append(smart_str(position_data["position"]["current_assignment"]["user"]))
             row.append(smart_str(record["bidcycle"]))
-            row.append(smart_str(record.get("status")))
+            if record.get("status") == "handshake_accepted":
+                row.append(smart_str("handshake_registered"))
+            else:
+                row.append(smart_str(record.get("status")))
             row.append(smart_str(position_data["position"]["description"]["content"]))
 
             writer.writerow(row)
