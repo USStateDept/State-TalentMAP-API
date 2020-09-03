@@ -16,6 +16,8 @@ import talentmap_api.fsbid.services.available_positions as services_ap
 from talentmap_api.common.common_helpers import ensure_date
 
 API_ROOT = settings.FSBID_API_URL
+HRDATA_URL = settings.HRDATA_URL
+HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 
 logger = logging.getLogger(__name__)
 
@@ -225,7 +227,8 @@ def fsbid_clients_to_talentmap_clients(data):
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
-        "assignments": fsbid_assignments_to_tmap(assignments)
+        "assignments": fsbid_assignments_to_tmap(assignments),
+        "employee_profile_url": services.get_employee_profile_urls(employee.get("perdet_seq_num", None)),
     }
 
 

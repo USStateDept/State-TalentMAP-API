@@ -192,7 +192,7 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications""primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
+        fields = ["language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
         writable_fields = ("language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 
