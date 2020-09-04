@@ -86,6 +86,23 @@ def get_bureau_position_bids(id, query, jwt_token, host):
         CP_API_ROOT,
     )
 
+def get_bureau_position_bids_csv(id, query, jwt_token, host):
+    '''
+    Gets all bids on an indivdual bureau position by id for export
+    '''
+    new_query = deepcopy(query)
+    new_query["id"] = id
+    data = services.send_get_csv_request(
+        "bidders",
+        new_query,
+        convert_bp_bids_query,
+        jwt_token,
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        CP_API_ROOT,
+    )
+
+    response = services.get_bidders_csv(data, "position_bidders", True)
+    return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     '''
