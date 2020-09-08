@@ -61,9 +61,7 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        "/api/v1/fsbid/cyclePositions/",
-        host,
-        None,
+        API_ROOT,
     )
 
     count = get_bureau_positions_count(query, jwt_token)

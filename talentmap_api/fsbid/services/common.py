@@ -275,7 +275,7 @@ def get_post_bidding_considerations_url(post_id):
         return None
 
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url=API_ROOT, host=None, ad_id=None, limit=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
     '''
     Gets items from FSBid
     '''
