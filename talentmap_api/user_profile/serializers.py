@@ -122,6 +122,8 @@ class UserProfileSerializer(PrefetchedSerializer):
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
     employee_info = serializers.SerializerMethodField()
+    office_phone = serializers.SerializerMethodField()
+    office_address = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -192,7 +194,7 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
+        fields = ["language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name", "office_phone", "office_address"]
         writable_fields = ("language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
 
 

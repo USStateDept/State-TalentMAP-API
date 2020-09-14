@@ -37,6 +37,25 @@ def get_employee_information(jwt_token, emp_id):
     except:
         return {}
 
+def get_user_information(jwt_token, emp_seq_num):
+    '''
+    Gets the office_phone and office_address for the employee
+    '''
+    url = f"{FSBID_ROOT}/SECREF/user?request_params.perdet_seq_num={emp_seq_num}"
+    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
+                            verify=False).json()  # nosec
+    user = next(iter(user.get('Data', [])), {})
+    try:
+        print('-------------------------------------------------------')
+        print(user)
+        print('-------------------------------------------------------')
+        return {
+            "office_address": user['gal_address_text'],
+            "office_phone": user['gal_phone_nbr_text'],
+        }
+    except:
+        return {}
+
 
 def map_group_to_fsbid_role(jwt_token):
     '''
