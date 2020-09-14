@@ -75,7 +75,7 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
         convert_pv_query,
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        "/api/v1/fsbid/projected_vacancies/",
+        API_ROOT,
         host,
         None,
         limit
@@ -97,7 +97,7 @@ def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, 
         partial(convert_pv_query, isTandem=True),
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        "/api/v1/fsbid/projected_vacancies/tandem/",
+        API_ROOT,
         host,
         None,
         limit
