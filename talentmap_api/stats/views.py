@@ -1,7 +1,8 @@
 import datetime
 import logging
+import maya
 
-from django.db.models import TextField
+from django.db.models import TextField, DateTimeField
 from django.db.models.functions import Concat
 
 from rest_framework import mixins
@@ -94,6 +95,8 @@ class ViewPositionActionView(GenericViewSet):
 
         view_instance.user = user
         view_instance.date_of_view = datetime.datetime.now()
+        view_instance.date_of_view_day = maya.now().datetime().strftime('%m/%d/%Y')
+        view_instance.date_of_view_week = maya.now().datetime().strftime('%V/%Y')
         view_instance.position_id = request.data.get('position_id')
         view_instance.position_type = request.data.get('position_type', 'AP')
 
@@ -124,11 +127,11 @@ class ViewPositionDistinctListView(mixins.ListModelMixin,
                                    GenericViewSet):
     '''
     list:
-    Lists all position views from distinct, concatenated user_id + position_id + position_type
+    Lists all position views from distinct, concatenated user_id + position_id + position_type, deduplicated within each week
     '''
     serializer_class = ViewPositionInstanceSerializer
     filter_class = ViewPositionInstanceFilter
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(ViewPositionInstance, self.serializer_class).annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', output_field=TextField())).order_by('distinct_name').distinct('distinct_name')
+        return get_prefetched_filtered_queryset(ViewPositionInstance, self.serializer_class).annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', 'date_of_view_week', output_field=TextField())).order_by('distinct_name').distinct('distinct_name')
