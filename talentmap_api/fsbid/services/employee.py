@@ -72,6 +72,7 @@ ROLE_MAPPING = {
     "CDO": "cdo",
     "CDO3": "cdo",
     "Bureau": "bureau_user",
+    "AO": "ao_user",
 }
 
 def get_bureau_permissions(jwt_token, host=None):
