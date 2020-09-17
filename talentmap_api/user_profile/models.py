@@ -18,8 +18,6 @@ class UserProfile(StaticRepresentationModel):
     date_of_birth = models.DateTimeField(null=True)
     mandatory_retirement_date = models.DateTimeField(null=True)
     phone_number = models.TextField(null=True)
-    office_phone = models.TextField(null=True)
-    office_address = models.TextField(null=True)
 
     cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
 

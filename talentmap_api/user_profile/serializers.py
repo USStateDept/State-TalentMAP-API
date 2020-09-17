@@ -15,7 +15,7 @@ from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
-from talentmap_api.fsbid.services.employee import get_employee_information
+from talentmap_api.fsbid.services.employee import get_employee_information, get_user_information
 
 logger = logging.getLogger(__name__)
 
@@ -122,9 +122,11 @@ class UserProfileSerializer(PrefetchedSerializer):
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
     employee_info = serializers.SerializerMethodField()
-    office_phone = serializers.SerializerMethodField()
-    office_address = serializers.SerializerMethodField()
+    user_info = serializers.SerializerMethodField()
+    # office_phone = serializers.SerializerMethodField()
+    # office_address = serializers.SerializerMethodField()
 
+    # //check that this gets returned  on the FE
     def get_favorite_positions(self, obj):
         request = self.context['request']
         user = UserProfile.objects.get(user=request.user)
@@ -150,6 +152,15 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return get_employee_information(jwt, user.emp_id)
+        except BaseException:
+            return {}
+
+    def get_user_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return get_user_information(jwt, user.emp_id)
         except BaseException:
             return {}
 

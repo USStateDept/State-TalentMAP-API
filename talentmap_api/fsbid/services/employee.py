@@ -46,9 +46,6 @@ def get_user_information(jwt_token, emp_seq_num):
                             verify=False).json()  # nosec
     user = next(iter(user.get('Data', [])), {})
     try:
-        print('-------------------------------------------------------')
-        print(user)
-        print('-------------------------------------------------------')
         return {
             "office_address": user['gal_address_text'],
             "office_phone": user['gal_phone_nbr_text'],
