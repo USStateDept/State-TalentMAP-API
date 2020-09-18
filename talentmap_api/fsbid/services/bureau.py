@@ -283,7 +283,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
         "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
-        "request_params.count": query.get("getCount", 'false'),
+        "request_params.totalResults": query.get("getCount", 'false'),
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
