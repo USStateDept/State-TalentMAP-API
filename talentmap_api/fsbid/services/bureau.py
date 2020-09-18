@@ -27,7 +27,8 @@ def get_bureau_position(id, jwt_token):
         id,
         convert_bp_query,
         jwt_token,
-        fsbid_bureau_positions_to_talentmap
+        fsbid_bureau_positions_to_talentmap,
+        CP_API_ROOT,
     )
 
 
@@ -42,8 +43,9 @@ def get_bureau_positions(query, jwt_token, host=None):
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
         get_bureau_positions_count,
-        "/api/v1/fsbid/cyclePositions/",
-        host
+        "/api/v1/fsbid/bureau/positions/",
+        host,
+        CP_API_ROOT,
     )
 
 
@@ -51,7 +53,7 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host)
+    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host, CP_API_ROOT)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -61,7 +63,7 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        API_ROOT,
+        CP_API_ROOT,
     )
 
     count = get_bureau_positions_count(query, jwt_token)
