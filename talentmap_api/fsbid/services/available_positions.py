@@ -146,7 +146,7 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
 
 
 # Max number of similar positions to return.
-SIMILAR_LIMIT = 3
+SIMILAR_LIMIT = 50
 
 # Filters available positions by the criteria provides and by the position with the provided id
 
