@@ -32,9 +32,9 @@ class SystemResources(GenericViewSet):
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get(self, format=None):
-        memory = os.popen('free m -m').read()
-        cpu = os.popen('cat /proc/loadavg').read()
-        disk = os.popen('df -h').read()
+        memory = os.popen('free m -m').read() # nosec
+        cpu = os.popen('cat /proc/loadavg').read() # nosec
+        disk = os.popen('df -h').read() # nosec
         return Response(data={"memory":memory, "cpu":cpu, "disk":disk})
 
 
