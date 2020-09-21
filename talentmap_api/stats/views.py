@@ -1,8 +1,9 @@
 import datetime
 import logging
 import maya
+import os
 
-from django.db.models import TextField, DateTimeField
+from django.db.models import TextField
 from django.db.models.functions import Concat
 
 from rest_framework import mixins
@@ -14,6 +15,7 @@ from rest_framework import status
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
+from talentmap_api.common.common_helpers import in_group_or_403
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.stats.models import LoginInstance, ViewPositionInstance
@@ -21,6 +23,19 @@ from talentmap_api.stats.serializers import LoginInstanceSerializer, ViewPositio
 from talentmap_api.stats.filters import LoginInstanceFilter, ViewPositionInstanceFilter
 
 logger = logging.getLogger(__name__)
+
+class SystemResources(GenericViewSet):
+    '''
+    System resource utilization
+    '''
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
+
+    def get(self, format=None):
+        memory = os.popen('free m -m').read()
+        cpu = os.popen('cat /proc/loadavg').read()
+        disk = os.popen('df -h').read()
+        return Response(data={"memory":memory, "cpu":cpu, "disk":disk})
 
 
 class UserLoginActionView(GenericViewSet):
