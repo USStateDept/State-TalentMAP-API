@@ -188,6 +188,33 @@ class FSBidAvailablePositionsSimilarView(BaseView):
 class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    # put code here
+    filter_class = AvailablePositionsFilter
+    schema = AutoSchema(
+        manual_fields=[
+            # Pagination
+            coreapi.Field("ordering", location='query', description='Ordering'),
+            coreapi.Field("page", location='query', description='Page Index'),
+            coreapi.Field("limit", location='query', description='Page Limit'),
+
+            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
+            coreapi.Field("id", location="query", description="Available Position ids"),
+            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
+            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
+            coreapi.Field("language_codes", location='query', description='Language code'),
+            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
+            coreapi.Field("position__post__code__in", location='query', description='Post id'),
+            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
+            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
+            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("q", location='query', description='Text search'),
+        ]
+    )
 
     def get(self, request, *args, **kwargs):
         '''
