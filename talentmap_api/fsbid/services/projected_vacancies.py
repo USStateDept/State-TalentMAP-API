@@ -219,7 +219,7 @@ def convert_pv_query(query, isTandem=False):
         f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
         f"{prefix}overseas_ind": services.overseas_values(query),
         f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
-        f"{prefix}bureaus": services.bureau_values(query),
+        f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
         f"{prefix}location_codes": services.post_values(query),
         f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
@@ -254,7 +254,7 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
         values[f"{prefix}bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
         values[f"{prefix}languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
-        values[f"{prefix}bureaus2"] = services.bureau_values(query, True)
+        values[f"{prefix}bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem"))
         values[f"{prefix}grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
         values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
