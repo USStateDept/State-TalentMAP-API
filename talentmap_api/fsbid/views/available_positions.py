@@ -188,6 +188,15 @@ class FSBidAvailablePositionsSimilarView(BaseView):
 class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = AvailablePositionsFilter
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("limit", location='query', description='Page Limit'),
+            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
+            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
+        ]
+    )
 
     def get(self, request, *args, **kwargs):
         '''
