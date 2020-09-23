@@ -191,13 +191,9 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
     filter_class = AvailablePositionsFilter
     schema = AutoSchema(
         manual_fields=[
-            # Pagination
-            coreapi.Field("ordering", location='query', description='Ordering'),
-            coreapi.Field("page", location='query', description='Page Index'),
             coreapi.Field("limit", location='query', description='Page Limit'),
-
-            coreapi.Field("id", location="query", description="Available Position ids"),
             coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
+            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
         ]
     )
