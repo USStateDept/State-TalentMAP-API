@@ -12,5 +12,8 @@ urlpatterns = [
     # position view stats
     url(r'^positionview/$', views.ViewPositionActionView.as_view({'post': 'submit'}), name='stats.ViewPosition-actions-submit'),
     url(r'^positionviews/$', views.ViewPositionListView.as_view({**get_list}), name='stats.ViewPositionList'),
-    url(r'^distinctpositionviews/$', views.ViewPositionDistinctListView.as_view({**get_list}), name='stats.ViewPositionDistinctList')
+    url(r'^distinctpositionviews/$', views.ViewPositionDistinctListView.as_view({**get_list}), name='stats.ViewPositionDistinctList'),
+
+    # system resources
+    url(r'^sysmon/', views.SystemResources.as_view({'get': 'get'}), name='stats.SystemResources'),
 ]
