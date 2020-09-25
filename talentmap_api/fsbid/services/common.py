@@ -180,24 +180,24 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
     '''
     Gets an individual record by the provided ID
     '''
-    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function)), None)
+    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)), None)
 
 
-def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
     '''
     Gets items from FSBid
     '''
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
-        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
+        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT):
     '''
     Gets the total number of items for a filterset
     '''
@@ -211,7 +211,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
+    url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
 
@@ -258,8 +258,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         formattedQuery['ad_id'] = ad_id
     if limit is not None:
         formattedQuery['limit'] = limit
-    logger.info(query_mapping_function(formattedQuery))
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(formattedQuery)}"
+    url = f"{base_url}/{uri}?{query_mapping_function(formattedQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
@@ -433,3 +432,48 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                 else:
                     AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
+
+def get_bidders_csv(data, filename, jwt_token):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Name"))
+    headers.append(smart_str(u"Submitted Date"))
+    headers.append(smart_str(u"Has Handshake"))
+    headers.append(smart_str(u"Skill"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Language"))
+    headers.append(smart_str(u"TED"))
+    headers.append(smart_str(u"CDO"))
+    headers.append(smart_str(u"CDO Email"))
+
+    writer.writerow(headers)
+
+    for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        try:
+            submit_date = smart_str(maya.parse(record["submitted_date"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            submit_date = "None listed"
+
+        row = []
+        row.append(smart_str(record["name"]))
+        row.append(submit_date)
+        row.append(smart_str(record["has_handshake_offered"]))
+        row.append(smart_str(record["skill"]))
+        row.append(smart_str("=\"%s\"" % record["grade"]))
+        row.append(smart_str(record["language"]))
+        row.append(ted)
+        row.append(smart_str(record["cdo"]["name"]))
+        row.append(smart_str(record["cdo"]["email"]))
+
+        writer.writerow(row)
+    return response

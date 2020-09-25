@@ -120,7 +120,7 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
         convert_client_query,
         jwt_token,
         fsbid_clients_to_talentmap_clients_for_csv,
-        "/api/v1/fsbid/client/",
+        API_ROOT,
         host,
         ad_id
     )

@@ -108,7 +108,7 @@ def get_available_positions_csv(query, jwt_token, host=None, limit=None, include
         convert_ap_query,
         jwt_token,
         fsbid_ap_to_talentmap_ap,
-        "/api/v1/fsbid/available_positions/",
+        API_ROOT,
         host,
         None,
         limit
@@ -130,7 +130,7 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
         partial(convert_ap_query, isTandem=True),
         jwt_token,
         fsbid_ap_to_talentmap_ap,
-        "/api/v1/fsbid/available_positions/tandem/",
+        API_ROOT,
         host,
         None,
         limit
@@ -146,7 +146,7 @@ def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, 
 
 
 # Max number of similar positions to return.
-SIMILAR_LIMIT = 3
+SIMILAR_LIMIT = 50
 
 # Filters available positions by the criteria provides and by the position with the provided id
 

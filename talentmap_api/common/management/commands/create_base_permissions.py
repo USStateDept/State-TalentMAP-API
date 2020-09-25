@@ -20,6 +20,7 @@ class Command(BaseCommand):
             "bidcycle_admin",
             "superuser",
             "bureau_user",
+            "ao_user",
         ]
 
     def handle(self, *args, **options):

@@ -75,7 +75,7 @@ def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, include
         convert_pv_query,
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        "/api/v1/fsbid/projected_vacancies/",
+        API_ROOT,
         host,
         None,
         limit
@@ -97,7 +97,7 @@ def get_projected_vacancies_tandem_csv(query, jwt_token, host=None, limit=None, 
         partial(convert_pv_query, isTandem=True),
         jwt_token,
         fsbid_pv_to_talentmap_pv,
-        "/api/v1/fsbid/projected_vacancies/tandem/",
+        API_ROOT,
         host,
         None,
         limit
@@ -254,7 +254,7 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}seq_nums2"] = services.convert_multi_value(query.get("id-tandem", None))
         values[f"{prefix}bid_seasons2"] = services.convert_multi_value(query.get("is_available_in_bidseason-tandem"))
         values[f"{prefix}languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
-        values[f"{prefix}bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
+        values[f"{prefix}bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem"))
         values[f"{prefix}grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
         values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
