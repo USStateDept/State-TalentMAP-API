@@ -14,5 +14,5 @@ class ViewPositionInstanceSerializer(PrefetchedSerializer):
 
     class Meta:
         model = ViewPositionInstance
-        fields = ["id", "date_of_view", "position_type", "position_id"]
+        fields = []
         writable_fields = ("position_id", "position_type")
