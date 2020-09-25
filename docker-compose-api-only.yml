@@ -19,7 +19,7 @@ services:
       && ./wait-for-oracle.sh oracle:1521/talentmappdb talentmap1 talentmap1 '' true
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
+      - .:/app:delegated
     environment:
       - DJANGO_SECRET_KEY=development_secret_key
       - DATABASE_URL=oracle:1521/talentmappdb
@@ -34,7 +34,7 @@ services:
       - 1521:1521
     image: banglamon/oracle193db:19.3.0-ee
     volumes:
-      - oracle:/var/lib/oracle/data/
+      - oracle:/var/lib/oracle/data/:delegated
     environment:
       - ORACLE_SID=talentmap
       - ORACLE_PDB=talentmappdb
