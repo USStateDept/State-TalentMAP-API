@@ -109,7 +109,7 @@ class ViewPositionActionView(GenericViewSet):
         view_instance = ViewPositionInstance()
 
         view_instance.user = user
-        view_instance.date_of_view = maya.now().datetime().strftime('%Y-%m-%d %H:%M:%S')
+        view_instance.date_of_view = maya.now().datetime().strftime('%Y-%m-%d %H:%M:%S') # Oracle-compatible date format
         view_instance.date_of_view_day = maya.now().datetime().strftime('%m/%d/%Y')
         view_instance.date_of_view_week = maya.now().datetime().strftime('%V/%Y')
         view_instance.position_id = request.data.get('position_id')
