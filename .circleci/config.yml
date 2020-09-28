@@ -76,15 +76,15 @@ jobs:
             sudo mkdir oracle
             cd ./oracle
             sudo apt-get update && sudo apt-get install -y libaio1 wget unzip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-basiclite-linux.x64-19.6.0.0.0dbru.zip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
-            sudo unzip instantclient-basiclite-linux.x64-19.6.0.0.0dbru.zip
-            sudo unzip instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo unzip instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
-            sudo rm -f instantclient-basiclite-linux.x64-19.6.0.0.0dbru.zip
-            sudo rm -f instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip
-            sudo rm -f instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip
+            sudo wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip
+            sudo unzip instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip
+            sudo unzip instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip
+            sudo unzip instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip
+            sudo rm -f instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip
+            sudo rm -f instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip
+            sudo rm -f instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip
             cd /opt/oracle/instantclient*
             sudo rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci
             cd /etc/ld.so.conf.d
