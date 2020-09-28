@@ -10,7 +10,7 @@ suffix="$4"
 shift
 
 createUser() {
-  echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @create-oracle-user.sql | grep -q 'Grant succeeded'
+  echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @create-oracle-user.sql | grep -q 'Grant succeeded'
 }
 
 retries=300

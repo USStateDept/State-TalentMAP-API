@@ -12,9 +12,9 @@ shift
 
 checkOracle() {
   if $alt; then
-    echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck-alt.sql | grep -q 'USER'
+    echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck-alt.sql | grep -q 'USER'
   else
-    echo exit | /opt/oracle/instantclient_19_6/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'READ WRITE'
+    echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'READ WRITE'
   fi
 }
 
