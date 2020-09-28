@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes
 
 API_ROOT = settings.EMPLOYEES_API_URL
+SECREF_ROOT = settings.SECREF_URL
 FSBID_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def get_user_information(jwt_token, perdet_seq_num):
     '''
     Gets the office_phone and office_address for the employee
     '''
-    url = f"http://mock_fsbid:3333/SECREF/user?request_params.perdet_seq_num={perdet_seq_num}"
+    url = f"{SECREF_ROOT}/user?request_params.perdet_seq_num={perdet_seq_num}"
     user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
                             verify=False).json()  # nosec
     user = next(iter(user.get('Data', [])), {})
