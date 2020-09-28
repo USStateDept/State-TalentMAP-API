@@ -164,6 +164,10 @@ sort_dict = {
     "bidder_grade": "grade_code",
     "bidder_skill": "skill_desc",
     "bidder_hs": "handshake_code",
+    # Check fsbid to confirm these mappings work
+    "bidder_language": "language_txt",
+    "bidder_ted": "TED",
+    "bidder_name": "full_name",
 }
 
 
