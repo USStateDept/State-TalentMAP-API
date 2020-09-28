@@ -5,15 +5,15 @@ ENV PYTHONUNBUFFERED 1
 # Installing Oracle instant client
 WORKDIR    /opt/oracle
 RUN        apt-get update && apt-get install -y libaio1 wget unzip \
-            && wget https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip \
-            && wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip \
-            && wget https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip \
-            && unzip instantclient-basiclite-linuxx64.zip \
-            && unzip instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip \
-            && unzip instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip \
-            && rm -f instantclient-basiclite-linuxx64.zip \
-            && rm -f instantclient-sqlplus-linux.x64-19.6.0.0.0dbru.zip \
-            && rm -f instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
             && cd /opt/oracle/instantclient* \
             && rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci \
             && echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
