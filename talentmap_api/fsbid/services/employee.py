@@ -37,11 +37,11 @@ def get_employee_information(jwt_token, emp_id):
     except:
         return {}
 
-def get_user_information(jwt_token, emp_seq_num):
+def get_user_information(jwt_token, perdet_seq_num):
     '''
     Gets the office_phone and office_address for the employee
     '''
-    url = f"{FSBID_ROOT}/SECREF/user?request_params.perdet_seq_num={emp_seq_num}"
+    url = f"http://mock_fsbid:3333/SECREF/user?request_params.perdet_seq_num={perdet_seq_num}"
     user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
                             verify=False).json()  # nosec
     user = next(iter(user.get('Data', [])), {})

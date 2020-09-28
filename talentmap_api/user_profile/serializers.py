@@ -30,6 +30,16 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
+    user_info = serializers.SerializerMethodField()
+
+    def get_user_info(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            return get_user_information(jwt, user.emp_id)
+        except BaseException:
+            return {}
 
     class Meta:
         model = UserProfile
@@ -123,10 +133,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     cdo_info = serializers.SerializerMethodField()
     employee_info = serializers.SerializerMethodField()
     user_info = serializers.SerializerMethodField()
-    # office_phone = serializers.SerializerMethodField()
-    # office_address = serializers.SerializerMethodField()
 
-    # //check that this gets returned  on the FE
     def get_favorite_positions(self, obj):
         request = self.context['request']
         user = UserProfile.objects.get(user=request.user)
