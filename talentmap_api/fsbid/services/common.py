@@ -164,6 +164,10 @@ sort_dict = {
     "bidder_grade": "grade_code",
     "bidder_skill": "skill_desc",
     "bidder_hs": "handshake_code",
+    # Check fsbid to confirm these mappings work
+    "bidder_language": "language_txt",
+    "bidder_ted": "TED",
+    "bidder_name": "full_name",
 }
 
 
@@ -207,24 +211,24 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
     '''
     Gets an individual record by the provided ID
     '''
-    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function)), None)
+    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)), None)
 
 
-def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
     '''
     Gets items from FSBid
     '''
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
-        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
+        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT):
     '''
     Gets the total number of items for a filterset
     '''
@@ -238,7 +242,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
+    url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
 
