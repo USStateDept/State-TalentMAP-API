@@ -46,12 +46,11 @@ class ProjectedFavoriteTandemListView(APIView):
         pvs = ProjectedFavoriteTandem.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
-        ordering = request.query_params.get('ordering', None)
         if pvs:
             comservices.archive_favorites(pvs, request, True)
             pos_nums = ','.join(pvs)
             return Response(services.get_projected_vacancies(
-                QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
+                QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
                 request.META['HTTP_JWT'],
                 f"{request.scheme}://{request.get_host()}"))
         return Response({"count": 0, "next": None, "previous": None, "results": []})
