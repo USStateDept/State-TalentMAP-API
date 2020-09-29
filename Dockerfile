@@ -2,9 +2,25 @@ FROM python:3.7.5
 
 ENV PYTHONUNBUFFERED 1
 
-# Note that we want postgresql-client so 'manage.py dbshell' works.
+# Installing Oracle instant client
+WORKDIR    /opt/oracle
+RUN        apt-get update && apt-get install -y libaio1 wget unzip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && wget https://download.oracle.com/otn_software/linux/instantclient/19800/instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && unzip instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-basiclite-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-sqlplus-linux.x64-19.8.0.0.0dbru.zip \
+            && rm -f instantclient-sdk-linux.x64-19.8.0.0.0dbru.zip \
+            && cd /opt/oracle/instantclient* \
+            && rm -f *jdbc* *occi* *mysql* *README *jar uidrvci genezi adrci \
+            && echo /opt/oracle/instantclient* > /etc/ld.so.conf.d/oracle-instantclient.conf \
+            && ldconfig
+
 # We want xmlsec1 to support SAML SSO
-RUN apt-get update && apt-get install -y postgresql-client xmlsec1
+RUN apt-get update && apt-get install -y xmlsec1
 
 RUN mkdir /app
 RUN mkdir /app/logs
@@ -15,6 +31,7 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 COPY talentmap_api /app/talentmap_api/
-ADD wait-for-postgres.sh manage.py setup.cfg show_logo.py /app/
+ADD wait-for-oracle.sh create-oracle-user.sh manage.py setup.cfg show_logo.py /app/
 
-RUN chmod +x wait-for-postgres.sh
+RUN chmod +x wait-for-oracle.sh
+RUN chmod +x create-oracle-user.sh

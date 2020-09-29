@@ -4,7 +4,7 @@ from talentmap_api.common.models import StaticRepresentationModel
 
 class AvailableFavoriteTandem(StaticRepresentationModel):
 
-    cp_id = models.TextField(null=False)
+    cp_id = models.CharField(max_length=255, null=False)
     user = models.ForeignKey('user_profile.UserProfile', null=False, on_delete=models.DO_NOTHING, help_text="The user to which this tandem favorite belongs")
     archived = models.BooleanField(default=False)
 
