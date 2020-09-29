@@ -4,7 +4,7 @@ import jwt
 
 from django.conf import settings
 from django.contrib.auth.models import Group
-from talentmap_api.fsbid.services.client import map_skill_codes
+from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 
 API_ROOT = settings.EMPLOYEES_API_URL
 SECREF_ROOT = settings.SECREF_URL
@@ -28,12 +28,17 @@ def get_employee_information(jwt_token, emp_id):
     Gets the grade and skills for the employee from FSBid
     '''
     url = f"{FSBID_ROOT}/Persons?request_params.perdet_seq_num={emp_id}"
+    skillUrl = f"{FSBID_ROOT}/skillCodes"
     employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     employee = next(iter(employee.get('Data', [])), {})
+    employeeSkills = map_skill_codes(employee)
+    skills = requests.get(skillUrl, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    skills = skills.get('Data', [])
     try:
         return {
-            "skills": map_skill_codes(employee),
-            "grade": employee['per_grade_code'].replace(" ", "")
+            "skills": employeeSkills,
+            "grade": employee['per_grade_code'].replace(" ", ""),
+            "skills_additional": map_skill_codes_additional(skills, employeeSkills),
         }
     except:
         return {}

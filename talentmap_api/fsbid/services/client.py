@@ -317,6 +317,17 @@ def map_skill_codes(data):
     return filter(lambda x: x.get('code', None) is not None, skills)
 
 
+def map_skill_codes_additional(skills, employeeSkills):
+    employeeCodesAdd = []
+    for w in employeeSkills:
+        foundSkill = [a for a in skills if a['skl_code'] == w['code']][0]
+        cone = foundSkill['jc_nm_txt']
+        foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
+        for x in foundSkillsByCone:
+            employeeCodesAdd.append(x['skl_code'])
+    return set(employeeCodesAdd)
+
+
 def map_location(location):
     city = location.get('city')
     country = location.get('country')
