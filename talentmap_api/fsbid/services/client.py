@@ -322,7 +322,7 @@ def map_skill_codes_additional(skills, employeeSkills):
         foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
         for x in foundSkillsByCone:
             employeeCodesAdd.append(x['skl_code'])
-    return employeeCodesAdd
+    return set(employeeCodesAdd)
 
 
 def map_location(location):
