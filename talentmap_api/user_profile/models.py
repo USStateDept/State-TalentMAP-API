@@ -6,6 +6,8 @@ from django.contrib.postgres.fields import JSONField
 
 from dateutil.relativedelta import relativedelta
 
+from jsonfield import JSONField
+
 from talentmap_api.common.models import StaticRepresentationModel
 from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter, get_avatar_url
 from talentmap_api.common.permissions import in_group_or_403
@@ -15,31 +17,10 @@ from talentmap_api.messaging.models import Notification
 
 class UserProfile(StaticRepresentationModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    date_of_birth = models.DateTimeField(null=True)
-    mandatory_retirement_date = models.DateTimeField(null=True)
-    phone_number = models.TextField(null=True)
-
-    cdo = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name='direct_reports', null=True)
-
-    language_qualifications = models.ManyToManyField('language.Qualification', related_name='qualified_users')
-
-    skills = models.ManyToManyField('position.Skill')
-
-    grade = models.ForeignKey('position.Grade', on_delete=models.DO_NOTHING, null=True)
-
-    primary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='primary_citizens', help_text="The user's primary country of citizenship")
-    secondary_nationality = models.ForeignKey('organization.Country', on_delete=models.DO_NOTHING, null=True, related_name='secondary_citizens', help_text="The user's secondary country of citizenship")
-
-    emp_id = models.TextField(null=False, help_text="The user's employee id")
+    emp_id = models.CharField(max_length=255, null=False, help_text="The user's employee id")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
-
-    def save(self, *args, **kwargs):
-        # Set the retirement date to the user's birthdate + 65 years
-        if self.date_of_birth:
-            self.mandatory_retirement_date = ensure_date(self.date_of_birth) + relativedelta(years=65)
-        super(UserProfile, self).save(*args, **kwargs)
 
     @property
     def avatar(self):
@@ -100,7 +81,7 @@ class SavedSearch(models.Model):
     '''
     owner = models.ForeignKey(UserProfile, on_delete=models.DO_NOTHING, related_name="saved_searches")
 
-    name = models.TextField(default="Saved Search", help_text="The name of the saved search")
+    name = models.CharField(max_length=255, null=False, default="Saved Search", help_text="The name of the saved search")
     endpoint = models.TextField(help_text="The endpoint for this search and filter")
 
     '''
@@ -113,7 +94,7 @@ class SavedSearch(models.Model):
        "grade__code": ["05"]
     }
     '''
-    filters = JSONField(default=dict, help_text="JSON object containing filters representing the saved search")
+    filters = JSONField(default={}, help_text="JSON object containing filters representing the saved search")
 
     count = models.IntegerField(default=0, help_text="Current count of search results for this search")
 

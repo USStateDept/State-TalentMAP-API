@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from jsonfield import JSONField
 
 class FeatureFlags(models.Model):
     '''
