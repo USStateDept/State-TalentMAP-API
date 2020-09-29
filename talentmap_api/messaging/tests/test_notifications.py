@@ -24,31 +24,6 @@ def test_notification_tag_filters(authorized_client, authorized_user):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 4
 
-    response = authorized_client.get('/api/v1/notification/?tags=fruit')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = authorized_client.get('/api/v1/notification/?tags=potassium')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 2
-
-    response = authorized_client.get('/api/v1/notification/?tags=fruit,potassium')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = authorized_client.get('/api/v1/notification/?tags=potassium,fruit')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 1
-
-    response = authorized_client.get('/api/v1/notification/?tags__overlap=fruit,potassium')
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data["results"]) == 3
-
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_notification_fixture")

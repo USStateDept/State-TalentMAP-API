@@ -6,31 +6,39 @@ services:
     ports:
       - 8000:8000
     links:
-      - db
+      - oracle
     depends_on:
-      - db
+      - oracle
     # use this to run in https server locally
     # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
     command: >
       bash -c "python show_logo.py
+      && echo 'Starting...'
+      && ./wait-for-oracle.sh oracle:1521/talentmap sys talentmap 'as sysdba'
+      && ./create-oracle-user.sh oracle:1521/talentmap sys talentmap 'as sysdba'
+      && ./wait-for-oracle.sh oracle:1521/talentmappdb talentmap1 talentmap1 '' true
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - .:/app
+      - .:/app:delegated
     environment:
       - DJANGO_SECRET_KEY=development_secret_key
-      - DATABASE_URL=postgres://talentmap-user@db/talentmap
+      - DATABASE_URL=oracle:1521/talentmappdb
+      - DATABASE_USER=talentmap1
+      - DATABASE_PW=talentmap1
       - DJANGO_DEBUG=true
       - FSBID_API_URL=http://host.docker.internal:3333
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
-  db:
+  oracle:
     ports:
-      - 5432:5432
-    image: postgres:9.6.3
+      - 1521:1521
+    image: banglamon/oracle193db:19.3.0-ee
     volumes:
-      - pgdata:/var/lib/postgresql/data/
+      - oracle:/var/lib/oracle/data/:delegated
     environment:
-      - POSTGRES_DB=talentmap
-      - POSTGRES_USER=talentmap-user
+      - ORACLE_SID=talentmap
+      - ORACLE_PDB=talentmappdb
+      - ORACLE_PWD=talentmap
 volumes:
   pgdata:
+  oracle:

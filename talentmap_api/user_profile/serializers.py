@@ -5,12 +5,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from talentmap_api.common.common_helpers import resolve_path_to_view
-from talentmap_api.bidding.serializers.serializers import UserBidStatisticsSerializer
+from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
-from talentmap_api.language.serializers import LanguageQualificationSerializer
-from talentmap_api.position.serializers import SkillSerializer
-from talentmap_api.messaging.serializers import SharableSerializer
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
@@ -33,16 +29,7 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["first_name", "last_name", "email", "skills"]
-        nested = {
-            "skills": {
-                "class": SkillSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            }
-        }
+        fields = ["first_name", "last_name", "email"]
 
 
 class UserProfileShortSerializer(PrefetchedSerializer):
@@ -57,53 +44,26 @@ class UserProfileShortSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["username", "first_name", "last_name", "email", "phone_number", "is_cdo", "initials", "avatar", "display_name"]
+        fields = ["username", "first_name", "last_name", "email", "is_cdo", "initials", "avatar", "display_name"]
 
 
 class ClientSerializer(PrefetchedSerializer):
     grade = StaticRepresentationField(read_only=True)
     is_cdo = serializers.ReadOnlyField()
-    primary_nationality = StaticRepresentationField(read_only=True)
-    secondary_nationality = StaticRepresentationField(read_only=True)
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
     display_name = serializers.ReadOnlyField()
 
     class Meta:
         model = UserProfile
-        fields = ["id", "skills", "grade", "is_cdo", "primary_nationality", "secondary_nationality", "bid_statistics", "user", "language_qualifications", "initials", "avatar", "display_name"]
+        fields = ["id", "skills", "grade", "is_cdo", "bid_statistics", "user", "initials", "avatar", "display_name"]
         nested = {
             "user": {
                 "class": UserSerializer,
                 "kwargs": {
                     "read_only": True
                 }
-            },
-            "language_qualifications": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "representation"
-                    ],
-                    "many": True,
-                    "read_only": True,
-                }
-            },
-            "bid_statistics": {
-                "class": UserBidStatisticsSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
-            "skills": {
-                "class": SkillSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
-            },
+            }
         }
 
 
@@ -116,8 +76,6 @@ class UserProfileSerializer(PrefetchedSerializer):
     is_cdo = serializers.ReadOnlyField()
     initials = serializers.ReadOnlyField()
     avatar = serializers.ReadOnlyField()
-    primary_nationality = StaticRepresentationField(read_only=True)
-    secondary_nationality = StaticRepresentationField(read_only=True)
     display_name = serializers.ReadOnlyField()
     # Use cdo_info so we don't have to break legacy CDO functionality
     cdo_info = serializers.SerializerMethodField()
@@ -160,30 +118,6 @@ class UserProfileSerializer(PrefetchedSerializer):
                 "kwargs": {
                     "read_only": True
                 }
-            },
-            "cdo": {
-                "class": UserProfileShortSerializer,
-                "kwargs": {
-                    "read_only": True
-                }
-            },
-            "language_qualifications": {
-                "class": LanguageQualificationSerializer,
-                "kwargs": {
-                    "override_fields": [
-                        "id",
-                        "representation"
-                    ],
-                    "many": True,
-                    "read_only": True,
-                }
-            },
-            "received_shares": {
-                "class": SharableSerializer,
-                "kwargs": {
-                    "many": True,
-                    "read_only": True
-                }
             }
         }
 
@@ -192,8 +126,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number", "initials", "avatar", "display_name"]
-        writable_fields = ("language_qualifications", "primary_nationality", "secondary_nationality", "date_of_birth", "phone_number")
+        fields = ["favorite_positions", "initials", "avatar", "display_name"]
+        writable_fields = ("favorite_positions")
 
 
 class SavedSearchSerializer(PrefetchedSerializer):
