@@ -35,7 +35,7 @@ def get_employee_information(jwt_token, emp_id):
     skills = skills.get('Data', [])
     try:
         return {
-            "skills": employeeSkills,
+            "skills": map_skill_codes(employee),
             "grade": employee['per_grade_code'].replace(" ", ""),
             "skills_additional": map_skill_codes_additional(skills, employeeSkills),
         }
