@@ -25,4 +25,4 @@ For example:
 - `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml up`
 - `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run dev`
 - `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run migrate`
-- `docker-compose -f dockertalentmap_api/user_profile/tests/test_user_profile_endpoints.py-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run seed`
+- `docker-compose -f docker-compose.yml -f docker-compose.local-fsbid.yml run mock_fsbid npm run seed`
