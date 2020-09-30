@@ -39,7 +39,7 @@ class UserProfilePublicSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["first_name", "last_name", "email"]
+        fields = ["first_name", "last_name", "email", "user_info"]
 
 
 class UserProfileShortSerializer(PrefetchedSerializer):
