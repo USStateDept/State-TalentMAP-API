@@ -33,7 +33,7 @@ export DATABASE_URL='<DATABASE_URL>'
 export DJANGO_LOG_DIRECTORY='/home/ec2-user/log/'
 export DEPLOYMENT_LOCATION='/home/ec2-user/State-TalentMAP-API-dev/'
 export FSBID_API_URL='https://mockfsbid.metaphasedev.com'
-export EMPLOYEES_API_URL='https://mockfsbid.metaphasedev.com/Employees'
+export FSBID_API_URL='https://mockfsbid.metaphasedev.com/Employees'
 export SECREF_URL='https://mockfsbid.metaphasedev.com/SECREF'
 
 # install dependencies
