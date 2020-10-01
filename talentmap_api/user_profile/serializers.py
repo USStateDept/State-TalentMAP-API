@@ -126,8 +126,8 @@ class UserProfileWritableSerializer(PrefetchedSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["favorite_positions", "initials", "avatar", "display_name"]
-        writable_fields = ("favorite_positions")
+        fields = ["initials", "avatar", "display_name"]
+        writable_fields = ()
 
 
 class SavedSearchSerializer(PrefetchedSerializer):
