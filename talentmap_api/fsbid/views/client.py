@@ -30,7 +30,7 @@ class FSBidClientListView(BaseView):
 
 
 class FSBidClientView(BaseView):
-    
+
     def get(self, request, pk):
         '''
         Gets a single client by perdet_seq_num
