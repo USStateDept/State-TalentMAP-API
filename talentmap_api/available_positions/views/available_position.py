@@ -1,21 +1,32 @@
 import coreapi
+import maya
 
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
-
+from django.db.models.functions import Concat
+from django.db.models import TextField
 from django.conf import settings
 
 from rest_framework.viewsets import GenericViewSet
+from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.schemas import AutoSchema
 
-from talentmap_api.common.common_helpers import in_group_or_403
+from rest_framework_bulk import (
+    ListBulkCreateUpdateDestroyAPIView,
+)
+
+from rest_condition import Or
+
+from talentmap_api.common.common_helpers import in_group_or_403, get_prefetched_filtered_queryset
+from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation
-from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer
+from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation, AvailablePositionRanking
+from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer, AvailablePositionRankingSerializer
+from talentmap_api.available_positions.filters import AvailablePositionRankingFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
@@ -80,7 +91,31 @@ class AvailablePositionFavoriteIdsListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
-        return Response(aps)
+
+
+class AvailablePositionRankingView(FieldLimitableSerializerMixin,
+                                   GenericViewSet,
+                                   ListBulkCreateUpdateDestroyAPIView,
+                                   mixins.ListModelMixin,
+                                   mixins.RetrieveModelMixin):
+
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    serializer_class = AvailablePositionRankingSerializer
+    filter_class = AvailablePositionRankingFilter
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user.profile)
+
+    def get_queryset(self):
+        return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+
+    def perform_delete(self, request, pk, format=None):
+        '''
+        Removes the available position rankings by cp_id for the user
+        '''
+        user = UserProfile.objects.get(user=self.request.user)
+        get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class FavoritesCSVView(APIView):
