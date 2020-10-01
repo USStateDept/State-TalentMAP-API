@@ -14,7 +14,7 @@ import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 from talentmap_api.common.common_helpers import ensure_date
-import talentmap_api.fsbid.services.bureau as plz_work
+from talentmap_api.fsbid.services.bureau import get_bureau_positions
 
 API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
