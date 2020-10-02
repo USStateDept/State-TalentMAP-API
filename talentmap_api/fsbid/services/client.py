@@ -13,8 +13,8 @@ import requests  # pylint: disable=unused-import
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
+import talentmap_api.fsbid.services.employee as employee_services
 from talentmap_api.common.common_helpers import ensure_date
-from talentmap_api.fsbid.services.employee import get_employee_information
 
 API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
@@ -108,8 +108,10 @@ def single_client(jwt_token, perdet_seq_num):
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
+#     user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
     CLIENT['cdo'] = cdo
+#     CLIENT['user_info'] = user_info
     return CLIENT
 
 
