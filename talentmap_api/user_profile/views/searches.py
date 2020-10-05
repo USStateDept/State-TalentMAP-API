@@ -23,16 +23,16 @@ class SavedSearchView(FieldLimitableSerializerMixin,
                       mixins.DestroyModelMixin):
     '''
     create:
-    Creates a new saved share
+    Creates a new saved search
 
     partial_update:
-    Edits a saved share
+    Edits a saved search
 
     retrieve:
-    Retrieves a specific saved share
+    Retrieves a specific saved search
 
     list:
-    Lists all of the user's saved shares
+    Lists all of the user's saved searches
 
     destroy:
     Deletes a specified saved search

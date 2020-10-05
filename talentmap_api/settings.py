@@ -94,7 +94,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.postgres',
 
     # Third-party
     'corsheaders',
@@ -112,15 +111,12 @@ INSTALLED_APPS = [
     # TalentMap Apps
     'talentmap_api.common',
     'talentmap_api.position',
-    'talentmap_api.language',
     'talentmap_api.organization',
     'talentmap_api.messaging',
     'talentmap_api.user_profile',
     'talentmap_api.bidding',
     'talentmap_api.permission',
     'talentmap_api.glossary',
-    'talentmap_api.integrations',
-    'talentmap_api.feedback',
     'talentmap_api.projected_vacancies',
     'talentmap_api.available_positions',
     'talentmap_api.projected_tandem',
@@ -417,11 +413,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,  # Consume these logs
         },
-        'talentmap_api.integrations': {
-            'handlers': ['console', 'sync'],
-            'level': 'INFO',
-            'propagate': False,  # Consume these logs
-        },
         'talentmap_api.saml2': {
             'handlers': ['console', 'auth'],
             'level': 'DEBUG',
@@ -445,7 +436,14 @@ WSGI_APPLICATION = 'talentmap_api.wsgi.application'
 # Set up the DB from a connection string in the environment variable, DATABASE_URL
 # see https://github.com/kennethreitz/dj-database-url for more info
 
-DATABASES = {'default': dj_database_url.parse(get_delineated_environment_variable('DATABASE_URL'), conn_max_age=1)}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': get_delineated_environment_variable("DATABASE_URL"),
+        'USER': get_delineated_environment_variable("DATABASE_USER"),
+        'PASSWORD': get_delineated_environment_variable("DATABASE_PW"),
+    }
+}
 
 
 # Password validation
@@ -492,6 +490,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
+SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/SECREF')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/cyclePositions')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')

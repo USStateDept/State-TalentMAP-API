@@ -12,7 +12,7 @@ from django.http import QueryDict
 
 import maya
 
-from talentmap_api.organization.models import Post, Organization, OrganizationGroup
+from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
 from talentmap_api.available_positions.models import AvailablePositionFavorite
@@ -108,33 +108,6 @@ def post_values(query):
         return results
 
 
-def bureau_values(query, isTandem=False):
-    '''
-    Gets the ids for the functional/regional bureaus and maps to codes and their children
-    '''
-    org = "org_has_groups"
-    bureau = "position__bureau__code__in"
-    if isTandem:
-        org = "org_has_groups-tandem"
-        bureau = "position__bureau__code__in-tandem"
-
-    results = []
-    # functional bureau filter
-    if query.get(org):
-        func_bureaus = query.get(org).split(",")
-        func_org_codes = OrganizationGroup.objects.filter(id__in=func_bureaus).values_list("_org_codes", flat=True)
-        # Flatten _org_codes
-        func_bureau_codes = [item for sublist in func_org_codes for item in sublist]
-        results = results + list(func_bureau_codes)
-    # Regional bureau filter
-    if query.get(bureau):
-        regional_bureaus = query.get(bureau).split(",")
-        reg_org_codes = Organization.objects.filter(Q(code__in=regional_bureaus) | Q(_parent_organization_code__in=regional_bureaus)).values_list("code", flat=True)
-        results = results + list(reg_org_codes)
-    if len(results) > 0:
-        return results
-
-
 def overseas_values(query):
     '''
     Maps the overseas/domestic filter to the proper value
@@ -164,6 +137,10 @@ sort_dict = {
     "bidder_grade": "grade_code",
     "bidder_skill": "skill_desc",
     "bidder_hs": "handshake_code",
+    # Check fsbid to confirm these mappings work
+    "bidder_language": "language_txt",
+    "bidder_ted": "TED",
+    "bidder_name": "full_name",
 }
 
 
@@ -207,24 +184,24 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
     '''
     Gets an individual record by the provided ID
     '''
-    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function)), None)
+    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)), None)
 
 
-def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None):
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
     '''
     Gets items from FSBid
     '''
     return {
         **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
-        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function)
+        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT):
     '''
     Gets the total number of items for a filterset
     '''
@@ -238,16 +215,16 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None)
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
-    url = f"{API_ROOT}/{uri}?{query_mapping_function(newQuery)}"
+    url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return {"count": response["Data"][0][countProp]}
 
 
 def get_obc_id(post_id):
 
-    post = Post.objects.filter(_location_code=post_id)
-    if post.count() == 1:
-        for p in post:
+    obc = Obc.objects.filter(code=post_id)
+    if obc.count() == 1:
+        for p in obc:
             return p.obc_id
 
     return None
@@ -311,6 +288,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Bureau"))
+    headers.append(smart_str(u"Organization"))
     headers.append(smart_str(u"Post City"))
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
@@ -347,6 +325,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["skill"]))
         row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
         row.append(smart_str(record["position"]["bureau"]))
+        row.append(smart_str(record["position"]["organization"]))
         row.append(smart_str(record["position"]["post"]["location"]["city"]))
         row.append(smart_str(record["position"]["post"]["location"]["country"]))
         row.append(smart_str(record["position"]["tour_of_duty"]))
