@@ -108,10 +108,10 @@ def single_client(jwt_token, perdet_seq_num):
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
-#     user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
+    user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
     CLIENT['cdo'] = cdo
-#     CLIENT['user_info'] = user_info
+    CLIENT['user_info'] = user_info
     return CLIENT
 
 
