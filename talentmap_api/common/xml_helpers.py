@@ -80,7 +80,7 @@ class XMLloader():
 
         # For every instance tag, create a new instance and populate it
         self.last_tag_collision_field = None  # Used when loading piecemeal
-        self.last_pagination_start_key = None  # Used when loading SOAP integrations
+        self.last_pagination_start_key = None  # Used when loading SOAP integrations (deprecated)
 
         self.logger.info(f"XML Loader found {len(instance_tags)} items")
         processed = 0
@@ -213,7 +213,7 @@ class CSVloader():
         updated_instances = []
 
         # Parse the CSV
-        with open(csv_filepath, 'r') as csv_file:
+        with open(csv_filepath, 'r', encoding='utf-8-sig') as csv_file:
             for line in csv.DictReader(csv_file):
                 instance = self.model()
                 for key in line.keys():

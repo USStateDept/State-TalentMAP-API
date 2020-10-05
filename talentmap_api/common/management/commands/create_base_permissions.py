@@ -14,12 +14,13 @@ class Command(BaseCommand):
 
         self.groups = [
             "bidder",
+            "cdo",
             "bureau_ao",
             "glossary_editors",
-            "feedback_editors",
             "bidcycle_admin",
             "superuser",
             "bureau_user",
+            "ao_user",
         ]
 
     def handle(self, *args, **options):

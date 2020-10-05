@@ -27,7 +27,8 @@ def get_bureau_position(id, jwt_token):
         id,
         convert_bp_query,
         jwt_token,
-        fsbid_bureau_positions_to_talentmap
+        fsbid_bureau_positions_to_talentmap,
+        CP_API_ROOT,
     )
 
 
@@ -42,8 +43,9 @@ def get_bureau_positions(query, jwt_token, host=None):
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
         get_bureau_positions_count,
-        "/api/v1/fsbid/cyclePositions/",
-        host
+        "/api/v1/fsbid/bureau/positions/",
+        host,
+        CP_API_ROOT,
     )
 
 
@@ -51,7 +53,7 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host)
+    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host, CP_API_ROOT)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -61,9 +63,7 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        "/api/v1/fsbid/cyclePositions/",
-        host,
-        None,
+        CP_API_ROOT,
     )
 
     count = get_bureau_positions_count(query, jwt_token)
@@ -86,6 +86,23 @@ def get_bureau_position_bids(id, query, jwt_token, host):
         CP_API_ROOT,
     )
 
+def get_bureau_position_bids_csv(id, query, jwt_token, host):
+    '''
+    Gets all bids on an indivdual bureau position by id for export
+    '''
+    new_query = deepcopy(query)
+    new_query["id"] = id
+    data = services.send_get_csv_request(
+        "bidders",
+        new_query,
+        convert_bp_bids_query,
+        jwt_token,
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        CP_API_ROOT,
+    )
+
+    response = services.get_bidders_csv(data, "position_bidders", True)
+    return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     '''
@@ -254,7 +271,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "request_params.bureaus": services.bureau_values(query),
+        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
         "request_params.location_codes": services.post_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
@@ -266,7 +283,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
         "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
         "request_params.freeText": query.get("q", None),
-        "request_params.count": query.get("getCount", 'false'),
+        "request_params.totalResults": query.get("getCount", 'false'),
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)

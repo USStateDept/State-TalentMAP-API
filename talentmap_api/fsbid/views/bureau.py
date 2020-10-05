@@ -101,3 +101,13 @@ class FSBidBureauPositionBidsView(BaseView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(result)
+
+class FSBidBureauPositionBidsExportView(BaseView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_class = BureauPositionsFilter
+
+    def get(self, request, pk):
+        '''
+        Gets all bureau positions for export
+        '''
+        return services.get_bureau_position_bids_csv(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")

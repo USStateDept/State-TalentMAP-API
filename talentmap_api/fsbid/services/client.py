@@ -13,6 +13,7 @@ import requests  # pylint: disable=unused-import
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
+import talentmap_api.fsbid.services.employee as employee_services
 from talentmap_api.common.common_helpers import ensure_date
 
 API_ROOT = settings.FSBID_API_URL
@@ -107,8 +108,10 @@ def single_client(jwt_token, perdet_seq_num):
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
+    user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
     CLIENT['cdo'] = cdo
+    CLIENT['user_info'] = user_info
     return CLIENT
 
 
@@ -120,7 +123,7 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
         convert_client_query,
         jwt_token,
         fsbid_clients_to_talentmap_clients_for_csv,
-        "/api/v1/fsbid/client/",
+        API_ROOT,
         host,
         ad_id
     )
@@ -312,6 +315,17 @@ def map_skill_codes(data):
         desc = data.get(f'per_skill{index}_code_desc', None)
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
+
+
+def map_skill_codes_additional(skills, employeeSkills):
+    employeeCodesAdd = []
+    for w in employeeSkills:
+        foundSkill = [a for a in skills if a['skl_code'] == w['code']][0]
+        cone = foundSkill['jc_nm_txt']
+        foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
+        for x in foundSkillsByCone:
+            employeeCodesAdd.append(x['skl_code'])
+    return set(employeeCodesAdd)
 
 
 def map_location(location):

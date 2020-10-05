@@ -34,6 +34,7 @@ class ProjectedFavoriteTandemListView(APIView):
         manual_fields=[
             coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
             coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
+            coreapi.Field("ordering", location='query', type='integer', description='Ordering'),
         ]
     )
 
@@ -46,11 +47,12 @@ class ProjectedFavoriteTandemListView(APIView):
         pvs = ProjectedFavoriteTandem.objects.filter(user=user, archived=False).values_list("fv_seq_num", flat=True)
         limit = request.query_params.get('limit', 15)
         page = request.query_params.get('page', 1)
+        ordering = request.query_params.get('ordering', None)
         if pvs:
             comservices.archive_favorites(pvs, request, True)
             pos_nums = ','.join(pvs)
             return Response(services.get_projected_vacancies(
-                QueryDict(f"id={pos_nums}&limit={limit}&page={page}"),
+                QueryDict(f"id={pos_nums}&limit={limit}&page={page}&ordering={ordering}"),
                 request.META['HTTP_JWT'],
                 f"{request.scheme}://{request.get_host()}"))
         return Response({"count": 0, "next": None, "previous": None, "results": []})
