@@ -1,7 +1,7 @@
 version: 2.1
 
 default-python-node: &default-python-node
-  image: circleci/python:3.6.1
+  image: circleci/python:3.7.5
   environment:
     CC_TEST_REPORTER_ID: b267008efa014a2c3a1ed266efebeb68bad762a948a54a443b4de581a92c45b0
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
