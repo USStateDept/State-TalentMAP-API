@@ -106,12 +106,15 @@ def single_client(jwt_token, perdet_seq_num):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
+    uriCurrentAssignment = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=true"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
+    responseCurrentAssignment = services.get_fsbid_results(uriCurrentAssignment, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
     user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
     CLIENT['cdo'] = cdo
     CLIENT['user_info'] = user_info
+    CLIENT['current_assignment'] = list(responseCurrentAssignment)[0].get('current_assignment', {})
     return CLIENT
 
 
@@ -187,10 +190,6 @@ def fsbid_clients_to_talentmap_clients(data):
         # handle if array
         if current_assignment.get('position', None) is not None:
             position = current_assignment.get('position', None)
-
-    if current_assignment is not None and assignments and type(assignments) is type([]):
-        # remove the current assignment, since we'll pass it with current_assignment
-        assignments.pop(0)
 
     if position is not None:
         # handle if object
