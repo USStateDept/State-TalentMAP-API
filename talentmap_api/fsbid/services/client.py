@@ -18,6 +18,7 @@ from talentmap_api.common.common_helpers import ensure_date
 API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
+SECREF_ROOT = settings.SECREF_URL
 
 logger = logging.getLogger(__name__)
 
