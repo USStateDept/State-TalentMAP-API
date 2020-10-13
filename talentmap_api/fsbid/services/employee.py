@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 
 API_ROOT = settings.EMPLOYEES_API_URL
+SECREF_ROOT = settings.SECREF_URL
 FSBID_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,22 @@ def get_employee_information(jwt_token, emp_id):
             "skills": map_skill_codes(employee),
             "grade": employee['per_grade_code'].replace(" ", ""),
             "skills_additional": map_skill_codes_additional(skills, employeeSkills),
+        }
+    except:
+        return {}
+
+def get_user_information(jwt_token, perdet_seq_num):
+    '''
+    Gets the office_phone and office_address for the employee
+    '''
+    url = f"{SECREF_ROOT}/user?request_params.perdet_seq_num={perdet_seq_num}"
+    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
+                            verify=False).json()  # nosec
+    user = next(iter(user.get('Data', [])), {})
+    try:
+        return {
+            "office_address": user['gal_address_text'],
+            "office_phone": user['gal_phone_nbr_text'],
         }
     except:
         return {}
