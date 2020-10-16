@@ -11,7 +11,8 @@ from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
-from talentmap_api.fsbid.services.employee import get_employee_information, get_user_information
+from talentmap_api.fsbid.services.employee import get_employee_information
+from talentmap_api.fsbid.services.client import get_user_information
 
 logger = logging.getLogger(__name__)
 
