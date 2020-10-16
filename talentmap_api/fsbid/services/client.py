@@ -13,14 +13,31 @@ import requests  # pylint: disable=unused-import
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
-import talentmap_api.fsbid.services.employee as employee_services
 from talentmap_api.common.common_helpers import ensure_date
 
 API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
+SECREF_ROOT = settings.SECREF_URL
 
 logger = logging.getLogger(__name__)
+
+
+def get_user_information(jwt_token, perdet_seq_num):
+    '''
+    Gets the office_phone and office_address for the employee
+    '''
+    url = f"{SECREF_ROOT}/user?request_params.perdet_seq_num={perdet_seq_num}"
+    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
+                            verify=False).json()  # nosec
+    user = next(iter(user.get('Data', [])), {})
+    try:
+        return {
+            "office_address": user['gal_address_text'],
+            "office_phone": user['gal_phone_nbr_text'],
+        }
+    except:
+        return {}
 
 
 def client(jwt_token, query, host=None):
@@ -108,7 +125,7 @@ def single_client(jwt_token, perdet_seq_num):
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
-    user_info = employee_services.get_user_information(jwt_token, perdet_seq_num)
+    user_info = get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
     CLIENT['cdo'] = cdo
     CLIENT['user_info'] = user_info
@@ -245,7 +262,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
             pos_location = map_location(position.get("currentLocation", None))
 
     return {
-        "id": employee.get("pert_external_id", None),
+        "id": employee.get("perdet_seq_num", None),
         "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
         "grade": employee.get("per_grade_code", None),
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
