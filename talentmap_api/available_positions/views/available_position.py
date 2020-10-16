@@ -91,6 +91,7 @@ class AvailablePositionFavoriteIdsListView(APIView):
         """
         user = UserProfile.objects.get(user=self.request.user)
         aps = AvailablePositionFavorite.objects.filter(user=user, archived=False).values_list("cp_id", flat=True)
+        return Response(aps)
 
 
 class AvailablePositionRankingView(FieldLimitableSerializerMixin,
