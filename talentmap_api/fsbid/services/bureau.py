@@ -158,6 +158,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "skill": f"{bp.get('pos_skill_desc', None)} ({bp.get('pos_skill_code')})",
             "skill_code": bp.get("pos_skill_code", None),
             "bureau": f"({bp.get('pos_bureau_short_desc', None)}) {bp.get('pos_bureau_long_desc', None)}",
+            "bureau_short_desc": f"{bp.get('pos_bureau_short_desc', None)}",
             "organization": f"({bp.get('org_short_desc', None)}) {bp.get('org_long_desc', None)}",
             "tour_of_duty": bp.get("tod", None),
             "classifications": None,
