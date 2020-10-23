@@ -212,5 +212,6 @@ def fsbid_bid_to_talentmap_bid(data):
         "panel_reschedule_count": 0,
         "create_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "update_date": "",
-        "reviewer": ""
+        "reviewer": "",
+        "cdo_bid": data.get('cdo_bid') == 'Y'
     }
