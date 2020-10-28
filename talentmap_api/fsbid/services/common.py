@@ -469,6 +469,13 @@ def get_bidders_csv(data, filename, jwt_token):
             submit_date = smart_str(maya.parse(record["submitted_date"]).datetime().strftime('%m/%d/%Y'))
         except:
             submit_date = "None listed"
+        try:
+            cdo_name = smart_str(record["cdo"]["name"])
+            cdo_email = smart_str(record["cdo"]["email"])
+        except:
+            cdo_name = ''
+            cdo_email = ''
+
 
         row = []
         row.append(smart_str(record["name"]))
@@ -478,8 +485,8 @@ def get_bidders_csv(data, filename, jwt_token):
         row.append(smart_str("=\"%s\"" % record["grade"]))
         row.append(smart_str(record["language"]))
         row.append(ted)
-        row.append(smart_str(record["cdo"]["name"]))
-        row.append(smart_str(record["cdo"]["email"]))
+        row.append(cdo_name)
+        row.append(cdo_email)
 
         writer.writerow(row)
     return response
