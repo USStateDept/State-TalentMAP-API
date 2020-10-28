@@ -10,6 +10,12 @@ class LoginInstanceSerializer(PrefetchedSerializer):
         fields = ["id", "date_of_login", "details"]
         writable_fields = ("details")
 
+class LoginInstanceListSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = LoginInstance
+        fields = ["id", "date_of_login"]
+
 class ViewPositionInstanceSerializer(PrefetchedSerializer):
 
     class Meta:

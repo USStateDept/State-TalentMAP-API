@@ -19,7 +19,7 @@ from talentmap_api.common.common_helpers import in_group_or_403
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.stats.models import LoginInstance, ViewPositionInstance
-from talentmap_api.stats.serializers import LoginInstanceSerializer, ViewPositionInstanceSerializer
+from talentmap_api.stats.serializers import LoginInstanceSerializer, LoginInstanceListSerializer, ViewPositionInstanceSerializer
 from talentmap_api.stats.filters import LoginInstanceFilter, ViewPositionInstanceFilter
 
 logger = logging.getLogger(__name__)
@@ -83,12 +83,12 @@ class UserLoginDistinctListView(mixins.ListModelMixin,
     list:
     Lists all logins from distinct user_ids
     '''
-    serializer_class = LoginInstanceSerializer
+    serializer_class = LoginInstanceListSerializer
     filter_class = LoginInstanceFilter
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(LoginInstance, self.serializer_class).distinct('user_id').order_by('user_id')
+        return get_prefetched_filtered_queryset(LoginInstance, self.serializer_class).values('user_id').distinct()
 
 
 class ViewPositionActionView(GenericViewSet):
