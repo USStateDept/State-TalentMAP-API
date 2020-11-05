@@ -1,8 +1,9 @@
+import json
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 
 from dateutil.relativedelta import relativedelta
 
@@ -120,7 +121,8 @@ class SavedSearch(models.Model):
                 Notification.objects.create(
                     owner=self.owner,
                     tags=['saved_search'],
-                    message=f"Saved search {self.name} has {diff} new results available"
+                    message=f"Saved search {self.name} has {diff} new results available",
+                    meta=json.dumps({"count": diff, "search": {"filters": self.filters, "endpoint": self.endpoint}})
                 )
 
             self.count = count
