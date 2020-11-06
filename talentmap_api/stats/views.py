@@ -19,7 +19,7 @@ from talentmap_api.common.common_helpers import in_group_or_403
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.stats.models import LoginInstance, ViewPositionInstance
-from talentmap_api.stats.serializers import LoginInstanceSerializer, ViewPositionInstanceSerializer
+from talentmap_api.stats.serializers import LoginInstanceSerializer, LoginInstanceListSerializer, ViewPositionInstanceSerializer
 from talentmap_api.stats.filters import LoginInstanceFilter, ViewPositionInstanceFilter
 
 logger = logging.getLogger(__name__)
@@ -83,12 +83,12 @@ class UserLoginDistinctListView(mixins.ListModelMixin,
     list:
     Lists all logins from distinct user_ids
     '''
-    serializer_class = LoginInstanceSerializer
+    serializer_class = LoginInstanceListSerializer
     filter_class = LoginInstanceFilter
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(LoginInstance, self.serializer_class).distinct('user_id').order_by('user_id')
+        return get_prefetched_filtered_queryset(LoginInstance, self.serializer_class).values('user_id').distinct()
 
 
 class ViewPositionActionView(GenericViewSet):
@@ -111,7 +111,7 @@ class ViewPositionActionView(GenericViewSet):
         view_instance.user = user
         view_instance.date_of_view = maya.now().datetime().strftime('%Y-%m-%d %H:%M:%S') # Oracle-compatible date format
         view_instance.date_of_view_day = maya.now().datetime().strftime('%m/%d/%Y')
-        view_instance.date_of_view_week = maya.now().datetime().strftime('%V/%Y')
+        view_instance.date_of_view_week = maya.now().datetime().strftime('%Y/%V')
         view_instance.position_id = request.data.get('position_id')
         view_instance.position_type = request.data.get('position_type', 'AP')
 
