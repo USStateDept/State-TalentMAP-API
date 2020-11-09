@@ -98,8 +98,21 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         convert_bp_bids_query,
         jwt_token,
         partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        # fsbid_bureau_position_bids_to_talentmap(jwt=jwt_token),
         CP_API_ROOT,
     )
+    print('test')
+    print(data)
+    print(new_query)
+    print(partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token))
+    # data = services.send_get_csv_request(
+    #     "cyclePositions",
+    #     query,
+    #     convert_bp_query,
+    #     jwt_token,
+    #     fsbid_bureau_positions_to_talentmap,
+    #     CP_API_ROOT,
+    # )
 
     response = services.get_bidders_csv(data, "position_bidders", True)
     return response
