@@ -98,12 +98,14 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         convert_bp_bids_query,
         jwt_token,
         partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
-        # fsbid_bureau_position_bids_to_talentmap(jwt=jwt_token),
+        # fsbid_bureau_position_bids_to_talentmap,
+        # fsbid_bureau_positions_to_talentmap,
         CP_API_ROOT,
     )
     print('test')
     print(data)
     print(new_query)
+    print('partial')
     print(partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token))
     # data = services.send_get_csv_request(
     #     "cyclePositions",
@@ -142,6 +144,9 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
+        "position": {
+            "position_number": bid.get("position", None)
+        }
     }
 
 
