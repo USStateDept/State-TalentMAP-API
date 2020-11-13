@@ -98,12 +98,30 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         convert_bp_bids_query,
         jwt_token,
         partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
-        # fsbid_bureau_position_bids_to_talentmap,
-        # fsbid_bureau_positions_to_talentmap,
         CP_API_ROOT,
     )
-    print('test')
+    print('------------test------------')
+    print('------------data------------')
     print(data)
+    print('------------data2------------')
+    # data2 = fsbid_bureau_positions_to_talentmap(id)
+    data2 = services.send_get_csv_request(
+        "bidders",
+        new_query,
+        convert_bp_bids_query,
+        jwt_token,
+        fsbid_bureau_positions_to_talentmap,
+        CP_API_ROOT,
+    )
+    # print("data2: ", data2)
+    print("record data print start")
+    for record in data2:
+        for r in record:
+            print(f'{r}: {record[r]}')
+    print("record data print fin")
+    # pos_num = data2["position"]["position_number"]
+    print('------------new query------------')
+    print(query)
     print(new_query)
     print('partial')
     print(partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token))
@@ -116,7 +134,8 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
     #     CP_API_ROOT,
     # )
 
-    response = services.get_bidders_csv(data, "position_bidders", True)
+    # filename = f"position_bidders_{pos_num}"
+    response = services.get_bidders_csv(data, "position_bidders", True) # put filename here
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
@@ -144,9 +163,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
-        "position": {
-            "position_number": bid.get("position", None)
-        }
     }
 
 
@@ -154,6 +170,9 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
+    print('BP TESTING')
+    # print(bp)
+    # print(bp['position'])
     hasHandShakeOffered = False
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
