@@ -105,11 +105,6 @@ class FSBidBureauPositionBidsView(BaseView):
 class FSBidBureauPositionBidsExportView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = BureauPositionsFilter
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("ordering", location='query', description='Ordering'),
-        ]
-    )
 
     def get(self, request, pk):
         '''
