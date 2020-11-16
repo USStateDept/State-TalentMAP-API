@@ -440,13 +440,8 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 def get_bidders_csv(data, filename, jwt_token):
-    # add extra call here
-    # payload = get_ap_and_pv_csv(data, filename)
-    # print(payload)
-    pos_num = 'pos_num'
-    filename_ext = datetime.now().strftime('%Y_%m_%d_%H%M%S') + f'_{pos_num}.csv'
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f"attachment; filename={filename}_{filename_ext}"
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
@@ -494,6 +489,4 @@ def get_bidders_csv(data, filename, jwt_token):
         row.append(cdo_email)
 
         writer.writerow(row)
-        for r in record:
-            print(f'{r}: {record[r]}')
     return response

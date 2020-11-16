@@ -100,42 +100,10 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
         CP_API_ROOT,
     )
-    print('------------test------------')
-    print('------------data------------')
-    print(data)
-    print('------------data2------------')
-    # data2 = fsbid_bureau_positions_to_talentmap(id)
-    data2 = services.send_get_csv_request(
-        "bidders",
-        new_query,
-        convert_bp_bids_query,
-        jwt_token,
-        fsbid_bureau_positions_to_talentmap,
-        CP_API_ROOT,
-    )
-    # print("data2: ", data2)
-    print("record data print start")
-    for record in data2:
-        for r in record:
-            print(f'{r}: {record[r]}')
-    print("record data print fin")
-    # pos_num = data2["position"]["position_number"]
-    print('------------new query------------')
-    print(query)
-    print(new_query)
-    print('partial')
-    print(partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token))
-    # data = services.send_get_csv_request(
-    #     "cyclePositions",
-    #     query,
-    #     convert_bp_query,
-    #     jwt_token,
-    #     fsbid_bureau_positions_to_talentmap,
-    #     CP_API_ROOT,
-    # )
 
-    # filename = f"position_bidders_{pos_num}"
-    response = services.get_bidders_csv(data, "position_bidders", True) # put filename here
+    pos_num = get_bureau_position(id, jwt_token).get("position").get("position_number")
+    filename = f"position_bidders_{pos_num}"
+    response = services.get_bidders_csv(data, filename, True)
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
@@ -170,9 +138,6 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
-    print('BP TESTING')
-    # print(bp)
-    # print(bp['position'])
     hasHandShakeOffered = False
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
