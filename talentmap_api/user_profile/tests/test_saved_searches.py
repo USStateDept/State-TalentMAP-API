@@ -7,6 +7,8 @@ from rest_framework import status
 from talentmap_api.user_profile.models import SavedSearch
 from talentmap_api.messaging.models import Notification
 
+fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
+
 
 @pytest.fixture()
 def test_saved_search_fixture(authorized_user):
@@ -88,5 +90,12 @@ def test_saved_search_patch_bad_endpoint(authorized_client, authorized_user, tes
 @pytest.mark.django_db(transaction=True)
 def test_saved_search_delete(authorized_client, authorized_user, test_saved_search_fixture):
     response = authorized_client.delete(f'/api/v1/searches/{test_saved_search_fixture.id}/')
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db(transaction=True)
+def test_saved_search_listcount(authorized_client, authorized_user, test_saved_search_fixture):
+    response = authorized_client.put('/api/v1/searches/listcount/', HTTP_JWT=fake_jwt)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
