@@ -99,7 +99,9 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         CP_API_ROOT,
     )
 
-    response = services.get_bidders_csv(data, "position_bidders", True)
+    pos_num = get_bureau_position(id, jwt_token)["position"]["position_number"]
+    filename = f"position_{pos_num}_bidders"
+    response = services.get_bidders_csv(data, filename, True)
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
