@@ -94,8 +94,8 @@ def test_saved_search_delete(authorized_client, authorized_user, test_saved_sear
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
-@pytest.mark.django_db(transaction=True)
-def test_saved_search_listcount(authorized_client, authorized_user, test_saved_search_fixture):
-    response = authorized_client.put('/api/v1/searches/listcount/', HTTP_JWT=fake_jwt)
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
+# @pytest.mark.django_db(transaction=True)
+# def test_saved_search_listcount(authorized_client, authorized_user, test_saved_search_fixture):
+#     response = authorized_client.put('/api/v1/searches/listcount/', HTTP_JWT=fake_jwt)
+#
+#     assert response.status_code == status.HTTP_204_NO_CONTENT
