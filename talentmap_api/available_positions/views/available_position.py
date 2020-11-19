@@ -24,9 +24,9 @@ from rest_condition import Or
 from talentmap_api.common.common_helpers import in_group_or_403, get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation, AvailablePositionRanking
-from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer, AvailablePositionRankingSerializer
-from talentmap_api.available_positions.filters import AvailablePositionRankingFilter
+from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation, AvailablePositionRanking, AvailablePositionRankingLock
+from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer, AvailablePositionRankingSerializer, AvailablePositionRankingLockSerializer
+from talentmap_api.available_positions.filters import AvailablePositionRankingFilter, AvailablePositionRankingLockFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
@@ -116,6 +116,50 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
+                                       GenericViewSet,
+                                       mixins.ListModelMixin,
+                                       mixins.RetrieveModelMixin):
+
+    permission_classes = (isDjangoGroupMember('bureau_user'),)
+    serializer_class = AvailablePositionRankingLockSerializer
+    filter_class = AvailablePositionRankingLockFilter
+
+    def put(self, request, pk, format=None):
+        pos = services.get_available_position(pk, request.META['HTTP_JWT'])
+        try:
+            bureau = pos.get('position').get('bureau_code')
+            org = pos.get('position').get('organization_code')
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if pos is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
+            AvailablePositionRankingLock.objects.filter(cp_id=pk).update(bureau_code=bureau, org_code=org)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        position, _ = AvailablePositionRankingLock.objects.get_or_create(cp_id=pk, bureau_code=bureau, org_code=org)
+        position.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, pk, format=None):
+        '''
+        Indicates if the available position is a favorite
+
+        Returns 204 if the available position is a favorite, otherwise, 404
+        '''
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, format=None):
+        '''
+        Removes the available position ranking by cp_id
+        '''
+        get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
