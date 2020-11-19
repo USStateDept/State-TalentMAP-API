@@ -71,7 +71,8 @@ LOGOUT_URL = 'rest_framework:logout'
 
 # Check for SAML2 enable
 if ENABLE_SAML2:
-    LOGIN_URL = '/saml2/login/'
+    # We want to use Django login for Swagger all the time, so we comment this out
+    # LOGIN_URL = '/saml2/login/'
     SESSION_EXPIRE_AT_BROWSER_CLOSE = bool_env_variable('SAML2_SESSION_EXPIRE_AT_BROWSER_CLOSE')
 
 # Authorization token lifetime
