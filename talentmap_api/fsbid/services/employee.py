@@ -5,6 +5,7 @@ import jwt
 from django.conf import settings
 from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
+from talentmap_api.fsbid.services.available_positions import get_available_position
 
 API_ROOT = settings.EMPLOYEES_API_URL
 SECREF_ROOT = settings.SECREF_URL
@@ -64,6 +65,16 @@ ROLE_MAPPING = {
     "Bureau": "bureau_user",
     "AO": "ao_user",
 }
+
+def hasBureauPermissions(pk, request):
+    pos = get_available_position(pk, request.META['HTTP_JWT'])
+    bureauPermissions = list(get_bureau_permissions(request.META['HTTP_JWT']))
+    try:
+        bureau = str(pos.get('position').get('bureau_code'))
+        return any(x.get('code') == bureau for x in bureauPermissions)
+    except:
+        return False
+    return False
 
 def get_bureau_permissions(jwt_token, host=None):
     '''

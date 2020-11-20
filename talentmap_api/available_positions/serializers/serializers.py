@@ -29,4 +29,3 @@ class AvailablePositionRankingLockSerializer(PrefetchedSerializer):
     class Meta:
         model = AvailablePositionRankingLock
         fields = "__all__"
-        writable_fields = ("cp_id", "bureau_code", "org_code")

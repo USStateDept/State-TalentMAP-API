@@ -1,5 +1,6 @@
 import coreapi
 import maya
+import logging
 
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
@@ -33,6 +34,9 @@ from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
+import talentmap_api.fsbid.services.employee as empservices
+
+logger = logging.getLogger(__name__)
 
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
@@ -128,18 +132,24 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
     serializer_class = AvailablePositionRankingLockSerializer
     filter_class = AvailablePositionRankingLockFilter
 
+
     def put(self, request, pk, format=None):
+        if not empservices.hasBureauPermissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         pos = services.get_available_position(pk, request.META['HTTP_JWT'])
         try:
             bureau = pos.get('position').get('bureau_code')
             org = pos.get('position').get('organization_code')
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
         if pos is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
             AvailablePositionRankingLock.objects.filter(cp_id=pk).update(bureau_code=bureau, org_code=org)
             return Response(status=status.HTTP_204_NO_CONTENT)
+
         position, _ = AvailablePositionRankingLock.objects.get_or_create(cp_id=pk, bureau_code=bureau, org_code=org)
         position.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -150,6 +160,9 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
         Returns 204 if the available position is a favorite, otherwise, 404
         '''
+        if not empservices.hasBureauPermissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
@@ -159,6 +172,9 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         '''
         Removes the available position ranking by cp_id
         '''
+        if not empservices.hasBureauPermissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
