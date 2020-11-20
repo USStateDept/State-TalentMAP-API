@@ -8,9 +8,7 @@ class AvailablePositionRankingFilter(filters.FilterSet):
 
     class Meta:
         model = AvailablePositionRanking
-        fields = {
-            "cp_id": ALL_TEXT_LOOKUPS,
-        }
+        fields = ["cp_id"]
 
 
 class AvailablePositionRankingLockFilter(filters.FilterSet):

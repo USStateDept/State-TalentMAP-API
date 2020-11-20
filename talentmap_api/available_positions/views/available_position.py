@@ -2,6 +2,7 @@ import coreapi
 import maya
 import logging
 
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.db.models.functions import Concat
@@ -109,9 +110,14 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
     filter_class = AvailablePositionRankingFilter
 
     def perform_create(self, serializer):
+        if AvailablePositionRankingLock.objects.filter(cp_id=self.request.data.get('cp_id')).exists() and not empservices.hasBureauPermissions(self.request.data.get('cp_id'), self.request):
+            raise PermissionDenied()
         serializer.save(user=self.request.user.profile)
 
     def get_queryset(self):
+        cp = self.request.GET.get('cp_id')
+        if AvailablePositionRankingLock.objects.filter(cp_id=cp).exists() and not empservices.hasBureauPermissions(cp, self.request):
+            raise PermissionDenied()
         return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
 
     def perform_delete(self, request, pk, format=None):
@@ -119,6 +125,9 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         Removes the available position rankings by cp_id for the user
         '''
         user = UserProfile.objects.get(user=self.request.user)
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists() and not empservices.hasBureauPermissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
