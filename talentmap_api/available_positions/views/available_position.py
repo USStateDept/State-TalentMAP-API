@@ -109,6 +109,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
     serializer_class = AvailablePositionRankingSerializer
     filter_class = AvailablePositionRankingFilter
 
+    # For all requests, if the position is locked, then the user must have the appropriate bureau permission for the cp_id
+
     def perform_create(self, serializer):
         if AvailablePositionRankingLock.objects.filter(cp_id=self.request.data.get('cp_id')).exists() and not empservices.hasBureauPermissions(self.request.data.get('cp_id'), self.request):
             raise PermissionDenied()
@@ -143,22 +145,28 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
 
     def put(self, request, pk, format=None):
+        # must have bureau permission for the bureau code associated with the position
         if not empservices.hasBureauPermissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        # get the bureau code and org code associated with the position
         pos = services.get_available_position(pk, request.META['HTTP_JWT'])
         try:
             bureau = pos.get('position').get('bureau_code')
             org = pos.get('position').get('organization_code')
+        # return a 404 if we can't determine the bureau/org code
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if pos is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # if the position is already locked, still update the bureau/org codes
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
             AvailablePositionRankingLock.objects.filter(cp_id=pk).update(bureau_code=bureau, org_code=org)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+        # save the cp_id, bureau code and org code
         position, _ = AvailablePositionRankingLock.objects.get_or_create(cp_id=pk, bureau_code=bureau, org_code=org)
         position.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -169,6 +177,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
         Returns 204 if the available position is a favorite, otherwise, 404
         '''
+        # must have bureau permission for the bureau code associated with the position
         if not empservices.hasBureauPermissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -181,6 +190,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         '''
         Removes the available position ranking by cp_id
         '''
+        # must have bureau permission for the bureau code associated with the position
         if not empservices.hasBureauPermissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
