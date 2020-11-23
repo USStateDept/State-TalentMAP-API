@@ -9,7 +9,7 @@ class AvailableBidders(models.Model):
     ]
     bidder_perdet = models.ForeignKey('user_profile.UserProfile', related_name='client', null=False, on_delete=models.DO_NOTHING, help_text="The user in availableBidders list")
     status = models.CharField(
-        max_length=2,
+        max_length=4,
         choices=STATUS_CHOICES,
         default='UA',
     )
