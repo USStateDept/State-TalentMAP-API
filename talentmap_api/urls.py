@@ -46,6 +46,9 @@ urlpatterns = [
     url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
     url(r'^api/v1/available_position/tandem/', include('talentmap_api.available_tandem.urls.available_tandem')),
 
+    #CDO
+    url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
+
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
     url(r'^api/v1/permission/group/', include('talentmap_api.permission.urls.group')),
