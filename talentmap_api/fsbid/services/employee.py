@@ -66,8 +66,8 @@ ROLE_MAPPING = {
     "AO": "ao_user",
 }
 
-def hasBureauPermissions(pk, request):
-    pos = get_available_position(pk, request.META['HTTP_JWT'])
+def has_bureau_permissions(cp_id, request):
+    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
     bureauPermissions = list(get_bureau_permissions(request.META['HTTP_JWT']))
     try:
         bureau = str(pos.get('position').get('bureau_code'))

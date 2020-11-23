@@ -112,13 +112,13 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
     # For all requests, if the position is locked, then the user must have the appropriate bureau permission for the cp_id
 
     def perform_create(self, serializer):
-        if AvailablePositionRankingLock.objects.filter(cp_id=self.request.data.get('cp_id')).exists() and not empservices.hasBureauPermissions(self.request.data.get('cp_id'), self.request):
+        if AvailablePositionRankingLock.objects.filter(cp_id=self.request.data.get('cp_id')).exists() and not empservices.has_bureau_permissions(self.request.data.get('cp_id'), self.request):
             raise PermissionDenied()
         serializer.save(user=self.request.user.profile)
 
     def get_queryset(self):
         cp = self.request.GET.get('cp_id')
-        if AvailablePositionRankingLock.objects.filter(cp_id=cp).exists() and not empservices.hasBureauPermissions(cp, self.request):
+        if AvailablePositionRankingLock.objects.filter(cp_id=cp).exists() and not empservices.has_bureau_permissions(cp, self.request):
             raise PermissionDenied()
         return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
 
@@ -127,7 +127,7 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         Removes the available position rankings by cp_id for the user
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists() and not empservices.hasBureauPermissions(pk, request):
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists() and not empservices.has_bureau_permissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
@@ -146,7 +146,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
     def put(self, request, pk, format=None):
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.hasBureauPermissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # get the bureau code and org code associated with the position
@@ -178,7 +178,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         Returns 204 if the available position is a favorite, otherwise, 404
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.hasBureauPermissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
@@ -191,7 +191,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         Removes the available position ranking by cp_id
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.hasBureauPermissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
