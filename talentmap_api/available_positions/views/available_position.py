@@ -114,11 +114,14 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
     def perform_create(self, serializer):
         if isinstance(self.request.data, list):
             data = self.request.data
+            # Empty array
             if len(data) == 0:
                 raise SuspiciousOperation('Array is empty')
             cp = data[0].get('cp_id')
+            # All cp_id values must match the first one
             if not all(x.get('cp_id') == data[0].get('cp_id') for x in data):
                 raise SuspiciousOperation('All cp_id values must be identical')
+        # if a single object is passed
         if isinstance(self.request.data, dict):
             cp = self.request.data.get('cp_id')
 
