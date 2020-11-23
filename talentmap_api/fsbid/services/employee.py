@@ -10,6 +10,7 @@ from talentmap_api.fsbid.services.available_positions import get_available_posit
 API_ROOT = settings.EMPLOYEES_API_URL
 SECREF_ROOT = settings.SECREF_URL
 FSBID_ROOT = settings.FSBID_API_URL
+ORG_ROOT = settings.ORG_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,16 @@ def has_bureau_permissions(cp_id, request):
         return False
     return False
 
+def has_org_permissions(cp_id, request):
+    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
+    orgPermissions = list(get_org_permissions(request.META['HTTP_JWT']))
+    try:
+        bureau = str(pos.get('position').get('organization_code'))
+        return any(x.get('code') == bureau for x in orgPermissions)
+    except:
+        return False
+    return False
+
 def get_bureau_permissions(jwt_token, host=None):
     '''
     Gets a list of bureau codes assigned to the bureau_user
@@ -84,9 +95,24 @@ def get_bureau_permissions(jwt_token, host=None):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return map(map_bureau_permissions, response.get("Data", {}))
 
+def get_org_permissions(jwt_token, host=None):
+    '''
+    Gets a list of bureau codes assigned to the bureau_user
+    '''
+    url = f"{ORG_ROOT}/Permissions"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    return map(map_org_permissions, response.get("Data", {}))
+
 def map_bureau_permissions(data):
     return {
         "code": data.get('bur', None),
         "long_description": data.get('bureau_long_desc', None),
         "short_description": data.get('bureau_short_desc', None),
+    }
+
+def map_org_permissions(data):
+    return {
+        "code": data.get('code', None),
+        "long_description": data.get('long_desc', None),
+        "short_description": data.get('short_desc', None),
     }
