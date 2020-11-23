@@ -53,12 +53,18 @@ def map_group_to_fsbid_role(jwt_token):
     roles = jwt.decode(jwt_token, verify=False).get('role')
     print(roles)
     tm_roles = list(map(lambda z: ROLE_MAPPING.get(z), roles))
+
+    orgPermissions = list(get_org_permissions(jwt_token))
+    if len(orgPermissions) >= 1:
+        tm_roles.append('post_user')
+
     print(tm_roles)
     return Group.objects.filter(name__in=tm_roles).all()
 
 
 # Mapping of FSBid roles (keys) to TalentMap permissions (values)
 ROLE_MAPPING = {
+    # post_user gets manually mapped
     "fsofficer": "bidder",
     "FSBidCycleAdministrator": "bidcycle_admin",
     "CDO": "cdo",

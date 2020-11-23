@@ -2,7 +2,7 @@ import coreapi
 import maya
 import logging
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.db.models.functions import Concat
@@ -105,34 +105,70 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
                                    mixins.ListModelMixin,
                                    mixins.RetrieveModelMixin):
 
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
     serializer_class = AvailablePositionRankingSerializer
     filter_class = AvailablePositionRankingFilter
 
     # For all requests, if the position is locked, then the user must have the appropriate bureau permission for the cp_id
 
     def perform_create(self, serializer):
-        if AvailablePositionRankingLock.objects.filter(cp_id=self.request.data.get('cp_id')).exists() and not empservices.has_bureau_permissions(self.request.data.get('cp_id'), self.request):
+        if isinstance(self.request.data, list):
+            data = self.request.data
+            if len(data) == 0:
+                raise SuspiciousOperation('Array is empty')
+            cp = data[0].get('cp_id')
+            if not all(x.get('cp_id') == data[0].get('cp_id') for x in data):
+                raise SuspiciousOperation('All cp_id values must be identical')
+        if isinstance(self.request.data, dict):
+            cp = self.request.data.get('cp_id')
+
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
             raise PermissionDenied()
-        serializer.save(user=self.request.user.profile)
+        # not locked and (has org permission or bureau permission)
+        if not exists and (hasOrgPermissions or hasBureauPermissions):
+            serializer.save(user=self.request.user.profile)
+        else:
+            raise PermissionDenied()
 
     def get_queryset(self):
         cp = self.request.GET.get('cp_id')
-        if AvailablePositionRankingLock.objects.filter(cp_id=cp).exists() and not empservices.has_bureau_permissions(cp, self.request):
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
             raise PermissionDenied()
-        return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+        # not locked and (has org permission or bureau permission)
+        if not exists and (hasOrgPermissions or hasBureauPermissions):
+            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+        # doesn't have permission
+        raise PermissionDenied()
 
     def perform_delete(self, request, pk, format=None):
         '''
         Removes the available position rankings by cp_id for the user
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists() and not empservices.has_bureau_permissions(pk, request):
+        cp = pk
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
             return Response(status=status.HTTP_403_FORBIDDEN)
-
-        get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+        # not locked and (has org permission or bureau permission)
+        if not exists and (hasOrgPermissions or hasBureauPermissions):
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        # doesn't have permission
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
 class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
                                        GenericViewSet,
