@@ -112,7 +112,7 @@ def map_bureau_permissions(data):
 
 def map_org_permissions(data):
     return {
-        "code": data.get('code', None),
-        "long_description": data.get('long_desc', None),
-        "short_description": data.get('short_desc', None),
+        "code": data.get('org_code', None),
+        "long_description": data.get('org_long_desc', None),
+        "short_description": data.get('org_short_desc', None),
     }
