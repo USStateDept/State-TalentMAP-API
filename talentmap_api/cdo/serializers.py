@@ -8,4 +8,4 @@ class AvailableBiddersSerializer(PrefetchedSerializer):
     class Meta:
         model = AvailableBidders
         fields = "__all__"
-        writable_fields = ('status', 'oc_reason', 'comments', 'isShared')
+        writable_fields = ('status', 'oc_reason', 'comments', 'is_shared')

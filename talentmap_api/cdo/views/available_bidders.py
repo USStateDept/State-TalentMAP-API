@@ -6,18 +6,20 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.schemas import AutoSchema
 from rest_framework.response import Response
-
+from rest_framework.viewsets import GenericViewSet
 from talentmap_api.cdo.models import AvailableBidders
 from talentmap_api.cdo.serializers import (AvailableBiddersSerializer)
 import talentmap_api.cdo.services.available_bidders as services
 from talentmap_api.cdo.models import AvailableBidders
 
+from talentmap_api.common.permissions import isDjangoGroupMember
+
 logger = logging.getLogger(__name__)
 
 
-class AvailableBiddersListView(APIView):
+class AvailableBiddersListView(APIView, GenericViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
     serializer_class = AvailableBiddersSerializer
 
     schema = AutoSchema(
@@ -37,7 +39,7 @@ class AvailableBiddersListView(APIView):
 
 class AvailableBiddersIdsListView(APIView):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
     def get(self, request, *args, **kwargs):
         """
@@ -52,7 +54,7 @@ class AvailableBiddersActionView(APIView):
     add, remove, update an Available Bidder instance
     '''
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
     def put(self, request, pk, format=None):
         '''
@@ -75,7 +77,7 @@ class AvailableBiddersActionView(APIView):
 
 class AvailableBiddersCSVView(APIView):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
     def get(self, request, *args, **kwargs):
         """
