@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
+from django.db.models.functions import Lower
 from django.contrib.postgres.search import SearchVector
 from django.core.exceptions import FieldDoesNotExist
 
@@ -173,3 +174,21 @@ def filter_or_exclude_queryset(queryset, filters, exclude=False):
         return queryset.exclude(filters)
     else:
         return queryset.filter(filters)
+
+
+class CaseInsensitiveOrderingFilter(restFilters.OrderingFilter):
+
+    def filter_queryset(self, request, queryset, view):
+        ordering = self.get_ordering(request, queryset, view)
+        insensitive_ordering = getattr(view, 'ordering_case_insensitive_fields', ())
+
+        if ordering:
+            new_ordering = []
+            for field in ordering:
+                if field in insensitive_ordering:
+                    new_ordering.append(Lower(field[1:]).desc() if field.startswith('-') else Lower(field).asc())
+                else:
+                    new_ordering.append(field)
+            return queryset.order_by(*new_ordering)
+
+        return queryset
