@@ -132,7 +132,7 @@ jobs:
             . venv/bin/activate
             mkdir ./tmp-pip
             pip install -r requirements.txt -t ./tmp-pip
-            pip install -r requirements-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies -t ./tmp-pip
             cd ./tmp-pip
             zip -r ../talentmap-api-dependencies.zip * .[^.]*
       - store_artifacts:
