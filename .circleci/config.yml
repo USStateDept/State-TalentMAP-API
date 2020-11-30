@@ -27,7 +27,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-            pip install -r requiments-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
@@ -44,7 +44,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-            pip install -r requiments-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies
       - run:
           command: |
             . venv/bin/activate
@@ -71,7 +71,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-            pip install -r requiments-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies
       - run:
           name: Install SQLPlus
           command: |
@@ -132,7 +132,7 @@ jobs:
             . venv/bin/activate
             mkdir ./tmp-pip
             pip install -r requirements.txt -t ./tmp-pip
-            pip install -r requiments-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies
             cd ./tmp-pip
             zip -r ../talentmap-api-dependencies.zip * .[^.]*
       - store_artifacts:
@@ -150,7 +150,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-            pip install -r requiments-no-deps.txt --no-dependencies
+            pip install -r requirements-no-deps.txt --no-dependencies
       - run:
           name: pylint
           command: |
