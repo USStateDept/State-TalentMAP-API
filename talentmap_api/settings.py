@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_expiring_authtoken',
+    'rest_framework_filters',
     'rest_framework_swagger',
     'debug_toolbar',
     'djangosaml2',
