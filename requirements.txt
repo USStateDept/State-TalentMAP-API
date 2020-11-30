@@ -30,7 +30,6 @@ django-sslserver==0.21
 djangorestframework==3.8.2
 djangorestframework-bulk==0.2.1
 djangorestframework-csv==2.1.0
-djangorestframework-expiring-authtoken==0.1.4
 djangorestframework-filters==1.0.0.dev2
 djangosaml2==0.16.11
 drf-extensions==0.3.1
