@@ -38,7 +38,7 @@ export SECREF_URL='https://mockfsbid.metaphasedev.com/SECREF'
 
 # install dependencies
 pip install -r requirements.txt
-pip install -r requiments-no-deps.txt --no-dependencies
+pip install -r requirements-no-deps.txt --no-dependencies
 
 python manage.py migrate
 
