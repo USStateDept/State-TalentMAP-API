@@ -1,2 +1,2 @@
 [run]
-omit = *apps.py, *wsgi.py, manage.py, **/settings.py, */venv/*, **/soap_api_test.py, */saml2/*, **/locustfile.py, */common/renderers.py
+omit = *apps.py, *wsgi.py, manage.py, show_logo.py, **/settings.py, */venv/*, */tests/mommy_recipes.py, **/soap_api_test.py, */saml2/*, **/locustfile.py, */common/renderers.py

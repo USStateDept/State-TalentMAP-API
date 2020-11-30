@@ -3,7 +3,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.contrib.postgres.search import SearchVector
 from django.core.exceptions import FieldDoesNotExist
 
-from rest_framework_filters.backends import DjangoFilterBackend
+from rest_framework_filters.backends import RestFrameworkFilterBackend
 from rest_framework import filters as restFilters
 import rest_framework_filters as drff_filters
 
@@ -20,7 +20,7 @@ ARRAY_LOOKUPS = ['contains', 'contained_by', 'len', 'overlap']
 
 
 # This filter backend removes the form rendering which calls the database excessively
-class DisabledHTMLFilterBackend(DjangoFilterBackend):
+class DisabledHTMLFilterBackend(RestFrameworkFilterBackend):
 
     # This is not covered by tests as it exists solely on the browsable API
     def to_html(self, request, queryset, view):  # pragma: no cover
