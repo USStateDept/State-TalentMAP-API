@@ -27,6 +27,7 @@ RUN mkdir /app/logs
 RUN mkdir /var/log/talentmap/ && chmod a+wrxs /var/log/talentmap/
 
 ADD requirements.txt /app/
+ADD requirements-no-deps.txt /app/
 WORKDIR /app
 RUN pip install -r requirements.txt
 RUN pip install -r requirements-no-deps.txt --no-dependencies
