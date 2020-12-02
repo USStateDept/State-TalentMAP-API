@@ -2,18 +2,18 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from talentmap_api.cdo.views import available_bidders as views
+from talentmap_api.common.urls import post_create, patch_update, delete_destroy
 
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    # 1 get list of Available Bidders
+    # root  url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
+    url(r'^availablebidder/$', views.AvailableBiddersIdsListView.as_view(), name='available-bidders-ids'),
+    url(r'^(?P<pk>[0-9]+)/availablebidder/$', views.AvailableBidderView.as_view(), name='available-bidder'),
     url(r'^availablebidders/$', views.AvailableBiddersListView.as_view(), name='available-bidders'),
-    # 2 get list of Ids, for properly rendering button text
     url(r'^availablebidders/ids/$', views.AvailableBiddersIdsListView.as_view(), name='available-bidders-ids'),
-    # 3 Add and Remove to Available Bidders
-    url(r'^(?P<pk>[0-9]+)/availablebidders/$', views.AvailableBiddersActionView.as_view(),
-    name='update-available-bidders'),
-    # 4 Export Available Bidders
+    url(r'^(?P<pk>[0-9]+)/availablebidders/$', views.AvailableBiddersActionView.as_view({'put': 'put', 'patch': 'patch', 'delete': 'delete'}),
+        name='update-available-bidders'),
     url(r'^availablebidders/export/$', views.AvailableBiddersCSVView.as_view(), name='export-available-bidders'),
 ]
 

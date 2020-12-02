@@ -7,7 +7,7 @@ class AvailableBidders(models.Model):
         ('OC', 'Over-Complement'),
         ('LWOP', 'Leave Without Pay'),
     ]
-    bidder_perdet = models.CharField('user_profile.UserProfile', related_name='client', null=False, on_delete=models.DO_NOTHING, help_text="The user in availableBidders list")
+    bidder_perdet = models.CharField(max_length=255, null=False, help_text="The user in availableBidders list")
     status = models.CharField(
         max_length=4,
         choices=STATUS_CHOICES,
@@ -18,6 +18,7 @@ class AvailableBidders(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     is_shared = models.BooleanField(default=False, help_text="Shared with Bureau")
     last_editing_user_id = models.ForeignKey('user_profile.UserProfile', related_name='agent', null=False, on_delete=models.DO_NOTHING, help_text="The last user to edit")
+    # bidder_perdet, date_created(auto), is_shared(default false), last_editing_user_id
 
     class Meta:
         managed = True

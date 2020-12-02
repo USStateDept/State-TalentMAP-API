@@ -30,7 +30,7 @@ def get_available_bidders(jwt_token):
     '''
     # might want to create a new CDO service that returns all clients, regardeless of needing an hru_id(s)
     # then would just filter on that with the IDs returned for Available Bidders
-    perdet_ids = AvailableBidders.objects.values_list("bidder_perdet_id", flat=True)
+    perdet_ids = AvailableBidders.objects.values_list("bidder_perdet", flat=True)
     available_bidders = []
     for per in perdet_ids:
         available_bidders.append(client_services.single_client(jwt_token, per))
