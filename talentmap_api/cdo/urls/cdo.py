@@ -7,8 +7,6 @@ from talentmap_api.common.urls import post_create, patch_update, delete_destroy
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    # root  url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
-    url(r'^availablebidder/$', views.AvailableBiddersIdsListView.as_view(), name='available-bidders-ids'),
     url(r'^(?P<pk>[0-9]+)/availablebidder/$', views.AvailableBidderView.as_view(), name='available-bidder'),
     url(r'^availablebidders/$', views.AvailableBiddersListView.as_view(), name='available-bidders'),
     url(r'^availablebidders/ids/$', views.AvailableBiddersIdsListView.as_view(), name='available-bidders-ids'),

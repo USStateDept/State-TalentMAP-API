@@ -18,7 +18,6 @@ class AvailableBidders(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     is_shared = models.BooleanField(default=False, help_text="Shared with Bureau")
     last_editing_user_id = models.ForeignKey('user_profile.UserProfile', related_name='agent', null=False, on_delete=models.DO_NOTHING, help_text="The last user to edit")
-    # bidder_perdet, date_created(auto), is_shared(default false), last_editing_user_id
 
     class Meta:
         managed = True
