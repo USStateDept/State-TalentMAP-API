@@ -42,7 +42,7 @@ class SavedSearchView(FieldLimitableSerializerMixin,
     serializer_class = SavedSearchSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = [CaseInsensitiveOrderingFilter]
-    ordering_case_insensitive_fields = ("name") # put here only case insensitive fields
+    ordering_case_insensitive_fields = ["name"] # put here only case insensitive fields
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile, jwt_token=self.request.META['HTTP_JWT'])

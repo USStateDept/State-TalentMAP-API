@@ -182,6 +182,12 @@ class CaseInsensitiveOrderingFilter(restFilters.OrderingFilter):
         ordering = self.get_ordering(request, queryset, view)
         insensitive_ordering = getattr(view, 'ordering_case_insensitive_fields', ())
 
+        for k in insensitive_ordering:
+            if not k.startswith('-'):
+                l = '-' + k
+                if l not in insensitive_ordering:
+                    insensitive_ordering.append(l)
+
         if ordering:
             new_ordering = []
             for field in ordering:
