@@ -103,7 +103,7 @@ def get_bureau_permissions(jwt_token, host=None):
 
 def get_org_permissions(jwt_token, host=None):
     '''
-    Gets a list of bureau codes assigned to the bureau_user
+    Gets a list of organization codes assigned to the user
     '''
     url = f"{ORG_ROOT}/Permissions"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
