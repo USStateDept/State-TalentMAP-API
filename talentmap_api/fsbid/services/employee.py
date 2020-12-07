@@ -87,8 +87,8 @@ def has_org_permissions(cp_id, request):
     pos = get_available_position(cp_id, request.META['HTTP_JWT'])
     orgPermissions = list(get_org_permissions(request.META['HTTP_JWT']))
     try:
-        bureau = str(pos.get('position').get('organization_code'))
-        return any(x.get('code') == bureau for x in orgPermissions)
+        org = str(pos.get('position').get('organization_code'))
+        return any(x.get('code') == org for x in orgPermissions)
     except:
         return False
     return False
