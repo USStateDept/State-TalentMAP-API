@@ -135,6 +135,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         # not locked and (has org permission or bureau permission)
         if not exists and (hasOrgPermissions or hasBureauPermissions):
             serializer.save(user=self.request.user.profile)
+        elif exists and hasBureauPermissions:
+            serializer.save(user=self.request.user.profile)
         else:
             raise PermissionDenied()
 
@@ -167,7 +169,10 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         if exists and not hasBureauPermissions:
             return Response(status=status.HTTP_403_FORBIDDEN)
         # not locked and (has org permission or bureau permission)
-        if not exists and (hasOrgPermissions or hasBureauPermissions):
+        elif not exists and (hasOrgPermissions or hasBureauPermissions):
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif exists and hasBureauPermissions:
             get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         # doesn't have permission
