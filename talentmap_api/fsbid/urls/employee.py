@@ -8,5 +8,6 @@ router = routers.SimpleRouter()
 urlpatterns = [
     url(r'^perdet_seq_num/$', views.FSBidEmployeePerdetSeqNumActionView.as_view(), name='employee.FSBid-perdet_seq_num-actions'),
     url(r'^bureau_permissions/$', views.FSBidBureauUserPermissionsView.as_view(), name='employee.FSBid-bureau-permission'),
+    url(r'^org_permissions/$', views.FSBidOrgUserPermissionsView.as_view(), name='employee.FSBid-org-permission'),
 ]
 urlpatterns += router.urls
