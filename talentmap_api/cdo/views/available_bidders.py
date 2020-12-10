@@ -33,16 +33,13 @@ class AvailableBiddersListView(APIView):
         manual_fields=[
             coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
             coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-            coreapi.Field("sort", location='query', type='string', description='a, b, or c'),
         ]
     )
 
-    # will probably want a get_Bureau and a get_cdo for our toggling feature
     def get(self, request):
         """
         Return users in Available Bidders list
         """
-        print('------------------ GET Available Bidders -------------')
         return Response(services.get_available_bidders(request.META['HTTP_JWT']))
 
 class AvailableBidderView(APIView):
@@ -54,7 +51,6 @@ class AvailableBidderView(APIView):
         """
         Return the user in Available Bidders list
         """
-        print('------------------ GET Available Bidder -------------')
         return Response(AvailableBidders.objects.filter(bidder_perdet=pk))
 
 
@@ -67,7 +63,6 @@ class AvailableBiddersIdsListView(APIView):
         get:
         Return a list of the ids of the users in Available Bidders list
         """
-        print('------------------ GET Available Bidders\' IDs -------------')
         AvailableBidders.objects.values_list("bidder_perdet")
         return Response(AvailableBidders.objects.values_list("bidder_perdet", flat=True))
 
@@ -86,7 +81,6 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
         '''
         Puts the client in the Available Bidders list
         '''
-        print('------------------ PUT Available Bidder -------------')
         user = UserProfile.objects.get(user=self.request.user)
         AvailableBidders.objects.create(last_editing_user_id=user, bidder_perdet=pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -95,16 +89,7 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
         '''
         Update's a client in the Available Bidders list
         '''
-        print('------------------ PATCH Available Bidder -------------')
         bidder = get_object_or_404(AvailableBidders, bidder_perdet=pk)
-        # <-- which do we prefer? -->
-        # bidder = AvailableBidders.objects.filter(bidder_perdet=pk)
-        # if not bidder:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-
-        # keeping in case my solution is garbage
-        # AvailableBidders.objects.create(last_editing_user_id=user, bidder_perdet=pk)
-        # bidder.update(comments=request.data.comments)
         serializer = self.serializer_class(bidder, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -116,7 +101,6 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
         '''
         Removes the client from the Available Bidders list
         '''
-        print('------------------ DELETE Available Bidder -------------')
         AvailableBidders.objects.filter(bidder_perdet=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -129,5 +113,4 @@ class AvailableBiddersCSVView(APIView):
         """
         Return a list of all of the users in Available Bidders for CSV export
         """
-        print('------------------ GET Available Bidders CSV -------------')
-        return services.get_available_bidders_csv(AvailableBidders)
+        return services.get_available_bidders_csv(request.META['HTTP_JWT'])

@@ -49,6 +49,9 @@ urlpatterns = [
     #CDO
     url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
 
+    # Bureau
+    url(r'^api/v1/bureau/', include('talentmap_api.bureau.urls.bureau')),
+
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
     url(r'^api/v1/permission/group/', include('talentmap_api.permission.urls.group')),

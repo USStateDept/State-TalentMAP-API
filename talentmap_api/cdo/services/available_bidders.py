@@ -1,6 +1,4 @@
 import logging
-from functools import partial
-from urllib.parse import urlencode, quote
 import csv
 
 from django.conf import settings
@@ -8,14 +6,6 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.utils.encoding import smart_str
 
-import requests  # pylint: disable=unused-import
-
-from talentmap_api.fsbid.services import common as services
-import talentmap_api.fsbid.services.client as client_services
-from talentmap_api.cdo.models import AvailableBidders
-
-
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
 from talentmap_api.cdo.models import AvailableBidders
 
 
@@ -26,24 +16,17 @@ API_ROOT = settings.FSBID_API_URL
 
 def get_available_bidders(jwt_token):
     '''
-    Returns all users in Available Bidders list
+    Returns Available Bidders list
     '''
-    # might want to create a new CDO service that returns all clients, regardeless of needing an hru_id(s)
-    # then would just filter on that with the IDs returned for Available Bidders
-    perdet_ids = AvailableBidders.objects.values_list("bidder_perdet", flat=True)
-    available_bidders = []
-    for per in perdet_ids:
-        available_bidders.append(client_services.single_client(jwt_token, per))
-    # if got all clients, would just do:
-    # allClients.objects.filter("cp_id" in perdet_ids)
-
-    return available_bidders
+    ab = AvailableBidders.objects.all()
+    return ab.values('bidder_perdet', 'status', 'oc_reason', 'comments', 'is_shared')
 
 
 def get_available_bidders_csv(jwt_token):
     '''
-    Returns csv format of all users in Available Bidders list
+    Returns csv format of Available Bidders list
     '''
+
     data = get_available_bidders(jwt_token)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -53,20 +36,19 @@ def get_available_bidders_csv(jwt_token):
 
     # write the headers
     writer.writerow([
-        smart_str(u"Name"),
-        smart_str(u"Skill"),
-        smart_str(u"Grade"),
-        smart_str(u"Position Location"),
-        smart_str(u"Has Hanshake"),
+        smart_str(u"Bidder Perdet"),
+        smart_str(u"Status"),
+        smart_str(u"OC Reason"),
+        smart_str(u"Comments"),
+        smart_str(u"Shared with Bureau"),
     ])
 
     for record in data:
         writer.writerow([
-            smart_str(record["name"]),
-            smart_str(record["skills"][0]["description"]),
-            smart_str("=\"%s\"" % record["grade"]),
-            smart_str("=\"%s\"" % record["employee_id"]),
-            smart_str("=\"%s\"" % record["pos_location"]),
-            smart_str("=\"%s\"" % record["hasHandshake"]),
+            smart_str(record["bidder_perdet"]),
+            smart_str("=\"%s\"" % record["status"]),
+            smart_str("=\"%s\"" % record["oc_reason"]),
+            smart_str("=\"%s\"" % record["comments"]),
+            smart_str("=\"%s\"" % record["is_shared"]),
         ])
     return response
