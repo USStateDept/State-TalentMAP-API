@@ -30,6 +30,7 @@ services:
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
       - SECREF_URL=http://host.docker.internal:3333/SECREF
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
+      - ORG_API_URL=http://host.docker.internal:3333/Organizations
   oracle:
     ports:
       - 1521:1521

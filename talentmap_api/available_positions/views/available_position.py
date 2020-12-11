@@ -1,6 +1,8 @@
 import coreapi
 import maya
+import logging
 
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.db.models.functions import Concat
@@ -24,15 +26,18 @@ from rest_condition import Or
 from talentmap_api.common.common_helpers import in_group_or_403, get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation, AvailablePositionRanking
-from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer, AvailablePositionRankingSerializer
-from talentmap_api.available_positions.filters import AvailablePositionRankingFilter
+from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionDesignation, AvailablePositionRanking, AvailablePositionRankingLock
+from talentmap_api.available_positions.serializers.serializers import AvailablePositionDesignationSerializer, AvailablePositionRankingSerializer, AvailablePositionRankingLockSerializer
+from talentmap_api.available_positions.filters import AvailablePositionRankingFilter, AvailablePositionRankingLockFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
 import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
+import talentmap_api.fsbid.services.employee as empservices
+
+logger = logging.getLogger(__name__)
 
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 
@@ -100,22 +105,140 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
                                    mixins.ListModelMixin,
                                    mixins.RetrieveModelMixin):
 
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
     serializer_class = AvailablePositionRankingSerializer
     filter_class = AvailablePositionRankingFilter
 
+    # For all requests, if the position is locked, then the user must have the appropriate bureau permission for the cp_id
+
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user.profile)
+        if isinstance(self.request.data, list):
+            data = self.request.data
+            # Empty array
+            if len(data) == 0:
+                raise SuspiciousOperation('Array is empty')
+            cp = data[0].get('cp_id')
+            # All cp_id values must match the first one
+            if not all(x.get('cp_id') == data[0].get('cp_id') for x in data):
+                raise SuspiciousOperation('All cp_id values must be identical')
+        # if a single object is passed
+        if isinstance(self.request.data, dict):
+            cp = self.request.data.get('cp_id')
+
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
+            raise PermissionDenied()
+        # not locked and (has org permission or bureau permission)
+        if not exists and (hasOrgPermissions or hasBureauPermissions):
+            serializer.save(user=self.request.user.profile)
+        elif exists and hasBureauPermissions:
+            serializer.save(user=self.request.user.profile)
+        else:
+            raise PermissionDenied()
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+        cp = self.request.GET.get('cp_id')
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
+            raise PermissionDenied()
+        # not locked and (has org permission or bureau permission)
+        if not exists and (hasOrgPermissions or hasBureauPermissions):
+            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+        # doesn't have permission
+        raise PermissionDenied()
 
     def perform_delete(self, request, pk, format=None):
         '''
         Removes the available position rankings by cp_id for the user
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+        cp = pk
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+
+        # is locked and does not have bureau permissions
+        if exists and not hasBureauPermissions:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        # not locked and (has org permission or bureau permission)
+        elif not exists and (hasOrgPermissions or hasBureauPermissions):
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        elif exists and hasBureauPermissions:
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        # doesn't have permission
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
+                                       GenericViewSet,
+                                       mixins.ListModelMixin,
+                                       mixins.RetrieveModelMixin):
+
+    permission_classes = (isDjangoGroupMember('bureau_user'),)
+    serializer_class = AvailablePositionRankingLockSerializer
+    filter_class = AvailablePositionRankingLockFilter
+
+
+    def put(self, request, pk, format=None):
+        # must have bureau permission for the bureau code associated with the position
+        if not empservices.has_bureau_permissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # get the bureau code and org code associated with the position
+        pos = services.get_available_position(pk, request.META['HTTP_JWT'])
+        try:
+            bureau = pos.get('position').get('bureau_code')
+            org = pos.get('position').get('organization_code')
+        # return a 404 if we can't determine the bureau/org code
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if pos is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # if the position is already locked, still update the bureau/org codes
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
+            AvailablePositionRankingLock.objects.filter(cp_id=pk).update(bureau_code=bureau, org_code=org)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # save the cp_id, bureau code and org code
+        position, _ = AvailablePositionRankingLock.objects.get_or_create(cp_id=pk, bureau_code=bureau, org_code=org)
+        position.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, pk, format=None):
+        '''
+        Indicates if the available position is a favorite
+
+        Returns 204 if the available position is a favorite, otherwise, 404
+        '''
+        # must have bureau permission for the bureau code associated with the position
+        if not empservices.has_bureau_permissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, format=None):
+        '''
+        Removes the available position ranking by cp_id
+        '''
+        # must have bureau permission for the bureau code associated with the position
+        if not empservices.has_bureau_permissions(pk, request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
