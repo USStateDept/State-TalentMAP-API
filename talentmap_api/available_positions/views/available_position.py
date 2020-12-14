@@ -151,7 +151,7 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
             raise PermissionDenied()
         # not locked and (has org permission or bureau permission)
         if not exists and (hasOrgPermissions or hasBureauPermissions):
-            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class).order_by('rank')
         # doesn't have permission
         raise PermissionDenied()
 
@@ -159,7 +159,6 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         '''
         Removes the available position rankings by cp_id for the user
         '''
-        user = UserProfile.objects.get(user=self.request.user)
         cp = pk
         hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
         hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
@@ -170,10 +169,10 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_403_FORBIDDEN)
         # not locked and (has org permission or bureau permission)
         elif not exists and (hasOrgPermissions or hasBureauPermissions):
-            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, cp_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         elif exists and hasBureauPermissions:
-            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, cp_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         # doesn't have permission
         return Response(status=status.HTTP_403_FORBIDDEN)
