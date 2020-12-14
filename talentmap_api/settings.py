@@ -71,7 +71,8 @@ LOGOUT_URL = 'rest_framework:logout'
 
 # Check for SAML2 enable
 if ENABLE_SAML2:
-    LOGIN_URL = '/saml2/login/'
+    # We want to use Django login for Swagger all the time, so we comment this out
+    # LOGIN_URL = '/saml2/login/'
     SESSION_EXPIRE_AT_BROWSER_CLOSE = bool_env_variable('SAML2_SESSION_EXPIRE_AT_BROWSER_CLOSE')
 
 # Authorization token lifetime
@@ -102,6 +103,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_expiring_authtoken',
+    'rest_framework_filters',
     'rest_framework_swagger',
     'debug_toolbar',
     'djangosaml2',
@@ -493,6 +495,7 @@ FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://moc
 SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/SECREF')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/cyclePositions')
+ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/Organizations')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')

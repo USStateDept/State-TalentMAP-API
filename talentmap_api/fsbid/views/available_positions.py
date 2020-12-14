@@ -208,9 +208,12 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
         if count is 0:
             return Response({})
 
-        pageLimit = int(request.query_params["limit"])
-        randomPage = random.randint(1, math.ceil(count / pageLimit))#nosec
-        newQueryParams = request.query_params.copy()
-        newQueryParams["page"] = str(randomPage)
+        try:
+            pageLimit = int(request.query_params["limit"])
+            randomPage = random.randint(1, math.ceil(count / pageLimit)) #nosec
+            newQueryParams = request.query_params.copy()
+            newQueryParams["page"] = str(randomPage)
+        except:
+            return Response({})
 
         return Response(services.get_available_positions(newQueryParams, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))

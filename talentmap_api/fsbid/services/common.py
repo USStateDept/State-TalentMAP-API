@@ -58,8 +58,12 @@ def get_pagination(query, count, base_url, host=None):
 
 
 def convert_multi_value(val):
+    toReturn = None
     if val is not None:
-        return val.split(',')
+        toReturn = val.split(',')
+    if toReturn is not None and len(toReturn[0]) is 0:
+        toReturn = None
+    return toReturn
 
 
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
