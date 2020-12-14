@@ -5,10 +5,12 @@ import jwt
 from django.conf import settings
 from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
+from talentmap_api.fsbid.services.available_positions import get_available_position
 
 API_ROOT = settings.EMPLOYEES_API_URL
 SECREF_ROOT = settings.SECREF_URL
 FSBID_ROOT = settings.FSBID_API_URL
+ORG_ROOT = settings.ORG_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +53,18 @@ def map_group_to_fsbid_role(jwt_token):
     roles = jwt.decode(jwt_token, verify=False).get('role')
     print(roles)
     tm_roles = list(map(lambda z: ROLE_MAPPING.get(z), roles))
+
+    orgPermissions = list(get_org_permissions(jwt_token))
+    if len(orgPermissions) >= 1:
+        tm_roles.append('post_user')
+
     print(tm_roles)
     return Group.objects.filter(name__in=tm_roles).all()
 
 
 # Mapping of FSBid roles (keys) to TalentMap permissions (values)
 ROLE_MAPPING = {
+    # post_user gets manually mapped
     "fsofficer": "bidder",
     "FSBidCycleAdministrator": "bidcycle_admin",
     "CDO": "cdo",
@@ -64,6 +72,26 @@ ROLE_MAPPING = {
     "Bureau": "bureau_user",
     "AO": "ao_user",
 }
+
+def has_bureau_permissions(cp_id, request):
+    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
+    bureauPermissions = list(get_bureau_permissions(request.META['HTTP_JWT']))
+    try:
+        bureau = str(pos.get('position').get('bureau_code'))
+        return any(x.get('code') == bureau for x in bureauPermissions)
+    except:
+        return False
+    return False
+
+def has_org_permissions(cp_id, request):
+    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
+    orgPermissions = list(get_org_permissions(request.META['HTTP_JWT']))
+    try:
+        org = str(pos.get('position').get('organization_code'))
+        return any(x.get('code') == org for x in orgPermissions)
+    except:
+        return False
+    return False
 
 def get_bureau_permissions(jwt_token, host=None):
     '''
@@ -73,9 +101,24 @@ def get_bureau_permissions(jwt_token, host=None):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return map(map_bureau_permissions, response.get("Data", {}))
 
+def get_org_permissions(jwt_token, host=None):
+    '''
+    Gets a list of organization codes assigned to the user
+    '''
+    url = f"{ORG_ROOT}/Permissions"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    return map(map_org_permissions, response.get("Data", {}))
+
 def map_bureau_permissions(data):
     return {
         "code": data.get('bur', None),
         "long_description": data.get('bureau_long_desc', None),
         "short_description": data.get('bureau_short_desc', None),
+    }
+
+def map_org_permissions(data):
+    return {
+        "code": data.get('org_code', None),
+        "long_description": data.get('org_long_desc', None),
+        "short_description": data.get('org_short_desc', None),
     }

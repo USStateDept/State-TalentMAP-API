@@ -4,7 +4,7 @@ from rest_framework_bulk import (
 )
 
 from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionRanking
+from talentmap_api.available_positions.models import AvailablePositionDesignation, AvailablePositionRanking, AvailablePositionRankingLock
 
 
 class AvailablePositionDesignationSerializer(BulkSerializerMixin, PrefetchedSerializer):
@@ -22,3 +22,10 @@ class AvailablePositionRankingSerializer(PrefetchedSerializer):
         model = AvailablePositionRanking
         fields = "__all__"
         writable_fields = ("cp_id", "bidder_perdet", "rank")
+
+
+class AvailablePositionRankingLockSerializer(PrefetchedSerializer):
+
+    class Meta:
+        model = AvailablePositionRankingLock
+        fields = "__all__"

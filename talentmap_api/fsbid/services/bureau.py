@@ -23,12 +23,11 @@ def get_bureau_position(id, jwt_token):
     Gets an indivdual bureau position by id
     '''
     return services.get_individual(
-        "cyclePositions",
+        "availablePositions",
         id,
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        CP_API_ROOT,
     )
 
 
@@ -37,7 +36,7 @@ def get_bureau_positions(query, jwt_token, host=None):
     Gets all bureau positions
     '''
     return services.send_get_request(
-        "cyclePositions",
+        "availablePositions",
         query,
         convert_bp_query,
         jwt_token,
@@ -45,7 +44,6 @@ def get_bureau_positions(query, jwt_token, host=None):
         get_bureau_positions_count,
         "/api/v1/fsbid/bureau/positions/",
         host,
-        CP_API_ROOT,
     )
 
 
@@ -53,17 +51,17 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("cyclePositions", query, convert_bp_query, jwt_token, host, CP_API_ROOT)
+    return services.send_count_request("availablePositionsCount", query, convert_bp_query, jwt_token, host)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
-        "cyclePositions",
+        "availablePositions",
         query,
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        CP_API_ROOT,
+        API_ROOT,
     )
 
     count = get_bureau_positions_count(query, jwt_token)
@@ -101,7 +99,9 @@ def get_bureau_position_bids_csv(id, query, jwt_token, host):
         CP_API_ROOT,
     )
 
-    response = services.get_bidders_csv(data, "position_bidders", True)
+    pos_num = get_bureau_position(id, jwt_token)["position"]["position_number"]
+    filename = f"position_{pos_num}_bidders"
+    response = services.get_bidders_csv(data, filename, True)
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
