@@ -108,7 +108,7 @@ class FSBidBureauPositionBidsView(BaseView):
             # set a default value
             x['has_competing_rank'] = False
             perdet = x.get('emp_id')
-            rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=1).values_list("cp_id", flat=True)
+            rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list("cp_id", flat=True)
             for y in rankOneBids:
                 hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
                 hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
