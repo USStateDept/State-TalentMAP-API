@@ -14,6 +14,7 @@ class AvailableBidders(models.Model):
         default='UA',
     )
     oc_reason = models.CharField(max_length=255, null=False, blank=True)
+    oc_bureau = models.CharField(max_length=255, null=False, blank=True)
     comments = models.CharField(max_length=255, null=False, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     is_shared = models.BooleanField(default=False, help_text="Shared with Bureau")

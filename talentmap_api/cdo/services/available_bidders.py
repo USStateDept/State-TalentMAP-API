@@ -19,7 +19,7 @@ def get_available_bidders(jwt_token):
     Returns Available Bidders list
     '''
     ab = AvailableBidders.objects.all()
-    return ab.values('bidder_perdet', 'status', 'oc_reason', 'comments', 'is_shared')
+    return ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
 
 
 def get_available_bidders_csv(jwt_token):
@@ -39,6 +39,7 @@ def get_available_bidders_csv(jwt_token):
         smart_str(u"Bidder Perdet"),
         smart_str(u"Status"),
         smart_str(u"OC Reason"),
+        smart_str(u"OC Bureau"),
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
@@ -48,6 +49,7 @@ def get_available_bidders_csv(jwt_token):
             smart_str(record["bidder_perdet"]),
             smart_str("=\"%s\"" % record["status"]),
             smart_str("=\"%s\"" % record["oc_reason"]),
+            smart_str("=\"%s\"" % record["oc_bureau"]),
             smart_str("=\"%s\"" % record["comments"]),
             smart_str("=\"%s\"" % record["is_shared"]),
         ])
