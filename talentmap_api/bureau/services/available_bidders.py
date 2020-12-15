@@ -17,19 +17,14 @@ API_ROOT = settings.FSBID_API_URL
 
 def get_available_bidders(jwt_token):
     '''
-    Returns all users in Available Bidders list
+    Returns all clients in Available Bidders list
     '''
-    # might want to create a new CDO service that returns all clients, regardeless of needing an hru_id(s)
-    # then would just filter on that with the IDs returned for Available Bidders
     perdet_ids = AvailableBidders.objects.values_list("bidder_perdet", flat=True)
-    available_bidders = []
+    clients = []
     for per in perdet_ids:
-        available_bidders.append(client_services.single_client(jwt_token, per))
+        clients.append(client_services.single_client(jwt_token, per))
 
-    # if got all clients, would just do:
-    # allClients.objects.filter("cp_id" in perdet_ids)
-
-    return available_bidders
+    return clients
 
 
 def get_available_bidders_csv(jwt_token):
