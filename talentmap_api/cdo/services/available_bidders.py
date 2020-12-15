@@ -59,7 +59,10 @@ def get_available_bidders_csv(jwt_token):
     Returns csv format of Available Bidders list
     '''
 
-    data = get_available_bidders(jwt_token)
+    data = get_available_bidders(jwt_token)['results']
+    print('------------------------------------')
+    print(data)
+    print('------------------------------------')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -68,6 +71,9 @@ def get_available_bidders_csv(jwt_token):
 
     # write the headers
     writer.writerow([
+        smart_str(u"Name"),
+        smart_str(u"Grade"),
+        smart_str(u"TED"),
         smart_str(u"Bidder Perdet"),
         smart_str(u"Status"),
         smart_str(u"OC Reason"),
@@ -78,6 +84,9 @@ def get_available_bidders_csv(jwt_token):
 
     for record in data:
         writer.writerow([
+            smart_str(record["name"]),
+            smart_str(record["grade"]),
+            smart_str(record["TED"]),
             smart_str(record["bidder_perdet"]),
             smart_str("=\"%s\"" % record["status"]),
             smart_str("=\"%s\"" % record["oc_reason"]),

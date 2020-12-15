@@ -41,7 +41,6 @@ def get_available_bidders_csv(jwt_token):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
-        # smart_str(u"Skill"),
         smart_str(u"Grade"),
         smart_str(u"Employee ID"),
         smart_str(u"Position Location"),
@@ -49,11 +48,8 @@ def get_available_bidders_csv(jwt_token):
     ])
 
     for record in data:
-        # print(record["skills"][0]["description"]),
-        # print(record["skills"]),
         writer.writerow([
             smart_str(record["name"]),
-            # smart_str(record["skills"][0]["description"]),
             smart_str("=\"%s\"" % record["grade"]),
             smart_str("=\"%s\"" % record["employee_id"]),
             smart_str("=\"%s\"" % record["pos_location"]),
