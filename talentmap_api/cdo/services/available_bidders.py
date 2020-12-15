@@ -60,9 +60,6 @@ def get_available_bidders_csv(jwt_token):
     '''
 
     data = get_available_bidders(jwt_token)['results']
-    print('------------------------------------')
-    print(data)
-    print('------------------------------------')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
