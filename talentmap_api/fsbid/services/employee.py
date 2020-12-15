@@ -72,9 +72,9 @@ ROLE_MAPPING = {
     "AO": "ao_user",
 }
 
-def has_bureau_permissions(cp_id, request):
-    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
-    bureauPermissions = list(get_bureau_permissions(request.META['HTTP_JWT']))
+def has_bureau_permissions(cp_id, jwt_token):
+    pos = get_available_position(cp_id, jwt_token)
+    bureauPermissions = list(get_bureau_permissions(jwt_token))
     try:
         bureau = str(pos.get('position').get('bureau_code'))
         return any(x.get('code') == bureau for x in bureauPermissions)
@@ -82,9 +82,9 @@ def has_bureau_permissions(cp_id, request):
         return False
     return False
 
-def has_org_permissions(cp_id, request):
-    pos = get_available_position(cp_id, request.META['HTTP_JWT'])
-    orgPermissions = list(get_org_permissions(request.META['HTTP_JWT']))
+def has_org_permissions(cp_id, jwt_token):
+    pos = get_available_position(cp_id, jwt_token)
+    orgPermissions = list(get_org_permissions(jwt_token))
     try:
         org = str(pos.get('position').get('organization_code'))
         return any(x.get('code') == org for x in orgPermissions)

@@ -125,8 +125,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         if isinstance(self.request.data, dict):
             cp = self.request.data.get('cp_id')
 
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
         exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
         # is locked and does not have bureau permissions
@@ -142,8 +142,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         cp = self.request.GET.get('cp_id')
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
         exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
         # is locked and does not have bureau permissions
@@ -160,8 +160,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         Removes the available position rankings by cp_id for the user
         '''
         cp = pk
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
         exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
         # is locked and does not have bureau permissions
@@ -189,7 +189,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
     def put(self, request, pk, format=None):
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # get the bureau code and org code associated with the position
@@ -221,7 +221,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         Returns 204 if the available position is a favorite, otherwise, 404
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
@@ -234,7 +234,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         Removes the available position ranking by cp_id
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
