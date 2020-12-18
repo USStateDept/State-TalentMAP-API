@@ -6,19 +6,22 @@ class AvailableBidders(models.Model):
         ('IT', 'In-Transit'),
         ('OC', 'Over-Complement'),
         ('LWOP', 'Leave Without Pay'),
+        ('', ''),
     ]
     bidder_perdet = models.CharField(max_length=255, null=False, help_text="The user in availableBidders list")
     status = models.CharField(
         max_length=4,
         choices=STATUS_CHOICES,
-        default='UA',
+        default='',
     )
     oc_reason = models.CharField(max_length=255, null=False, blank=True)
     oc_bureau = models.CharField(max_length=255, null=False, blank=True)
     comments = models.CharField(max_length=255, null=False, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now_add=True)
+    archived = models.BooleanField(default=False)
     is_shared = models.BooleanField(default=False, help_text="Shared with Bureau")
-    last_editing_user_id = models.ForeignKey('user_profile.UserProfile', related_name='agent', null=False, on_delete=models.DO_NOTHING, help_text="The last user to edit")
+    last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='agent', null=False, on_delete=models.DO_NOTHING, help_text="The last user to edit")
 
     class Meta:
         managed = True

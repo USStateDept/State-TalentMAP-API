@@ -1,7 +1,7 @@
 import logging
 import coreapi
 from django.shortcuts import get_object_or_404
-import pprint
+from datetime import datetime
 
 from rest_framework.schemas import AutoSchema
 from rest_framework import mixins
@@ -82,17 +82,21 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
         Puts the client in the Available Bidders list
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        AvailableBidders.objects.create(last_editing_user_id=user, bidder_perdet=pk)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if AvailableBidders.objects.filter(bidder_perdet=pk).exists():
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            AvailableBidders.objects.create(last_editing_user=user, bidder_perdet=pk)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk, format=None):
         '''
         Update's a client in the Available Bidders list
         '''
         bidder = get_object_or_404(AvailableBidders, bidder_perdet=pk)
+        user = UserProfile.objects.get(user=self.request.user)
         serializer = self.serializer_class(bidder, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(last_editing_user=user, update_date=datetime.now())
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

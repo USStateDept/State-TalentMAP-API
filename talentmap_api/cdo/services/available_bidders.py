@@ -47,7 +47,8 @@ def get_available_bidders(jwt_token):
 
         # get stats for status field
         for stat in ab.values('status'):
-            stats[stat['status']] += 1
+            if stat['status'] is not '':
+                stats[stat['status']] += 1
 
         return {"count": len(results), "results": ab_clients, "stats": stats}
     else:

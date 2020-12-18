@@ -3,7 +3,8 @@ from talentmap_api.cdo.models import AvailableBidders
 
 
 class AvailableBiddersSerializer(PrefetchedSerializer):
-    last_editing_user_id = StaticRepresentationField(read_only=True)
+    last_editing_user = StaticRepresentationField(read_only=True)
+    update_date = StaticRepresentationField(read_only=True)
 
     class Meta:
         model = AvailableBidders
