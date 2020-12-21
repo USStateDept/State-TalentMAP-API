@@ -9,7 +9,7 @@ from rest_framework import status
 
 from talentmap_api.fsbid.filters import BureauPositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
-from talentmap_api.available_positions.models import AvailablePositionRanking
+from talentmap_api.available_positions.models import AvailablePositionRanking, AvailablePositionRankingLock
 
 import talentmap_api.fsbid.services.bureau as services
 import talentmap_api.fsbid.services.available_positions as ap_services
@@ -81,6 +81,8 @@ class FSBidBureauPositionView(BaseView):
         result = services.get_bureau_position(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        result['is_locked'] = AvailablePositionRankingLock.objects.filter(cp_id=pk).exists()
 
         return Response(result)
 

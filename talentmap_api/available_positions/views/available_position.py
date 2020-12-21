@@ -144,13 +144,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         cp = self.request.GET.get('cp_id')
         hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
         hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
-        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
-        # is locked and does not have bureau permissions
-        if exists and not hasBureauPermissions:
-            raise PermissionDenied()
-        # not locked and (has org permission or bureau permission)
-        if not exists and (hasOrgPermissions or hasBureauPermissions):
+        if hasOrgPermissions or hasBureauPermissions:
             return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class).order_by('rank')
         # doesn't have permission
         raise PermissionDenied()
@@ -182,7 +177,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
                                        mixins.ListModelMixin,
                                        mixins.RetrieveModelMixin):
 
-    permission_classes = (isDjangoGroupMember('bureau_user'),)
+    permission_classes = (IsAuthenticated,)
     serializer_class = AvailablePositionRankingLockSerializer
     filter_class = AvailablePositionRankingLockFilter
 
@@ -216,12 +211,12 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
     def get(self, request, pk, format=None):
         '''
-        Indicates if the available position is a favorite
+        Indicates if the available position is locked
 
-        Returns 204 if the available position is a favorite, otherwise, 404
+        Returns 204 if the available position is locked, otherwise, 404
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']) and not empservices.has_org_permissions(pk, self.request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
