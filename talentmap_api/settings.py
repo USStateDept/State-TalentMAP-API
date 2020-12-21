@@ -127,7 +127,8 @@ INSTALLED_APPS = [
     'talentmap_api.administration',
     'talentmap_api.feature_flags',
     'talentmap_api.stats',
-    'talentmap_api.fsbid'
+    'talentmap_api.fsbid',
+    'talentmap_api.cdo',
 ]
 
 MIDDLEWARE = [

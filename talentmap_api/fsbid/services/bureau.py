@@ -144,6 +144,14 @@ def fsbid_bureau_positions_to_talentmap(bp):
     ted = ensure_date(bp.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
     if ted is None:
         ted = ensure_date(bp.get("ted", None), utc_offset=-5)
+
+    skillSecondary = f"{bp.get('pos_staff_ptrn_skill_desc', None)} ({bp.get('pos_staff_ptrn_skill_code')})"
+    skillSecondaryCode = bp.get("pos_staff_ptrn_skill_code", None)
+    # If the primary and secondary skills are the same, we interpret this as there being no secondary skill
+    if bp.get("pos_skill_code", None) == bp.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+
     return {
         "id": bp.get("cp_id", None),
         "status": None,
@@ -159,6 +167,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "grade": bp.get("pos_grade_code", None),
             "skill": f"{bp.get('pos_skill_desc', None)} ({bp.get('pos_skill_code')})",
             "skill_code": bp.get("pos_skill_code", None),
+            "skill_secondary": skillSecondary,
+            "skill_secondary_code": skillSecondaryCode,
             "bureau": f"({bp.get('pos_bureau_short_desc', None)}) {bp.get('pos_bureau_long_desc', None)}",
             "bureau_short_desc": f"{bp.get('pos_bureau_short_desc', None)}",
             "organization": f"({bp.get('org_short_desc', None)}) {bp.get('org_long_desc', None)}",
