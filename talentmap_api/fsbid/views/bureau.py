@@ -53,7 +53,9 @@ class FSBidBureauPositionsListView(BaseView):
         '''
         Gets all bureau positions
         '''
-        return Response(services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        bureau_pos = services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'],
+                                                   f"{request.scheme}://{request.get_host()}")
+        return Response(services.get_bureau_shortlist_indicator(bureau_pos))
 
 
 class FSBidBureauPositionsCSVView(BaseView):
