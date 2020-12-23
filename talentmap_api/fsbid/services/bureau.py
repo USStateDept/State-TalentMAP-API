@@ -12,6 +12,8 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdoservices
 
+from talentmap_api.available_positions.models import AvailablePositionRanking
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
@@ -313,3 +315,11 @@ def convert_bp_bids_query(query):
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def get_bureau_shortlist_indicator(data):
+    '''
+    Adds a shortlist indicator field to position results
+    '''
+    for position in data["results"]:
+        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=position["id"]).exists()
+    return data
