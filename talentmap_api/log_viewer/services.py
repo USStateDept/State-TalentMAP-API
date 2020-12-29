@@ -1,5 +1,6 @@
 from zipfile import ZipFile, is_zipfile
 
+import subprocess
 import os
 
 from talentmap_api.settings import get_delineated_environment_variable
@@ -16,7 +17,7 @@ def get_log_list():
     }
 
 
-def get_log(log_name):
+def get_log(log_name, size=1000):
     lines = ""
     file_name = f"{log_dir}{log_name}"
     if os.path.exists(f"{file_name}"):
@@ -27,10 +28,17 @@ def get_log(log_name):
                         with myzip.open(f) as myfile:
                             lines = myfile.read()
             else:
-                with open(f"{file_name}", 'r') as f:
-                    lines = f.read()
+                lines = tail(file_name, size)
         except FileNotFoundError:
             return None
     return {
         "data": lines
     }
+
+
+def tail(f, n):
+    print(f)
+    proc = subprocess.Popen(['tail', '-n', str(n), f], stdout=subprocess.PIPE)
+    lines = proc.stdout.readlines()
+    lines = ''.join(bytes.join(b'', lines).decode('ascii'))
+    return lines
