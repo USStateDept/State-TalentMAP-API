@@ -1,6 +1,6 @@
 from zipfile import ZipFile, is_zipfile
 
-import subprocess
+import subprocess # nosec
 import os
 
 from talentmap_api.settings import get_delineated_environment_variable
@@ -37,8 +37,7 @@ def get_log(log_name, size=1000):
 
 
 def tail(f, n):
-    print(f)
-    proc = subprocess.Popen(['tail', '-n', str(n), f], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['tail', '-n', str(n), f], stdout=subprocess.PIPE) # nosec
     lines = proc.stdout.readlines()
     lines = ''.join(bytes.join(b'', lines).decode('ascii'))
     return lines
