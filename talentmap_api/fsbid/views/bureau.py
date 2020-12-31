@@ -80,11 +80,15 @@ class FSBidBureauPositionView(BaseView):
         '''
         Gets a bureau position
         '''
+        hasBureauPermissions = empservices.has_bureau_permissions(pk, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(pk, self.request.META['HTTP_JWT'])
         result = services.get_bureau_position(pk, request.META['HTTP_JWT'])
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         result['is_locked'] = AvailablePositionRankingLock.objects.filter(cp_id=pk).exists()
+        result['has_bureau_permission'] = hasBureauPermissions
+        result['has_org_permission'] = hasOrgPermissions
 
         return Response(result)
 
