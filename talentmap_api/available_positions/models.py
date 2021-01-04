@@ -40,7 +40,7 @@ class AvailablePositionRanking(StaticRepresentationModel):
     class Meta:
         managed = True
         ordering = ["cp_id"]
-        unique_together = ('user', 'cp_id', 'rank', 'bidder_perdet')
+        unique_together = ('cp_id', 'rank', 'bidder_perdet')
 
 
 class AvailablePositionRankingLock(StaticRepresentationModel):

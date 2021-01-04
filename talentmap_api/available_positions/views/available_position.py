@@ -125,8 +125,8 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         if isinstance(self.request.data, dict):
             cp = self.request.data.get('cp_id')
 
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
         exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
         # is locked and does not have bureau permissions
@@ -142,16 +142,11 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         cp = self.request.GET.get('cp_id')
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
-        exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
 
-        # is locked and does not have bureau permissions
-        if exists and not hasBureauPermissions:
-            raise PermissionDenied()
-        # not locked and (has org permission or bureau permission)
-        if not exists and (hasOrgPermissions or hasBureauPermissions):
-            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile).order_by('rank')
+        if hasOrgPermissions or hasBureauPermissions:
+            return get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class).order_by('rank')
         # doesn't have permission
         raise PermissionDenied()
 
@@ -159,10 +154,9 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
         '''
         Removes the available position rankings by cp_id for the user
         '''
-        user = UserProfile.objects.get(user=self.request.user)
         cp = pk
-        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request)
-        hasOrgPermissions = empservices.has_org_permissions(cp, self.request)
+        hasBureauPermissions = empservices.has_bureau_permissions(cp, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(cp, self.request.META['HTTP_JWT'])
         exists = AvailablePositionRankingLock.objects.filter(cp_id=cp).exists()
 
         # is locked and does not have bureau permissions
@@ -170,10 +164,10 @@ class AvailablePositionRankingView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_403_FORBIDDEN)
         # not locked and (has org permission or bureau permission)
         elif not exists and (hasOrgPermissions or hasBureauPermissions):
-            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, cp_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         elif exists and hasBureauPermissions:
-            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, user=self.request.user.profile, cp_id=pk).delete()
+            get_prefetched_filtered_queryset(AvailablePositionRanking, self.serializer_class, cp_id=pk).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         # doesn't have permission
         return Response(status=status.HTTP_403_FORBIDDEN)
@@ -183,14 +177,14 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
                                        mixins.ListModelMixin,
                                        mixins.RetrieveModelMixin):
 
-    permission_classes = (isDjangoGroupMember('bureau_user'),)
+    permission_classes = (IsAuthenticated,)
     serializer_class = AvailablePositionRankingLockSerializer
     filter_class = AvailablePositionRankingLockFilter
 
 
     def put(self, request, pk, format=None):
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # get the bureau code and org code associated with the position
@@ -217,12 +211,12 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
 
     def get(self, request, pk, format=None):
         '''
-        Indicates if the available position is a favorite
+        Indicates if the available position is locked
 
-        Returns 204 if the available position is a favorite, otherwise, 404
+        Returns 204 if the available position is locked, otherwise, 404
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']) and not empservices.has_org_permissions(pk, self.request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if AvailablePositionRankingLock.objects.filter(cp_id=pk).exists():
@@ -235,7 +229,7 @@ class AvailablePositionRankingLockView(FieldLimitableSerializerMixin,
         Removes the available position ranking by cp_id
         '''
         # must have bureau permission for the bureau code associated with the position
-        if not empservices.has_bureau_permissions(pk, request):
+        if not empservices.has_bureau_permissions(pk, request.META['HTTP_JWT']):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         get_prefetched_filtered_queryset(AvailablePositionRankingLock, self.serializer_class, cp_id=pk).delete()
