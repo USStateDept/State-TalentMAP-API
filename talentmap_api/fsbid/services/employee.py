@@ -51,6 +51,8 @@ def map_group_to_fsbid_role(jwt_token):
     Updates a user roles based on what we get back from FSBid
     '''
     roles = jwt.decode(jwt_token, verify=False).get('role')
+    if isinstance(roles, str):
+        roles = [roles]
     tm_roles = list(map(lambda z: ROLE_MAPPING.get(z), roles))
 
     orgPermissions = list(get_org_permissions(jwt_token))
