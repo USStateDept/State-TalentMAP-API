@@ -197,6 +197,9 @@ def fsbid_ap_to_talentmap_ap(ap):
     if ap.get("pos_skill_code", None) == ap.get("pos_staff_ptrn_skill_code", None):
         skillSecondary = None
         skillSecondaryCode = None
+    if not ap.get("pos_skill_code", None) or not ap.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
 
     return {
         "id": ap.get("cp_id", None),
