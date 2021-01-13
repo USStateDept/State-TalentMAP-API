@@ -75,7 +75,6 @@ class FSBidConesView(BaseView):
 class FSBidClassificationsView(BaseView):
     uri = "bidderTrackingPrograms"
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
-    print("in fsbid classifications view")
 
 
 class FSBidPostIndicatorsView(BaseView):
@@ -91,9 +90,3 @@ class FSBidUnaccompaniedStatusView(BaseView):
 class FSBidCommuterPostsView(BaseView):
     uri = "references/postAttributes?codeTableName=CommuterPostTable"
     mapping_function = services.fsbid_commuter_posts_to_talentmap_commuter_posts
-
-
-class FSBidClassificationView(BaseView):
-    uri = "bidderTrackingPrograms"
-    mapping_function = services.fsbid_classifications_to_talentmap_classification
-    print("in fsbid classification view")

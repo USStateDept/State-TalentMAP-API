@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^client/(?P<client_id>[0-9]+)/$', views.FSBidListView.as_view(), name="cdo-bidding-FSBid-bid-actions"),
     url(r'^(?P<pk>[0-9]+)/$', views.FSBidCDOView.as_view(), name='FSBid-cdo'),
     url(r'^$', views.FSBidCDOListView.as_view(), name='FSBid-cdo_list'),
+    url(r'^client/(?P<client_id>[0-9]+)/classifications/$', views.FSBidClientEditClassifications.as_view(), name='cdo-bidding.FSBid-bid-actions'),
+    # url(r'^cdo/(?P<pk>[0-9]+)/client/(?P<client_id>[0-9]+)/classifications/$', views.FSBidUpdateClassifications.as_view(), name='cdo-bidding.FSBid-bid-actions'),
 ]
 
 urlpatterns += router.urls
