@@ -244,6 +244,8 @@ def fsbid_clients_to_talentmap_clients(data):
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "noPanel": fsbid_no_panel_to_tmap(data.get("no_successful_panel")),
+        "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
@@ -269,6 +271,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "role_code": data.get("rl_cd", None),
         "pos_location": pos_location,
         "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        "noPanel": fsbid_no_panel_to_tmap(data.get("no_successful_panel")),
+        "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
@@ -296,6 +300,8 @@ def convert_client_query(query, isCount=None):
         "request_params.freeText": query.get("q", None),
         "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
         "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None)),
+        "request_params.no_successful_panel": tmap_panel_to_fsbid(query.get('noPanel', None)),
+        "request_params.no_bids": tmap_no_bids_to_fsbid(query.get('noBids', None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
@@ -372,6 +378,34 @@ def tmap_handshake_to_fsbid(hs):
         "false": "N"
     }
     return tmap_dictionary.get(hs, None)
+
+def fsbid_no_panel_to_tmap(panel):
+    fsbid_dictionary = {
+        "Y": "true",
+        "N": "false",
+    }
+    return fsbid_dictionary.get(panel, None)
+
+
+def tmap_panel_to_fsbid(panel):
+    tmap_dictionary = {
+        "true": "Y",
+        "false": "N"
+    }
+    return tmap_dictionary.get(panel, None)
+
+def fsbid_no_bids_to_tmap(bids):
+    fsbid_dictionary = {
+        "N": "false",
+    }
+    return fsbid_dictionary.get(bids, None)
+
+
+def tmap_no_bids_to_fsbid(bids):
+    tmap_dictionary = {
+        "false": "N"
+    }
+    return tmap_dictionary.get(bids, None)
 
 
 def fsbid_classifications_to_tmap(cs):
