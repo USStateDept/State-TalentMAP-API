@@ -2,6 +2,7 @@ import logging
 import jwt
 from django.conf import settings
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.client as clientServices
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL
@@ -46,7 +47,7 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
         CDO = {}
     return CDO
 
-
+# mapping example
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     return {
         "id": data.get("hru_id", None),
@@ -54,3 +55,38 @@ def fsbid_cdo_list_to_talentmap_cdo_list(data):
         "email": data.get("email", None),
         "isCurrentUser": data.get("isCurrentUser", None),
     }
+
+
+# tracking programs is the same as classifications
+def update_client_classification(jwt_token=None, perdet_seq_num=None):
+    '''
+    Updates the client's classification
+    '''
+    print('----------------------')
+    print('cdo service update')
+    print('----------------------')
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
+    # uri = f"TrackingPrograms/Bidders"
+    # need to use put
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    # fsbid_clients_to_talentmap_clients
+    cdos = None
+
+    if response is not None:
+        cdos = list(response)
+
+
+def delete_client_classification(jwt_token=None, perdet_seq_num=None, id=None):
+    '''
+    Delete's the client's classification
+    '''
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
+
+    # need to delete
+    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    cdos = None
+
+    if response is not None:
+        cdos = list(response)

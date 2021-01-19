@@ -189,22 +189,38 @@ class FSBidClientEditClassifications(APIView):
     def put(self, request, client_id):
         '''
         Updates the classifications for the client
+        Insert call (te_id, perdet)
+        using the name that makes sense to you (ie: te_id)
         '''
         print('----------------------')
-        print('edit client classifications view')
+        print('edit client classifications view (put)')
         print('----------------------')
         try:
-            # services.submit_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
-            user = UserProfile.objects.get(user=self.request.user)
-            try:
-                owner = UserProfile.objects.get(emp_id=client_id)
-            except ObjectDoesNotExist:
-                logger.info(f"User with emp_id={client_id} did not exist. No notification created for updating the client's classifications.")
-                return Response(status=status.HTTP_204_NO_CONTENT)
+            cdoServices.update_client_classification(request.META['HTTP_JWT'], client_id)
 
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"The classifications for the client with emp_id={client_id} has been submitted by CDO {user}")
+            # loop through in services setup, try to hit fsbid
+            print('client_id', client_id)
+            print('logger request list')
+            logger.info(list(request.data))
+            # print('logger self request')
+            # logger.info(list(self.request))
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+
+        # def delete(self, request, pk, client_id, format=None):
+        #     '''
+        #     Deletes the client's classifications
+        #     Delete takes in perdet_, te_id
+        #     '''
+        #     print('----------------------')
+        #     print('edit client classifications view (delete')
+        #     print('----------------------')
+        #     try:
+        #         cdoServices.delete_client_classification(request.META['HTTP_JWT'], pk, client_id)
+        #         owner = UserProfile.objects.get(emp_id=client_id)
+        #     except ObjectDoesNotExist:
+        #         logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing client classification.")
+        #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
