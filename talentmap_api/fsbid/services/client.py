@@ -300,7 +300,7 @@ def convert_client_query(query, isCount=None):
         "request_params.freeText": query.get("q", None),
         "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
         "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None)),
-        "request_params.no_successful_panel": tmap_panel_to_fsbid(query.get('noPanel', None)),
+        "request_params.no_successful_panel": tmap_no_panel_to_fsbid(query.get('noPanel', None)),
         "request_params.no_bids": tmap_no_bids_to_fsbid(query.get('noBids', None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
@@ -387,7 +387,7 @@ def fsbid_no_panel_to_tmap(panel):
     return fsbid_dictionary.get(panel, None)
 
 
-def tmap_panel_to_fsbid(panel):
+def tmap_no_panel_to_fsbid(panel):
     tmap_dictionary = {
         "true": "Y",
         "false": "N"
