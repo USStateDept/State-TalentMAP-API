@@ -397,13 +397,15 @@ def tmap_panel_to_fsbid(panel):
 def fsbid_no_bids_to_tmap(bids):
     fsbid_dictionary = {
         "N": "false",
+        "Y": "true"
     }
     return fsbid_dictionary.get(bids, None)
 
 
 def tmap_no_bids_to_fsbid(bids):
     tmap_dictionary = {
-        "false": "N"
+        "false": "N",
+        "Y": "true"
     }
     return tmap_dictionary.get(bids, None)
 
