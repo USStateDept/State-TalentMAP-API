@@ -382,7 +382,7 @@ def tmap_handshake_to_fsbid(hs):
 def fsbid_no_panel_to_tmap(panel):
     fsbid_dictionary = {
         "Y": "true",
-        "N": "false",
+        "N": "false"
     }
     return fsbid_dictionary.get(panel, None)
 
@@ -396,16 +396,16 @@ def tmap_panel_to_fsbid(panel):
 
 def fsbid_no_bids_to_tmap(bids):
     fsbid_dictionary = {
-        "N": "false",
-        "Y": "true"
+        "Y": "true",
+        "N": "false"
     }
     return fsbid_dictionary.get(bids, None)
 
 
 def tmap_no_bids_to_fsbid(bids):
     tmap_dictionary = {
-        "false": "N",
-        "Y": "true"
+        "true": "Y",
+        "false": "N"
     }
     return tmap_dictionary.get(bids, None)
 
