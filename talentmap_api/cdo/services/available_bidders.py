@@ -30,7 +30,7 @@ def get_available_bidders(jwt_token):
     if len(ab) > 0:
         results = ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
         # TEMPORARY while we have a better solution merge ab with clients
-        clients = bureau_services.get_available_bidders(jwt_token)
+        clients = bureau_services.get_available_bidders(jwt_token, True)
         ab_clients = []
         for bidder in results:
             for index, client in enumerate(clients):
