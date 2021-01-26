@@ -63,7 +63,7 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     '''
     # need to update uri and response
     for d in data:
-        print('loop for classification', d)
+        print('loop for insert classification', d)
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
     # uri = f"TrackingPrograms/Bidders"
@@ -82,7 +82,7 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     '''
     # need to update uri and response
     for d in data:
-        print('loop for classification', d)
+        print('loop for delete classification', d)
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
 

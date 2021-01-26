@@ -194,9 +194,9 @@ class FSBidClientEditClassifications(APIView):
         using the name that makes sense to you (ie: te_id)
         '''
         try:
-            if 'insert' in request.data.keys():
+            if len(request.data['insert']) != 0:
                 cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
-            if 'delete' in request.data.keys():
+            if len(request.data['delete']) != 0:
                 cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
