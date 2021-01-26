@@ -47,7 +47,7 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
         CDO = {}
     return CDO
 
-# mapping example
+
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     return {
         "id": data.get("hru_id", None),
@@ -57,18 +57,17 @@ def fsbid_cdo_list_to_talentmap_cdo_list(data):
     }
 
 
-# tracking programs is the same as classifications
-def update_client_classification(jwt_token=None, perdet_seq_num=None):
+def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
-    Updates the client's classification
+    Insert's the client's classification
     '''
-    print('----------------------')
-    print('cdo service update')
-    print('----------------------')
+    # need to update uri and response
+    for d in data:
+        print('loop for classification', d)
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
     # uri = f"TrackingPrograms/Bidders"
-    # need to use put
+
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
     # fsbid_clients_to_talentmap_clients
     cdos = None
@@ -77,16 +76,39 @@ def update_client_classification(jwt_token=None, perdet_seq_num=None):
         cdos = list(response)
 
 
-def delete_client_classification(jwt_token=None, perdet_seq_num=None, id=None):
+def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
     Delete's the client's classification
     '''
+    # need to update uri and response
+    for d in data:
+        print('loop for classification', d)
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
 
-    # need to delete
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
     cdos = None
 
     if response is not None:
         cdos = list(response)
+
+
+def fsbid_classifications_to_talentmap_classifications(data):
+    return {
+        # preliminary mapping setup
+        "3": data.get("3rd Tour Bidders", None),
+        "4": data.get("Tenured 4", None),
+        "D": data.get("Differential Bidder", None),
+        "T": data.get("Tandem Bidder", None),
+        "M": data.get("Meritorious Step Increases", None),
+        "6": data.get("6/8 Rule", None),
+        "F": data.get("Fair Share Bidders", None),
+        "C": data.get("Critical Need Language", None),
+        "C1": data.get("Critical Need Language 1st Tour Complete", None),
+        "CC": data.get("Critical Need Language Final Tour Complete", None),
+        "R": data.get("Recommended for Tenure", None),
+        "A": data.get("Ambassador or Deputy Assistant Secretary", None),
+        "F1": data.get("Pickering Fellows", None),
+        "F2": data.get("Rangel Fellows", None),
+        "P": data.get("Pickering/Rangel Fellows", None),
+    }

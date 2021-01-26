@@ -188,39 +188,16 @@ class FSBidClientEditClassifications(APIView):
 
     def put(self, request, client_id):
         '''
-        Updates the classifications for the client
+        Insert's / Delete's the classifications for the client
         Insert call (te_id, perdet)
+        Delete call (te_id, perdet)
         using the name that makes sense to you (ie: te_id)
         '''
-        print('----------------------')
-        print('edit client classifications view (put)')
-        print('----------------------')
         try:
-            cdoServices.update_client_classification(request.META['HTTP_JWT'], client_id)
-
-            # loop through in services setup, try to hit fsbid
-            print('client_id', client_id)
-            print('logger request list')
-            logger.info(list(request.data))
-            # print('logger self request')
-            # logger.info(list(self.request))
+            if 'insert' in request.data.keys():
+                cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+            if 'delete' in request.data.keys():
+                cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
-
-        # def delete(self, request, pk, client_id, format=None):
-        #     '''
-        #     Deletes the client's classifications
-        #     Delete takes in perdet_, te_id
-        #     '''
-        #     print('----------------------')
-        #     print('edit client classifications view (delete')
-        #     print('----------------------')
-        #     try:
-        #         cdoServices.delete_client_classification(request.META['HTTP_JWT'], pk, client_id)
-        #         owner = UserProfile.objects.get(emp_id=client_id)
-        #     except ObjectDoesNotExist:
-        #         logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing client classification.")
-        #         return Response(status=status.HTTP_204_NO_CONTENT)
-
-        #     return Response(status=status.HTTP_204_NO_CONTENT)
