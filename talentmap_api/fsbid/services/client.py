@@ -365,8 +365,8 @@ def map_location(location):
 def fsbid_handshake_to_tmap(hs):
     # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
     fsbid_dictionary = {
-        "Y": "true",
-        "N": "false",
+        "Y": True,
+        "N": False
     }
     return fsbid_dictionary.get(hs, None)
 
@@ -381,8 +381,8 @@ def tmap_handshake_to_fsbid(hs):
 
 def fsbid_no_successful_panel_to_tmap(panel):
     fsbid_dictionary = {
-        "Y": "true",
-        "N": "false"
+        "Y": True,
+        "N": False
     }
     return fsbid_dictionary.get(panel, None)
 
@@ -396,8 +396,8 @@ def tmap_no_successful_panel_to_fsbid(panel):
 
 def fsbid_no_bids_to_tmap(bids):
     fsbid_dictionary = {
-        "Y": "true",
-        "N": "false"
+        "Y": True,
+        "N": False
     }
     return fsbid_dictionary.get(bids, None)
 
