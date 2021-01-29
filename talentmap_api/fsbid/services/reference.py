@@ -152,12 +152,3 @@ def fsbid_commuter_posts_to_talentmap_commuter_posts(data):
         "description": data.get("cpn_desc", None),
         "cpn_freq_desc": data.get("cpn_freq_desc", None),
     }
-
-
-@staticmethod
-def fsbid_classifications_to_talentmap_classification(data):
-    return {
-        "code": data.get("tp_code", None),
-        "text": data.get("tp_descr_txt", None),
-        "disabled_indTest": data.get("disabled_ind", "N") == "Y"
-    }
