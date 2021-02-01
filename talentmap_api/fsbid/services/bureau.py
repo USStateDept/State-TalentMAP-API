@@ -12,6 +12,8 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdoservices
 
+from talentmap_api.available_positions.models import AvailablePositionRanking
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
@@ -142,6 +144,14 @@ def fsbid_bureau_positions_to_talentmap(bp):
     ted = ensure_date(bp.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
     if ted is None:
         ted = ensure_date(bp.get("ted", None), utc_offset=-5)
+
+    skillSecondary = f"{bp.get('pos_staff_ptrn_skill_desc', None)} ({bp.get('pos_staff_ptrn_skill_code')})"
+    skillSecondaryCode = bp.get("pos_staff_ptrn_skill_code", None)
+    # If the primary and secondary skills are the same, we interpret this as there being no secondary skill
+    if bp.get("pos_skill_code", None) == bp.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+
     return {
         "id": bp.get("cp_id", None),
         "status": None,
@@ -157,6 +167,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "grade": bp.get("pos_grade_code", None),
             "skill": f"{bp.get('pos_skill_desc', None)} ({bp.get('pos_skill_code')})",
             "skill_code": bp.get("pos_skill_code", None),
+            "skill_secondary": skillSecondary,
+            "skill_secondary_code": skillSecondaryCode,
             "bureau": f"({bp.get('pos_bureau_short_desc', None)}) {bp.get('pos_bureau_long_desc', None)}",
             "bureau_short_desc": f"{bp.get('pos_bureau_short_desc', None)}",
             "organization": f"({bp.get('org_short_desc', None)}) {bp.get('org_long_desc', None)}",
@@ -303,3 +315,11 @@ def convert_bp_bids_query(query):
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def get_bureau_shortlist_indicator(data):
+    '''
+    Adds a shortlist indicator field to position results
+    '''
+    for position in data["results"]:
+        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=position["id"]).exists()
+    return data

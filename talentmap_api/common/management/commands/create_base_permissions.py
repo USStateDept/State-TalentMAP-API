@@ -21,6 +21,7 @@ class Command(BaseCommand):
             "superuser",
             "bureau_user",
             "ao_user",
+            "post_user",
         ]
 
     def handle(self, *args, **options):
