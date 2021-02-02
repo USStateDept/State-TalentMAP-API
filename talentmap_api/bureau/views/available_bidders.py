@@ -29,7 +29,7 @@ class AvailableBiddersListView(APIView):
         """
         Return users in Available Bidders list for Bureau
         """
-        return Response(services.get_available_bidders(request.META['HTTP_JWT']))
+        return Response(services.get_available_bidders(request.META['HTTP_JWT'], False))
 
 
 class AvailableBiddersCSVView(APIView):
@@ -39,4 +39,4 @@ class AvailableBiddersCSVView(APIView):
         """
         Return a list of all of the users in Available Bidders for CSV export for Bureau
         """
-        return services.get_available_bidders_csv(request.META['HTTP_JWT'])
+        return services.get_available_bidders_csv(request.META['HTTP_JWT'], False)
