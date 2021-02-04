@@ -243,9 +243,10 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
-        "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
-        "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
+        # not exposed in FSBid yet
+        # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
+        # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
@@ -270,9 +271,10 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location": pos_location,
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
-        "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
-        "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
+        # not exposed in FSBid yet
+        # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
+        # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
