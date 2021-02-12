@@ -15,12 +15,13 @@ import maya
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
 
-from talentmap_api.available_positions.models import AvailablePositionFavorite
+from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionRanking
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 from talentmap_api.available_tandem.models import AvailableFavoriteTandem
 from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
+import talentmap_api.fsbid.services.employee as empservices
 
 logger = logging.getLogger(__name__)
 
@@ -445,7 +446,7 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
-def get_bidders_csv(data, filename, jwt_token):
+def get_bidders_csv(self, pk, data, filename, jwt_token):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -455,6 +456,7 @@ def get_bidders_csv(data, filename, jwt_token):
     # write the headers
     headers = []
     headers.append(smart_str(u"Name"))
+    headers.append(smart_str(u"Deconflict"))
     headers.append(smart_str(u"Submitted Date"))
     headers.append(smart_str(u"Has Handshake"))
     headers.append(smart_str(u"Skill"))
@@ -482,9 +484,22 @@ def get_bidders_csv(data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
+        # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
+        # set a default value
+        record['has_competing_rank'] = False
+        perdet = record.get('emp_id')
+        rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list("cp_id", flat=True)
+        for y in rankOneBids:
+            hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
+            hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
+            if hasBureauPermissions or hasOrgPermissions:
+                record['has_competing_rank'] = True
+                # don't bother continuing the loop if we've already found one
+                break
 
         row = []
         row.append(smart_str(record["name"]))
+        row.append(smart_str(record["has_competing_rank"]))
         row.append(submit_date)
         row.append(smart_str(record["has_handshake_offered"]))
         row.append(smart_str(record["skill"]))
