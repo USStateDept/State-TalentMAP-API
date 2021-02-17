@@ -34,7 +34,6 @@ class AvailableBiddersListView(APIView):
 
 class AvailableBiddersCSVView(APIView):
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
-
     def get(self, request, *args, **kwargs):
         """
         Return a list of all of the users in Available Bidders for CSV export for Bureau

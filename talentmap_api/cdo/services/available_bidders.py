@@ -1,5 +1,6 @@
 import logging
 import csv
+import maya
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -8,6 +9,7 @@ from django.utils.encoding import smart_str
 
 from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
+import talentmap_api.fsbid.services.client as client_services
 
 
 
@@ -59,7 +61,6 @@ def get_available_bidders_csv(jwt_token):
     '''
     Returns csv format of Available Bidders list
     '''
-
     data = get_available_bidders(jwt_token)['results']
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -70,25 +71,35 @@ def get_available_bidders_csv(jwt_token):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
+        smart_str(u"Status"),
+        smart_str(u"Skills"),
         smart_str(u"Grade"),
         smart_str(u"TED"),
-        smart_str(u"Bidder Perdet"),
-        smart_str(u"Status"),
-        smart_str(u"OC Reason"),
+        smart_str(u"Post"),
         smart_str(u"OC Bureau"),
+        smart_str(u"OC Reason"),
+        # smart_str(u"CDO"), doesn't appear to  be in payload
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
 
     for record in data:
+        try:
+            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        skills = []
+        for skill in list(record["skills"]):
+            skills.append(skill["description"])
         writer.writerow([
             smart_str(record["name"]),
-            smart_str(record["grade"]),
-            smart_str(record["TED"]),
-            smart_str(record["bidder_perdet"]),
             smart_str("=\"%s\"" % record["status"]),
-            smart_str("=\"%s\"" % record["oc_reason"]),
+            smart_str(', '.join(skills)),
+            smart_str("=\"%s\"" % record["grade"]),
+            smart_str(ted),
+            smart_str(record["post"]["location"]["country"]),
             smart_str("=\"%s\"" % record["oc_bureau"]),
+            smart_str("=\"%s\"" % record["oc_reason"]),
             smart_str("=\"%s\"" % record["comments"]),
             smart_str("=\"%s\"" % record["is_shared"]),
         ])

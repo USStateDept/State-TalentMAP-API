@@ -1,5 +1,6 @@
 import logging
 import csv
+import maya
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -43,18 +44,27 @@ def get_available_bidders_csv(jwt_token, is_cdo):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
+        smart_str(u"Skills"),
         smart_str(u"Grade"),
-        smart_str(u"Employee ID"),
-        smart_str(u"Position Location"),
-        smart_str(u"Has Handshake"),
+        smart_str(u"TED"),
+        smart_str(u"Post"),
+        smart_str(u"CDO"),
     ])
 
     for record in data:
+        try:
+            ted = smart_str(maya.parse(record["current_assignment"]["end_date"]).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+        skills = []
+        for skill in list(record["skills"]):
+            skills.append(skill["description"])
         writer.writerow([
             smart_str(record["name"]),
+            smart_str(', '.join(skills)),
             smart_str("=\"%s\"" % record["grade"]),
-            smart_str("=\"%s\"" % record["employee_id"]),
-            smart_str("=\"%s\"" % record["pos_location"]),
-            smart_str("=\"%s\"" % record["hasHandshake"]),
+            smart_str(ted),
+            smart_str(record["current_assignment"]["position"]["post"]["location"]["country"]),
+            smart_str(record["cdo"]["name"]),
         ])
     return response
