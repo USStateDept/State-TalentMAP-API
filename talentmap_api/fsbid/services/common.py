@@ -21,7 +21,7 @@ from talentmap_api.available_tandem.models import AvailableFavoriteTandem
 from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
-import talentmap_api.fsbid.services.employee as empservices
+from talentmap_api.fsbid.services import employee as empservices
 
 logger = logging.getLogger(__name__)
 
