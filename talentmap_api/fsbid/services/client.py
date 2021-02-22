@@ -35,7 +35,7 @@ def get_user_information(jwt_token, perdet_seq_num):
         return {
             "office_address": user['gal_address_text'],
             "office_phone": user['gal_phone_nbr_text'],
-            "email": user['gal_smtp_email_adrs_text'],
+            "email": user['gal_smtp_email_address_text'],
         }
     except:
         return {}
