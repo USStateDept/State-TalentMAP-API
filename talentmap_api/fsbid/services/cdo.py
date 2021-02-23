@@ -2,7 +2,6 @@ import logging
 import jwt
 from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
-from talentmap_api.fsbid.services.common import get_fsbid_results
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -13,6 +12,7 @@ def cdo(jwt_token):
     '''
     Get All CDOs
     '''
+    from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&request_params.rl_cd=CDO&request_params.rl_cd=CDO3"
@@ -24,6 +24,7 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
     '''
     Get a single CDO
     '''
+    from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
