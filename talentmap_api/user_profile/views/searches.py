@@ -8,6 +8,7 @@ from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 
 from talentmap_api.user_profile.models import SavedSearch
 from talentmap_api.user_profile.serializers import SavedSearchSerializer
+from talentmap_api.user_profile.filters import SavedSearchFilter
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -41,7 +42,7 @@ class SavedSearchView(FieldLimitableSerializerMixin,
 
     serializer_class = SavedSearchSerializer
     permission_classes = (IsAuthenticated,)
-    filter_backends = [CaseInsensitiveOrderingFilter]
+    filter_class = SavedSearchFilter
     ordering_case_insensitive_fields = ["name"] # put here only case insensitive fields
 
     def perform_create(self, serializer):

@@ -195,4 +195,4 @@ class SavedSearchSerializer(PrefetchedSerializer):
     class Meta:
         model = SavedSearch
         fields = "__all__"
-        writable_fields = ("name", "endpoint", "filters",)
+        writable_fields = ("name", "endpoint", "filters", "is_bureau")
