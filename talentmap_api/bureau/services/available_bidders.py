@@ -52,19 +52,46 @@ def get_available_bidders_csv(jwt_token, is_cdo):
     ])
 
     for record in data:
-        try:
-            ted = smart_str(maya.parse(record["current_assignment"]["end_date"]).datetime().strftime('%m/%d/%Y'))
-        except:
-            ted = "None listed"
-        skills = []
-        for skill in list(record["skills"]):
-            skills.append(skill["description"])
+        fields = {
+            "name": None,
+            "skills": None,
+            "grade": None,
+            "ted": None,
+            "post": None,
+            "cdo": None,
+        }
+        for f in fields:
+            if f is "skills":
+                skills = []
+                for skill in list(record[f]):
+                    skills.append(skill["description"])
+                if not skills:
+                    fields[f] = "No Skills listed"
+                else:
+                    fields[f] = ', '.join(skills)
+            else:
+                try:
+                    if f is "ted":
+                        fields[f] = maya.parse(record["current_assignment"]["end_date"]).datetime().strftime('%m/%d/%Y')
+                    elif f is "post":
+                        fields[f] = record["current_assignment"]["position"]["post"]["location"]["country"]
+                    elif f is "cdo":
+                        fields[f] = record["cdo"]["name"]
+                    else:
+                        fields[f] = record[f]
+                except:
+                    fields[f] = "None listed"
+                finally:
+                    if fields[f] is "":
+                        fields[f] = "None listed"
+
+
         writer.writerow([
-            smart_str(record["name"]),
-            smart_str(', '.join(skills)),
-            smart_str("=\"%s\"" % record["grade"]),
-            smart_str(ted),
-            smart_str(record["current_assignment"]["position"]["post"]["location"]["country"]),
-            smart_str(record["cdo"]["name"]),
+            fields["name"],
+            fields["skills"],
+            smart_str("=\"%s\"" % fields["grade"]),
+            fields["ted"],
+            fields["post"],
+            fields["cdo"],
         ])
     return response

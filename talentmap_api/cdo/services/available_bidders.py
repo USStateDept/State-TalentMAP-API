@@ -78,29 +78,59 @@ def get_available_bidders_csv(jwt_token):
         smart_str(u"Post"),
         smart_str(u"OC Bureau"),
         smart_str(u"OC Reason"),
-        # smart_str(u"CDO"), doesn't appear to  be in payload
+        smart_str(u"CDO"),
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
-
+    # TODO: cdo not currently coming through
     for record in data:
-        try:
-            ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
-        except:
-            ted = "None listed"
-        skills = []
-        for skill in list(record["skills"]):
-            skills.append(skill["description"])
+        fields = {
+            "name": None,
+            "status": None,
+            "skills": None,
+            "grade": None,
+            "ted": None,
+            "post": None,
+            "oc_bureau": None,
+            "oc_reason": None,
+            "cdo": None,
+            "comments": None,
+            "is_shared": None,
+        }
+        for f in fields:
+            if f is "skills":
+                skills = []
+                for skill in list(record[f]):
+                    skills.append(skill["description"])
+                if not skills:
+                    fields[f] = "No Skills listed"
+                else:
+                    fields[f] = ', '.join(skills)
+            else:
+                try:
+                    if f is "ted":
+                        fields[f] = maya.parse(record["TED"]).datetime().strftime('%m/%d/%Y')
+                    elif f is "post":
+                        fields[f] = record["post"]["location"]["country"]
+                    else:
+                        fields[f] = record[f]
+                except:
+                    fields[f] = "None listed"
+                finally:
+                    if fields[f] is "":
+                        fields[f] = "None listed"
+
         writer.writerow([
-            smart_str(record["name"]),
-            smart_str("=\"%s\"" % record["status"]),
-            smart_str(', '.join(skills)),
-            smart_str("=\"%s\"" % record["grade"]),
-            smart_str(ted),
-            smart_str(record["post"]["location"]["country"]),
-            smart_str("=\"%s\"" % record["oc_bureau"]),
-            smart_str("=\"%s\"" % record["oc_reason"]),
-            smart_str("=\"%s\"" % record["comments"]),
-            smart_str("=\"%s\"" % record["is_shared"]),
+            fields["name"],
+            fields["status"],
+            fields["skills"],
+            smart_str("=\"%s\"" % fields["grade"]),
+            fields["ted"],
+            fields["post"],
+            fields["oc_bureau"],
+            fields["oc_reason"],
+            fields["cdo"],
+            fields["comments"],
+            fields["is_shared"],
         ])
     return response
