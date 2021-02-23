@@ -447,6 +447,18 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
+# Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
+def has_competing_rank(self, perdet, pk):
+    rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
+        "cp_id", flat=True)
+    for y in rankOneBids:
+        hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
+        if hasBureauPermissions or hasOrgPermissions:
+            # don't bother continuing the loop if we've already found one
+            return True
+    return False
+
 def get_bidders_csv(self, pk, data, filename, jwt_token):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -485,19 +497,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
-        # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
-        # set a default value
-        record['has_competing_rank'] = False
-        perdet = record.get('emp_id')
-        rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list("cp_id", flat=True)
-        for y in rankOneBids:
-            hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
-            hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
-            if hasBureauPermissions or hasOrgPermissions:
-                record['has_competing_rank'] = True
-                # don't bother continuing the loop if we've already found one
-                break
-
+        record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
         row = []
         row.append(smart_str(record["name"]))
         row.append(smart_str(record["has_competing_rank"]))
