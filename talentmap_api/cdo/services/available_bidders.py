@@ -11,7 +11,7 @@ from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
 import talentmap_api.fsbid.services.client as client_services
 
-
+from talentmap_api.common.common_helpers import formatCSV
 
 logger = logging.getLogger(__name__)
 
@@ -84,48 +84,27 @@ def get_available_bidders_csv(jwt_token):
     ])
     # TODO: cdo not currently coming through
     for record in data:
-        fields = {
+        fields_info = {
             "name": None,
             "status": None,
-            "skills": None,
+            "skills": { "default": "No Skills listed", },
             "grade": None,
-            "ted": None,
-            "post": None,
+            "TED": None,
+            "post": { "path": 'post.location.country', },
             "oc_bureau": None,
             "oc_reason": None,
             "cdo": None,
             "comments": None,
             "is_shared": None,
         }
-        for f in fields:
-            if f is "skills":
-                skills = []
-                for skill in list(record[f]):
-                    skills.append(skill["description"])
-                if not skills:
-                    fields[f] = "No Skills listed"
-                else:
-                    fields[f] = ', '.join(skills)
-            else:
-                try:
-                    if f is "ted":
-                        fields[f] = maya.parse(record["TED"]).datetime().strftime('%m/%d/%Y')
-                    elif f is "post":
-                        fields[f] = record["post"]["location"]["country"]
-                    else:
-                        fields[f] = record[f]
-                except:
-                    fields[f] = "None listed"
-                finally:
-                    if fields[f] is "":
-                        fields[f] = "None listed"
+        fields = formatCSV(record, fields_info)
 
         writer.writerow([
             fields["name"],
             fields["status"],
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
-            fields["ted"],
+            maya.parse(fields["TED"]).datetime().strftime('%m/%d/%Y'),
             fields["post"],
             fields["oc_bureau"],
             fields["oc_reason"],
