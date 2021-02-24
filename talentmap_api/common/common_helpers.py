@@ -464,6 +464,6 @@ def formatCSV(data, fieldsInfo):
     # setting up the defaults
     for x in fields_formatted:
         if fields_formatted[x] is "" or fields_formatted[x] is None:
-            fields_formatted[x] = pydash.get(fieldsInfo[x], ["default"], "None Listed")
+            fields_formatted[x] = pydash.get(fieldsInfo[x], ["default"], "None listed")
 
     return fields_formatted

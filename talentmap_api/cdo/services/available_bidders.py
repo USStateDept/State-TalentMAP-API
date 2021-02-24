@@ -83,22 +83,22 @@ def get_available_bidders_csv(jwt_token):
         smart_str(u"Shared with Bureau"),
     ])
     # TODO: cdo not currently coming through
-    for record in data:
-        fields_info = {
-            "name": None,
-            "status": None,
-            "skills": { "default": "No Skills listed", },
-            "grade": None,
-            "TED": None,
-            "post": { "path": 'post.location.country', },
-            "oc_bureau": None,
-            "oc_reason": None,
-            "cdo": None,
-            "comments": None,
-            "is_shared": None,
-        }
-        fields = formatCSV(record, fields_info)
+    fields_info = {
+        "name": None,
+        "status": None,
+        "skills": { "default": "No Skills listed", },
+        "grade": None,
+        "TED": None,
+        "post": { "path": 'post.location.country', },
+        "oc_bureau": None,
+        "oc_reason": None,
+        "cdo": None,
+        "comments": None,
+        "is_shared": None,
+    }
 
+    for record in data:
+        fields = formatCSV(record, fields_info)
         writer.writerow([
             fields["name"],
             fields["status"],

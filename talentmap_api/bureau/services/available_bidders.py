@@ -52,17 +52,17 @@ def get_available_bidders_csv(jwt_token, is_cdo):
         smart_str(u"CDO"),
     ])
 
-    for record in data:
-        fields_info = {
-            "name": None,
-            "skills": {"default": "No Skills listed", },
-            "grade": None,
-            "ted": {"path": 'current_assignment.end_date', },
-            "post": {"path": 'current_assignment.position.post.location.country', },
-            "cdo": {"path": 'cdo.name', },
-        }
-        fields = formatCSV(record, fields_info)
+    fields_info = {
+        "name": None,
+        "skills": {"default": "No Skills listed", },
+        "grade": None,
+        "ted": {"path": 'current_assignment.end_date', },
+        "post": {"path": 'current_assignment.position.post.location.country', },
+        "cdo": {"path": 'cdo.name', },
+    }
 
+    for record in data:
+        fields = formatCSV(record, fields_info)
         writer.writerow([
             fields["name"],
             fields["skills"],
