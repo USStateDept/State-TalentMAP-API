@@ -234,9 +234,15 @@ def fsbid_clients_to_talentmap_clients(data):
     except:
         initials = None
 
+    middle_name = employee.get('per_middle_name', None) or ''
+    middle_initial = ''
+    if middle_name:
+        middle_initial = middle_name[:1] + ' '
+
     return {
         "id": employee.get("pert_external_id", None),
-        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name} {employee.get('per_last_name', None)}",
+        "shortned_name": f"{employee.get('per_first_name', None)} {middle_initial}{employee.get('per_last_name', None)}",
         "initials": initials,
         "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
