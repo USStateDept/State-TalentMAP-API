@@ -1,5 +1,6 @@
 import logging
 import csv
+import maya
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -8,8 +9,9 @@ from django.utils.encoding import smart_str
 
 from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
+import talentmap_api.fsbid.services.client as client_services
 
-
+from talentmap_api.common.common_helpers import formatCSV
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +61,6 @@ def get_available_bidders_csv(jwt_token):
     '''
     Returns csv format of Available Bidders list
     '''
-
     data = get_available_bidders(jwt_token)['results']
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -70,26 +71,45 @@ def get_available_bidders_csv(jwt_token):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
+        smart_str(u"Status"),
+        smart_str(u"Skills"),
         smart_str(u"Grade"),
         smart_str(u"TED"),
-        smart_str(u"Bidder Perdet"),
-        smart_str(u"Status"),
-        smart_str(u"OC Reason"),
+        smart_str(u"Post"),
         smart_str(u"OC Bureau"),
+        smart_str(u"OC Reason"),
+        smart_str(u"CDO"),
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
+    # TODO: cdo not currently coming through
+    fields_info = {
+        "name": None,
+        "status": None,
+        "skills": { "default": "No Skills listed", },
+        "grade": None,
+        "TED": None,
+        "post": { "path": 'post.location.country', },
+        "oc_bureau": None,
+        "oc_reason": None,
+        "cdo": None,
+        "comments": None,
+        "is_shared": None,
+    }
 
     for record in data:
+        fields = formatCSV(record, fields_info)
         writer.writerow([
-            smart_str(record["name"]),
-            smart_str(record["grade"]),
-            smart_str(record["TED"]),
-            smart_str(record["bidder_perdet"]),
-            smart_str("=\"%s\"" % record["status"]),
-            smart_str("=\"%s\"" % record["oc_reason"]),
-            smart_str("=\"%s\"" % record["oc_bureau"]),
-            smart_str("=\"%s\"" % record["comments"]),
-            smart_str("=\"%s\"" % record["is_shared"]),
+            fields["name"],
+            fields["status"],
+            fields["skills"],
+            smart_str("=\"%s\"" % fields["grade"]),
+            maya.parse(fields["TED"]).datetime().strftime('%m/%d/%Y'),
+            fields["post"],
+            fields["oc_bureau"],
+            fields["oc_reason"],
+            fields["cdo"],
+            fields["comments"],
+            fields["is_shared"],
         ])
     return response

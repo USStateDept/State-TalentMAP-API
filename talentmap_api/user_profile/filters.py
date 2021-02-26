@@ -3,7 +3,7 @@ import rest_framework_filters as filters
 
 from talentmap_api.bidding.models import Bid
 
-from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.user_profile.models import UserProfile, SavedSearch
 
 from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
@@ -38,3 +38,13 @@ class ClientFilter(UserProfileFilter):
             "user__username",
         ]
     ))
+
+
+class SavedSearchFilter(filters.FilterSet):
+    owner = filters.RelatedFilter(UserProfileFilter, name='owner', queryset=UserProfile.objects.all())
+
+    class Meta:
+        model = SavedSearch
+        fields = {
+            "is_bureau": ['exact'],
+        }

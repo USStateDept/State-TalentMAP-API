@@ -9,11 +9,12 @@ from rest_framework import status
 
 from talentmap_api.fsbid.filters import BureauPositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
-from talentmap_api.available_positions.models import AvailablePositionRanking, AvailablePositionRankingLock
+from talentmap_api.available_positions.models import AvailablePositionRankingLock
 
 import talentmap_api.fsbid.services.bureau as services
 import talentmap_api.fsbid.services.available_positions as ap_services
 import talentmap_api.fsbid.services.employee as empservices
+import talentmap_api.fsbid.services.common as com_services
 
 logger = logging.getLogger(__name__)
 
@@ -111,19 +112,8 @@ class FSBidBureauPositionBidsView(BaseView):
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
         for x in result:
-            # set a default value
-            x['has_competing_rank'] = False
-            perdet = x.get('emp_id')
-            rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list("cp_id", flat=True)
-            for y in rankOneBids:
-                hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
-                hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
-                if hasBureauPermissions or hasOrgPermissions:
-                    x['has_competing_rank'] = True
-                    # don't bother continuing the loop if we've already found one
-                    break
+            x['has_competing_rank'] = com_services.has_competing_rank(self,  x.get('emp_id'), pk)
 
         return Response(result)
 
@@ -135,4 +125,4 @@ class FSBidBureauPositionBidsExportView(BaseView):
         '''
         Gets all bureau positions for export
         '''
-        return services.get_bureau_position_bids_csv(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+        return services.get_bureau_position_bids_csv(self, pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
