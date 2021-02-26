@@ -242,8 +242,8 @@ def fsbid_clients_to_talentmap_clients(data):
 
     return {
         "id": employee.get("pert_external_id", None),
-        "name": f"{employee.get('per_first_name', None)} {middle_name[0]}{employee.get('per_last_name', None)}",
-        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name[1]}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
         "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
@@ -274,7 +274,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
 
     return {
         "id": employee.get("perdet_seq_num", None),
-        "name": f"{employee.get('per_first_name', None)} {middle_name[0]}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "grade": employee.get("per_grade_code", None),
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
@@ -294,7 +294,7 @@ def get_middle_name(employee):
     if middle_name:
         middle_name = middle_name + ' '
         middle_initial = middle_name[:1] + ' '
-    return [middle_name, middle_initial]
+    return {"full": middle_name, "initial": middle_initial}
 
 
 def hru_id_filter(query):
