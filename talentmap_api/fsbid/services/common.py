@@ -135,7 +135,9 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
-    "location": "location_city",
+    "location_city": "geoloc.city",
+    "location_country": "geoloc.country",
+    "location_state": "geoloc.state",
     "commuterPost": "cpn_desc",
     "tandem": "tandem_nbr",
     "bidder_grade": "grade_code",
@@ -145,6 +147,7 @@ sort_dict = {
     "bidder_language": "language_txt",
     "bidder_ted": "TED",
     "bidder_name": "full_name",
+    "bidder_bid_submitted_date": "bid_submit_date",
 }
 
 
