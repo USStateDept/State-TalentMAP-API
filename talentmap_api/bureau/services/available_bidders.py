@@ -1,5 +1,6 @@
 import logging
 import csv
+import maya
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -9,6 +10,7 @@ from django.utils.encoding import smart_str
 import talentmap_api.fsbid.services.client as client_services
 from talentmap_api.cdo.models import AvailableBidders
 
+from talentmap_api.common.common_helpers import formatCSV
 
 logger = logging.getLogger(__name__)
 
@@ -43,18 +45,30 @@ def get_available_bidders_csv(jwt_token, is_cdo):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
+        smart_str(u"Skills"),
         smart_str(u"Grade"),
-        smart_str(u"Employee ID"),
-        smart_str(u"Position Location"),
-        smart_str(u"Has Handshake"),
+        smart_str(u"TED"),
+        smart_str(u"Post"),
+        smart_str(u"CDO"),
     ])
 
+    fields_info = {
+        "name": None,
+        "skills": {"default": "No Skills listed", },
+        "grade": None,
+        "ted": {"path": 'current_assignment.end_date', },
+        "post": {"path": 'current_assignment.position.post.location.country', },
+        "cdo": {"path": 'cdo.name', },
+    }
+
     for record in data:
+        fields = formatCSV(record, fields_info)
         writer.writerow([
-            smart_str(record["name"]),
-            smart_str("=\"%s\"" % record["grade"]),
-            smart_str("=\"%s\"" % record["employee_id"]),
-            smart_str("=\"%s\"" % record["pos_location"]),
-            smart_str("=\"%s\"" % record["hasHandshake"]),
+            fields["name"],
+            fields["skills"],
+            smart_str("=\"%s\"" % fields["grade"]),
+            maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y'),
+            fields["post"],
+            fields["cdo"],
         ])
     return response
