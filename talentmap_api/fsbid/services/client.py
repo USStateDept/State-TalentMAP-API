@@ -268,7 +268,6 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         if position is not None:
             pos_location = map_location(position.get("currentLocation", None))
 
-
     return {
         "id": employee.get("perdet_seq_num", None),
         "name": f"{employee.get('per_first_name', None)} {middle_name[0]}{employee.get('per_last_name', None)}",
