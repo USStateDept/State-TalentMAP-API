@@ -10,7 +10,6 @@ import jwt
 
 import requests  # pylint: disable=unused-import
 
-import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 from talentmap_api.common.common_helpers import ensure_date
@@ -35,6 +34,7 @@ def get_user_information(jwt_token, perdet_seq_num):
         return {
             "office_address": user['gal_address_text'],
             "office_phone": user['gal_phone_nbr_text'],
+            "email": user['gal_smtp_email_address_text'],
         }
     except:
         return {}
@@ -44,8 +44,9 @@ def client(jwt_token, query, host=None):
     '''
     Get Clients by CDO
     '''
+    from talentmap_api.fsbid.services.common import send_get_request
     uri = "CDOClients"
-    response = services.send_get_request(
+    response = send_get_request(
         uri,
         query,
         convert_client_query,
@@ -63,7 +64,8 @@ def get_clients_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
-    return services.send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
+    from talentmap_api.fsbid.services.common import send_count_request
+    return send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
 
 
 def client_suggestions(jwt_token, perdet_seq_num):
@@ -121,11 +123,12 @@ def single_client(jwt_token, perdet_seq_num):
     '''
     Get a single client for a CDO
     '''
+    from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
     uriCurrentAssignment = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=true"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-    responseCurrentAssignment = services.get_fsbid_results(uriCurrentAssignment, jwt_token, fsbid_clients_to_talentmap_clients)
+    response = get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
+    responseCurrentAssignment = get_fsbid_results(uriCurrentAssignment, jwt_token, fsbid_clients_to_talentmap_clients)
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
     user_info = get_user_information(jwt_token, perdet_seq_num)
     CLIENT = list(response)[0]
@@ -136,8 +139,9 @@ def single_client(jwt_token, perdet_seq_num):
 
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
+    from talentmap_api.fsbid.services.common import send_get_csv_request
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    data = services.send_get_csv_request(
+    data = send_get_csv_request(
         "CDOClients",
         query,
         convert_client_query,
@@ -177,6 +181,7 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 
 def fsbid_clients_to_talentmap_clients(data):
+    from talentmap_api.fsbid.services.common import get_employee_profile_urls
     employee = data.get('employee', None)
     current_assignment = None
     assignments = None
@@ -243,11 +248,14 @@ def fsbid_clients_to_talentmap_clients(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # not exposed in FSBid yet
+        # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
+        # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": services.get_employee_profile_urls(employee.get("perdet_seq_num", None)),
+        "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
     }
 
 
@@ -268,16 +276,20 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         "employee_id": employee.get("pert_external_id", None),
         "role_code": data.get("rl_cd", None),
         "pos_location": pos_location,
-        "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # not exposed in FSBid yet
+        # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
+        # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
 
 
 def hru_id_filter(query):
+    from talentmap_api.fsbid.services.common import convert_multi_value
     results = []
     hru_id = query.get("hru_id", None)
     results += [hru_id] if hru_id is not None else []
-    hru_ids = services.convert_multi_value(query.get("hru_id__in", None))
+    hru_ids = convert_multi_value(query.get("hru_id__in", None))
     results += hru_ids if hru_ids is not None else []
     return results if len(results) > 0 else None
 
@@ -288,14 +300,17 @@ def convert_client_query(query, isCount=None):
 
     The TalentMap filters align with the client search filter naming
     '''
+    from talentmap_api.fsbid.services.common import sorting_values, convert_multi_value
     values = {
         "request_params.hru_id": hru_id_filter(query),
         "request_params.rl_cd": query.get("rl_cd", None),
         "request_params.ad_id": query.get("ad_id", None),
-        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.order_by": sorting_values(query.get("ordering", None)),
         "request_params.freeText": query.get("q", None),
-        "request_params.bsn_id": services.convert_multi_value(query.get("bid_seasons")),
+        "request_params.bsn_id": convert_multi_value(query.get("bid_seasons")),
         "request_params.hs_cd": tmap_handshake_to_fsbid(query.get('hasHandshake', None)),
+        "request_params.no_successful_panel": tmap_no_successful_panel_to_fsbid(query.get('noPanel', None)),
+        "request_params.no_bids": tmap_no_bids_to_fsbid(query.get('noBids', None)),
         "request_params.page_index": int(query.get("page", 1)),
         "request_params.page_size": query.get("limit", 25),
         "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
@@ -359,8 +374,8 @@ def map_location(location):
 def fsbid_handshake_to_tmap(hs):
     # Maps FSBid Y/N value for handshakes to expected TMap Front end response for handshake
     fsbid_dictionary = {
-        "Y": "true",
-        "N": "false",
+        "Y": True,
+        "N": False
     }
     return fsbid_dictionary.get(hs, None)
 
@@ -372,6 +387,36 @@ def tmap_handshake_to_fsbid(hs):
         "false": "N"
     }
     return tmap_dictionary.get(hs, None)
+
+def fsbid_no_successful_panel_to_tmap(panel):
+    fsbid_dictionary = {
+        "Y": True,
+        "N": False
+    }
+    return fsbid_dictionary.get(panel, None)
+
+
+def tmap_no_successful_panel_to_fsbid(panel):
+    tmap_dictionary = {
+        "true": "Y",
+        "false": "N"
+    }
+    return tmap_dictionary.get(panel, None)
+
+def fsbid_no_bids_to_tmap(bids):
+    fsbid_dictionary = {
+        "Y": True,
+        "N": False
+    }
+    return fsbid_dictionary.get(bids, None)
+
+
+def tmap_no_bids_to_fsbid(bids):
+    tmap_dictionary = {
+        "true": "Y",
+        "false": "N"
+    }
+    return tmap_dictionary.get(bids, None)
 
 
 def fsbid_classifications_to_tmap(cs):
@@ -389,6 +434,7 @@ def fsbid_classifications_to_tmap(cs):
 
 
 def fsbid_assignments_to_tmap(assignments):
+    from talentmap_api.fsbid.services.common import get_post_overview_url, get_post_bidding_considerations_url, get_obc_id
     assignmentsCopy = []
     tmap_assignments = []
     if type(assignments) is type(dict()):
@@ -414,9 +460,9 @@ def fsbid_assignments_to_tmap(assignments):
                         "title": pos.get("pos_title_desc", None),
                         "post": {
                             "code": loc.get("gvt_geoloc_cd", None),
-                            "post_overview_url": services.get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
-                            "post_bidding_considerations_url": services.get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
-                            "obc_id": services.get_obc_id(loc.get("gvt_geoloc_cd", None)),
+                            "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
+                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
+                            "obc_id": get_obc_id(loc.get("gvt_geoloc_cd", None)),
                             "location": {
                                 "country": loc.get("country", None),
                                 "code": loc.get("gvt_geoloc_cd", None),

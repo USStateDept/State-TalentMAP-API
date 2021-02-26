@@ -14,10 +14,11 @@ def cdo(jwt_token):
     '''
     Get All CDOs
     '''
+    from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&request_params.rl_cd=CDO&request_params.rl_cd=CDO3"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
+    response = get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
     return response
 
 
@@ -25,10 +26,11 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
     '''
     Get a single CDO
     '''
+    from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
+    response = get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email)
     cdos = None
 
     if response is not None:

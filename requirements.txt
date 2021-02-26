@@ -60,6 +60,7 @@ psycopg2-binary==2.7.4
 py==1.5.3
 pycparser==2.18
 pycryptodomex==3.9.7
+pydash==4.9.2
 pyflakes==1.6.0
 PyJWT==1.7.1
 pylint==2.5.3
@@ -88,4 +89,4 @@ urllib3==1.24.2
 WebOb==1.8.0
 Werkzeug==0.15.3
 zeep==2.5.0
-zope.interface==4.4.3
+zope.interface==5.0.0
