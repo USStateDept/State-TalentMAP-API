@@ -23,7 +23,7 @@ class Command(BaseCommand):
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["bidder", "cdo"]),
         ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder"]),
         ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, True, ["bidder"]),
-        ("lincolna", "lincolna@state.gov", "password", "Abigail", "Lincoln", True, False, ["bidder"]),
+        ("lincolna", "lincolna@state.gov", "password", "Abigail", "Lincoln", True, True, ["bidder", "cdo"]),
     ]
 
     def handle(self, *args, **options):
