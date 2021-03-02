@@ -238,9 +238,12 @@ def fsbid_clients_to_talentmap_clients(data):
     except:
         initials = None
 
+    middle_name = get_middle_name(employee)
+
     return {
         "id": employee.get("pert_external_id", None),
-        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
         "perdet_seq_number": employee.get("perdet_seq_num", None),
         "grade": employee.get("per_grade_code", None),
@@ -263,6 +266,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
     employee = data.get('employee', None)
     current_assignment = employee.get('currentAssignment', None)
     pos_location = None
+    middle_name = get_middle_name(employee)
     if current_assignment is not None:
         position = current_assignment.get('currentPosition', None)
         if position is not None:
@@ -270,7 +274,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
 
     return {
         "id": employee.get("perdet_seq_num", None),
-        "name": f"{employee.get('per_first_name', None)} {employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "grade": employee.get("per_grade_code", None),
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
@@ -282,6 +286,15 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", []))
     }
+
+
+def get_middle_name(employee):
+    middle_name = employee.get('per_middle_name', None) or ''
+    middle_initial = ''
+    if middle_name:
+        middle_name = middle_name + ' '
+        middle_initial = middle_name[:1] + ' '
+    return {"full": middle_name, "initial": middle_initial}
 
 
 def hru_id_filter(query):
