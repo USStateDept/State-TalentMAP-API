@@ -7,11 +7,7 @@ default-python-node: &default-python-node
     COMPOSE_FILE_NAME: circleci-docker-compose.yml
     DJANGO_SECRET_KEY: ci_secret_key
 default-oracle-node: &default-oracle-node
-  image: banglamon/oracle193db:19.3.0-ee
-  environment:
-    ORACLE_SID: talentmap
-    ORACLE_PDB: talentmappdb
-    ORACLE_PWD: talentmap
+  image: mjoyce91/oracle193db:fast
 jobs:
   build:
     docker:
@@ -98,12 +94,12 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521/talentmap sys talentmap 'as sysdba'
-            ./create-oracle-user.sh 127.0.0.1:1521/talentmap sys talentmap 'as sysdba'
+            ./wait-for-oracle.sh 127.0.0.1:1521/oraclesid sys oraclepwd 'as sysdba'
+            ./create-oracle-user.sh 127.0.0.1:1521/oraclesid sys oraclepwd 'as sysdba'
       - run:
           name: Wait for Oracle
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521/talentmappdb talentmap1 talentmap1 "" true
+            ./wait-for-oracle.sh 127.0.0.1:1521/oraclepdb talentmap1 talentmap1 "" true
       - run:
           name: Python Test Coverage
           command: |
