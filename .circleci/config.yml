@@ -107,7 +107,7 @@ jobs:
             pytest --cov=. --cov-report xml:./coverage.xml
           environment:
             # DATABASE_URL: postgresql://root:@127.0.0.1:5432/circle_test
-            DATABASE_URL: 127.0.0.1:1521/talentmappdb
+            DATABASE_URL: 127.0.0.1:1521/oraclepdb
             DATABASE_USER: talentmap1
             DATABASE_PW: talentmap1
             DJANGO_LOG_DIRECTORY: ./
