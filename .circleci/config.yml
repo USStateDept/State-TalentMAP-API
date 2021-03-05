@@ -191,14 +191,15 @@ jobs:
 workflows:
   build_and_test:
     jobs:
+      - pytest
       - build
       - pylint
       - bandit:
           requires:
             - build
-      - pytest:
-          requires:
-            - build
+      #- pytest:
+      #    requires:
+      #      - build
       - dependencies:
           requires:
             - build
