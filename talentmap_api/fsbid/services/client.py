@@ -507,6 +507,7 @@ def fsbid_languages_to_tmap(languages):
 
 def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
+    from talentmap_api.cdo.services.available_bidders import get_available_bidders_stats
     cdo = 'cdo' if isCDO else 'bureau'
     uri = f"clients/availablebidders/{cdo}"
     response = send_get_request(
@@ -516,10 +517,14 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
         jwt_token,
         fsbid_available_bidder_to_talentmap,
         False, # No count function
-        f"/api/v1/client/availablebidders/{isCDO}",
+        f"/api/v1/client/availablebidders/{cdo}",
         host
     )
-    return response
+    stats = get_available_bidders_stats()
+    return {
+        **stats,
+        **response,
+    }
 
 # Can update to reuse client mapping once client v2 is updated and released with all the new fields
 def fsbid_available_bidder_to_talentmap(data):

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 API_ROOT = settings.FSBID_API_URL
 
 
-def get_available_bidders(jwt_token):
+def get_available_bidders_stats():
     '''
     Returns Available Bidders list
     '''
@@ -31,30 +31,13 @@ def get_available_bidders(jwt_token):
     }
     if len(ab) > 0:
         results = ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
-        # TEMPORARY while we have a better solution merge ab with clients
-        clients = bureau_services.get_available_bidders(jwt_token, True)
-        ab_clients = []
-        for bidder in results:
-            for index, client in enumerate(clients):
-                if int(bidder["bidder_perdet"]) == int(client["perdet_seq_number"]):
-                    ab_clients.append({**bidder,
-                                       **{'name': client['name'],
-                                          'grade': client['grade'],
-                                          'skills': client['skills'],
-                                          'TED': client['current_assignment']['end_date'],
-                                          'post': client['current_assignment']['position']['post'],
-                                          }})
-                    # i'm so efficient >.<
-                    clients.pop(index)
-
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
                 stats[stat['status']] += 1
-
-        return {"count": len(results), "results": ab_clients, "stats": stats}
-    else:
-        return {"count": 0, "results": [], "stats": stats}
+    return {
+        "stats": stats
+    }
 
 
 def get_available_bidders_csv(jwt_token):
