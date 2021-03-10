@@ -616,17 +616,20 @@ def fsbid_available_bidder_to_talentmap(data):
         "languages": fsbid_languages_to_tmap(data.get('languages', None)),
         "available_bidder_details": data.get("details", {}),
     }
-    if res['available_bidder_details'] is not None:
-        shared = res['available_bidder_details']['is_shared']
-        archived = res['available_bidder_details']['archived']
-        res['available_bidder_details']['is_shared'] = True if shared == '1' else False
-        res['available_bidder_details']['archived'] = True if archived == '1' else False
+    if res['available_bidder_details']:
+        shared = res['available_bidder_details'].get('is_shared', False)
+        archived = res['available_bidder_details'].get('archived', False)
+        res['available_bidder_details']['is_shared'] = shared == '1'
+        res['available_bidder_details']['archived'] = archived == '1'
     return res
 
 def convert_available_bidder_query(query):
+    sort_asc = query.get("ordering", "name")[0] != "-"
+    ordering = query.get("ordering", "name").lstrip("-")
     values = {
-        "order_by": query.get("ordering", None),
-        "is_asc": query.get("asc", True),
+        "order_by": ordering,
+        "is_asc": sort_asc,
         "ad_id": query.get("ad_id", None),
     }
+
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
