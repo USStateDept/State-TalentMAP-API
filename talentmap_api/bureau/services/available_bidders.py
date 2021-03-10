@@ -76,7 +76,7 @@ def get_available_bidders_csv(request):
                 languages += f'{language["custom_description"]},'
         languages = languages.rstrip(',')
 
-        cdo = f'{pydash.get(record, ["cdo.last_name"])}, {pydash.get(record, ["cdo.first_name"])}'
+        cdo = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
         writer.writerow([
