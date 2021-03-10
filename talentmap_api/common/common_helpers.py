@@ -448,10 +448,6 @@ def formatCSV(data, fieldsInfo):
 
     for f in fieldsInfo:
         if f is "skills":
-            print("============")
-            print(f)
-            print(list(data))
-            print("============")
             skills = []
             for skill in list(data[f]):
                 skills.append(skill["description"])
