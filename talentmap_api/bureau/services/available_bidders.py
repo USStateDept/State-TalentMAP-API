@@ -51,7 +51,10 @@ def get_available_bidders_csv(request):
         smart_str(u"Grade"),
         smart_str(u"Languages"),
         smart_str(u"TED"),
-        smart_str(u"Post"),
+        smart_str(u"Organization"),
+        smart_str(u"City"),
+        smart_str(u"State"),
+        smart_str(u"Country"),
         # smart_str(u"CDO"),
     ])
 
@@ -60,24 +63,13 @@ def get_available_bidders_csv(request):
         "skills": {"default": "No Skills listed", },
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
+        "org": {"path": 'current_assignment.position.organization', },
+        "city": {"path": 'current_assignment.position.post.location.city', },
+        "state": {"path": 'current_assignment.position.post.location.state', },
+        "country": {"path": 'current_assignment.position.post.location.country', },
     }
 
     for record in data["results"]:
-        # special Post Handling
-        post_location = pydash.get(record, ["current_assignment.position.post.location"])
-        post = None
-        if post_location is None:
-            post = "None listed"
-        elif post_location["state"] is "DC":
-            # DC Post - org ex.GTM / EX / SDD
-            post = record["current_assignment"]["position"]["organization"]
-        elif post_location["country"] is "USA":
-            # Domestic Post outside of DC - City, State
-            post = f'{post_location["city"]}, {post_location["state"]}'
-        else:
-            # Foreign Post - City, Country
-            post = f'{post_location["city"]}, {post_location["country"]}'
-
         languages = f'' if pydash.get(record, ["languages"]) else "None listed"
         if languages is not "None listed":
             for language in record["languages"]:
@@ -93,7 +85,10 @@ def get_available_bidders_csv(request):
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
             maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y'),
-            post,
+            fields["org"],
+            fields["city"],
+            fields["state"],
+            fields["country"],
             # cdo,
         ])
     return response
