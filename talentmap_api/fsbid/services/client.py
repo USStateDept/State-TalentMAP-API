@@ -589,6 +589,13 @@ def fsbid_available_bidder_to_talentmap(data):
 
     return {
         "id": employee.get("pert_external_id", None),
+        "cdo": {
+            "full_name": data.get('cdo_fullname', None),
+            "last_name": data.get('cdo_last_name', None),
+            "first_name": data.get('cdo_first_name', None),
+            "email": data.get('cdo_email', None),
+            "hru_id": data.get("hru_id", None),
+        },
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
