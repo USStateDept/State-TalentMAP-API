@@ -1,6 +1,7 @@
 import logging
 import csv
 import maya
+import pydash
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -21,6 +22,7 @@ def get_available_bidders(jwt_token, is_cdo):
     '''
     Returns all clients in Available Bidders list
     '''
+    # deprecated??
     available_bidders = AvailableBidders.objects
     if is_cdo is False:
         available_bidders = available_bidders.filter(is_shared=True)
@@ -31,11 +33,11 @@ def get_available_bidders(jwt_token, is_cdo):
     return clients
 
 
-def get_available_bidders_csv(jwt_token, is_cdo):
+def get_available_bidders_csv(request):
     '''
     Returns csv format of all users in Available Bidders list
     '''
-    data = get_available_bidders(jwt_token, is_cdo)
+    data = client_services.get_available_bidders(request.META['HTTP_JWT'], False, request.query_params, f"{request.scheme}://{request.get_host()}")
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -47,9 +49,10 @@ def get_available_bidders_csv(jwt_token, is_cdo):
         smart_str(u"Name"),
         smart_str(u"Skills"),
         smart_str(u"Grade"),
+        smart_str(u"Languages"),
         smart_str(u"TED"),
         smart_str(u"Post"),
-        smart_str(u"CDO"),
+        # smart_str(u"CDO"),
     ])
 
     fields_info = {
@@ -57,18 +60,40 @@ def get_available_bidders_csv(jwt_token, is_cdo):
         "skills": {"default": "No Skills listed", },
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
-        "post": {"path": 'current_assignment.position.post.location.country', },
-        "cdo": {"path": 'cdo.name', },
     }
 
-    for record in data:
+    for record in data["results"]:
+        # special Post Handling
+        post_location = pydash.get(record, ["current_assignment.position.post.location"])
+        post = None
+        if post_location is None:
+            post = "None listed"
+        elif post_location["state"] is "DC":
+            # DC Post - org ex.GTM / EX / SDD
+            post = record["current_assignment"]["position"]["organization"]
+        elif post_location["country"] is "USA":
+            # Domestic Post outside of DC - City, State
+            post = f'{post_location["city"]}, {post_location["state"]}'
+        else:
+            # Foreign Post - City, Country
+            post = f'{post_location["city"]}, {post_location["country"]}'
+
+        languages = f'' if pydash.get(record, ["languages"]) else "None listed"
+        if languages is not "None listed":
+            for language in record["languages"]:
+                languages += f'{language["custom_description"]},'
+        languages = languages.rstrip(',')
+
+        # cdo = f'{record["cdo_last_name"]}, {record["cdo_first_name"]}'
+
         fields = formatCSV(record, fields_info)
         writer.writerow([
             fields["name"],
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
+            languages,
             maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y'),
-            fields["post"],
-            fields["cdo"],
+            post,
+            # cdo,
         ])
     return response
