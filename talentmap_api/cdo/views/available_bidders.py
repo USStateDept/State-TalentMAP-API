@@ -117,4 +117,4 @@ class AvailableBiddersCSVView(APIView):
         """
         Return a list of all of the users in Available Bidders for CSV export
         """
-        return services.get_available_bidders_csv(request.META['HTTP_JWT'])
+        return services.get_available_bidders_csv(request)
