@@ -189,14 +189,14 @@ class FSBidClientEditClassifications(APIView):
     def put(self, request, client_id):
         '''
         Insert's / Delete's the classifications for the client
-        Insert call (te_id, perdet)
-        Delete call (te_id, perdet)
+        Add a classification uses TE_ID and PERDET
+        Delete a classification uses TE_ID and PERDET
         using the name that makes sense to you (ie: te_id)
         '''
         try:
-            if len(request.data['insert']) != 0:
+            if request.data['insert']:
                 cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
-            if len(request.data['delete']) != 0:
+            if request.data['delete']:
                 cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
