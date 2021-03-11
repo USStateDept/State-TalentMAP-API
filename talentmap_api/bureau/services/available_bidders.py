@@ -18,21 +18,6 @@ logger = logging.getLogger(__name__)
 API_ROOT = settings.FSBID_API_URL
 
 
-def get_available_bidders(jwt_token, is_cdo):
-    '''
-    Returns all clients in Available Bidders list
-    '''
-    # deprecated??
-    available_bidders = AvailableBidders.objects
-    if is_cdo is False:
-        available_bidders = available_bidders.filter(is_shared=True)
-    perdet_ids = available_bidders.values_list("bidder_perdet", flat=True)
-    clients = []
-    for per in perdet_ids:
-        clients.append(client_services.single_client(jwt_token, per))
-    return clients
-
-
 def get_available_bidders_csv(request):
     '''
     Returns csv format of all users in Available Bidders list
