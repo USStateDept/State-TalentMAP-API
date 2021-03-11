@@ -66,7 +66,8 @@ def get_available_bidders_csv(request):
         smart_str(u"City"),
         smart_str(u"State"),
         smart_str(u"Country"),
-        smart_str(u"CDO"),
+        smart_str(u"CDO Name"),
+        smart_str(u"CDO Email"),
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
@@ -84,6 +85,7 @@ def get_available_bidders_csv(request):
         "country": {"path": 'current_assignment.position.post.location.country', },
         "comments": {"path": 'available_bidder_details.comments', },
         "is_shared": {"path": 'available_bidder_details.is_shared', },
+        "cdo_email": {"path": 'cdo.email', },
     }
 
     for record in data["results"]:
@@ -92,7 +94,8 @@ def get_available_bidders_csv(request):
             for language in record["languages"]:
                 languages += f'{language["custom_description"]}, '
         languages = languages.rstrip(', ')
-        cdo = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
+
+        cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
         writer.writerow([
@@ -108,7 +111,8 @@ def get_available_bidders_csv(request):
             fields["city"],
             fields["state"],
             fields["country"],
-            cdo,
+            cdo_name,
+            fields["cdo_email"],
             fields["comments"],
             fields["is_shared"],
         ])

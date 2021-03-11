@@ -55,7 +55,8 @@ def get_available_bidders_csv(request):
         smart_str(u"City"),
         smart_str(u"State"),
         smart_str(u"Country"),
-        smart_str(u"CDO"),
+        smart_str(u"CDO Name"),
+        smart_str(u"CDO Email"),
     ])
 
     fields_info = {
@@ -67,6 +68,7 @@ def get_available_bidders_csv(request):
         "city": {"path": 'current_assignment.position.post.location.city', },
         "state": {"path": 'current_assignment.position.post.location.state', },
         "country": {"path": 'current_assignment.position.post.location.country', },
+        "cdo_email": {"path": 'cdo.email', },
     }
 
     for record in data["results"]:
@@ -76,7 +78,7 @@ def get_available_bidders_csv(request):
                 languages += f'{language["custom_description"]}, '
         languages = languages.rstrip(', ')
 
-        cdo = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
+        cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
         writer.writerow([
@@ -89,6 +91,7 @@ def get_available_bidders_csv(request):
             fields["city"],
             fields["state"],
             fields["country"],
-            cdo,
+            cdo_name,
+            fields["cdo_email"],
         ])
     return response
