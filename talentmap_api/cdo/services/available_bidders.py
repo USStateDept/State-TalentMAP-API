@@ -30,7 +30,7 @@ def get_available_bidders_stats():
         'OC': 0,
         'AWOL': 0,
     }
-    if len(ab) > 0:
+    if len(ab):
         results = ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
         # get stats for status field
         for stat in ab.values('status'):
