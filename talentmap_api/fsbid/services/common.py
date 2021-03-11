@@ -203,8 +203,9 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
     '''
     Gets items from FSBid
     '''
+    pagination = get_pagination(query, count_function(query, jwt_token)['count'], base_url, host) if count_function else {}
     return {
-        **get_pagination(query, count_function(query, jwt_token)['count'], base_url, host),
+        **pagination,
         "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
