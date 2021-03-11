@@ -1,6 +1,7 @@
 import logging
 import csv
 import maya
+import pydash
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -18,9 +19,9 @@ logger = logging.getLogger(__name__)
 API_ROOT = settings.FSBID_API_URL
 
 
-def get_available_bidders(jwt_token):
+def get_available_bidders_stats():
     '''
-    Returns Available Bidders list
+    Returns Available Bidders status statistics
     '''
     ab = AvailableBidders.objects.all()
     stats = {
@@ -29,39 +30,21 @@ def get_available_bidders(jwt_token):
         'OC': 0,
         'AWOL': 0,
     }
-    if len(ab) > 0:
-        results = ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
-        # TEMPORARY while we have a better solution merge ab with clients
-        clients = bureau_services.get_available_bidders(jwt_token, True)
-        ab_clients = []
-        for bidder in results:
-            for index, client in enumerate(clients):
-                if int(bidder["bidder_perdet"]) == int(client["perdet_seq_number"]):
-                    ab_clients.append({**bidder,
-                                       **{'name': client['name'],
-                                          'grade': client['grade'],
-                                          'skills': client['skills'],
-                                          'TED': client['current_assignment']['end_date'],
-                                          'post': client['current_assignment']['position']['post'],
-                                          }})
-                    # i'm so efficient >.<
-                    clients.pop(index)
-
+    if ab:
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
                 stats[stat['status']] += 1
+    return {
+        "stats": stats
+    }
 
-        return {"count": len(results), "results": ab_clients, "stats": stats}
-    else:
-        return {"count": 0, "results": [], "stats": stats}
 
-
-def get_available_bidders_csv(jwt_token):
+def get_available_bidders_csv(request):
     '''
     Returns csv format of Available Bidders list
     '''
-    data = get_available_bidders(jwt_token)['results']
+    data = client_services.get_available_bidders(request.META['HTTP_JWT'], True, request.query_params, f"{request.scheme}://{request.get_host()}")
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -72,44 +55,65 @@ def get_available_bidders_csv(jwt_token):
     writer.writerow([
         smart_str(u"Name"),
         smart_str(u"Status"),
-        smart_str(u"Skills"),
-        smart_str(u"Grade"),
-        smart_str(u"TED"),
-        smart_str(u"Post"),
         smart_str(u"OC Bureau"),
         smart_str(u"OC Reason"),
-        smart_str(u"CDO"),
+        smart_str(u"Skills"),
+        smart_str(u"Grade"),
+        smart_str(u"Languages"),
+        smart_str(u"TED"),
+        smart_str(u"Organization"),
+        smart_str(u"City"),
+        smart_str(u"State"),
+        smart_str(u"Country"),
+        smart_str(u"CDO Name"),
+        smart_str(u"CDO Email"),
         smart_str(u"Comments"),
         smart_str(u"Shared with Bureau"),
     ])
-    # TODO: cdo not currently coming through
     fields_info = {
         "name": None,
-        "status": None,
-        "skills": { "default": "No Skills listed", },
+        "status": {"path": 'available_bidder_details.status', },
+        "skills": {"default": "No Skills listed", },
         "grade": None,
-        "TED": None,
-        "post": { "path": 'post.location.country', },
-        "oc_bureau": None,
-        "oc_reason": None,
-        "cdo": None,
-        "comments": None,
-        "is_shared": None,
+        "TED": {"path": 'current_assignment.end_date', },
+        "oc_bureau": {"path": 'available_bidder_details.oc_bureau', },
+        "oc_reason": {"path": 'available_bidder_details.oc_reason', },
+        "org": {"path": 'current_assignment.position.organization', },
+        "city": {"path": 'current_assignment.position.post.location.city', },
+        "state": {"path": 'current_assignment.position.post.location.state', },
+        "country": {"path": 'current_assignment.position.post.location.country', },
+        "comments": {"path": 'available_bidder_details.comments', },
+        "is_shared": {"path": 'available_bidder_details.is_shared', },
+        "cdo_email": {"path": 'cdo.email', },
     }
 
-    for record in data:
+    for record in data["results"]:
+        languages = f'' if pydash.get(record, "languages") else "None listed"
+        if languages is not "None listed":
+            for language in record["languages"]:
+                languages += f'{language["custom_description"]}, '
+        languages = languages.rstrip(', ')
+
+        cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
+
         fields = formatCSV(record, fields_info)
         writer.writerow([
             fields["name"],
             fields["status"],
-            fields["skills"],
-            smart_str("=\"%s\"" % fields["grade"]),
-            maya.parse(fields["TED"]).datetime().strftime('%m/%d/%Y'),
-            fields["post"],
             fields["oc_bureau"],
             fields["oc_reason"],
-            fields["cdo"],
+            fields["skills"],
+            smart_str("=\"%s\"" % fields["grade"]),
+            languages,
+            maya.parse(fields["TED"]).datetime().strftime('%m/%d/%Y'),
+            fields["org"],
+            fields["city"],
+            fields["state"],
+            fields["country"],
+            cdo_name,
+            fields["cdo_email"],
             fields["comments"],
             fields["is_shared"],
         ])
+
     return response

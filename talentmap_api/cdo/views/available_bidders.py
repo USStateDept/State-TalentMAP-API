@@ -20,6 +20,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.common.permissions import isDjangoGroupMember
+import talentmap_api.fsbid.services.client as client_services
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +32,15 @@ class AvailableBiddersListView(APIView):
 
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
+            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
         ]
     )
 
     def get(self, request):
-        """
-        Return users in Available Bidders list
-        """
-        return Response(services.get_available_bidders(request.META['HTTP_JWT']))
+        '''
+        Gets all available bidders for a CDO from FSBID
+        '''
+        return Response(client_services.get_available_bidders(request.META['HTTP_JWT'], True, request.query_params, f"{request.scheme}://{request.get_host()}"))
 
 class AvailableBidderView(APIView):
 
@@ -117,4 +117,4 @@ class AvailableBiddersCSVView(APIView):
         """
         Return a list of all of the users in Available Bidders for CSV export
         """
-        return services.get_available_bidders_csv(request.META['HTTP_JWT'])
+        return services.get_available_bidders_csv(request)
