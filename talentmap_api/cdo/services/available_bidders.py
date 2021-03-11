@@ -27,7 +27,7 @@ def get_available_bidders(jwt_token):
         'UA': 0,
         'IT': 0,
         'OC': 0,
-        'LWOP': 0,
+        'AWOL': 0,
     }
     if len(ab) > 0:
         results = ab.values('bidder_perdet', 'status', 'oc_reason', 'oc_bureau', 'comments', 'is_shared')
