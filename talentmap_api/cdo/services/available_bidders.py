@@ -21,7 +21,7 @@ API_ROOT = settings.FSBID_API_URL
 
 def get_available_bidders_stats():
     '''
-    Returns Available Bidders list
+    Returns Available Bidders status statistics
     '''
     ab = AvailableBidders.objects.all()
     stats = {
