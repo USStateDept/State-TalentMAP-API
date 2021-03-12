@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 import talentmap_api.bureau.services.available_bidders as services
+import talentmap_api.fsbid.services.client as client_services
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 logger = logging.getLogger(__name__)
@@ -18,10 +19,7 @@ class AvailableBiddersListView(APIView):
 
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("page", location='query', type='integer',
-                          description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer',
-                          description='Number of results to return per page.'),
+            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
         ]
     )
 
@@ -29,7 +27,7 @@ class AvailableBiddersListView(APIView):
         """
         Return users in Available Bidders list for Bureau
         """
-        return Response(services.get_available_bidders(request.META['HTTP_JWT'], False))
+        return Response(client_services.get_available_bidders(request.META['HTTP_JWT'], False, request.query_params, f"{request.scheme}://{request.get_host()}"))
 
 
 class AvailableBiddersCSVView(APIView):
@@ -39,4 +37,4 @@ class AvailableBiddersCSVView(APIView):
         """
         Return a list of all of the users in Available Bidders for CSV export for Bureau
         """
-        return services.get_available_bidders_csv(request.META['HTTP_JWT'], False)
+        return services.get_available_bidders_csv(request)

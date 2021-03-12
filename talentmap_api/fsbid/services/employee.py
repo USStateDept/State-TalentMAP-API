@@ -8,7 +8,6 @@ from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes
 from talentmap_api.fsbid.services.available_positions import get_available_position
 
 API_ROOT = settings.EMPLOYEES_API_URL
-SECREF_ROOT = settings.SECREF_URL
 FSBID_ROOT = settings.FSBID_API_URL
 ORG_ROOT = settings.ORG_API_URL
 
