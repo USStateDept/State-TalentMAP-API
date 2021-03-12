@@ -482,6 +482,7 @@ def fsbid_assignments_to_tmap(assignments):
                         "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
                         "skill_code": pos.get("pos_skill_code", None),
                         "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
+                        "organization": pos.get('pos_org_short_desc', None),
                         "position_number": pos.get('pos_seq_num', None),
                         "title": pos.get("pos_title_desc", None),
                         "post": {
@@ -501,3 +502,147 @@ def fsbid_assignments_to_tmap(assignments):
                 }
             )
     return tmap_assignments
+
+
+def fsbid_languages_to_tmap(languages):
+    tmap_languages = []
+    for x in languages:
+        tmap_languages.append({
+            "code": x.get('empl_language_code', None),
+            "language": x.get('empl_language', None),
+            "test_date": ensure_date(x.get('empl_high_test_date', None)),
+            "speaking_score": x.get('empl_high_speaking', None),
+            "reading_score": x.get('empl_high_reading', None),
+            "custom_description": f"{x.get('empl_language')} {x.get('empl_high_speaking')}/{x.get('empl_high_reading')}"
+        })
+    return tmap_languages
+
+
+def get_available_bidders(jwt_token, isCDO, query, host=None):
+    from talentmap_api.fsbid.services.common import send_get_request
+    from talentmap_api.cdo.services.available_bidders import get_available_bidders_stats
+    cdo = 'cdo' if isCDO else 'bureau'
+    uri = f"clients/availablebidders/{cdo}"
+    response = send_get_request(
+        uri,
+        query,
+        convert_available_bidder_query,
+        jwt_token,
+        fsbid_available_bidder_to_talentmap,
+        False, # No count function
+        f"/api/v1/client/availablebidders/{cdo}",
+        host
+    )
+    stats = get_available_bidders_stats()
+    return {
+        **stats,
+        **response,
+    }
+
+# Can update to reuse client mapping once client v2 is updated and released with all the new fields
+def fsbid_available_bidder_to_talentmap(data):
+    from talentmap_api.fsbid.services.common import get_employee_profile_urls
+    employee = data.get('employee', None)
+    current_assignment = None
+    assignments = None
+    position = None
+    location = {}
+
+    if employee is not None:
+        current_assignment = employee.get('currentAssignment', None)
+
+    if employee.get('assignment', None) is not None:
+        assignments = employee.get('assignment', None)
+        # handle if array
+        if type(assignments) is type([]) and list(assignments):
+            current_assignment = list(assignments)[0]
+        # handle if object
+        if type(assignments) is type(dict()):
+            current_assignment = assignments
+            # remove current prefix
+            if assignments.get('currentPosition', None) is not None:
+                assignments['position'] = assignments['currentPosition']
+                assignments['position']['location'] = assignments['currentPosition']['currentLocation']
+                assignments = [].append(assignments)
+
+    if current_assignment is not None:
+        # handle if object
+        if current_assignment.get('currentPosition', None) is not None:
+            position = current_assignment.get('currentPosition', None)
+        # handle if array
+        if current_assignment.get('position', None) is not None:
+            position = current_assignment.get('position', None)
+
+    if position is not None:
+        # handle if object
+        if position.get('currentLocation', None) is not None:
+            location = position.get('currentLocation', {})
+        # handle if array
+        if position.get('location', None) is not None:
+            location = position.get('location', {})
+
+    if current_assignment and current_assignment.get('currentPosition', None) is not None:
+        # remove current prefix
+        current_assignment['position'] = current_assignment['currentPosition']
+        current_assignment['position']['location'] = current_assignment['position']['currentLocation']
+
+    # first object in array, mapped
+    try:
+        current_assignment = fsbid_assignments_to_tmap(current_assignment)[0]
+    except:
+        current_assignment = {}
+
+    initials = None
+    try:
+        initials = employee['per_first_name'][:1] + employee['per_last_name'][:1]
+    except:
+        initials = None
+
+    middle_name = get_middle_name(employee)
+
+    res = {
+        "id": employee.get("pert_external_id", None),
+        "cdo": {
+            "full_name": data.get('cdo_fullname', None),
+            "last_name": data.get('cdo_last_name', None),
+            "first_name": data.get('cdo_first_name', None),
+            "email": data.get('cdo_email', None),
+            "hru_id": data.get("hru_id", None),
+        },
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
+        "initials": initials,
+        "perdet_seq_number": employee.get("perdet_seq_num", None),
+        "grade": employee.get("per_grade_code", None),
+        "skills": map_skill_codes(employee),
+        "employee_id": employee.get("pert_external_id", None),
+        "role_code": data.get("rl_cd", None),
+        "pos_location": map_location(location),
+        # not exposed in FSBid yet
+        # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
+        # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
+        # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
+        "current_assignment": current_assignment,
+        "assignments": fsbid_assignments_to_tmap(assignments),
+        "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
+        "languages": fsbid_languages_to_tmap(data.get('languages', None)),
+        "available_bidder_details": data.get("details", {}),
+    }
+    if res['available_bidder_details']:
+        shared = res['available_bidder_details'].get('is_shared', False)
+        archived = res['available_bidder_details'].get('archived', False)
+        res['available_bidder_details']['is_shared'] = shared == '1'
+        res['available_bidder_details']['archived'] = archived == '1'
+    return res
+
+def convert_available_bidder_query(query):
+    sort_asc = query.get("ordering", "name")[0] != "-"
+    ordering = query.get("ordering", "name").lstrip("-")
+    values = {
+        "order_by": ordering,
+        "is_asc": sort_asc,
+        "ad_id": query.get("ad_id", None),
+    }
+
+    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
