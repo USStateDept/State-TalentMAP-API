@@ -241,14 +241,14 @@ def fsbid_clients_to_talentmap_clients(data):
     middle_name = get_middle_name(employee)
 
     return {
-        "id": employee.get("pert_external_id", None),
+        "id": str(int(employee.get("pert_external_id", None))),
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": employee.get("perdet_seq_num", None),
+        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": employee.get("pert_external_id", None),
+        "employee_id": str(int(employee.get("pert_external_id", None))),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -588,7 +588,7 @@ def fsbid_available_bidder_to_talentmap(data):
     middle_name = get_middle_name(employee)
 
     res = {
-        "id": employee.get("pert_external_id", None),
+        "id": str(int(employee.get("pert_external_id", None))),
         "cdo": {
             "full_name": data.get('cdo_fullname', None),
             "last_name": data.get('cdo_last_name', None),
@@ -599,10 +599,10 @@ def fsbid_available_bidder_to_talentmap(data):
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": employee.get("perdet_seq_num", None),
+        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": employee.get("pert_external_id", None),
+        "employee_id": str(int(employee.get("pert_external_id", None))),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -614,13 +614,12 @@ def fsbid_available_bidder_to_talentmap(data):
         "assignments": fsbid_assignments_to_tmap(assignments),
         "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
         "languages": fsbid_languages_to_tmap(data.get('languages', None)),
-        "available_bidder_details": data.get("details", {}),
+        "available_bidder_details": {
+            **data.get("details", {}),
+            "is_shared": data.get('available_bidder_details', {}).get('is_shared') == '1',
+            "archived": data.get('available_bidder_details', {}).get('archived') == '1',
+        }
     }
-    if res['available_bidder_details']:
-        shared = res['available_bidder_details'].get('is_shared', False)
-        archived = res['available_bidder_details'].get('archived', False)
-        res['available_bidder_details']['is_shared'] = shared == '1'
-        res['available_bidder_details']['archived'] = archived == '1'
     return res
 
 def convert_available_bidder_query(query):
