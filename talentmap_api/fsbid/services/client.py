@@ -293,6 +293,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
 def get_middle_name(employee):
     middle_name = employee.get('per_middle_name', None) or ''
     middle_initial = ''
+    if middle_name == 'NMN':
+        middle_name = ''
     if middle_name:
         middle_name = middle_name + ' '
         middle_initial = middle_name[:1] + ' '
