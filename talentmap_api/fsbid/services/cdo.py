@@ -61,17 +61,26 @@ def fsbid_cdo_list_to_talentmap_cdo_list(data):
 
 def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
-    Insert's the client's classification
+    Inserts the client's classification
     '''
-    # need to update uri and response
+    te_id = ''
+    count = 0
+
     for d in data:
-        print('loop for insert classification', d)
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
-    # uri = f"TrackingPrograms/Bidders"
+        # te_id not coming through atm
+        # need to change tracking detail to teid
+        if len(data) > 1:
+            if count != len(data) - 1 and count == 0:
+                te_id = te_id + f"tracking_detail={d['te_id']}"
+                count += 1
+            else:
+                te_id = te_id + f"&tracking_detail={d['te_id']}"
+        else:
+            te_id = te_id + f"tracking_detail={d['te_id']}"
+
+    uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
-    # fsbid_clients_to_talentmap_clients
     cdos = None
 
     if response is not None:
@@ -80,13 +89,23 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
 
 def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
-    Delete's the client's classification
+    Deletes the client's classification
     '''
-    # need to update uri and response
+    te_id = ''
+    count = 0
     for d in data:
-        print('loop for delete classification', d)
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"Agents?ad_id={ad_id}&rl_cd=CDO&rl_cd=CDO3&request_params.perdet_seq_num={perdet_seq_num}"
+        # te_id not coming through atm
+        # need to change tracking detail to teid
+        if len(data) > 1:
+            if count != len(data) - 1 and count == 0:
+                te_id = te_id + f"tracking_detail={d['te_id']}"
+                count += 1
+            else:
+                te_id = te_id + f"&tracking_detail={d['te_id']}"
+        else:
+            te_id = te_id + f"tracking_detail={d['te_id']}"
+
+    uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
     cdos = None

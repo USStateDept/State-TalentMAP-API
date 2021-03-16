@@ -188,10 +188,7 @@ class FSBidClientEditClassifications(APIView):
 
     def put(self, request, client_id):
         '''
-        Insert's / Delete's the classifications for the client
-        Add a classification uses TE_ID and PERDET
-        Delete a classification uses TE_ID and PERDET
-        using the name that makes sense to you (ie: te_id)
+        Inserts/Deletes the classifications for the client
         '''
         try:
             if request.data['insert']:
