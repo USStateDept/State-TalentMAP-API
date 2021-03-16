@@ -618,7 +618,7 @@ def fsbid_available_bidder_to_talentmap(data):
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
         "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
-        "languages": fsbid_languages_to_tmap(data.get('languages', [])),
+        "languages": fsbid_languages_to_tmap(data.get('languages', []) or []),
         "available_bidder_details": {
             **data.get("details", {}),
             "is_shared": pydash.get(data, 'details.is_shared') == '1',
