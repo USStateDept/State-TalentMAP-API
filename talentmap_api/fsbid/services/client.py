@@ -7,6 +7,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 import jwt
+import pydash
 
 import requests  # pylint: disable=unused-import
 
@@ -18,6 +19,7 @@ API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 SECREF_ROOT = settings.SECREF_URL
+CLIENTS_ROOT = settings.CLIENTS_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -509,7 +511,7 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
     from talentmap_api.cdo.services.available_bidders import get_available_bidders_stats
     cdo = 'cdo' if isCDO else 'bureau'
-    uri = f"clients/availablebidders/{cdo}"
+    uri = f"availablebidders/{cdo}"
     response = send_get_request(
         uri,
         query,
@@ -517,8 +519,9 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
         jwt_token,
         fsbid_available_bidder_to_talentmap,
         False, # No count function
-        f"/api/v1/client/availablebidders/{cdo}",
-        host
+        f"/api/v1/clients/availablebidders/{cdo}",
+        host,
+        CLIENTS_ROOT,
     )
     stats = get_available_bidders_stats()
     return {
@@ -616,8 +619,8 @@ def fsbid_available_bidder_to_talentmap(data):
         "languages": fsbid_languages_to_tmap(data.get('languages', None)),
         "available_bidder_details": {
             **data.get("details", {}),
-            "is_shared": data.get('available_bidder_details', {}).get('is_shared') == '1',
-            "archived": data.get('available_bidder_details', {}).get('archived') == '1',
+            "is_shared": pydash.get(data, 'details.is_shared') == '1',
+            "archived": pydash.get(data, 'details.archived') == '1',
         }
     }
     return res
