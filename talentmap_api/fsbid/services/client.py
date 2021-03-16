@@ -7,6 +7,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 import jwt
+import pydash
 
 import requests  # pylint: disable=unused-import
 
@@ -18,6 +19,7 @@ API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 SECREF_ROOT = settings.SECREF_URL
+CLIENTS_ROOT = settings.CLIENTS_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -291,6 +293,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
 def get_middle_name(employee):
     middle_name = employee.get('per_middle_name', None) or ''
     middle_initial = ''
+    if middle_name == 'NMN':
+        middle_name = ''
     if middle_name:
         middle_name = middle_name + ' '
         middle_initial = middle_name[:1] + ' '
@@ -509,7 +513,7 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
     from talentmap_api.cdo.services.available_bidders import get_available_bidders_stats
     cdo = 'cdo' if isCDO else 'bureau'
-    uri = f"clients/availablebidders/{cdo}"
+    uri = f"availablebidders/{cdo}"
     response = send_get_request(
         uri,
         query,
@@ -517,8 +521,9 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
         jwt_token,
         fsbid_available_bidder_to_talentmap,
         False, # No count function
-        f"/api/v1/client/availablebidders/{cdo}",
-        host
+        f"/api/v1/clients/availablebidders/{cdo}",
+        host,
+        CLIENTS_ROOT,
     )
     stats = get_available_bidders_stats()
     return {
@@ -613,11 +618,11 @@ def fsbid_available_bidder_to_talentmap(data):
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
         "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
-        "languages": fsbid_languages_to_tmap(data.get('languages', None)),
+        "languages": fsbid_languages_to_tmap(data.get('languages', []) or []),
         "available_bidder_details": {
             **data.get("details", {}),
-            "is_shared": data.get('available_bidder_details', {}).get('is_shared') == '1',
-            "archived": data.get('available_bidder_details', {}).get('archived') == '1',
+            "is_shared": pydash.get(data, 'details.is_shared') == '1',
+            "archived": pydash.get(data, 'details.archived') == '1',
         }
     }
     return res
