@@ -51,9 +51,8 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
     fullname = data.get("fullname", None)
-    if pydash.ends_with(fullname, ' NMN'):
-        size = len(fullname)
-        fullname = fullname[:size - 4] # length of ' NMN'
+    if fullname:
+        fullname = fullname.rstrip(' NMN')
 
     return {
         "id": data.get("hru_id", None),
