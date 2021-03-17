@@ -1,5 +1,6 @@
 import logging
 import jwt
+import pydash
 from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
 
@@ -49,9 +50,14 @@ def single_cdo(jwt_token=None, perdet_seq_num=None):
 
 
 def fsbid_cdo_list_to_talentmap_cdo_list(data):
+    fullname = data.get("fullname", None)
+    if pydash.ends_with(fullname, ' NMN'):
+        size = len(fullname)
+        fullname = fullname[:size - 4] # length of ' NMN'
+
     return {
         "id": data.get("hru_id", None),
-        "name": data.get("fullname", None),
+        "name": fullname,
         "email": data.get("email", None),
         "isCurrentUser": data.get("isCurrentUser", None),
     }
