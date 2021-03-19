@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+import pydash
 
 from pydoc import locate
 
@@ -441,3 +442,28 @@ def validate_values(query_val, accepted_values):
     validated_list = ",".join(map(str, validated_list))
 
     return validated_list
+
+def formatCSV(data, fieldsInfo):
+    fields_formatted = {}
+
+    for f in fieldsInfo:
+        if f is "skills":
+            skills = []
+            for skill in list(data[f]):
+                skills.append(skill["description"])
+            if skills:
+                fields_formatted[f] = ', '.join(skills)
+            else:
+                fields_formatted[f] = None
+        else:
+            if pydash.get(fieldsInfo[f], ["path"]):
+                fields_formatted[f] = pydash.get(data, fieldsInfo[f]["path"])
+            else:
+                fields_formatted[f] = pydash.get(data, [f])
+
+    # setting up the defaults
+    for x in fields_formatted:
+        if fields_formatted[x] is "" or fields_formatted[x] is None:
+            fields_formatted[x] = pydash.get(fieldsInfo[x], ["default"], "None listed")
+
+    return fields_formatted

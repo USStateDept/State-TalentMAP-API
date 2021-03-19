@@ -493,10 +493,11 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
-SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/SECREF')
+SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/v2/SECREF')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/cyclePositions')
 ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/Organizations')
+CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http://mock_fsbid:3333/Clients')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')

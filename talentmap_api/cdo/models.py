@@ -5,7 +5,7 @@ class AvailableBidders(models.Model):
         ('UA', 'Unassigned'),
         ('IT', 'In-Transit'),
         ('OC', 'Over-Complement'),
-        ('LWOP', 'Leave Without Pay'),
+        ('AWOL', 'AWOL'),
         ('', ''),
     ]
     bidder_perdet = models.CharField(max_length=255, null=False, help_text="The user in availableBidders list")

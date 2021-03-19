@@ -101,6 +101,8 @@ class SavedSearch(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    is_bureau = models.BooleanField(default=False, help_text="Whether this search is for Bureau/AO")
+
 
     def get_queryset(self):
         return get_filtered_queryset(resolve_path_to_view(self.endpoint).filter_class, self.filters)
