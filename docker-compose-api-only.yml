@@ -31,6 +31,7 @@ services:
       - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
+      - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
   oracle:
     ports:
       - 1521:1521

@@ -126,10 +126,10 @@ def fsbid_classifications_to_talentmap_classifications(data):
     season_text = data.get("te_descr_txt", None)
     return {
         "code": data.get("tp_code", None),
-        "text": text,
+        "text": data.get("tp_descr_txt", None),
         "disabled_ind": data.get("disabled_ind", "N") == "Y",
-        "te_id": data.get("te_id", None),
-        "season_text": None if season_text == text else season_text,
+        "id": data.get("te_id", None),
+        "season_text": data.get("te_descr_txt", None),
     }
 
 
