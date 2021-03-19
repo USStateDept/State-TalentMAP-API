@@ -23,7 +23,7 @@ django-extensions==2.0.6
 django-filter==1.1.0
 django-rest-swagger==2.1.2
 django-simple-history==2.0
-djangorestframework==3.8.2
+djangorestframework==3.11.2
 djangorestframework-csv==2.1.0
 djangorestframework-expiring-authtoken==0.1.4
 djangorestframework-filters==0.10.2
