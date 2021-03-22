@@ -45,7 +45,7 @@ itsdangerous==0.24
 itypes==1.1.0
 Jinja2==2.10.1
 locustio==0.8.1
-lxml==4.2.1
+lxml==4.6.3
 MarkupSafe==1.1.1
 maya==0.6.1
 model-mommy==1.5.1
