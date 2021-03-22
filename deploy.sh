@@ -34,7 +34,7 @@ export DJANGO_LOG_DIRECTORY='/home/ec2-user/log/'
 export DEPLOYMENT_LOCATION='/home/ec2-user/State-TalentMAP-API-dev/'
 export FSBID_API_URL='https://mockfsbid.metaphasedev.com'
 export EMPLOYEES_API_URL='https://mockfsbid.metaphasedev.com/Employees'
-export SECREF_URL='https://mockfsbid.metaphasedev.com/SECREF'
+export SECREF_URL='https://mockfsbid.metaphasedev.com/v2/SECREF'
 
 # install dependencies
 pip install -r requirements.txt

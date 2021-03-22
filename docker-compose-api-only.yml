@@ -14,33 +14,30 @@ services:
     command: >
       bash -c "python show_logo.py
       && echo 'Starting...'
-      && ./wait-for-oracle.sh oracle:1521/talentmap sys talentmap 'as sysdba'
-      && ./create-oracle-user.sh oracle:1521/talentmap sys talentmap 'as sysdba'
-      && ./wait-for-oracle.sh oracle:1521/talentmappdb talentmap1 talentmap1 '' true
+      && ./wait-for-oracle.sh oracle:1521/oraclesid sys oraclepwd 'as sysdba'
+      && ./create-oracle-user.sh oracle:1521/oraclesid sys oraclepwd 'as sysdba'
+      && ./wait-for-oracle.sh oracle:1521/oraclepdb talentmap1 talentmap1 '' true
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app:delegated
     environment:
       - DJANGO_SECRET_KEY=development_secret_key
-      - DATABASE_URL=oracle:1521/talentmappdb
+      - DATABASE_URL=oracle:1521/oraclepdb
       - DATABASE_USER=talentmap1
       - DATABASE_PW=talentmap1
       - DJANGO_DEBUG=true
       - FSBID_API_URL=http://host.docker.internal:3333
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
-      - SECREF_URL=http://host.docker.internal:3333/SECREF
+      - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
+      - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
   oracle:
     ports:
       - 1521:1521
-    image: banglamon/oracle193db:19.3.0-ee
+    image: mjoyce91/oracle193db:fast
     volumes:
       - oracle:/var/lib/oracle/data/:delegated
-    environment:
-      - ORACLE_SID=talentmap
-      - ORACLE_PDB=talentmappdb
-      - ORACLE_PWD=talentmap
 volumes:
   pgdata:
   oracle:
