@@ -44,6 +44,16 @@ def bool_env_variable(name):
     return get_delineated_environment_variable(name) in ["1", "True", "true", True]
 
 
+# SMTP email settings
+EMAIL_HOST = get_delineated_environment_variable("EMAIL_HOST")
+EMAIL_PORT = get_delineated_environment_variable("EMAIL_PORT")
+EMAIL_HOST_USER = get_delineated_environment_variable("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_delineated_environment_variable("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = bool_env_variable("EMAIL_USE_TLS")
+EMAIL_FROM_ADDRESS = get_delineated_environment_variable("EMAIL_FROM_ADDRESS")
+EMAIL_IS_DEV= bool_env_variable("EMAIL_IS_DEV")
+EMAIL_DEV_TO=get_delineated_environment_variable("EMAIL_DEV_TO")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
