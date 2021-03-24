@@ -70,18 +70,15 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     '''
     te_id = ''
     count = 0
-
     for d in data:
-        # te_id not coming through atm
-        # need to change tracking detail to teid
         if len(data) > 1:
             if count != len(data) - 1 and count == 0:
-                te_id = te_id + f"tracking_detail={d}"
+                te_id = te_id + f"tracking_event={d}"
                 count += 1
             else:
-                te_id = te_id + f"&tracking_detail={d}"
+                te_id = te_id + f"&tracking_event={d}"
         else:
-            te_id = te_id + f"tracking_detail={d}"
+            te_id = te_id + f"tracking_event={d}"
 
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 
@@ -99,16 +96,14 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     te_id = ''
     count = 0
     for d in data:
-        # te_id not coming through atm
-        # need to change tracking detail to teid
         if len(data) > 1:
             if count != len(data) - 1 and count == 0:
-                te_id = te_id + f"tracking_detail={d}"
+                te_id = te_id + f"tracking_event={d}"
                 count += 1
             else:
-                te_id = te_id + f"&tracking_detail={d}"
+                te_id = te_id + f"&tracking_event={d}"
         else:
-            te_id = te_id + f"tracking_detail={d}"
+            te_id = te_id + f"tracking_event={d}"
 
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 

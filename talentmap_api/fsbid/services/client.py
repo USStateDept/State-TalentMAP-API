@@ -438,26 +438,23 @@ def tmap_no_bids_to_fsbid(bids):
 
 def fsbid_classifications_to_tmap(cs):
     tmap_classifications = []
-    count = 0
     if type(cs) is list:
         for x in cs:
-            count += 1
             tmap_classifications.append(
                 {
                     'tp_code': x.get('tp_code', None),
                     'tp_descr_txt': x.get('tp_descr_txt', None),
                     'disabled_ind': x.get('disabled_ind', None),
-                    'te_id': count, # dummy data, need to update
+                    'id': x.get('te_id', None),
                 }
             )
     else:
-        count += 1
         tmap_classifications.append(
             {
                 'tp_code': cs.get('tp_code', None),
                 'tp_descr_txt': cs.get('tp_descr_txt', None),
                 'disabled_ind': cs.get('disabled_ind', None),
-                'te_id': count, # dummy data, need to update
+                'id': cs.get('te_id', None),
             }
         )
     return tmap_classifications
