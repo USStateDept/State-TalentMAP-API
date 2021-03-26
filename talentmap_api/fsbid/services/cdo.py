@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode, quote
 import jwt
 import pydash
 from django.conf import settings
@@ -68,55 +69,31 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     '''
     Inserts the client's classification
     '''
-    te_id = ''
-    count = 0
-    for d in data:
-        if len(data) > 1:
-            if count != len(data) - 1 and count == 0:
-                te_id = te_id + f"tracking_event={d}"
-                count += 1
-            else:
-                te_id = te_id + f"&tracking_event={d}"
-        else:
-            te_id = te_id + f"tracking_event={d}"
+    values = {'request_params.tracking_event': data}
+    te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
-    cdos = None
-
-    if response is not None:
-        cdos = list(response)
 
 
 def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
     Deletes the client's classification
     '''
-    te_id = ''
-    count = 0
-    for d in data:
-        if len(data) > 1:
-            if count != len(data) - 1 and count == 0:
-                te_id = te_id + f"tracking_event={d}"
-                count += 1
-            else:
-                te_id = te_id + f"&tracking_event={d}"
-        else:
-            te_id = te_id + f"tracking_event={d}"
+    values = {'request_params.tracking_event': data}
+    te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
 
     response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
-    cdos = None
-
-    if response is not None:
-        cdos = list(response)
 
 
 def fsbid_classifications_to_talentmap_classifications(data):
     return {
-        # preliminary mapping setup
+        # preliminary mapping setu
+        # look at reference services for grades
+        # to update mapping
         "3": data.get("3rd Tour Bidders", None),
         "4": data.get("Tenured 4", None),
         "D": data.get("Differential Bidder", None),
