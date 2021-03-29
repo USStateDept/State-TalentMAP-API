@@ -4,7 +4,6 @@ import jwt
 import pydash
 from django.conf import settings
 import talentmap_api.fsbid.services.common as services
-import talentmap_api.fsbid.services.client as clientServices
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL
