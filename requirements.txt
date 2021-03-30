@@ -12,7 +12,7 @@ click==6.7
 coreapi==2.3.3
 coreschema==0.0.4
 coverage==4.5.1
-cryptography==3.2
+cryptography==3.3.2
 cx-Oracle==6.4.1
 dateutils==0.6.6
 decorator==4.2.1
@@ -43,9 +43,9 @@ idna==2.6
 isodate==0.6.0
 itsdangerous==0.24
 itypes==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 locustio==0.8.1
-lxml==4.2.1
+lxml==4.6.3
 MarkupSafe==1.1.1
 maya==0.6.1
 model-mommy==1.5.1
