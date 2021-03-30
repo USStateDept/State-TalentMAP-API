@@ -2,8 +2,8 @@ import logging
 from urllib.parse import urlencode, quote
 import jwt
 import pydash
+import requests
 from django.conf import settings
-import talentmap_api.fsbid.services.common as services
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL
@@ -66,30 +66,41 @@ def fsbid_cdo_list_to_talentmap_cdo_list(data):
 
 def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
-    Inserts the client's classification
+    Inserts the client's classification(s)
     '''
-    values = {'request_params.tracking_event': data}
+    values = {'tracking_event': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
+    url = f"{API_ROOT}/{uri}"
+    response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    if response.post("Data") is None or response.post('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+
+    return map(fsbid_classifications_to_talentmap_classifications, response.post("Data", {}))
 
 
 def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
-    Deletes the client's classification
+    Deletes the client's classification(s)
     '''
-    values = {'request_params.tracking_event': data}
+    values = {'tracking_event': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
+    url = f"{API_ROOT}/{uri}"
+    response = requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    response = services.get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list)
+    if response.delete("Data") is None or response.delete('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+
+    return map(fsbid_classifications_to_talentmap_classifications, response.post("Data", {}))
 
 
 def fsbid_classifications_to_talentmap_classifications(data):
     return {
+        # track down where client profile class are coming from
         # preliminary mapping setu
         # look at reference services for grades
         # to update mapping
