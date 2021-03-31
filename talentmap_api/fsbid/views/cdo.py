@@ -83,7 +83,7 @@ class FSBidListBidActionView(APIView):
                                         message=f"Bid on position id={pk} has been submitted by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e) # want a 204 response line 84
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
 
 
 class FSBidListBidRegisterView(APIView):
