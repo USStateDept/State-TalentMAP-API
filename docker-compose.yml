@@ -28,6 +28,14 @@ services:
       - DATABASE_USER=talentmap1
       - DATABASE_PW=talentmap1
       - DJANGO_DEBUG=true
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
+      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
+      - EMAIL_IS_DEV=${EMAIL_IS_DEV}
+      - EMAIL_DEV_TO=${EMAIL_DEV_TO}
   oracle:
     ports:
       - 1521:1521
