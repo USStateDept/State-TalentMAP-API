@@ -191,10 +191,11 @@ class FSBidClientEditClassifications(APIView):
         Inserts/Deletes the classifications for the client
         '''
         try:
+            id = []
             if request.data['insert']:
-                cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+                id = cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
             if request.data['delete']:
-                cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
-            return Response(status=status.HTTP_204_NO_CONTENT)
+                id = cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+            return Response(status=status.HTTP_200_OK, data=id)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)

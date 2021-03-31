@@ -5,7 +5,6 @@ import pydash
 import requests
 from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
-from talentmap_api.fsbid.services.reference import fsbid_classifications_to_talentmap_classifications
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -69,6 +68,7 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     '''
     Inserts the client's classification(s)
     '''
+    from talentmap_api.fsbid.services.client import fsbid_classifications_to_tmap
     values = {'tracking_event': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
@@ -79,13 +79,14 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
-    return map(fsbid_classifications_to_talentmap_classifications, response.get("Data", {}))
+    return fsbid_classifications_to_tmap(response.get("Data", {}))
 
 
 def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
     '''
     Deletes the client's classification(s)
     '''
+    from talentmap_api.fsbid.services.client import fsbid_classifications_to_tmap
     values = {'tracking_event': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
     uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
@@ -96,4 +97,4 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
-    return map(fsbid_classifications_to_talentmap_classifications, response.get("Data", {}))
+    return fsbid_classifications_to_tmap(response.get("Data", {}))
