@@ -5,6 +5,7 @@ import pydash
 import requests
 from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
+from talentmap_api.fsbid.services.reference import fsbid_classifications_to_talentmap_classifications
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -74,11 +75,11 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     url = f"{API_ROOT}/{uri}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    if response.post("Data") is None or response.post('return_code', -1) == -1:
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
-    return map(fsbid_classifications_to_talentmap_classifications, response.post("Data", {}))
+    return map(fsbid_classifications_to_talentmap_classifications, response.get("Data", {}))
 
 
 def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None):
@@ -91,32 +92,8 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     url = f"{API_ROOT}/{uri}"
     response = requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    if response.delete("Data") is None or response.delete('return_code', -1) == -1:
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
-    return map(fsbid_classifications_to_talentmap_classifications, response.post("Data", {}))
-
-
-def fsbid_classifications_to_talentmap_classifications(data):
-    return {
-        # track down where client profile class are coming from
-        # preliminary mapping setu
-        # look at reference services for grades
-        # to update mapping
-        "3": data.get("3rd Tour Bidders", None),
-        "4": data.get("Tenured 4", None),
-        "D": data.get("Differential Bidder", None),
-        "T": data.get("Tandem Bidder", None),
-        "M": data.get("Meritorious Step Increases", None),
-        "6": data.get("6/8 Rule", None),
-        "F": data.get("Fair Share Bidders", None),
-        "C": data.get("Critical Need Language", None),
-        "C1": data.get("Critical Need Language 1st Tour Complete", None),
-        "CC": data.get("Critical Need Language Final Tour Complete", None),
-        "R": data.get("Recommended for Tenure", None),
-        "A": data.get("Ambassador or Deputy Assistant Secretary", None),
-        "F1": data.get("Pickering Fellows", None),
-        "F2": data.get("Rangel Fellows", None),
-        "P": data.get("Pickering/Rangel Fellows", None),
-    }
+    return map(fsbid_classifications_to_talentmap_classifications, response.get("Data", {}))
