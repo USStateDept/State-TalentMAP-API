@@ -75,7 +75,7 @@ def get_available_bidders_csv(request):
         "status": {"path": 'available_bidder_details.status', },
         "skills": {"default": "No Skills listed", },
         "grade": None,
-        "TED": {"path": 'current_assignment.end_date', },
+        "ted": {"path": 'current_assignment.end_date', },
         "oc_bureau": {"path": 'available_bidder_details.oc_bureau', },
         "oc_reason": {"path": 'available_bidder_details.oc_reason', },
         "org": {"path": 'current_assignment.position.organization', },
@@ -97,6 +97,11 @@ def get_available_bidders_csv(request):
         cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
+
+        try:
+            ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
+        except:
+            ted = 'None listed'
         writer.writerow([
             fields["name"],
             fields["status"],
@@ -105,7 +110,7 @@ def get_available_bidders_csv(request):
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
-            maya.parse(fields["TED"]).datetime().strftime('%m/%d/%Y'),
+            ted,
             fields["org"],
             fields["city"],
             fields["state"],
