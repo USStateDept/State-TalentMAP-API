@@ -441,11 +441,11 @@ def fsbid_classifications_to_tmap(cs):
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get('tp_code', None)
+                x.get('te_id', None)
             )
     else:
         tmap_classifications.append(
-            cs.get('tp_code', None),
+            cs.get('te_id', None)
         )
     return tmap_classifications
 

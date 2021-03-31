@@ -187,3 +187,22 @@ class FSBidListPositionActionView(BaseView):
                                     tags=['bidding'],
                                     message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FSBidClientEditClassifications(APIView):
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+
+    def put(self, request, client_id):
+        '''
+        Inserts/Deletes the classifications for the client
+        '''
+        try:
+            id = []
+            if request.data['insert']:
+                id = cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+            if request.data['delete']:
+                id = cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+            return Response(status=status.HTTP_200_OK, data=id)
+        except Exception as e:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
