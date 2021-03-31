@@ -11,6 +11,7 @@ from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
+from talentmap_api.common.common_helpers import send_email
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
 
@@ -77,10 +78,13 @@ class FSBidListBidActionView(APIView):
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            
+            message = f"Bid on position with ID {pk} has been submitted by CDO {user}"
 
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been submitted by CDO {user}")
+                                        message=message)
+            send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e) # want a 204 response line 84
@@ -102,10 +106,13 @@ class FSBidListBidRegisterView(APIView):
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for registering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            
+            message = f"Bid on position with ID {pk} has been registered by CDO {user}"
 
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been registered by CDO {user}")
+                                        message=message)
+            send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
