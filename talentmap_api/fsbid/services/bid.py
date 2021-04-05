@@ -1,6 +1,7 @@
 import logging
 import jwt
 import requests
+import pydash
 
 from django.conf import settings
 
@@ -8,7 +9,7 @@ from django.utils.encoding import smart_str
 
 from talentmap_api.common.common_helpers import ensure_date
 
-from talentmap_api.bidding.models import Bid
+from talentmap_api.bidding.models import Bid, BidHandshake
 import talentmap_api.fsbid.services.common as services
 
 API_ROOT = settings.FSBID_API_URL
@@ -25,8 +26,9 @@ def user_bids(employee_id, jwt_token, position_id=None):
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
-    return [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
-
+    mappedBids = [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
+    mappedBids = map_bids_handshake_status_by_perdet(mappedBids, employee_id)
+    return mappedBids
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     '''
@@ -35,8 +37,6 @@ def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     data = user_bids(employee_id, jwt_token, position_id)
 
     response = services.get_bids_csv(list(data), "bids", jwt_token)
-
-    logger.info(response)
 
     return response
 
@@ -92,6 +92,43 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+
+
+def map_bids_handshake_status(bids, query = {}):
+    clonedBids = list(pydash.clone(bids))
+    for idx, val in enumerate(clonedBids):
+        # default states
+        clonedBids[idx]['hs_status_code'] = 'not_offered'
+        clonedBids[idx]['hs_cdo_indicator'] = False
+        # look up cp id
+        cp_id = pydash.get(val, 'position.id', 0)
+        clonedQuery = { 'cp_id': cp_id, **query }
+        hsExists = BidHandshake.objects.filter(status__in=['O', 'A', 'D'], **clonedQuery).exists()
+        # if exists, bidder has a valid HS offer status
+        if hsExists:
+            hs = BidHandshake.objects.get(status__in=['O', 'A', 'D'], **clonedQuery)
+            hsStatus = pydash.get(hs, 'status')
+
+            isCDOUpdate = pydash.get(hs, 'is_cdo_update') == 1
+
+            if hsStatus == 'O':
+                clonedBids[idx]['hs_status_code'] = 'handshake_offered'
+            if hsStatus == 'A':
+                clonedBids[idx]['hs_status_code'] = 'handshake_accepted'
+            if hsStatus == 'D':
+                clonedBids[idx]['hs_status_code'] = 'handshake_declined'
+
+            if isCDOUpdate:
+                clonedBids[idx]['hs_cdo_indicator'] = True
+    return clonedBids
+
+
+def map_bids_handshake_status_by_cp_id(bids, cp_id):
+    return map_bids_handshake_status(bids, {'cp_id': cp_id})
+
+
+def map_bids_handshake_status_by_perdet(bids, perdet):
+    return map_bids_handshake_status(bids, {'bidder_perdet': perdet})
 
 
 def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeetingStatus, handshakeAllowed):
