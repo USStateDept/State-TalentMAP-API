@@ -11,6 +11,7 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.cdo as cdoservices
+import talentmap_api.fsbid.services.client as clientservices
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 
@@ -120,6 +121,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     if bid.get("handshake_code", None) == "HS":
         hasHandShakeOffered = True
     ted = ensure_date(bid.get("TED", None), utc_offset=-5)
+
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
@@ -127,6 +129,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
         "language": bid.get("language_txt", None),
+        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications", [])),
         "ted": ted,
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
