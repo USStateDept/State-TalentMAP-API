@@ -476,6 +476,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"Skill"))
     headers.append(smart_str(u"Grade"))
     headers.append(smart_str(u"Language"))
+    headers.append(smart_str(u"Classifications"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
@@ -498,6 +499,8 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
+        classifications = ', '.join(record["classifications"]) if record["classifications"] else "None listed"
+
         record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
         row = []
         row.append(smart_str(record["name"]))
@@ -507,6 +510,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
         row.append(smart_str(record["skill"]))
         row.append(smart_str("=\"%s\"" % record["grade"]))
         row.append(smart_str(record["language"]))
+        row.append(classifications)
         row.append(ted)
         row.append(cdo_name)
         row.append(cdo_email)
