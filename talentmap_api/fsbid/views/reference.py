@@ -76,6 +76,33 @@ class FSBidClassificationsView(BaseView):
     uri = "bidderTrackingPrograms"
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
 
+    # BTP return some duplicated objects with unique bid season references
+    # This nests those unique values in an array under one object to aggregate the duplicated data
+    # As of 03/21, the only applicable edge cases are `Tenured 4` and `Differential Bidder`
+    def modClassifications(self, results):
+        duplicate_results = list(results)
+        unique_codes = set(map(lambda x: x['code'], duplicate_results))
+
+        nested_results, seasons, classification_text = [], [], ''
+        for code in unique_codes:
+            for classification in duplicate_results:
+                if classification['code'] == code:
+                    classification_text = classification['text']
+                    season_txt = classification['season_text'].split(' - ')
+                    seasons.append({
+                        'id': classification['id'],
+                        'season_text': season_txt[1] if len(season_txt) > 1 else None
+                    })
+
+            nested_results.append({
+                'code': code,
+                'text': classification_text,
+                'seasons': seasons
+            })
+            seasons, classification_text = [], ''
+        return nested_results
+
+    mod_function = modClassifications
 
 class FSBidPostIndicatorsView(BaseView):
     uri = "references/postAttributes?codeTableName=PostIndicatorTable"
