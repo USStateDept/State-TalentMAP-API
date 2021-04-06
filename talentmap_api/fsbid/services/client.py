@@ -436,17 +436,18 @@ def tmap_no_bids_to_fsbid(bids):
     return tmap_dictionary.get(bids, None)
 
 
-def fsbid_classifications_to_tmap(cs):
+def fsbid_classifications_to_tmap(cs, val='te_id'):
     tmap_classifications = []
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get('te_id', None)
+                x.get(val, None)
             )
     else:
         tmap_classifications.append(
-            cs.get('te_id', None)
+            cs.get(val, None)
         )
+
     return tmap_classifications
 
 
