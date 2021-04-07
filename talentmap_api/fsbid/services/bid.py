@@ -111,6 +111,9 @@ def map_bids_handshake_status(bids, query = {}):
 
             isCDOUpdate = pydash.get(hs, 'is_cdo_update') == 1
 
+            if isCDOUpdate:
+                clonedBids[idx]['hs_cdo_indicator'] = True
+
             hsStatuses = {
                 'O': "handshake_offered",
                 'A': "handshake_accepted",
@@ -119,8 +122,6 @@ def map_bids_handshake_status(bids, query = {}):
 
             clonedBids[idx]['hs_status_code'] = hsStatuses.get(hsStatus, "not_offered")
 
-            if isCDOUpdate:
-                clonedBids[idx]['hs_cdo_indicator'] = True
     return clonedBids
 
 
