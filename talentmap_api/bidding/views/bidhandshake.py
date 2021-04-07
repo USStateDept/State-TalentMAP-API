@@ -53,7 +53,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
         hs = BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id)
 
         if hs.exists():
-            hs.update(last_editing_user=user, status='O')
+            hs.update(last_editing_user=user, status='O', update_date=datetime.now())
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             BidHandshake.objects.create(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='O')
