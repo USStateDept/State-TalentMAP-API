@@ -441,11 +441,11 @@ def fsbid_classifications_to_tmap(cs):
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get('tp_code', None)
+                x.get('te_id', None)
             )
     else:
         tmap_classifications.append(
-            cs.get('tp_code', None),
+            cs.get('te_id', None)
         )
     return tmap_classifications
 
@@ -528,7 +528,7 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
     stats = get_available_bidders_stats()
     return {
         **stats,
-        **response,
+        "results": list({v['perdet_seq_number']:v for v in response.get('results')}.values()),
     }
 
 # Can update to reuse client mapping once client v2 is updated and released with all the new fields

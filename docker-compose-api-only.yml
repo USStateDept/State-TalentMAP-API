@@ -32,6 +32,14 @@ services:
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
+      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
+      - EMAIL_IS_DEV=${EMAIL_IS_DEV}
+      - EMAIL_DEV_TO=${EMAIL_DEV_TO}
   oracle:
     ports:
       - 1521:1521

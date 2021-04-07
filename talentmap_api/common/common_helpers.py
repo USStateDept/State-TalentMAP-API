@@ -15,10 +15,11 @@ from django.utils.six.moves.urllib.parse import urlparse  # pylint: disable=impo
 from django.utils.datastructures import MultiValueDict
 
 from django.core.exceptions import FieldError, ValidationError, PermissionDenied
+from django.core.mail import send_mail
 
 from django.db.models import Q
 
-from talentmap_api.settings import AVATAR_URL
+from talentmap_api.settings import AVATAR_URL, EMAIL_FROM_ADDRESS, EMAIL_IS_DEV, EMAIL_DEV_TO
 
 logger = logging.getLogger(__name__)
 
@@ -467,3 +468,24 @@ def formatCSV(data, fieldsInfo):
             fields_formatted[x] = pydash.get(fieldsInfo[x], ["default"], "None listed")
 
     return fields_formatted
+
+
+def send_email(subject = '', body = '', recipients = []):
+    if EMAIL_IS_DEV:
+        recipients = [EMAIL_DEV_TO]
+    send_mail(
+        subject,
+        '',
+        EMAIL_FROM_ADDRESS,
+        recipients,
+        fail_silently=False,
+        html_message=f"""
+        <span style='font-size:14px'>
+            {body}
+            <br /><br />
+            Kindly,
+            <br />
+            The TalentMAP Team
+        </span>
+        """,
+    )
