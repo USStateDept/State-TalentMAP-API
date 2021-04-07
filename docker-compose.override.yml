@@ -21,5 +21,7 @@ services:
       - DB_CHARSET=utf8
       - DEBUG=false
       - DB_CLIENT=pg
-
-
+      - ORACLE_USER=talentmap1
+      - ORACLE_PW=talentmap1
+      - ORACLE_HOST=host.docker.internal:1521/oraclepdb
+      
