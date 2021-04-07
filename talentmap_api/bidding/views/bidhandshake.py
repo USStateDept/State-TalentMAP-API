@@ -44,6 +44,8 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
         '''
         Offers a handshake to a bidder for a cp_id
         '''
+        # TODO: should we limit this endpoint to only bidder perdets of those who have actually bid on this cp?
+        # Is it worth the extra network request for the extra validation?
         hasBureauPermissions = empservices.has_bureau_permissions(cp_id, self.request.META['HTTP_JWT'])
 
         if not hasBureauPermissions:
