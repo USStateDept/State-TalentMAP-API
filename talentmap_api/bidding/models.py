@@ -25,3 +25,33 @@ class Bid(models.Model):
 
     class Meta:
         managed = False
+
+
+class BidHandshake(models.Model):
+    '''
+    The bid handshake object represents a handshake offered to a bidder
+    '''
+
+    STATUS_CHOICES = [
+        ('O', 'Handshake offered'),
+        ('R', 'Handshake revoked'),
+        ('A', 'Handshake accepted'),
+        ('D', 'Handshake declined'),
+    ]
+
+    bidder_perdet = models.CharField(max_length=255, null=False, help_text="The bidder being offered a handshake")
+    cp_id = models.CharField(max_length=255, null=False, help_text="The cycle position ID")
+    status = models.CharField(
+        max_length=2,
+        choices=STATUS_CHOICES,
+        default='O',
+    )
+    date_created = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now_add=True)
+    is_cdo_update = models.BooleanField(default=False)
+    last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='bureau_user', null=False, on_delete=models.DO_NOTHING, help_text="The last offerer user to edit")
+    last_editing_bidder = models.ForeignKey('user_profile.UserProfile', related_name='bidder', null=True, on_delete=models.DO_NOTHING, help_text="The last acceptee/cdo to edit")
+
+    class Meta:
+        managed = True
+        unique_together = ('cp_id', 'bidder_perdet',)

@@ -46,6 +46,9 @@ urlpatterns = [
     url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
     url(r'^api/v1/available_position/tandem/', include('talentmap_api.available_tandem.urls.available_tandem')),
 
+    # Bidding
+    url(r'^api/v1/bidding/', include('talentmap_api.bidding.urls.bidding')),
+
     #CDO
     url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
 

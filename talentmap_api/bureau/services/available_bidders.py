@@ -57,7 +57,7 @@ def get_available_bidders_csv(request):
     }
 
     for record in data["results"]:
-        languages = f'' if pydash.get(record, ["languages"]) else "None listed"
+        languages = '' if pydash.get(record, ["languages"]) else "None listed"
         if languages is not "None listed":
             for language in record["languages"]:
                 languages += f'{language["custom_description"]}, '
