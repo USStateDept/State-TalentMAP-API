@@ -121,10 +121,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
         hasHandShakeOffered = True
     ted = ensure_date(bid.get("TED", None), utc_offset=-5)
 
-    class_val = 'te_descr_txt'
-    if csv:
-        del class_val
-
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
@@ -132,7 +128,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
         "language": bid.get("language_txt", None),
-        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications", []), class_val),
+        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications", [])),
         "ted": ted,
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
