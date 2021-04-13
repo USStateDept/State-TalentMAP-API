@@ -192,8 +192,8 @@ def fsbid_bid_to_talentmap_bid(data):
         data.get('handshake_allowed_ind')
     )
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
-    cpId = int(float(data.get('cp_id')))
-    perdet = str(int(data.get('perdet_seq_num')))
+    cpId = int(data.get('cp_id'))
+    perdet = str(data.get('perdet_seq_num'))
 
     return {
         "id": f"{perdet}_{cpId}",
