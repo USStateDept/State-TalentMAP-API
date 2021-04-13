@@ -243,14 +243,14 @@ def fsbid_clients_to_talentmap_clients(data):
     middle_name = get_middle_name(employee)
 
     return {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -593,7 +593,7 @@ def fsbid_available_bidder_to_talentmap(data):
     middle_name = get_middle_name(employee)
 
     res = {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "cdo": {
             "full_name": data.get('cdo_fullname', None),
             "last_name": data.get('cdo_last_name', None),
@@ -604,10 +604,10 @@ def fsbid_available_bidder_to_talentmap(data):
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
