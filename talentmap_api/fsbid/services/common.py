@@ -385,7 +385,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Bid Cycle"))
     headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Action by CDO"))
+    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
     headers.append(smart_str(u"Capsule Description"))
 
     writer.writerow(headers)
@@ -484,7 +484,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Action by CDO"))
+    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
 
     writer.writerow(headers)
 
