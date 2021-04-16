@@ -75,10 +75,6 @@ ALLOWED_HOSTS = ['*']
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
 
-# Login paths
-LOGIN_URL = 'rest_framework:login'
-LOGOUT_URL = 'rest_framework:logout'
-
 # Check for SAML2 enable
 if ENABLE_SAML2:
     # We want to use Django login for Swagger all the time, so we comment this out
@@ -542,6 +538,8 @@ SWAGGER_SETTINGS = {
             "description": "JWT authorization"
         },
     },
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
 }
 
 FAVORITES_LIMIT = 50
