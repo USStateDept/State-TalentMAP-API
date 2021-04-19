@@ -18,19 +18,22 @@ def get_bidder_bids_and_rankings(self, request, pk):
     '''
     # 1. grab user bidlist
     user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
-    user_bids_filtered = []
     # 2. grab users' rankings
     user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk)
-    for bid in user_bids:
-        hasBureauPermissions = empservices.has_bureau_permissions(str(bid["position"]["id"]),self.request.META['HTTP_JWT'])
-        hasOrgPermissions = empservices.has_org_permissions(str(bid["position"]["id"]), self.request.META['HTTP_JWT'])
-        # 3. filter out based on bureau/org perms
+    # 3. filter out bids not on shortlist
+    shortlist_bids = list(filter(lambda x: (user_rankings.filter(cp_id=str(x["position"]["id"])).exists()), user_bids))
+    filtered_bids = []
+    for bid in shortlist_bids:
+        pos_id = str(bid["position"]["id"])
+        hasBureauPermissions = empservices.has_bureau_permissions(pos_id,self.request.META['HTTP_JWT'])
+        hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
+        # 4. filter out based on bureau/org perms
         if hasOrgPermissions or hasBureauPermissions:
             # audit how much data is being sent to FE and how much we actually need
-            bid["ranking"] = user_rankings.filter(cp_id=str(bid["position"]["id"])).values_list("rank", flat=True).first()
-            user_bids_filtered.append(bid)
+            bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+            filtered_bids.append(bid)
 
     # keep in mind that the ranking comes back as -1 the UI-Ranking
     return {
-        "results": user_bids_filtered,
+        "results": filtered_bids,
     }
