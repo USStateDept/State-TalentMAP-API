@@ -293,14 +293,12 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
 def get_middle_name(employee):
     middle_name = employee.get('per_middle_name', None) or ''
     middle_initial = ''
-    middle_initial_ab = ''
     if middle_name == 'NMN':
         middle_name = ''
     if middle_name:
         middle_name = middle_name + ' '
         middle_initial = middle_name[:1] + ' '
-        middle_initial_ab = ' ' + middle_name[:1]
-    return {"full": middle_name, "initial": middle_initial, "initial_ab": middle_initial_ab}
+    return {"full": middle_name, "initial": middle_initial}
 
 
 def hru_id_filter(query):
@@ -603,9 +601,8 @@ def fsbid_available_bidder_to_talentmap(data):
             "email": data.get('cdo_email', None),
             "hru_id": data.get("hru_id", None),
         },
-        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
-        "ab_name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)}{middle_name['initial_ab']}",
         "initials": initials,
         "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
