@@ -1,6 +1,5 @@
 import logging
 import coreapi
-import time
 
 from rest_condition import Or
 
