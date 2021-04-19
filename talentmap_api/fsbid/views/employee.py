@@ -26,7 +26,7 @@ class FSBidEmployeePerdetSeqNumActionView(BaseView):
 
         if emp_id is not None:
             user = request.user.profile
-            user.emp_id = str(int(emp_id))
+            user.emp_id = str(emp_id)
             user.save()
 
         auth_user = request.user
