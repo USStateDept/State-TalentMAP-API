@@ -489,3 +489,42 @@ def send_email(subject = '', body = '', recipients = []):
         </span>
         """,
     )
+
+
+def bidderHandshakeNotification(bureau_user, cp_id, is_accept=True):
+    action = "accepted" if is_accept else "declined"
+    message = f"Bidder has {action} handshake for position with ID {cp_id}"
+    if bureau_user:
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'])
+
+
+def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
+    from talentmap_api.user_profile.models import UserProfile
+    from talentmap_api.bidding.models import BidHandshake
+    action = "accepted" if is_accept else "declined"
+    user = UserProfile.objects.get(emp_id=perdet)
+    bureau = BidHandshake.objects.get(cp_id=cp_id).owner
+    if user:
+        message = f"CDO has {action} handshake on behalf of you for position with ID {cp_id}"
+        sendBidHandshakeNotification(user, message, ['bidding'])
+    if bureau:
+        message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
+        sendBidHandshakeNotification(bureau, message, ['bureau_bidding'])
+
+
+def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
+    from talentmap_api.user_profile.models import UserProfile
+    action = "extended" if is_accept else "revoked"
+    message = f"Bureau has {action} handshake for position with ID {cp_id}"
+    user = UserProfile.objects.get(emp_id=perdet)
+    if user:
+        sendBidHandshakeNotification(user, message, ['bidding'])
+
+
+def sendBidHandshakeNotification(owner, message, tags=[]):
+    from talentmap_api.messaging.models import Notification
+    Notification.objects.create(
+                        owner=owner,
+                        tags=tags,
+                        message=message
+                )
