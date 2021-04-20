@@ -144,7 +144,7 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='A', is_cdo_update=False, update_date=datetime.now())
-            bidderHandshakeNotification(hs[0].owner, cp_id, True)
+            bidderHandshakeNotification(hs.first().owner, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, cp_id, format=None):
@@ -158,5 +158,5 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='D', is_cdo_update=False, update_date=datetime.now())
-            bidderHandshakeNotification(hs[0].owner, cp_id, False)
+            bidderHandshakeNotification(hs.first().owner, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
