@@ -16,10 +16,19 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
-from rest_framework_swagger.views import get_swagger_view
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 from rest_framework_expiring_authtoken import views as auth_views
 from djangosaml2.views import echo_attributes
 from talentmap_api.saml2.acs_patch import assertion_consumer_service
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="TalentMAP API",
+      default_version='v1',
+   ),
+   public=False,
+)
 
 urlpatterns = [
     # Administration related resources
@@ -76,7 +85,13 @@ urlpatterns = [
     url(r'^api/v1/logs/', include('talentmap_api.log_viewer.urls.log_entry')),
 
     # Login statistics
-    url(r'^api/v1/stats/', include('talentmap_api.stats.urls.logins'))
+    url(r'^api/v1/stats/', include('talentmap_api.stats.urls.logins')),
+
+    # Redoc
+    url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # Swagger
+    url(r'^$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
@@ -100,5 +115,4 @@ if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
-        url(r'^$', get_swagger_view(title='TalentMAP API')),
     ]
