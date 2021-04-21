@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.cdo.models import AvailableBidders
 from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
@@ -109,10 +110,17 @@ class FSBidListBidRegisterView(APIView):
             
             message = f"Bid on position with ID {pk} has been registered by CDO {user}"
 
+            # Generate a notification
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
                                         message=message)
             send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
+
+            # Remove the bidder from the available bidders list
+            ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
+            if ab.exists():
+                ab.first().delete()
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
