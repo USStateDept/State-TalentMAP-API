@@ -63,7 +63,6 @@ urlpatterns = [
 
     # Bureau
     url(r'^api/v1/bureau/', include('talentmap_api.bureau.urls.bureau')),
-    url(r'^api/v1/bureau/rankings/', include('talentmap_api.bureau.urls.rankings')),
 
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
