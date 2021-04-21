@@ -36,4 +36,5 @@ def get_bidder_bids_and_rankings(self, request, pk):
     # keep in mind that the ranking comes back as -1 the UI-Ranking
     return {
         "results": filtered_bids,
+        "other-bureau-shortlist-bid-count": len(shortlist_bids) - len(filtered_bids),
     }
