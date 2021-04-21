@@ -1,4 +1,5 @@
 import logging
+import pydash
 
 from django.conf import settings
 
@@ -21,11 +22,12 @@ def get_bidder_bids_and_rankings(self, request, pk):
     # 2. grab users' rankings, excluding current position
     user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=pk).order_by('rank')
     # 3. filter out bids not on shortlist
-    shortlist_bids = list(filter(lambda x: (user_rankings.filter(cp_id=str(x["position"]["id"])).exists()), user_bids))
+    shortlist_bids = list(filter(lambda x: (user_rankings.filter(
+        cp_id=str(pydash.get(x, 'position.id'))).exists()), user_bids))
     filtered_bids = []
     for bid in shortlist_bids:
-        pos_id = str(bid["position"]["id"])
-        hasBureauPermissions = empservices.has_bureau_permissions(pos_id,self.request.META['HTTP_JWT'])
+        pos_id = str(pydash.get(bid, 'position.id'))
+        hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
         hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
         # 4. filter out based on bureau/org perms
         if hasOrgPermissions or hasBureauPermissions:
