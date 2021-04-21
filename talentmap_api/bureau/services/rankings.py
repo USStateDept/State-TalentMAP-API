@@ -18,8 +18,8 @@ def get_bidder_bids_and_rankings(self, request, pk):
     '''
     # 1. grab user bidlist
     user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
-    # 2. grab users' rankings
-    user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk)
+    # 2. grab users' rankings, excluding current position
+    user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=pk).order_by('rank')
     # 3. filter out bids not on shortlist
     shortlist_bids = list(filter(lambda x: (user_rankings.filter(cp_id=str(x["position"]["id"])).exists()), user_bids))
     filtered_bids = []
@@ -36,5 +36,5 @@ def get_bidder_bids_and_rankings(self, request, pk):
     # keep in mind that the ranking comes back as -1 the UI-Ranking
     return {
         "results": filtered_bids,
-        "other-bureau-shortlist-bid-count": len(shortlist_bids) - len(filtered_bids),
+        "other-sl-bidcount": len(shortlist_bids) - len(filtered_bids),
     }
