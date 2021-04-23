@@ -505,7 +505,7 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     user = UserProfile.objects.get(emp_id=perdet)
     bureau = BidHandshake.objects.get(cp_id=cp_id).owner
     if user:
-        message = f"CDO has {action} handshake on behalf of you for position with ID {cp_id}"
+        message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
         sendBidHandshakeNotification(user, message, ['bidding'])
     if bureau:
         message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
