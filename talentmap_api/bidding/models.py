@@ -49,6 +49,7 @@ class BidHandshake(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     is_cdo_update = models.BooleanField(default=False)
+    owner = models.ForeignKey('user_profile.UserProfile', related_name='owner', null=False, on_delete=models.DO_NOTHING, help_text="The first to initiate the HS")
     last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='bureau_user', null=False, on_delete=models.DO_NOTHING, help_text="The last offerer user to edit")
     last_editing_bidder = models.ForeignKey('user_profile.UserProfile', related_name='bidder', null=True, on_delete=models.DO_NOTHING, help_text="The last acceptee/cdo to edit")
 
