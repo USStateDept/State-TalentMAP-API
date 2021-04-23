@@ -19,7 +19,7 @@ from django.core.mail import send_mail
 
 from django.db.models import Q
 
-from talentmap_api.settings import AVATAR_URL, EMAIL_FROM_ADDRESS, EMAIL_IS_DEV, EMAIL_DEV_TO
+from talentmap_api.settings import AVATAR_URL, EMAIL_FROM_ADDRESS, EMAIL_IS_DEV, EMAIL_DEV_TO, EMAIL_ENABLED
 
 logger = logging.getLogger(__name__)
 
@@ -470,27 +470,6 @@ def formatCSV(data, fieldsInfo):
     return fields_formatted
 
 
-def send_email(subject = '', body = '', recipients = []):
-    if EMAIL_IS_DEV:
-        recipients = [EMAIL_DEV_TO]
-    send_mail(
-        subject,
-        '',
-        EMAIL_FROM_ADDRESS,
-        recipients,
-        fail_silently=False,
-        html_message=f"""
-        <span style='font-size:14px'>
-            {body}
-            <br /><br />
-            Kindly,
-            <br />
-            The TalentMAP Team
-        </span>
-        """,
-    )
-
-
 def bidderHandshakeNotification(bureau_user, cp_id, is_accept=True):
     action = "accepted" if is_accept else "declined"
     message = f"Bidder has {action} handshake for position with ID {cp_id}"
@@ -528,3 +507,25 @@ def sendBidHandshakeNotification(owner, message, tags=[]):
                         tags=tags,
                         message=message
                 )
+
+
+def send_email(subject = '', body = '', recipients = []):
+    if EMAIL_ENABLED:
+        if EMAIL_IS_DEV:
+            recipients = [EMAIL_DEV_TO]
+        send_mail(
+            subject,
+            '',
+            EMAIL_FROM_ADDRESS,
+            recipients,
+            fail_silently=False,
+            html_message=f"""
+            <span style='font-size:14px'>
+                {body}
+                <br /><br />
+                Kindly,
+                <br />
+                The TalentMAP Team
+            </span>
+            """,
+        )
