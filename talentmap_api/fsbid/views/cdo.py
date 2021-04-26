@@ -104,22 +104,21 @@ class FSBidListBidRegisterView(APIView):
             user = UserProfile.objects.get(user=self.request.user)
             try:
                 owner = UserProfile.objects.get(emp_id=client_id)
+                message = f"Bid on position with ID {pk} has been registered by CDO {user}"
+
+                # Generate a notification
+                Notification.objects.create(owner=owner,
+                                            tags=['bidding'],
+                                            message=message)
+                send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for registering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            
-            message = f"Bid on position with ID {pk} has been registered by CDO {user}"
-
-            # Generate a notification
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=message)
-            send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
-
-            # Remove the bidder from the available bidders list
-            ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
-            if ab.exists():
-                ab.first().delete()
+            finally:
+                # Remove the bidder from the available bidders list
+                ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
+                if ab.exists():
+                    ab.first().delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
