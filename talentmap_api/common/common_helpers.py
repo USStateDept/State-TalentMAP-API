@@ -452,7 +452,7 @@ def formatCSV(data, fieldsInfo):
             skills = []
             for skill in list(data[f]):
                 if fieldsInfo[f]["description_and_code"]:
-                    skills.append(f'{skill["description"]}({skill["code"]})')
+                    skills.append(f'{skill["description"]} ({skill["code"]})')
                 else:
                     skills.append(skill["description"])
 
