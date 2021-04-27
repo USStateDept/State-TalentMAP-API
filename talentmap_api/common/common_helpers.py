@@ -485,7 +485,7 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     bureau = BidHandshake.objects.get(cp_id=cp_id).owner
     if user:
         message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
-        sendBidHandshakeNotification(user, message, ['bidding'])
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'])
     if bureau:
         message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
         sendBidHandshakeNotification(bureau, message, ['bureau_bidding'])
@@ -497,7 +497,7 @@ def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
     message = f"Bureau has {action} handshake for position with ID {cp_id}"
     user = UserProfile.objects.get(emp_id=perdet)
     if user:
-        sendBidHandshakeNotification(user, message, ['bidding'])
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'])
 
 
 def sendBidHandshakeNotification(owner, message, tags=[]):
