@@ -451,7 +451,11 @@ def formatCSV(data, fieldsInfo):
         if f is "skills":
             skills = []
             for skill in list(data[f]):
-                skills.append(skill["description"])
+                if fieldsInfo[f]["description_and_code"]:
+                    skills.append(f'{skill["description"]} ({skill["code"]})')
+                else:
+                    skills.append(skill["description"])
+
             if skills:
                 fields_formatted[f] = ', '.join(skills)
             else:
