@@ -46,7 +46,7 @@ def get_available_bidders_csv(request):
 
     fields_info = {
         "name": None,
-        "skills": {"default": "No Skills listed", },
+        "skills": {"default": "No Skills listed", "description_and_code": True},
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
         "org": {"path": 'current_assignment.position.organization', },

@@ -1,6 +1,7 @@
 import logging
 import requests
 import jwt
+import pydash
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -57,6 +58,13 @@ def map_group_to_fsbid_role(jwt_token):
     orgPermissions = list(get_org_permissions(jwt_token))
     if len(orgPermissions) >= 1:
         tm_roles.append('post_user')
+    
+    # For developer testing
+    if 'developer' in roles:
+        developerRoles = ['fsofficer', 'CDO', 'Bureau', 'AO']
+        mappedDeveloperRoles = list(map(lambda z: ROLE_MAPPING.get(z), developerRoles))
+        tm_roles += mappedDeveloperRoles
+        tm_roles = pydash.uniq(tm_roles)
 
     return Group.objects.filter(name__in=tm_roles).all()
 
