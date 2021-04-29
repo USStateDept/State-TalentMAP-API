@@ -27,8 +27,8 @@ docker-compose run mock_fsbid npm run seed
 For local development, a fake SMTP server is included. The dashboard can be accessed on http://localhost:1080. Additional settings can be configured
 in a .env file as such:
 ```
+EMAIL_HOST_USER=xxxxxxxxxxxx # If you want to configure the SMTP server with a username
 EMAIL_HOST_PASSWORD=xxxxxxxxxxxxxxxxxxxxxxxxxxxx # If you want to configure the SMTP server with a password
-EMAIL_FROM_ADDRESS=xxxxxxxx@xxxxxxx.com # If you want emails 'from' address to be overridden
 EMAIL_DEV_TO=xxxxxxxx@xxxxxx.com # If you want emails 'to' address to be overridden
 ```
 This file is gitignored.
