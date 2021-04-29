@@ -28,14 +28,14 @@ services:
       - DATABASE_USER=talentmap1
       - DATABASE_PW=talentmap1
       - DJANGO_DEBUG=true
-      - EMAIL_ENABLED=${EMAIL_ENABLED}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_ENABLED=true
+      - EMAIL_HOST=maildev
+      - EMAIL_PORT=1025
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
-      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
-      - EMAIL_IS_DEV=${EMAIL_IS_DEV}
+      - EMAIL_FROM_ADDRESS=talentmap-alert@local.dev
+      - EMAIL_USE_TLS=false
+      - EMAIL_IS_DEV=false
       - EMAIL_DEV_TO=${EMAIL_DEV_TO}
   oracle:
     ports:
@@ -51,6 +51,11 @@ services:
       - POSTGRES_DB=mockfsbid
       - POSTGRES_USER=mockfsbid-user
       - POSTGRES_PASSWORD=fsbid_pwd
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:80"
+      - "1025:25"
 volumes:
   oracle:
   mock-pgdata:
