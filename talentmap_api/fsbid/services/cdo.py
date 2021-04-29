@@ -7,6 +7,7 @@ from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
 
 API_ROOT = settings.FSBID_API_URL
+TP_ROOT = settings.TP_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -69,10 +70,10 @@ def insert_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     Inserts the client's classification(s)
     '''
     from talentmap_api.fsbid.services.client import fsbid_classifications_to_tmap
-    values = {'tracking_event': data}
+    values = {'te_id': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-    uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
-    url = f"{API_ROOT}/{uri}"
+    uri = f"bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
+    url = f"{TP_ROOT}/{uri}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
@@ -87,10 +88,10 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
     Deletes the client's classification(s)
     '''
     from talentmap_api.fsbid.services.client import fsbid_classifications_to_tmap
-    values = {'tracking_event': data}
+    values = {'te_id': data}
     te_id = urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-    uri = f"TrackingPrograms/bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
-    url = f"{API_ROOT}/{uri}"
+    uri = f"bidders?{te_id}&perdet_seq_num={perdet_seq_num}"
+    url = f"{TP_ROOT}/{uri}"
     response = requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
