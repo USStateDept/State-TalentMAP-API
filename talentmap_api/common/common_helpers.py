@@ -2,6 +2,7 @@ import datetime
 import logging
 import re
 import pydash
+import json
 
 from pydoc import locate
 
@@ -478,7 +479,7 @@ def bidderHandshakeNotification(bureau_user, cp_id, is_accept=True):
     action = "accepted" if is_accept else "declined"
     message = f"Bidder has {action} handshake for position with ID {cp_id}"
     if bureau_user:
-        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'])
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
 
 
 def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
@@ -489,10 +490,10 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     bureau = BidHandshake.objects.get(cp_id=cp_id).owner
     if user:
         message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
-        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'])
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
     if bureau:
         message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
-        sendBidHandshakeNotification(bureau, message, ['bureau_bidding'])
+        sendBidHandshakeNotification(bureau, message, ['bureau_bidding'], {'id': cp_id})
 
 
 def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
@@ -501,15 +502,16 @@ def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
     message = f"Bureau has {action} handshake for position with ID {cp_id}"
     user = UserProfile.objects.get(emp_id=perdet)
     if user:
-        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'])
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
 
 
-def sendBidHandshakeNotification(owner, message, tags=[]):
+def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
     from talentmap_api.messaging.models import Notification
     Notification.objects.create(
                         owner=owner,
                         tags=tags,
-                        message=message
+                        message=message,
+                        meta=json.dumps(meta),
                 )
 
 
