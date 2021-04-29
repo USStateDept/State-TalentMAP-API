@@ -259,6 +259,7 @@ if ENABLE_SAML2:
                     'name': 'TalentMAP',
                     'allow_unsolicited': True,
                     'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                    'want_response_signed': False,
                     'endpoints': {
                         # url and binding to the assetion consumer service view
                         # do not change the binding or service name
