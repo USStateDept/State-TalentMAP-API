@@ -359,8 +359,8 @@ def map_skill_codes(data):
         index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'per_skill{index}_code', None)
-        desc = data.get(f'per_skill{index}_code_desc', None)
+        code = pydash.get(data, f'per_skill{index}_code', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
