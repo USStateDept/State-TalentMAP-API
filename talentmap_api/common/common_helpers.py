@@ -537,5 +537,5 @@ def send_email(subject = '', body = '', recipients = []):
                 </span>
                 """,
             )
-        except:
+        except:#nosec
             pass
