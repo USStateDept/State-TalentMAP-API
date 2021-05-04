@@ -29,7 +29,7 @@ services:
       - DATABASE_PW=talentmap1
       - DJANGO_DEBUG=true
       - EMAIL_ENABLED=true
-      - EMAIL_HOST=maildev
+      - EMAIL_HOST=host.docker.internal
       - EMAIL_PORT=1025
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
