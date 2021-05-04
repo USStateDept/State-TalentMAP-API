@@ -35,11 +35,11 @@ def get_employee_information(jwt_token, emp_id):
     employee = next(iter(employee.get('Data', [])), {})
     employeeSkills = map_skill_codes(employee)
     skills = requests.get(skillUrl, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    skills = skills.get('Data', [])
+    skills = pydash.get(skills, 'Data', [])
     try:
         return {
             "skills": map_skill_codes(employee),
-            "grade": employee['per_grade_code'].replace(" ", ""),
+            "grade": pydash.get(employee, 'per_grade_code', '').replace(" ", ""),
             "skills_additional": map_skill_codes_additional(skills, employeeSkills),
         }
     except:
