@@ -497,13 +497,13 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     from talentmap_api.bidding.models import BidHandshake
     action = "accepted" if is_accept else "declined"
     user = UserProfile.objects.get(emp_id=perdet)
-    bureau = BidHandshake.objects.get(cp_id=cp_id).owner
+    bureau_user = BidHandshake.objects.get(cp_id=cp_id).owner
     if user:
         message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
         sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
-    if bureau:
+    if bureau_user:
         message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
-        sendBidHandshakeNotification(bureau, message, ['bureau_bidding'], {'id': cp_id})
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
 
 
 def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
@@ -523,25 +523,29 @@ def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
                         message=message,
                         meta=json.dumps(meta),
                 )
+    send_email(message, message, [owner.user.email])
 
 
 def send_email(subject = '', body = '', recipients = []):
     if EMAIL_ENABLED:
         if EMAIL_IS_DEV:
             recipients = [EMAIL_DEV_TO]
-        send_mail(
-            subject,
-            '',
-            EMAIL_FROM_ADDRESS,
-            recipients,
-            fail_silently=False,
-            html_message=f"""
-            <span style='font-size:14px'>
-                {body}
-                <br /><br />
-                Kindly,
-                <br />
-                The TalentMAP Team
-            </span>
-            """,
-        )
+        try:
+            send_mail(
+                subject,
+                '',
+                EMAIL_FROM_ADDRESS,
+                recipients,
+                fail_silently=False,
+                html_message=f"""
+                <span style='font-size:14px'>
+                    {body}
+                    <br /><br />
+                    Kindly,
+                    <br />
+                    The TalentMAP Team
+                </span>
+                """,
+            )
+        except:#nosec
+            pass
