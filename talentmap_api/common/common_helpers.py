@@ -3,6 +3,7 @@ import logging
 import re
 import pydash
 import json
+import threading
 
 from pydoc import locate
 
@@ -527,6 +528,11 @@ def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
 
 
 def send_email(subject = '', body = '', recipients = []):
+    th = threading.Thread(target=send_email_thread, args=(subject,body,recipients))
+    th.start()
+
+
+def send_email_thread(subject = '', body = '', recipients = []):
     if EMAIL_ENABLED:
         if EMAIL_IS_DEV:
             recipients = [EMAIL_DEV_TO]
