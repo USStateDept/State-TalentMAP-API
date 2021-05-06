@@ -139,12 +139,13 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id)
+        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='A', is_cdo_update=False, update_date=datetime.now())
-            bidderHandshakeNotification(hs.first().owner, cp_id, True)
+            bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, cp_id, format=None):
@@ -153,10 +154,11 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id)
+        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='D', is_cdo_update=False, update_date=datetime.now())
-            bidderHandshakeNotification(hs.first().owner, cp_id, False)
+            bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
