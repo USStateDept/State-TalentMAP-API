@@ -476,9 +476,19 @@ def formatCSV(data, fieldsInfo):
     return fields_formatted
 
 
-def bidderHandshakeNotification(bureau_user, cp_id, is_accept=True):
+def bidderHandshakeNotification(bureau_user, cp_id, perdet, jwt, is_accept=True):
+    from talentmap_api.fsbid.services.cdo import single_cdo
+
     action = "accepted" if is_accept else "declined"
     message = f"Bidder has {action} handshake for position with ID {cp_id}"
+    if perdet and jwt:
+        try:
+            cdo = single_cdo(jwt, perdet)
+            email = pydash.get(cdo, 'email')
+            if email:
+                send_email(message, message, [email])
+        except:#nosec
+            pass
     if bureau_user:
         sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
 
