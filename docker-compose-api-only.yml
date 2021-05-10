@@ -32,13 +32,15 @@ services:
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
-      - EMAIL_HOST=${EMAIL_HOST}
-      - EMAIL_PORT=${EMAIL_PORT}
+      - TP_API_URL=http://host.docker.internal:3333/TrackingPrograms
+      - EMAIL_ENABLED=true
+      - EMAIL_HOST=host.docker.internal
+      - EMAIL_PORT=1025
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
-      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
-      - EMAIL_IS_DEV=${EMAIL_IS_DEV}
+      - EMAIL_FROM_ADDRESS=talentmap-alert@local.dev
+      - EMAIL_USE_TLS=false
+      - EMAIL_IS_DEV=false
       - EMAIL_DEV_TO=${EMAIL_DEV_TO}
   oracle:
     ports:
@@ -46,6 +48,11 @@ services:
     image: mjoyce91/oracle193db:fast
     volumes:
       - oracle:/var/lib/oracle/data/:delegated
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:80"
+      - "1025:25"
 volumes:
   pgdata:
   oracle:

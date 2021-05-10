@@ -359,8 +359,8 @@ def map_skill_codes(data):
         index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'per_skill{index}_code', None)
-        desc = data.get(f'per_skill{index}_code_desc', None)
+        code = pydash.get(data, f'per_skill{index}_code', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
@@ -441,11 +441,13 @@ def fsbid_classifications_to_tmap(cs):
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get('te_id', None)
+                # resolves disrepancy between string and number comparison
+                pydash.to_number(x.get('te_id', None))
             )
     else:
         tmap_classifications.append(
-            cs.get('te_id', None)
+            # resolves disrepancy between string and number comparison
+            pydash.to_number(cs.get('te_id', None))
         )
     return tmap_classifications
 

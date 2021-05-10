@@ -45,14 +45,15 @@ def bool_env_variable(name):
 
 
 # SMTP email settings
+EMAIL_ENABLED = bool_env_variable("EMAIL_ENABLED")
 EMAIL_HOST = get_delineated_environment_variable("EMAIL_HOST")
 EMAIL_PORT = get_delineated_environment_variable("EMAIL_PORT")
 EMAIL_HOST_USER = get_delineated_environment_variable("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = get_delineated_environment_variable("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = bool_env_variable("EMAIL_USE_TLS")
 EMAIL_FROM_ADDRESS = get_delineated_environment_variable("EMAIL_FROM_ADDRESS")
-EMAIL_IS_DEV= bool_env_variable("EMAIL_IS_DEV")
-EMAIL_DEV_TO=get_delineated_environment_variable("EMAIL_DEV_TO")
+EMAIL_IS_DEV = bool_env_variable("EMAIL_IS_DEV")
+EMAIL_DEV_TO = get_delineated_environment_variable("EMAIL_DEV_TO")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -258,6 +259,7 @@ if ENABLE_SAML2:
                     'name': 'TalentMAP',
                     'allow_unsolicited': True,
                     'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                    'want_response_signed': False,
                     'endpoints': {
                         # url and binding to the assetion consumer service view
                         # do not change the binding or service name
@@ -507,6 +509,7 @@ CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http:/
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
+TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
