@@ -406,17 +406,18 @@ class BureauBiddersRankings(APIView):
     schema = AutoSchema(
         manual_fields=[
             coreapi.Field("perdet", location='query', description='perdet of Bureau bidder'),
+            coreapi.Field("cp_id", location='query', description='cp_id of position'),
         ]
     )
 
-    def get(self, request, pk):
+    def get(self, request, pk, cp_id):
         """
         Return position information for all of bidders' bids including their ranking information for those positions
         """
         # 1. grab user bidlist
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
         # 2. grab users' rankings, excluding current position
-        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=pk).order_by('rank')
+        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id).order_by('rank')
         # 3. filter out bids not on shortlist
         shortlist_bids = list(filter(lambda x: (user_rankings.filter(
             cp_id=str(pydash.get(x, 'position.id'))).exists()), user_bids))
