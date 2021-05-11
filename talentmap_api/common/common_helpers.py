@@ -497,11 +497,11 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     from talentmap_api.user_profile.models import UserProfile
     from talentmap_api.bidding.models import BidHandshake
     action = "accepted" if is_accept else "declined"
-    user = UserProfile.objects.get(emp_id=perdet)
-    bureau_user = BidHandshake.objects.get(cp_id=cp_id).owner
+    user = UserProfile.objects.filter(emp_id=perdet)
+    bureau_user = BidHandshake.objects.get(cp_id=cp_id, bidder_perdet=perdet).owner
     if user:
         message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
-        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id})
     if bureau_user:
         message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
         sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
@@ -511,9 +511,9 @@ def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
     from talentmap_api.user_profile.models import UserProfile
     action = "extended" if is_accept else "revoked"
     message = f"Bureau has {action} handshake for position with ID {cp_id}"
-    user = UserProfile.objects.get(emp_id=perdet)
+    user = UserProfile.objects.filter(emp_id=perdet)
     if user:
-        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id})
 
 
 def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
