@@ -449,7 +449,6 @@ def fsbid_classifications_to_tmap(cs):
             # resolves disrepancy between string and number comparison
             pydash.to_number(cs.get('te_id', None))
         )
-
     return tmap_classifications
 
 
