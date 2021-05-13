@@ -9,9 +9,10 @@ from django.conf import settings
 
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
-import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.fsbid.services.client as clientservices
+import talentmap_api.fsbid.services.common as services
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 
@@ -104,7 +105,8 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
 
     pos_num = get_bureau_position(id, jwt_token)["position"]["position_number"]
     filename = f"position_{pos_num}_bidders"
-    response = services.get_bidders_csv(self, id, data, filename, True)
+    mappedResult = bid_services.map_bids_handshake_status_by_cp_id(data, id)
+    response = services.get_bidders_csv(self, id, mappedResult, filename, True)
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
@@ -124,6 +126,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
+        "email": bid.get("gal_smtp_email_address_text"),
         "grade": bid.get("grade_code"),
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),

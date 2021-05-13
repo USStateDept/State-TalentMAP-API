@@ -2,6 +2,8 @@ import datetime
 import logging
 import re
 import pydash
+import json
+import threading
 
 from pydoc import locate
 
@@ -19,7 +21,7 @@ from django.core.mail import send_mail
 
 from django.db.models import Q
 
-from talentmap_api.settings import AVATAR_URL, EMAIL_FROM_ADDRESS, EMAIL_IS_DEV, EMAIL_DEV_TO
+from talentmap_api.settings import AVATAR_URL, EMAIL_FROM_ADDRESS, EMAIL_IS_DEV, EMAIL_DEV_TO, EMAIL_ENABLED
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +453,11 @@ def formatCSV(data, fieldsInfo):
         if f is "skills":
             skills = []
             for skill in list(data[f]):
-                skills.append(skill["description"])
+                if fieldsInfo[f]["description_and_code"]:
+                    skills.append(f'{skill["description"]} ({skill["code"]})')
+                else:
+                    skills.append(skill["description"])
+
             if skills:
                 fields_formatted[f] = ', '.join(skills)
             else:
@@ -470,22 +476,100 @@ def formatCSV(data, fieldsInfo):
     return fields_formatted
 
 
+def bidderHandshakeNotification(bureau_user, cp_id, perdet, jwt, is_accept=True):
+    from talentmap_api.fsbid.services.cdo import single_cdo
+
+    action = "accepted" if is_accept else "declined"
+    message = f"Bidder has {action} handshake for position with ID {cp_id}"
+    if perdet and jwt:
+        try:
+            cdo = single_cdo(jwt, perdet)
+            email = pydash.get(cdo, 'email')
+            if email:
+                send_email(message, message, [email])
+        except:#nosec
+            pass
+    if bureau_user:
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
+
+
+def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
+    from talentmap_api.user_profile.models import UserProfile
+    from talentmap_api.bidding.models import BidHandshake
+    action = "accepted" if is_accept else "declined"
+    user = UserProfile.objects.get(emp_id=perdet)
+    bureau_user = BidHandshake.objects.get(cp_id=cp_id).owner
+    if user:
+        message = f"CDO has {action} handshake on your behalf for position with ID {cp_id}"
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+    if bureau_user:
+        message = f"CDO has {action} handshake on behalf of bidder for position with ID {cp_id}"
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
+
+
+def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
+    from talentmap_api.user_profile.models import UserProfile
+    action = "extended" if is_accept else "revoked"
+    message = f"Bureau has {action} handshake for position with ID {cp_id}"
+    user = UserProfile.objects.get(emp_id=perdet)
+    if user:
+        sendBidHandshakeNotification(user, message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+
+
+def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
+    from talentmap_api.messaging.models import Notification
+    Notification.objects.create(
+                        owner=owner,
+                        tags=tags,
+                        message=message,
+                        meta=json.dumps(meta),
+                )
+    send_email(message, message, [owner.user.email])
+
+
+def registeredHandshakeNotification(cp_id, jwt, perdet_to_exclude, is_accept=True):
+    th = threading.Thread(target=registered_handshake_notification_thread, args=(cp_id, jwt, perdet_to_exclude, is_accept))
+    th.start()
+
+
+def registered_handshake_notification_thread(cp_id, jwt, perdet_to_exclude, is_accept=True):
+    from talentmap_api.fsbid.services.bureau import get_bureau_position_bids
+    action = "registered" if is_accept else "unregistered"
+    results = get_bureau_position_bids(cp_id, {}, jwt, '')
+    emailAddresses = pydash.reject(results, lambda x : pydash.to_string(x.get('emp_id')) == pydash.to_string(perdet_to_exclude))
+    emailAddresses = pydash.map_(emailAddresses, 'email')
+    def send_message (email):
+        if email:
+            message = f"Another bidder's handshake has been {action} for position with ID {cp_id}"
+            send_email(message, message, [email])
+    pydash.for_each(emailAddresses, send_message)
+
+
 def send_email(subject = '', body = '', recipients = []):
-    if EMAIL_IS_DEV:
-        recipients = [EMAIL_DEV_TO]
-    send_mail(
-        subject,
-        '',
-        EMAIL_FROM_ADDRESS,
-        recipients,
-        fail_silently=False,
-        html_message=f"""
-        <span style='font-size:14px'>
-            {body}
-            <br /><br />
-            Kindly,
-            <br />
-            The TalentMAP Team
-        </span>
-        """,
-    )
+    th = threading.Thread(target=send_email_thread, args=(subject,body,recipients))
+    th.start()
+
+
+def send_email_thread(subject = '', body = '', recipients = []):
+    if EMAIL_ENABLED:
+        if EMAIL_IS_DEV:
+            recipients = [EMAIL_DEV_TO]
+        try:
+            send_mail(
+                subject,
+                '',
+                EMAIL_FROM_ADDRESS,
+                recipients,
+                fail_silently=False,
+                html_message=f"""
+                <span style='font-size:14px'>
+                    {body}
+                    <br /><br />
+                    Kindly,
+                    <br />
+                    The TalentMAP Team
+                </span>
+                """,
+            )
+        except:#nosec
+            pass

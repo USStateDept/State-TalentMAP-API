@@ -243,14 +243,14 @@ def fsbid_clients_to_talentmap_clients(data):
     middle_name = get_middle_name(employee)
 
     return {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -359,8 +359,8 @@ def map_skill_codes(data):
         index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'per_skill{index}_code', None)
-        desc = data.get(f'per_skill{index}_code_desc', None)
+        code = pydash.get(data, f'per_skill{index}_code', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
@@ -436,16 +436,18 @@ def tmap_no_bids_to_fsbid(bids):
     return tmap_dictionary.get(bids, None)
 
 
-def fsbid_classifications_to_tmap(cs, val='te_id'):
+def fsbid_classifications_to_tmap(cs):
     tmap_classifications = []
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get(val, None)
+                # resolves disrepancy between string and number comparison
+                pydash.to_number(x.get('te_id', None))
             )
     else:
         tmap_classifications.append(
-            cs.get(val, None)
+            # resolves disrepancy between string and number comparison
+            pydash.to_number(cs.get('te_id', None))
         )
 
     return tmap_classifications
@@ -594,7 +596,7 @@ def fsbid_available_bidder_to_talentmap(data):
     middle_name = get_middle_name(employee)
 
     res = {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "cdo": {
             "full_name": data.get('cdo_fullname', None),
             "last_name": data.get('cdo_last_name', None),
@@ -602,13 +604,13 @@ def fsbid_available_bidder_to_talentmap(data):
             "email": data.get('cdo_email', None),
             "hru_id": data.get("hru_id", None),
         },
-        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet

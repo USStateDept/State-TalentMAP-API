@@ -22,7 +22,7 @@ from talentmap_api.bidding.models import BidHandshake
 from talentmap_api.user_profile.models import UserProfile
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-from talentmap_api.common.common_helpers import in_group_or_403
+from talentmap_api.common.common_helpers import in_group_or_403, bidderHandshakeNotification, cdoHandshakeNotification, bureauHandshakeNotification
 from talentmap_api.common.permissions import isDjangoGroupMember
 import talentmap_api.fsbid.services.client as client_services
 import talentmap_api.fsbid.services.employee as empservices
@@ -56,9 +56,11 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         if hs.exists():
             hs.update(last_editing_user=user, status='O', update_date=datetime.now())
+            bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            BidHandshake.objects.create(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='O')
+            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id, status='O')
+            bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, cp_id, format=None):
@@ -78,6 +80,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
         else:
             user = UserProfile.objects.get(user=self.request.user)
             hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R', update_date=datetime.now())
+            bureauHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -102,6 +105,7 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='A', is_cdo_update=True, update_date=datetime.now())
+            cdoHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, cp_id, format=None):
@@ -115,6 +119,7 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='D', is_cdo_update=True, update_date=datetime.now())
+            cdoHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -134,11 +139,13 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id)
+        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='A', is_cdo_update=False, update_date=datetime.now())
+            bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, cp_id, format=None):
@@ -147,9 +154,11 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id)
+        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             hs.update(last_editing_bidder=user, status='D', is_cdo_update=False, update_date=datetime.now())
+            bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, False)
             return Response(status=status.HTTP_204_NO_CONTENT)

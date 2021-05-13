@@ -8,10 +8,11 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.cdo.models import AvailableBidders
 from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
-from talentmap_api.common.common_helpers import send_email
+from talentmap_api.common.common_helpers import send_email, registeredHandshakeNotification
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
 
@@ -98,21 +99,32 @@ class FSBidListBidRegisterView(APIView):
         '''
         Registers a bid
         '''
+        jwt = request.META['HTTP_JWT']
+
         try:
-            services.register_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            services.register_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
                 owner = UserProfile.objects.get(emp_id=client_id)
+                message = f"Bid on position with ID {pk} has been registered by CDO {user}"
+
+                # Generate a notification
+                Notification.objects.create(owner=owner,
+                                            tags=['bidding'],
+                                            message=message)
+                send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for registering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            
-            message = f"Bid on position with ID {pk} has been registered by CDO {user}"
+            finally:
+                # Remove the bidder from the available bidders list
+                ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
+                if ab.exists():
+                    ab.first().delete()
+                
+                # Notify other bidders
+                registeredHandshakeNotification(pk, jwt, client_id, True)
 
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=message)
-            send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -121,8 +133,9 @@ class FSBidListBidRegisterView(APIView):
         '''
         Unregisters a bid
         '''
+        jwt = request.META['HTTP_JWT']
         try:
-            services.unregister_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            services.unregister_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
                 owner = UserProfile.objects.get(emp_id=client_id)
@@ -133,6 +146,8 @@ class FSBidListBidRegisterView(APIView):
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
                                         message=f"Bid on position id={pk} has been unregistered by CDO {user}")
+            # Notify other bidders
+            registeredHandshakeNotification(pk, jwt, client_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)

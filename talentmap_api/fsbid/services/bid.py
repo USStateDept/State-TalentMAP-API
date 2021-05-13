@@ -65,7 +65,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
 
 def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
-    Submits a bid on a position
+    Registers a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}&hs_cd=HS"
@@ -76,7 +76,7 @@ def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
 
 def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
-    Submits a bid on a position
+    Unregisters a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
@@ -192,8 +192,8 @@ def fsbid_bid_to_talentmap_bid(data):
         data.get('handshake_allowed_ind')
     )
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
-    cpId = int(float(data.get('cp_id')))
-    perdet = str(int(data.get('perdet_seq_num')))
+    cpId = int(data.get('cp_id'))
+    perdet = str(data.get('perdet_seq_num'))
 
     return {
         "id": f"{perdet}_{cpId}",
