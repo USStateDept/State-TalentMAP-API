@@ -527,6 +527,24 @@ def sendBidHandshakeNotification(owner, message, tags=[], meta={}):
     send_email(message, message, [owner.user.email])
 
 
+def registeredHandshakeNotification(cp_id, jwt, perdet_to_exclude, is_accept=True):
+    th = threading.Thread(target=registered_handshake_notification_thread, args=(cp_id, jwt, perdet_to_exclude, is_accept))
+    th.start()
+
+
+def registered_handshake_notification_thread(cp_id, jwt, perdet_to_exclude, is_accept=True):
+    from talentmap_api.fsbid.services.bureau import get_bureau_position_bids
+    action = "registered" if is_accept else "unregistered"
+    results = get_bureau_position_bids(cp_id, {}, jwt, '')
+    emailAddresses = pydash.reject(results, lambda x : pydash.to_string(x.get('emp_id')) == pydash.to_string(perdet_to_exclude))
+    emailAddresses = pydash.map_(emailAddresses, 'email')
+    def send_message (email):
+        if email:
+            message = f"Another bidder's handshake has been {action} for position with ID {cp_id}"
+            send_email(message, message, [email])
+    pydash.for_each(emailAddresses, send_message)
+
+
 def send_email(subject = '', body = '', recipients = []):
     th = threading.Thread(target=send_email_thread, args=(subject,body,recipients))
     th.start()
