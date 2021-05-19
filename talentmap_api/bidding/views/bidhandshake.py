@@ -56,14 +56,17 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now())
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_offered=datetime.now())
 
         if hs.exists():
-            hs.update(last_editing_user=user, status='O', update_date=datetime.now())
+            # If the handshake is re-offered, clear the bidder_status
+            hs.update(last_editing_user=user, status='O', bidder_status=None, update_date=datetime.now(),
+                date_offered=datetime.now())
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id, status='O')
+            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
+                status='O', date_offered=datetime.now())
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -83,7 +86,8 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
             user = UserProfile.objects.get(user=self.request.user)
-            hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R', update_date=datetime.now())
+            hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R',
+                update_date=datetime.now(), date_revoked=datetime.now())
             bureauHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -108,7 +112,8 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
         if not BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            hs.update(last_editing_bidder=user, status='A', is_cdo_update=True, update_date=datetime.now())
+            hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=True,
+                update_date=datetime.now(), date_accepted=datetime.now())
             cdoHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -122,7 +127,8 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
         if not BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            hs.update(last_editing_bidder=user, status='D', is_cdo_update=True, update_date=datetime.now())
+            hs.update(last_editing_bidder=user, status='D', bidder_status='D', is_cdo_update=True,
+                update_date=datetime.now(), date_declined=datetime.now())
             cdoHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -148,7 +154,8 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            hs.update(last_editing_bidder=user, status='A', is_cdo_update=False, update_date=datetime.now())
+            hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=False,
+                update_date=datetime.now(), date_accepted=datetime.now())
             bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -163,6 +170,7 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
-            hs.update(last_editing_bidder=user, status='D', is_cdo_update=False, update_date=datetime.now())
+            hs.update(last_editing_bidder=user, status='D', bidder_status='D', is_cdo_update=False,
+                update_date=datetime.now(), date_declined=datetime.now())
             bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
