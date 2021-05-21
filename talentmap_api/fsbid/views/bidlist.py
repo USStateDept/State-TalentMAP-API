@@ -12,7 +12,6 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.available_positions as av_ps_services
 
-
 logger = logging.getLogger(__name__)
 
 
