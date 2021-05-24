@@ -11,7 +11,6 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
-import talentmap_api.fsbid.services.client as clientservices
 import talentmap_api.fsbid.services.common as services
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
@@ -84,7 +83,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, csv=False),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
         CP_API_ROOT,
     )
 
