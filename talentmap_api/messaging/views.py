@@ -1,3 +1,5 @@
+import pydash
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.apps import apps
@@ -43,6 +45,26 @@ class NotificationView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = Notification.objects.filter(owner=self.request.user.profile)
+        # Oracle and Django don't play nice with JSON. This makes filtering by an array of tags difficult.
+        # We comma separate the tags provided in the ?tags query parameter (ex: ?tags=a,b,c).
+        tags = [x for x in self.request.GET.get('tags', '').split(',')]
+        # filter out an empty strings
+        tags = pydash.without(tags, '')
+
+        matches = []
+
+        params = {
+            'owner': self.request.user.profile
+        }
+
+        # This is inefficient, but we have to fetch all notifications to find out which ones have the requested tags.
+        if tags:
+            matches = Notification.objects.filter(owner=self.request.user.profile).values()
+            matches = pydash.filter_(matches, lambda x: set(tags).issubset(set(x['tags'] or [])))
+            matches = pydash.map_(matches, 'id')
+            # Only append to params if tags exists, so that we don't inadvertently pass an empty array
+            params['id__in'] = matches
+
+        queryset = Notification.objects.filter(**params)
         self.serializer_class.prefetch_model(Notification, queryset)
         return queryset

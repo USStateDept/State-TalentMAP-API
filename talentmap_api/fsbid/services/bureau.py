@@ -125,6 +125,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
+        "email": bid.get("gal_smtp_email_address_text"),
         "grade": bid.get("grade_code"),
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
