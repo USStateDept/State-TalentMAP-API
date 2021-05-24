@@ -99,7 +99,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, csv=True),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
         CP_API_ROOT,
     )
 
@@ -109,7 +109,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     response = services.get_bidders_csv(self, id, mappedResult, filename, True)
     return response
 
-def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     '''
     Formats the response bureau position bids from FSBid
     '''
@@ -122,7 +122,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
     if bid.get("handshake_code", None) == "HS":
         hasHandShakeOffered = True
     ted = ensure_date(bid.get("TED", None), utc_offset=-5)
-
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
@@ -131,7 +130,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
         "language": bid.get("language_txt", None),
-        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications") or []),
         "ted": ted,
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
