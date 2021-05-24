@@ -33,6 +33,7 @@ class FSBidListView(APIView):
             pos_id = bid["position"]["id"]
             bid.pop('position', None)
             bid.pop('bid_statistics', None)  # now comes through in position_info
+            bid.pop('bidcycle', None)  # now comes through in position_info
             bid["position_info"] = av_ps_services.get_available_position(str(pos_id), request.META['HTTP_JWT'])
 
         return Response({"results": user_bids})
