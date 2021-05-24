@@ -115,10 +115,8 @@ class FSBidBureauPositionBidsView(BaseView):
 
         for x in result:
             x['has_competing_rank'] = com_services.has_competing_rank(self,  x.get('emp_id'), pk)
-       
-        mappedResult = bid_services.map_bids_handshake_status_by_cp_id(result, pk)
 
-        return Response(mappedResult)
+        return Response(result)
 
 class FSBidBureauPositionBidsExportView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)

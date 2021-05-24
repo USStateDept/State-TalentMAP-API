@@ -84,7 +84,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id),
         CP_API_ROOT,
     )
 
@@ -99,17 +99,16 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id),
         CP_API_ROOT,
     )
 
     pos_num = get_bureau_position(id, jwt_token)["position"]["position_number"]
     filename = f"position_{pos_num}_bidders"
-    mappedResult = bid_services.map_bids_handshake_status_by_cp_id(data, id)
-    response = services.get_bidders_csv(self, id, mappedResult, filename, True)
+    response = services.get_bidders_csv(self, id, data, filename, True)
     return response
 
-def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
     '''
     Formats the response bureau position bids from FSBid
     '''
@@ -123,6 +122,9 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     if bid.get("handshake_code", None) == "HS":
         hasHandShakeOffered = True
     ted = ensure_date(bid.get("TED", None), utc_offset=-5)
+
+    handshake = bh_services.get_bidder_handshake_data(cp_id, emp_id)
+
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
@@ -135,6 +137,9 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
+        "handshake": {
+            **handshake,
+        },
     }
 
 

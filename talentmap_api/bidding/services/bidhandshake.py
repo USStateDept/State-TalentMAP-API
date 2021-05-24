@@ -2,6 +2,7 @@ import logging
 import pydash
 
 from talentmap_api.bidding.models import BidHandshake
+from talentmap_api.common.common_helpers import ensure_date
 
 logger = logging.getLogger(__name__)
 
@@ -23,5 +24,49 @@ def get_position_handshake_data(cp_id):
     active = pydash.find(hs, lambda x: x['status'] is 'O' or x['status'] is 'A')
     if active:
         props['active_handshake_perdet'] = active['bidder_perdet']
+
+    return props
+
+
+def get_bidder_handshake_data(cp_id, perdet):
+    '''
+    Return handshake data for a given perdet and cp_id
+    '''
+    mapping = {
+        'O': "handshake_offered",
+        'A': "handshake_offer_accepted",
+        'D': "handshake_offer_declined",
+        'R': "handshake_offer_revoked",
+    }
+
+    props = {
+        'hs_status_code': "handshake_not_offered",
+        'bidder_hs_declined': False,
+        'bidder_hs_accepted': False,
+        'hs_cdo_indicator': False,
+        'hs_date_accepted': None,
+        'hs_date_declined': None,
+        'hs_date_offered': None,
+        'hs_date_revoked': None,
+    }
+
+    hs = BidHandshake.objects.filter(cp_id=cp_id, bidder_perdet=perdet)
+
+    if hs.exists():
+        hs = hs.first()
+        status = hs.status
+        bidder_status = hs.bidder_status
+        is_cdo_update = hs.is_cdo_update == 1
+
+        props['hs_status_code'] = mapping[status]
+        props['hs_cdo_indicator'] = is_cdo_update
+        props['bidder_hs_declined'] = bidder_status is 'D'
+        props['bidder_hs_accepted'] = bidder_status is 'A'
+
+        # Dates
+        props['hs_date_accepted'] = ensure_date(hs.date_accepted)
+        props['hs_date_declined'] = ensure_date(hs.date_declined)
+        props['hs_date_offered'] = ensure_date(hs.date_offered)
+        props['hs_date_revoked'] = ensure_date(hs.date_revoked)
 
     return props

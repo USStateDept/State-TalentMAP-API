@@ -397,7 +397,7 @@ def get_bids_csv(data, filename, jwt_token):
                 ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
-            hs_status = record['hs_status_code'].replace('_', ' ')
+            hs_status = record['handshake']['hs_status_code'].replace('_', ' ')
             row = []
             row.append(smart_str(record["position"]["title"]))
             row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
@@ -419,7 +419,7 @@ def get_bids_csv(data, filename, jwt_token):
             else:
                 row.append(smart_str(record.get("status")))
             row.append(hs_status)
-            row.append(smart_str(record["hs_cdo_indicator"]))
+            row.append(smart_str(record['handshake']["hs_cdo_indicator"]))
             row.append(smart_str(position_data["position"]["description"]["content"]))
 
             writer.writerow(row)
@@ -504,7 +504,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
-        hs_status = record['hs_status_code'].replace('_', ' ')
+        hs_status = record['handshake']['hs_status_code'].replace('_', ' ')
         record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
         row = []
         row.append(smart_str(record["name"]))
@@ -518,7 +518,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
         row.append(cdo_name)
         row.append(cdo_email)
         row.append(hs_status)
-        row.append(smart_str(record["hs_cdo_indicator"]))
+        row.append(smart_str(record["handshake"]["hs_cdo_indicator"]))
 
         writer.writerow(row)
     return response
