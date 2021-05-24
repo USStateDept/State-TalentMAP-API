@@ -515,7 +515,7 @@ HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbi
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
 TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
-BTP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/BidderTrackingPrograms')
+BTP_API_URL = get_delineated_environment_variable('BTP_API_URL', 'http://mock_fsbid:3333/BidderTrackingPrograms')
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
