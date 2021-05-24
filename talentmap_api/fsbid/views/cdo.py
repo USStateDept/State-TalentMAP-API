@@ -15,6 +15,7 @@ from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.common.common_helpers import send_email, registeredHandshakeNotification
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -215,9 +216,9 @@ class FSBidClientEditClassifications(APIView):
         try:
             id = []
             if request.data['insert']:
-                id = cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+                id = classifications_services.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
             if request.data['delete']:
-                id = cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+                id = classifications_services.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_200_OK, data=id)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
