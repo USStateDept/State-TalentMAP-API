@@ -131,7 +131,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, csv):
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
         "language": bid.get("language_txt", None),
-        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications") || []),
+        "classifications": clientservices.fsbid_classifications_to_tmap(bid.get("classifications") or []),
         "ted": ted,
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
