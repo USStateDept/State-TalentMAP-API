@@ -76,7 +76,7 @@ class FSBidListBidActionView(APIView):
             services.submit_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -106,7 +106,7 @@ class FSBidListBidRegisterView(APIView):
             services.register_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
                 message = f"Bid on position with ID {pk} has been registered by CDO {user}"
 
                 # Generate a notification
@@ -139,7 +139,7 @@ class FSBidListBidRegisterView(APIView):
             services.unregister_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for unregistering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -179,7 +179,7 @@ class FSBidListPositionActionView(BaseView):
         services.bid_on_position(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for adding bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -195,7 +195,7 @@ class FSBidListPositionActionView(BaseView):
         services.remove_bid(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
