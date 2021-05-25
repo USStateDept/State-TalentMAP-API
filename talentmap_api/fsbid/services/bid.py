@@ -103,10 +103,10 @@ def map_bids_handshake_status(bids, query = {}):
         # look up cp id
         cp_id = pydash.get(val, 'position.id', 0)
         clonedQuery = { 'cp_id': cp_id, **query }
-        hsExists = BidHandshake.objects.filter(status__in=['O', 'A', 'D'], **clonedQuery).exists()
+        hsExists = BidHandshake.objects.filter(**clonedQuery).exists()
         # if exists, bidder has a valid HS offer status
         if hsExists:
-            hs = BidHandshake.objects.get(status__in=['O', 'A', 'D'], **clonedQuery)
+            hs = BidHandshake.objects.get(**clonedQuery)
             hsStatus = pydash.get(hs, 'status')
 
             isCDOUpdate = pydash.get(hs, 'is_cdo_update') == 1
@@ -116,8 +116,9 @@ def map_bids_handshake_status(bids, query = {}):
 
             hsStatuses = {
                 'O': "handshake_offered",
-                'A': "handshake_accepted",
-                'D': "handshake_declined",
+                'A': "handshake_offer_accepted",
+                'D': "handshake_offer_declined",
+                'R': "handshake_offer_revoked",
             }
 
             clonedBids[idx]['hs_status_code'] = hsStatuses.get(hsStatus, "not_offered")
