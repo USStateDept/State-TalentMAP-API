@@ -33,6 +33,7 @@ services:
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
       - TP_API_URL=http://host.docker.internal:3333/TrackingPrograms
+      - BTP_API_URL=http://host.docker.internal:3333/BidderTrackingPrograms
       - EMAIL_ENABLED=true
       - EMAIL_HOST=host.docker.internal
       - EMAIL_PORT=1025
