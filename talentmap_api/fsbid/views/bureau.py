@@ -16,6 +16,7 @@ import talentmap_api.fsbid.services.available_positions as ap_services
 import talentmap_api.fsbid.services.employee as empservices
 import talentmap_api.fsbid.services.common as com_services
 import talentmap_api.fsbid.services.bid as bid_services
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -112,9 +113,6 @@ class FSBidBureauPositionBidsView(BaseView):
         result = services.get_bureau_position_bids(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-        for x in result:
-            x['has_competing_rank'] = com_services.has_competing_rank(self,  x.get('emp_id'), pk)
 
         return Response(result)
 

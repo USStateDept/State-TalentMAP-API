@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.http import QueryDict
 
 import maya
+import pydash
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -229,12 +230,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     return {"count": response["Data"][0][countProp]}
 
 
-def get_obc_id(post_id):
+# pre-load since this data rarely changes
+obc_vals = list(Obc.objects.values())
 
-    obc = Obc.objects.filter(code=post_id)
-    if obc.count() == 1:
-        for p in obc:
-            return p.obc_id
+def get_obc_id(post_id):
+    obc = pydash.find(obc_vals, lambda x: x['code'] == post_id)
+
+    if obc:
+        return obc['obc_id']
 
     return None
 
@@ -397,7 +400,7 @@ def get_bids_csv(data, filename, jwt_token):
                 ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
-            hs_status = record['handshake']['hs_status_code'].replace('_', ' ')
+            hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
             row = []
             row.append(smart_str(record["position"]["title"]))
             row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
@@ -453,12 +456,12 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
-def has_competing_rank(self, perdet, pk):
+def has_competing_rank(jwt, perdet, pk):
     rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
         "cp_id", flat=True)
     for y in rankOneBids:
-        hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
-        hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
+        hasBureauPermissions = empservices.has_bureau_permissions(y, jwt)
+        hasOrgPermissions = empservices.has_org_permissions(y, jwt)
         if hasBureauPermissions or hasOrgPermissions:
             # don't bother continuing the loop if we've already found one
             return True
@@ -504,8 +507,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
-        hs_status = record['handshake']['hs_status_code'].replace('_', ' ')
-        record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
+        hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
         row = []
         row.append(smart_str(record["name"]))
         row.append(smart_str(record["has_competing_rank"]))

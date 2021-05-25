@@ -13,6 +13,7 @@ import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 
@@ -112,11 +113,14 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
     '''
     Formats the response bureau position bids from FSBid
     '''
-
     cdo = None
+    classifications = None
+    has_competing_rank = None
     emp_id = bid.get("perdet_seq_num", None)
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
+        classifications = classifications_services.get_client_classification(jwt, emp_id)
+        has_competing_rank = services.has_competing_rank(jwt, emp_id, cp_id)
 
     hasHandShakeOffered = False
     if bid.get("handshake_code", None) == "HS":
@@ -137,6 +141,8 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
+        "classifications": classifications,
+        "has_competing_rank": has_competing_rank,
         "handshake": {
             **handshake,
         },
