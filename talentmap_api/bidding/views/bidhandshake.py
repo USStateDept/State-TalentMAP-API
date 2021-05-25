@@ -56,7 +56,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_offered=datetime.now())
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now())
 
         if hs.exists():
             # If the handshake is re-offered, clear the bidder_status
