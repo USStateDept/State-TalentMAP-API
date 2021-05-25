@@ -35,7 +35,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
                                        mixins.ListModelMixin,
                                        mixins.RetrieveModelMixin):
     '''
-    add, remove, update an Available Bidder instance
+    add, remove, update a Bid Handshake instance
     '''
     serializer_class = BidHandshakeSerializer
     permission_classes = [Or(isDjangoGroupMember('bureau_user'), ) ]
@@ -53,6 +53,10 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id)
+
+        # Revoke any previously offered handshakes for this cp_id
+        hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now())
 
         if hs.exists():
             hs.update(last_editing_user=user, status='O', update_date=datetime.now())
@@ -89,7 +93,7 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
                                        mixins.ListModelMixin,
                                        mixins.RetrieveModelMixin):
     '''
-    add, remove, update an Available Bidder instance
+    update a Bid Handshake instance
     '''
     serializer_class = BidHandshakeSerializer
     permission_classes = [Or(isDjangoGroupMember('cdo'), ) ]
@@ -128,7 +132,7 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
                                        mixins.ListModelMixin,
                                        mixins.RetrieveModelMixin):
     '''
-    add, remove, update an Available Bidder instance
+    update a Bid Handshake instance
     '''
     serializer_class = BidHandshakeSerializer
     permission_classes = [Or(isDjangoGroupMember('bidder'), ) ]
