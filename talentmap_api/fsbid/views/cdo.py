@@ -81,7 +81,7 @@ class FSBidListBidActionView(APIView):
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
             
-            message = f"Bid on position with ID {pk} has been submitted by CDO {user}"
+            message = f"Bid on a position has been submitted by CDO {user}."
 
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
