@@ -34,15 +34,19 @@ def get_bidder_handshake_data(cp_id, perdet):
     '''
     mapping = {
         'O': "handshake_offered",
-        'A': "handshake_offer_accepted",
-        'D': "handshake_offer_declined",
-        'R': "handshake_offer_revoked",
+        'A': "handshake_offered", # can assume 'offered', otherwise bidder could not have accepted
+        'D': "handshake_offered", # can assume 'offered', otherwise bidder could not have declined
+        'R': "handshake_revoked",
+    }
+
+    bidder_mapping = {
+        'A': "handshake_accepted",
+        'D': "handshake_declined",
     }
 
     props = {
-        'hs_status_code': "handshake_not_offered",
-        'bidder_hs_declined': False,
-        'bidder_hs_accepted': False,
+        'hs_status_code': None,
+        'bidder_hs_code': None,
         'hs_cdo_indicator': False,
         'hs_date_accepted': None,
         'hs_date_declined': None,
@@ -60,8 +64,12 @@ def get_bidder_handshake_data(cp_id, perdet):
 
         props['hs_status_code'] = mapping[status]
         props['hs_cdo_indicator'] = is_cdo_update
-        props['bidder_hs_declined'] = bidder_status is 'D'
-        props['bidder_hs_accepted'] = bidder_status is 'A'
+
+        if bidder_status is 'D':
+            props['bidder_hs_code'] = bidder_mapping['D']
+
+        if bidder_status is 'A':
+            props['bidder_hs_code'] = bidder_mapping['A']
 
         # Dates
         props['hs_date_accepted'] = ensure_date(hs.date_accepted)
