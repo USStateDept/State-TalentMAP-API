@@ -15,6 +15,7 @@ from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.common.common_helpers import send_email, registeredHandshakeNotification
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ class FSBidListBidActionView(APIView):
             services.submit_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -105,7 +106,7 @@ class FSBidListBidRegisterView(APIView):
             services.register_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
                 message = f"Bid on position with ID {pk} has been registered by CDO {user}"
 
                 # Generate a notification
@@ -138,7 +139,7 @@ class FSBidListBidRegisterView(APIView):
             services.unregister_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for unregistering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
@@ -178,7 +179,7 @@ class FSBidListPositionActionView(BaseView):
         services.bid_on_position(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for adding bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -194,7 +195,7 @@ class FSBidListPositionActionView(BaseView):
         services.remove_bid(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -215,9 +216,9 @@ class FSBidClientEditClassifications(APIView):
         try:
             id = []
             if request.data['insert']:
-                id = cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+                id = classifications_services.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
             if request.data['delete']:
-                id = cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+                id = classifications_services.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_200_OK, data=id)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
