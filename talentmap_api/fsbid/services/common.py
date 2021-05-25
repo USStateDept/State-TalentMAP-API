@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.http import QueryDict
 
 import maya
+import pydash
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -229,12 +230,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     return {"count": response["Data"][0][countProp]}
 
 
-def get_obc_id(post_id):
+# pre-load since this data rarely changes
+obc_vals = list(Obc.objects.values())
 
-    obc = Obc.objects.filter(code=post_id)
-    if obc.count() == 1:
-        for p in obc:
-            return p.obc_id
+def get_obc_id(post_id):
+    obc = pydash.find(obc_vals, lambda x: x['code'] == post_id)
+
+    if obc:
+        return obc['obc_id']
 
     return None
 
