@@ -113,7 +113,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
     '''
     Formats the response bureau position bids from FSBid
     '''
-
     cdo = None
     emp_id = bid.get("perdet_seq_num", None)
     if emp_id is not None:
