@@ -80,12 +80,13 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     new_query = deepcopy(query)
     new_query["id"] = id
+    active_perdet=bh_services.get_position_handshake_data(id)['active_handshake_perdet']
     return services.get_results(
         "bidders",
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id, active_perdet=active_perdet),
         CP_API_ROOT,
     )
 
@@ -109,7 +110,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     response = services.get_bidders_csv(self, id, data, filename, True)
     return response
 
-def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     Formats the response bureau position bids from FSBid
     '''
@@ -129,6 +130,13 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
 
     handshake = bh_services.get_bidder_handshake_data(cp_id, emp_id)
 
+    active_handshake_perdet = None
+    if active_perdet:
+        if int(active_perdet) == int(emp_id):
+            active_handshake_perdet = True
+        else:
+            active_handshake_perdet = False
+
     return {
         "emp_id": emp_id,
         "name": bid.get("full_name"),
@@ -146,6 +154,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id):
         "handshake": {
             **handshake,
         },
+        "active_handshake_perdet": active_handshake_perdet,
     }
 
 
