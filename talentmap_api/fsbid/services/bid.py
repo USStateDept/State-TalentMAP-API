@@ -11,6 +11,7 @@ from talentmap_api.common.common_helpers import ensure_date
 
 from talentmap_api.bidding.models import Bid, BidHandshake
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.bidding.services.bidhandshake as bh_services
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -27,7 +28,6 @@ def user_bids(employee_id, jwt_token, position_id=None):
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     mappedBids = [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
-    mappedBids = map_bids_handshake_status_by_perdet(mappedBids, employee_id)
     return mappedBids
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
@@ -92,46 +92,6 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
-
-
-def map_bids_handshake_status(bids, query = {}):
-    clonedBids = list(pydash.clone(bids))
-    for idx, val in enumerate(clonedBids):
-        # default states
-        clonedBids[idx]['hs_status_code'] = 'not_offered'
-        clonedBids[idx]['hs_cdo_indicator'] = False
-        # look up cp id
-        cp_id = pydash.get(val, 'position.id', 0)
-        clonedQuery = { 'cp_id': cp_id, **query }
-        hsExists = BidHandshake.objects.filter(**clonedQuery).exists()
-        # if exists, bidder has a valid HS offer status
-        if hsExists:
-            hs = BidHandshake.objects.get(**clonedQuery)
-            hsStatus = pydash.get(hs, 'status')
-
-            isCDOUpdate = pydash.get(hs, 'is_cdo_update') == 1
-
-            if isCDOUpdate:
-                clonedBids[idx]['hs_cdo_indicator'] = True
-
-            hsStatuses = {
-                'O': "handshake_offered",
-                'A': "handshake_offer_accepted",
-                'D': "handshake_offer_declined",
-                'R': "handshake_offer_revoked",
-            }
-
-            clonedBids[idx]['hs_status_code'] = hsStatuses.get(hsStatus, "not_offered")
-
-    return clonedBids
-
-
-def map_bids_handshake_status_by_cp_id(bids, cp_id):
-    return map_bids_handshake_status(bids, {'cp_id': cp_id})
-
-
-def map_bids_handshake_status_by_perdet(bids, perdet):
-    return map_bids_handshake_status(bids, {'bidder_perdet': perdet})
 
 
 def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeetingStatus, handshakeAllowed):
@@ -240,9 +200,7 @@ def fsbid_bid_to_talentmap_bid(data):
         "panel_status": data.get('panel_meeting_status', ''),
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
-        "handshake_offered_date": "",
         "handshake_accepted_date": ensure_date(data.get("ubw_hndshk_offrd_dt"), utc_offset=-5),
-        "handshake_declined_date": "",
         "in_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "scheduled_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "approved_date": ensure_date(data.get('assignment_date'), utc_offset=-5),
@@ -253,5 +211,8 @@ def fsbid_bid_to_talentmap_bid(data):
         "create_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "update_date": "",
         "reviewer": "",
-        "cdo_bid": data.get('cdo_bid') == 'Y'
+        "cdo_bid": data.get('cdo_bid') == 'Y',
+        "handshake": {
+            **bh_services.get_bidder_handshake_data(cpId, perdet),
+        }
     }
