@@ -39,6 +39,11 @@ class BidHandshake(models.Model):
         ('D', 'Handshake declined'),
     ]
 
+    BIDDER_STATUS_CHOICES = [
+        ('A', 'Handshake accepted'),
+        ('D', 'Handshake declined'),
+    ]
+
     bidder_perdet = models.CharField(max_length=255, null=False, help_text="The bidder being offered a handshake")
     cp_id = models.CharField(max_length=255, null=False, help_text="The cycle position ID")
     status = models.CharField(
@@ -46,12 +51,23 @@ class BidHandshake(models.Model):
         choices=STATUS_CHOICES,
         default='O',
     )
+    bidder_status = models.CharField(
+        max_length=2,
+        choices=BIDDER_STATUS_CHOICES,
+        null=True,
+    )
     date_created = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
     is_cdo_update = models.BooleanField(default=False)
     owner = models.ForeignKey('user_profile.UserProfile', related_name='owner', null=False, on_delete=models.DO_NOTHING, help_text="The first to initiate the HS")
     last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='bureau_user', null=False, on_delete=models.DO_NOTHING, help_text="The last offerer user to edit")
     last_editing_bidder = models.ForeignKey('user_profile.UserProfile', related_name='bidder', null=True, on_delete=models.DO_NOTHING, help_text="The last acceptee/cdo to edit")
+
+    # Track dates of actions
+    date_offered  = models.DateTimeField(auto_now_add=True, null=True)
+    date_revoked  = models.DateTimeField(auto_now_add=False, null=True)
+    date_accepted = models.DateTimeField(auto_now_add=False, null=True)
+    date_declined = models.DateTimeField(auto_now_add=False, null=True)
 
     class Meta:
         managed = True

@@ -15,6 +15,7 @@ from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.common.common_helpers import send_email, registeredHandshakeNotification
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,7 @@ class FSBidListBidActionView(APIView):
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
             
-            message = f"Bid on position with ID {pk} has been submitted by CDO {user}"
+            message = f"Bid on a position has been submitted by CDO {user}."
 
             Notification.objects.create(owner=owner,
                                         tags=['bidding'],
@@ -215,9 +216,9 @@ class FSBidClientEditClassifications(APIView):
         try:
             id = []
             if request.data['insert']:
-                id = cdoServices.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+                id = classifications_services.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
             if request.data['delete']:
-                id = cdoServices.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+                id = classifications_services.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_200_OK, data=id)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
