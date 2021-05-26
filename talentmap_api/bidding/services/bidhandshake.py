@@ -14,10 +14,9 @@ def get_position_handshake_data(cp_id):
         'active_handshake_perdet': None,
     }
 
-    hs = BidHandshake.objects.filter(cp_id=cp_id).values()
+    perdet = BidHandshake.objects.filter(cp_id=cp_id).exclude(status='R').values_list("bidder_perdet", flat=True)
     
-    active = pydash.find(hs, lambda x: x['status'] is not 'R')
-    if active:
-        props['active_handshake_perdet'] = active['bidder_perdet']
+    if perdet:
+        props['active_handshake_perdet'] = perdet.first()
 
     return props
