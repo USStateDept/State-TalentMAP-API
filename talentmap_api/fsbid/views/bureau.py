@@ -114,14 +114,7 @@ class FSBidBureauPositionBidsView(BaseView):
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        for x in result:
-            perdet_seq_num = x.get('emp_id')
-            x['classifications'] = classifications_services.get_client_classification(request.META['HTTP_JWT'], perdet_seq_num)
-            x['has_competing_rank'] = com_services.has_competing_rank(self,  perdet_seq_num, pk)
-
-        mappedResult = bid_services.map_bids_handshake_status_by_cp_id(result, pk)
-
-        return Response(mappedResult)
+        return Response(result)
 
 class FSBidBureauPositionBidsExportView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
