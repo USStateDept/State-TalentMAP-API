@@ -11,6 +11,7 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
+import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.common as services
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
@@ -140,6 +141,9 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
+
+    bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
+
     hasHandShakeOffered = False
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
@@ -261,6 +265,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
         }],
+        "bid_handshake": bh_props,
         "unaccompaniedStatus": bp.get("us_desc_text", None),
         "isConsumable": bp.get("bt_consumable_allowance_flg", None) == "Y",
         "isServiceNeedDifferential": bp.get("bt_service_needs_diff_flg", None) == "Y",
