@@ -132,7 +132,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
 
     active_handshake_perdet = None
     if active_perdet:
-        if active_perdet is emp_id:
+        if int(active_perdet) == int(emp_id):
             active_handshake_perdet = True
         else:
             active_handshake_perdet = False
