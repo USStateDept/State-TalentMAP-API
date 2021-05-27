@@ -1,1 +1,2 @@
 djangorestframework-expiring-authtoken==0.1.4
+pysaml2==7.0.1
