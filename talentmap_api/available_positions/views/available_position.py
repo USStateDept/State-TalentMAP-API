@@ -426,8 +426,8 @@ class BureauBiddersRankings(APIView):
             if hasOrgPermissions or hasBureauPermissions:
                 bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
                 filtered_bids.append(bid)
-
+        other_sl_bids = len(shortlist_bids) - len(filtered_bids)
         return Response({
             "results": filtered_bids,
-            "other-sl-bidcount": len(shortlist_bids) - len(filtered_bids),
+            "other-sl-bidcount": 0 if pydash.is_negative(other_sl_bids) else other_sl_bids,
         })
