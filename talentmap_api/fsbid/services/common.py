@@ -231,10 +231,16 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
 
 
 # pre-load since this data rarely changes
-obc_vals = list(Obc.objects.values())
+obc_vals = list([])
+
+def get_obc_vals():
+    global obc_vals
+    if not obc_vals:
+        obc_vals = list(Obc.objects.values())
+    return obc_vals
 
 def get_obc_id(post_id):
-    obc = pydash.find(obc_vals, lambda x: x['code'] == post_id)
+    obc = pydash.find(get_obc_vals(), lambda x: x['code'] == post_id)
 
     if obc:
         return obc['obc_id']
