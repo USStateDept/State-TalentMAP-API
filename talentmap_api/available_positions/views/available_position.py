@@ -426,6 +426,8 @@ class BureauBiddersRankings(APIView):
             if hasOrgPermissions or hasBureauPermissions:
                 bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
                 filtered_bids.append(bid)
+
+        filtered_bids.sort(key=lambda x: x['ranking'])
         other_sl_bids = len(shortlist_bids) - len(filtered_bids)
         return Response({
             "results": filtered_bids,
