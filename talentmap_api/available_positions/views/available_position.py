@@ -415,7 +415,7 @@ class BureauBiddersRankings(APIView):
         Return position information for all of bidders' bids including their ranking information for those positions
         """
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
-        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id).order_by('rank')
+        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
         shortlist_bids = list(filter(lambda x: (user_rankings.filter(
             cp_id=str(pydash.get(x, 'position.id'))).exists()), user_bids))
         filtered_bids = []
