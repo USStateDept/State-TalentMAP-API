@@ -12,6 +12,7 @@ from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.bidding.models import Bid, BidHandshake
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.bidding.services.bidhandshake as bh_services
+import talentmap_api.fsbid.services.available_positions as ap_services
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -27,7 +28,7 @@ def user_bids(employee_id, jwt_token, position_id=None):
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
-    mappedBids = [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
+    mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
     return mappedBids
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
@@ -144,7 +145,7 @@ def can_delete_bid(bidStatus, cycleStatus):
     return bidStatus == Bid.Status.draft or (bidStatus == Bid.Status.submitted and cycleStatus == 'A')
 
 
-def fsbid_bid_to_talentmap_bid(data):
+def fsbid_bid_to_talentmap_bid(data, jwt):
     bidStatus = get_bid_status(
         data.get('bs_cd'),
         data.get('ubw_hndshk_offrd_flg'),
@@ -155,45 +156,12 @@ def fsbid_bid_to_talentmap_bid(data):
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(data.get('cp_id'))
     perdet = str(data.get('perdet_seq_num'))
+    positionInfo = ap_services.get_available_position(str(cpId), jwt)
 
     return {
         "id": f"{perdet}_{cpId}",
-        "bidcycle": data.get('cycle_nm_txt'),
         "emp_id": data.get('perdet_seq_num'),
         "user": "",
-        "bid_statistics": [
-            {
-                "id": "",
-                "bidcycle": data.get('cycle_nm_txt'),
-                "total_bids": data.get('cp_ttl_bidder_qty'),
-                "in_grade": data.get('cp_at_grd_qty'),
-                "at_skill": data.get('cp_in_cone_qty'),
-                "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
-                "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
-                "has_handshake_accepted": False
-            }
-        ],
-        "position": {
-            "id": cpId,
-            "position_number": data.get('pos_num_text'),
-            "status": "",
-            "grade": data.get("pos_grade_code"),
-            "skill": data.get("pos_skill_desc"),
-            "bureau": "",
-            "title": data.get("ptitle"),
-            "create_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
-            "update_date": "",
-            "post": {
-                "id": "",
-                "location": {
-                    "id": "",
-                    "country": data.get("location_country"),
-                    "code": "",
-                    "city": data.get("location_city"),
-                    "state": data.get("location_state"),
-                }
-            }
-        },
         "waivers": [],
         "can_delete": canDelete,
         "status": bidStatus,
@@ -212,6 +180,7 @@ def fsbid_bid_to_talentmap_bid(data):
         "update_date": "",
         "reviewer": "",
         "cdo_bid": data.get('cdo_bid') == 'Y',
+        "position_info": positionInfo,
         "handshake": {
             **bh_services.get_bidder_handshake_data(cpId, perdet),
         }
