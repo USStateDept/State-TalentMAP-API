@@ -29,6 +29,7 @@ class FSBidListView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
         return Response({"results": services.user_bids(user.emp_id, request.META['HTTP_JWT'])})
 
+
 class FSBidBidListCSVView(APIView):
 
     permission_classes = (IsAuthenticated, isDjangoGroupMember('bidder'),)
