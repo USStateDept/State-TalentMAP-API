@@ -416,19 +416,22 @@ class BureauBiddersRankings(APIView):
         """
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
         user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
-        shortlist_bids = list(filter(lambda x: (user_rankings.filter(
-            cp_id=str(pydash.get(x, 'position.id'))).exists()), user_bids))
+        num_sl_bids = 0
         filtered_bids = []
-        for bid in shortlist_bids:
+
+        for bid in user_bids:
             pos_id = str(pydash.get(bid, 'position.id'))
-            hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
-            hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
-            if hasOrgPermissions or hasBureauPermissions:
-                bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
-                filtered_bids.append(bid)
+            rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+            if rank:
+                num_sl_bids += 1
+                hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
+                hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
+                if hasOrgPermissions or hasBureauPermissions:
+                    bid["ranking"] = rank
+                    filtered_bids.append(bid)
 
         filtered_bids.sort(key=lambda x: x['ranking'])
-        other_sl_bids = len(shortlist_bids) - len(filtered_bids)
+        other_sl_bids = num_sl_bids - len(filtered_bids)
         return Response({
             "results": filtered_bids,
             "other-sl-bidcount": 0 if pydash.is_negative(other_sl_bids) else other_sl_bids,
