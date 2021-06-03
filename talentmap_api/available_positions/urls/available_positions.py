@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/highlight/$', views.AvailablePositionHighlightActionView.as_view(), name='available_positions-AvailablePositionDesignation-highlight'),
     # Rankings
     url(r'^ranking/$', views.AvailablePositionRankingView.as_view({**get_list, **post_create}), name='view-ranking-available-positions'),
+    url(r'^rankings/(?P<pk>[0-9]+)/(?P<cp_id>[0-9]+)/$', views.BureauBiddersRankings.as_view(), name='bureau-bidder-rankings'),
     url(r'^(?P<pk>[0-9]+)/ranking/$', views.AvailablePositionRankingView.as_view({'delete': 'perform_delete'}), name='delete-ranking-available-positions'),
     url(r'^(?P<pk>[0-9]+)/ranking/lock/$', views.AvailablePositionRankingLockView.as_view({'get': 'get', 'put': 'put', 'delete': 'delete'}), name='view-ranking-available-positions-lock'),
 ]
