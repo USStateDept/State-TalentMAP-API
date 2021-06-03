@@ -197,7 +197,10 @@ def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function,
     '''
     Gets an individual record by the provided ID
     '''
-    return get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)[0]
+    response = get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
+    if response is None:
+        return response
+    return response[0]
 
 
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
