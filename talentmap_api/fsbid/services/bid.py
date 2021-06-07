@@ -145,7 +145,7 @@ def can_delete_bid(bidStatus, cycleStatus):
     return bidStatus == Bid.Status.draft or (bidStatus == Bid.Status.submitted and cycleStatus == 'A')
 
 
-def fsbid_bid_to_talentmap_bid(data, jwt):
+def fsbid_bid_to_talentmap_bid(data, jwt_token):
     bidStatus = get_bid_status(
         data.get('bs_cd'),
         data.get('ubw_hndshk_offrd_flg'),
@@ -156,7 +156,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt):
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(data.get('cp_id'))
     perdet = str(data.get('perdet_seq_num'))
-    positionInfo = ap_services.get_available_position(str(cpId), jwt)
+    positionInfo = ap_services.get_available_position(str(cpId), jwt_token)
 
     return {
         "id": f"{perdet}_{cpId}",
