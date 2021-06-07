@@ -80,7 +80,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     new_query = deepcopy(query)
     new_query["id"] = id
-    active_perdet=bh_services.get_position_handshake_data(id)['active_handshake_perdet']
+    active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
     return services.get_results(
         "bidders",
         new_query,
@@ -96,12 +96,13 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     new_query = deepcopy(query)
     new_query["id"] = id
+    active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
     data = services.send_get_csv_request(
         "bidders",
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id, active_perdet=active_perdet),
         CP_API_ROOT,
     )
 
