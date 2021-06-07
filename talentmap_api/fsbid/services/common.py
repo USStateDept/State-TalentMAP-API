@@ -514,11 +514,12 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_email = ''
 
         hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
+        mapBool = {True: 'Yes', False: 'No', 'default': ''}
         row = []
         row.append(smart_str(record["name"]))
-        row.append(smart_str(record["has_competing_rank"]))
+        row.append(mapBool[pydash.get(record, 'has_competing_rank', 'default')])
         row.append(submit_date)
-        row.append(smart_str(record["has_handshake_offered"]))
+        row.append(mapBool[pydash.get(record, 'has_handshake_offered', 'default')])
         row.append(smart_str(record["skill"]))
         row.append(smart_str("=\"%s\"" % record["grade"]))
         row.append(smart_str(record["language"]))
@@ -526,7 +527,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
         row.append(cdo_name)
         row.append(cdo_email)
         row.append(hs_status)
-        row.append(smart_str(record["handshake"]["hs_cdo_indicator"]))
+        row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
 
         writer.writerow(row)
     return response

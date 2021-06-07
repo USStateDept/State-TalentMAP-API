@@ -538,11 +538,18 @@ def registered_handshake_notification_thread(cp_id, jwt, perdet_to_exclude, is_a
     results = get_bureau_position_bids(cp_id, {}, jwt, '')
     emailAddresses = pydash.reject(results, lambda x : pydash.to_string(x.get('emp_id')) == pydash.to_string(perdet_to_exclude))
     emailAddresses = pydash.map_(emailAddresses, 'email')
+    bidderAddress = pydash.filter_(results, lambda x : pydash.to_string(x.get('emp_id')) == pydash.to_string(perdet_to_exclude))
+    bidderAddress = pydash.map_(bidderAddress, 'email')
     def send_message (email):
         if email:
             message = f"Another bidder's handshake has been {action} for a position that you bid on."
             send_email(message, message, [email])
+    def send_message_to_registered (email):
+        if email:
+            message = f"Your handshake for a position that you bid on has been {action} by a CDO."
+            send_email(message, message, [email])
     pydash.for_each(emailAddresses, send_message)
+    pydash.for_each(bidderAddress, send_message_to_registered)
 
 
 def send_email(subject = '', body = '', recipients = []):
