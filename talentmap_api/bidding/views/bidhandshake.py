@@ -1,5 +1,7 @@
 import logging
 import coreapi
+import pydash
+
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from datetime import datetime
@@ -64,28 +66,31 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now())
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
+        expiration = pydash.get(request, 'data.expiration_date')
 
         if hs.exists():
-            # If the handshake is re-offered, clear the bidder_status
-            hs.update(last_editing_user=user, status='O', bidder_status=None, update_date=datetime.now(),
-                date_offered=datetime.now())
-
             # Only use serializer for PUT body data
             serializer = self.serializer_class(hs.first(), data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # If the handshake is re-offered, clear the bidder_status
+            hs.update(last_editing_user=user, status='O', bidder_status=None, update_date=datetime.now(),
+                date_offered=datetime.now(), expiration_date=expiration)
 
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
-            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
-                status='O', date_offered=datetime.now())
-
             # Only use serializer for PUT body data
             serializer = self.serializer_class(hs.first(), data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
+                status='O', date_offered=datetime.now(), expiration_date=expiration)
 
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -107,7 +112,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
         else:
             user = UserProfile.objects.get(user=self.request.user)
             hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R',
-                update_date=datetime.now(), date_revoked=datetime.now())
+                update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
             bureauHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
