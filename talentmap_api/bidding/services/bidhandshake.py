@@ -71,5 +71,6 @@ def get_bidder_handshake_data(cp_id, perdet):
         props['hs_date_declined'] = ensure_date(hs.date_declined)
         props['hs_date_offered'] = ensure_date(hs.date_offered)
         props['hs_date_revoked'] = ensure_date(hs.date_revoked)
+        props['hs_date_expiration'] = ensure_date(hs.expiration_date)
 
     return props
