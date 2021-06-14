@@ -18,7 +18,7 @@ dateutils==0.6.6
 decorator==4.2.1
 defusedxml==0.5.0
 dj-database-url==0.5.0
-Django==3.2.2
+Django==3.2.4
 django-choices==1.7.1
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2.1
