@@ -47,6 +47,7 @@ def get_bidder_handshake_data(cp_id, perdet):
         'hs_date_declined': None,
         'hs_date_offered': None,
         'hs_date_revoked': None,
+        'hs_date_expiration': None,
     }
 
     hs = BidHandshake.objects.filter(cp_id=cp_id, bidder_perdet=perdet)
