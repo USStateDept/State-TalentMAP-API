@@ -22,6 +22,8 @@ class BidHandshakeOfferSerializer(PrefetchedSerializer):
                 raise serializers.ValidationError({
                     "expiration_date": "Expiration date cannot be earlier than current date (Eastern Time).",
                 })
+        else:
+            data["expiration_date"] = None
 
         return super(BidHandshakeOfferSerializer, self).validate(data)
 

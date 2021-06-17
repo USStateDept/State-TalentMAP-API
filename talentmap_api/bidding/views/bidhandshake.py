@@ -112,7 +112,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
         else:
             user = UserProfile.objects.get(user=self.request.user)
             hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R',
-                update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
+                update_date=datetime.now(), date_revoked=datetime.now())
             bureauHandshakeNotification(pk, cp_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
