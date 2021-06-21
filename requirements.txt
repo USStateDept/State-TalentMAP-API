@@ -86,7 +86,7 @@ stevedore==1.28.0
 typing==3.6.4
 unicodecsv==0.14.1
 uritemplate==3.0.0
-urllib3==1.24.2
+urllib3==1.25.9
 WebOb==1.8.0
 Werkzeug==0.15.3
 zeep==2.5.0
