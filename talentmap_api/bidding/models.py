@@ -72,3 +72,15 @@ class BidHandshake(models.Model):
     class Meta:
         managed = True
         unique_together = ('cp_id', 'bidder_perdet',)
+
+
+class BidHandshakeCycle(models.Model):
+    '''
+    The bid handshake cycle represents bid cycle data related to offering a handshake
+    '''
+
+    cycle_id = models.CharField(unique=True, max_length=255, null=False, help_text="The bid cycle ID")
+    handshake_allowed_date = models.DateTimeField(null=True)
+
+    class Meta:
+        managed = True
