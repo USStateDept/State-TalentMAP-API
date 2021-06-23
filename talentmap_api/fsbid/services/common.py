@@ -387,7 +387,9 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
-    # headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Service Need Differential"))
+    headers.append(smart_str(u"Handshake Offered"))
+    headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
@@ -401,36 +403,37 @@ def get_bids_csv(data, filename, jwt_token):
     writer.writerow(headers)
 
     for record in data:
-        position_data = get_all_position(smart_str(record["position"]["id"]), jwt_token)
-        if position_data is not None:
+        if record["position_info"] is not None:
             try:
-                ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
+                ted = smart_str(maya.parse(record["position_info"]["ted"]).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
             row = []
-            row.append(smart_str(record["position"]["title"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
-            row.append(smart_str(record["position"]["skill"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
-            row.append(smart_str(position_data["position"]["bureau"]))
-            row.append(smart_str(record["position"]["post"]["location"]["city"]))
-            row.append(smart_str(record["position"]["post"]["location"]["country"]))
-            row.append(smart_str(position_data["position"]["tour_of_duty"]))
-            row.append(smart_str(parseLanguagesString(position_data["position"]["languages"])))
-            # row.append(smart_str(position_data["position"]["post"].get("has_service_needs_differential")))
-            row.append(smart_str(position_data["position"]["post"]["differential_rate"]))
-            row.append(smart_str(position_data["position"]["post"]["danger_pay"]))
+            row.append(smart_str(record["position_info"]["position"]["title"]))
+            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["position_number"]))
+            row.append(smart_str(record["position_info"]["position"]["skill"]))
+            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["grade"]))
+            row.append(smart_str(record["position_info"]["position"]["bureau"]))
+            row.append(smart_str(record["position_info"]["position"]["post"]["location"]["city"]))
+            row.append(smart_str(record["position_info"]["position"]["post"]["location"]["country"]))
+            row.append(smart_str(record["position_info"]["position"]["tour_of_duty"]))
+            row.append(smart_str(parseLanguagesString(record["position_info"]["position"]["languages"])))
+            row.append(smart_str(record["position_info"]["isServiceNeedDifferential"]))
+            row.append(smart_str(record["position_info"]["bid_statistics"][0]["has_handshake_offered"]))
+            row.append(smart_str(record["position_info"]["isDifficultToStaff"]))
+            row.append(smart_str(record["position_info"]["position"]["post"]["differential_rate"]))
+            row.append(smart_str(record["position_info"]["position"]["post"]["danger_pay"]))
             row.append(ted)
-            row.append(smart_str(position_data["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["bidcycle"]))
+            row.append(smart_str(record["position_info"]["position"]["current_assignment"]["user"]))
+            row.append(smart_str(record["position_info"]["bidcycle"]))
             if record.get("status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
                 row.append(smart_str(record.get("status")))
             row.append(hs_status)
             row.append(smart_str(record['handshake']["hs_cdo_indicator"]))
-            row.append(smart_str(position_data["position"]["description"]["content"]))
+            row.append(smart_str(record["position_info"]["position"]["description"]["content"]))
 
             writer.writerow(row)
     return response
