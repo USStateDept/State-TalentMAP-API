@@ -69,6 +69,9 @@ class BidHandshake(models.Model):
     date_accepted = models.DateTimeField(auto_now_add=False, null=True)
     date_declined = models.DateTimeField(auto_now_add=False, null=True)
 
+    # Defined by offerer
+    expiration_date = models.DateTimeField(auto_now_add=False, null=True)
+
     class Meta:
         managed = True
         unique_together = ('cp_id', 'bidder_perdet',)
