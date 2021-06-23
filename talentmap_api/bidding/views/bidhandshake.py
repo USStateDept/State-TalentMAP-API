@@ -1,9 +1,13 @@
 import logging
 import coreapi
+import pydash
+
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from datetime import datetime
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from rest_framework.schemas import AutoSchema
 from rest_framework import mixins
@@ -15,7 +19,7 @@ from rest_framework import status
 
 from rest_condition import Or
 
-from talentmap_api.bidding.serializers import BidHandshakeSerializer
+from talentmap_api.bidding.serializers import BidHandshakeSerializer, BidHandshakeOfferSerializer
 import talentmap_api.cdo.services.available_bidders as services
 from talentmap_api.bidding.models import BidHandshake
 
@@ -37,10 +41,16 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
     '''
     add, remove, update a Bid Handshake instance
     '''
-    serializer_class = BidHandshakeSerializer
+    serializer_class = BidHandshakeOfferSerializer
     permission_classes = [Or(isDjangoGroupMember('bureau_user'), ) ]
 
-    def put(self, serializer, pk, cp_id, **ars):
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'expiration_date': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME, description='Expiration date'),
+        }))
+
+    def put(self, request, pk, cp_id, **ars):
         '''
         Offers a handshake to a bidder for a cp_id
         '''
@@ -56,17 +66,32 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now())
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
+        expiration = pydash.get(request, 'data.expiration_date')
 
         if hs.exists():
+            # Only use serializer for PUT body data
+            serializer = self.serializer_class(hs.first(), data=request.data, partial=True)
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             # If the handshake is re-offered, clear the bidder_status
             hs.update(last_editing_user=user, status='O', bidder_status=None, update_date=datetime.now(),
-                date_offered=datetime.now())
+                date_offered=datetime.now(), expiration_date=expiration)
+
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
+            # Only use serializer for PUT body data
+            serializer = self.serializer_class(hs.first(), data=request.data, partial=True)
+
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
-                status='O', date_offered=datetime.now())
+                status='O', date_offered=datetime.now(), expiration_date=expiration)
+
             bureauHandshakeNotification(pk, cp_id, True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
