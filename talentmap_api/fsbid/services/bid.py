@@ -167,7 +167,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
     if handshakeCycle:
         handshakeCycle = handshakeCycle.first()
         handshake_allowed_date = handshakeCycle.handshake_allowed_date
-        if handshake_allowed_date > maya.now().datetime():
+        if handshake_allowed_date and handshake_allowed_date > maya.now().datetime():
             showHandshakeData = False
 
     data = {
