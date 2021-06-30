@@ -490,7 +490,7 @@ def bidderHandshakeNotification(bureau_user, cp_id, perdet, jwt, is_accept=True)
         except:#nosec
             pass
     if bureau_user:
-        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id, 'accepted': is_accept})
 
 
 def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
@@ -501,10 +501,10 @@ def cdoHandshakeNotification(perdet, cp_id, is_accept=True):
     bureau_user = BidHandshake.objects.get(cp_id=cp_id, bidder_perdet=perdet).owner
     if user:
         message = f"CDO has {action} handshake on your behalf for a position that you bid on."
-        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id, 'accepted': is_accept})
     if bureau_user:
         message = f"CDO has {action} your handshake on behalf of bidder for a position."
-        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id})
+        sendBidHandshakeNotification(bureau_user, message, ['bureau_bidding'], {'id': cp_id, 'accepted': is_accept})
 
 
 def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
@@ -513,7 +513,7 @@ def bureauHandshakeNotification(perdet, cp_id, is_accept=True):
     message = f"Bureau has {action} handshake for a position."
     user = UserProfile.objects.filter(emp_id=perdet)
     if user:
-        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id})
+        sendBidHandshakeNotification(user.first(), message, ['bidding', 'handshake_bidder'], {'id': cp_id, 'extended': is_accept})
 
 
 def sendBidHandshakeNotification(owner, message, tags=[], meta={}):

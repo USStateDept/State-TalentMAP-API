@@ -2,10 +2,13 @@ import logging
 import jwt
 import requests
 import pydash
+import maya
 
 from django.conf import settings
 
 from django.utils.encoding import smart_str
+
+from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date
 
@@ -157,8 +160,17 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
     cpId = int(data.get('cp_id'))
     perdet = str(data.get('perdet_seq_num'))
     positionInfo = ap_services.get_available_position(str(cpId), jwt_token)
+    cycle = pydash.get(positionInfo, 'bidcycle.id')
 
-    return {
+    showHandshakeData = True
+    handshakeCycle = BidHandshakeCycle.objects.filter(cycle_id=cycle)
+    if handshakeCycle:
+        handshakeCycle = handshakeCycle.first()
+        handshake_allowed_date = handshakeCycle.handshake_allowed_date
+        if handshake_allowed_date and handshake_allowed_date > maya.now().datetime():
+            showHandshakeData = False
+
+    data = {
         "id": f"{perdet}_{cpId}",
         "emp_id": data.get('perdet_seq_num'),
         "user": "",
@@ -181,7 +193,11 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
         "reviewer": "",
         "cdo_bid": data.get('cdo_bid') == 'Y',
         "position_info": positionInfo,
-        "handshake": {
+    }
+
+    if showHandshakeData:
+        data["handshake"] = {
             **bh_services.get_bidder_handshake_data(cpId, perdet),
         }
-    }
+
+    return data

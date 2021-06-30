@@ -3,7 +3,7 @@ import maya
 from rest_framework import serializers
 
 from talentmap_api.common.serializers import PrefetchedSerializer
-from talentmap_api.bidding.models import BidHandshake
+from talentmap_api.bidding.models import BidHandshake, BidHandshakeCycle
 
 
 class BidHandshakeSerializer(PrefetchedSerializer):
@@ -31,3 +31,10 @@ class BidHandshakeOfferSerializer(PrefetchedSerializer):
         model = BidHandshake
         fields = "__all__"
         writable_fields = ('expiration_date')
+
+
+class BidHandshakeCycleSerializer(PrefetchedSerializer):
+    class Meta:
+        model = BidHandshakeCycle
+        fields = "__all__"
+        writable_fields = ('cycle_id', 'handshake_allowed_date')
