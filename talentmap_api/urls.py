@@ -57,6 +57,7 @@ urlpatterns = [
 
     # Bidding
     url(r'^api/v1/bidding/', include('talentmap_api.bidding.urls.bidding')),
+    url(r'^api/v1/bidhandshakecycle/', include('talentmap_api.bidding.urls.bidhandshakecycle')),
 
     #CDO
     url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
