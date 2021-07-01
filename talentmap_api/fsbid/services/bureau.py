@@ -1,5 +1,6 @@
 import logging
 import pydash
+import maya
 from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
@@ -8,6 +9,8 @@ import requests  # pylint: disable=unused-import
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+
+from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
@@ -194,6 +197,12 @@ def fsbid_bureau_positions_to_talentmap(bp):
     if bp.get("pos_skill_code", None) == bp.get("pos_staff_ptrn_skill_code", None):
         skillSecondary = None
         skillSecondaryCode = None
+    
+    handshake_allowed_date = None
+    handshakeCycle = BidHandshakeCycle.objects.filter(cycle_id=bp.get("cycle_id", None))
+    if handshakeCycle:
+        handshakeCycle = handshakeCycle.first()
+        handshake_allowed_date = handshakeCycle.handshake_allowed_date
 
     return {
         "id": bp.get("cp_id", None),
@@ -291,7 +300,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "cycle_start_date": None,
             "cycle_deadline_date": None,
             "cycle_end_date": None,
-            "active": None
+            "active": None,
+            "handshake_allowed_date": handshake_allowed_date,
         },
         "bid_statistics": [{
             "id": None,
