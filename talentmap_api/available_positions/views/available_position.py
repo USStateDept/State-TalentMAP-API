@@ -417,10 +417,10 @@ class BureauBiddersRankings(APIView):
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
         user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
         shortlist_bids = list(filter(lambda x: (user_rankings.filter(
-            cp_id=str(pydash.get(x, 'position.id'))).exists()), user_bids))
+            cp_id=str(pydash.get(x, 'position_info.id'))).exists()), user_bids))
         filtered_bids = []
         for bid in shortlist_bids:
-            pos_id = str(pydash.get(bid, 'position.id'))
+            pos_id = str(pydash.get(bid, 'position_info.id'))
             hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
             hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
             if hasOrgPermissions or hasBureauPermissions:
