@@ -12,7 +12,8 @@ from talentmap_api.fsbid.services.cdo import single_cdo
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
 from talentmap_api.fsbid.services.employee import get_employee_information
-from talentmap_api.fsbid.services.client import get_user_information
+from talentmap_api.fsbid.services.client import get_user_information, fsbid_clients_to_talentmap_clients
+from talentmap_api.fsbid.services.common import get_fsbid_results
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     cdo_info = serializers.SerializerMethodField()
     employee_info = serializers.SerializerMethodField()
     user_info = serializers.SerializerMethodField()
+    current_assignment = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -127,6 +129,21 @@ class UserProfileSerializer(PrefetchedSerializer):
             jwt = request.META['HTTP_JWT']
             user = UserProfile.objects.get(user=request.user)
             return get_user_information(jwt, user.emp_id)
+        except BaseException:
+            return {}
+
+    def get_current_assignment(self, obj):
+        request = self.context['request']
+        try:
+            jwt = request.META['HTTP_JWT']
+            user = UserProfile.objects.get(user=request.user)
+            perdet = user.emp_id
+            if not perdet:
+                return {}
+
+            uriCurrentAssignment = f"CDOClients?request_params.perdet_seq_num={perdet}&request_params.currentAssignmentOnly=true"
+            responseCurrentAssignment = get_fsbid_results(uriCurrentAssignment, jwt, fsbid_clients_to_talentmap_clients)
+            return list(responseCurrentAssignment)[0].get('current_assignment', {})
         except BaseException:
             return {}
 
