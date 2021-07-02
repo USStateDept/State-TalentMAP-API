@@ -401,7 +401,7 @@ class AvailablePositionHighlightActionView(APIView):
 
 class BureauBiddersRankings(APIView):
 
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
 
     schema = AutoSchema(
         manual_fields=[
