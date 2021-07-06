@@ -153,6 +153,9 @@ sort_dict = {
 }
 
 
+mapBool = {True: 'Yes', False: 'No', 'default': ''}
+
+
 def sorting_values(sort):
     if sort is not None:
         results = []
@@ -438,7 +441,7 @@ def get_bids_csv(data, filename, jwt_token):
             else:
                 row.append(smart_str(record.get("status")))
             row.append(hs_status)
-            row.append(smart_str(record['handshake']["hs_cdo_indicator"]))
+            row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
             row.append(smart_str(record["position_info"]["position"]["description"]["content"]))
 
             writer.writerow(row)
@@ -524,7 +527,6 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_email = ''
 
         hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
-        mapBool = {True: 'Yes', False: 'No', 'default': ''}
         row = []
         row.append(smart_str(record["name"]))
         row.append(mapBool[pydash.get(record, 'has_competing_rank', 'default')])
