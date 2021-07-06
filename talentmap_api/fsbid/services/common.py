@@ -332,14 +332,13 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
-
     for record in data:
         try:
             ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
         except:
             ted = "None listed"
         try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y'))
         except:
             posteddate = "None listed"
 
