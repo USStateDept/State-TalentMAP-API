@@ -432,7 +432,7 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(record["position_info"]["position"]["post"]["danger_pay"]))
             row.append(ted)
             row.append(smart_str(record["position_info"]["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["position_info"]["bidcycle"]))
+            row.append(smart_str(record["position_info"]["bidcycle"]["name"]))
             if record.get("status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
