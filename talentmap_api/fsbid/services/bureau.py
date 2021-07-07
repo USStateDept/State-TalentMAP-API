@@ -375,5 +375,5 @@ def get_bureau_shortlist_indicator(data):
     Adds a shortlist indicator field to position results
     '''
     for position in data["results"]:
-        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=position["id"]).exists()
+        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=str(int(position["id"]))).exists()
     return data
