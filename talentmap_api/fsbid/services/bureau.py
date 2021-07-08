@@ -155,10 +155,14 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
             active_handshake_perdet = True
         else:
             active_handshake_perdet = False
+    
+    fullname = bid.get("full_name", None)
+    if fullname:
+        fullname = fullname.rstrip(' Nmn')
 
     return {
         "emp_id": emp_id,
-        "name": bid.get("full_name"),
+        "name": fullname,
         "email": pydash.get(bid, "userDetails.gal_smtp_email_address_text"),
         "grade": bid.get("grade_code"),
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
