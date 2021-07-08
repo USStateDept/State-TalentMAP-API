@@ -72,7 +72,7 @@ class NotificationView(FieldLimitableSerializerMixin,
         # This is inefficient, but we have to fetch all notifications to find out which ones have the requested tags.
         if tags:
             matchesClone = pydash.filter_(matches, lambda x: set(tags).issubset(set(x['tags'] or [])))
-            matchesClone = pydash.map_(matches, 'id')
+            matchesClone = pydash.map_(matchesClone, 'id')
             # Only append to params if tags exists, so that we don't inadvertently pass an empty array
             params['id__in'] = matchesClone
         
