@@ -133,7 +133,6 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id)
-        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
