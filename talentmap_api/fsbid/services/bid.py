@@ -158,7 +158,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
     )
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(data.get('cp_id'))
-    perdet = str(data.get('perdet_seq_num'))
+    perdet = str(int(float(data.get('perdet_seq_num'))))
     positionInfo = ap_services.get_available_position(str(cpId), jwt_token)
     cycle = pydash.get(positionInfo, 'bidcycle.id')
 
