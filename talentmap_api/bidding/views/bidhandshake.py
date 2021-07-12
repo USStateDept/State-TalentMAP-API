@@ -66,7 +66,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now())
         expiration = pydash.get(request, 'data.expiration_date')
 
         if hs.exists():
