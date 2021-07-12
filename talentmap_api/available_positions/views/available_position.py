@@ -401,7 +401,7 @@ class AvailablePositionHighlightActionView(APIView):
 
 class BureauBiddersRankings(APIView):
 
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
 
     schema = AutoSchema(
         manual_fields=[
@@ -420,6 +420,7 @@ class BureauBiddersRankings(APIView):
         filtered_bids = []
 
         for bid in user_bids:
+          try:
             pos_id = str(pydash.get(bid, 'position.id'))
             rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
             if rank:
@@ -429,6 +430,8 @@ class BureauBiddersRankings(APIView):
                 if hasOrgPermissions or hasBureauPermissions:
                     bid["ranking"] = rank
                     filtered_bids.append(bid)
+          except Exception as e:
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
 
         filtered_bids.sort(key=lambda x: x['ranking'])
         other_sl_bids = num_sl_bids - len(filtered_bids)

@@ -153,6 +153,9 @@ sort_dict = {
 }
 
 
+mapBool = {True: 'Yes', False: 'No', 'default': ''}
+
+
 def sorting_values(sort):
     if sort is not None:
         results = []
@@ -339,7 +342,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             ted = "None listed"
         try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y'))
         except:
             posteddate = "None listed"
 
@@ -432,13 +435,13 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(record["position_info"]["position"]["post"]["danger_pay"]))
             row.append(ted)
             row.append(smart_str(record["position_info"]["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["position_info"]["bidcycle"]))
+            row.append(smart_str(record["position_info"]["bidcycle"]["name"]))
             if record.get("status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
                 row.append(smart_str(record.get("status")))
             row.append(hs_status)
-            row.append(smart_str(record['handshake']["hs_cdo_indicator"]))
+            row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
             row.append(smart_str(record["position_info"]["position"]["description"]["content"]))
 
             writer.writerow(row)
@@ -524,7 +527,6 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_email = ''
 
         hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
-        mapBool = {True: 'Yes', False: 'No', 'default': ''}
         row = []
         row.append(smart_str(record["name"]))
         row.append(mapBool[pydash.get(record, 'has_competing_rank', 'default')])

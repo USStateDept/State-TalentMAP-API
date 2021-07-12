@@ -8,6 +8,7 @@ from copy import deepcopy
 import requests  # pylint: disable=unused-import
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from talentmap_api.bidding.models import BidHandshakeCycle
 
@@ -18,6 +19,7 @@ import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.classifications as classifications_services
+import talentmap_api.fsbid.services.employee as empservices
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 
@@ -82,6 +84,12 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id
     '''
+
+    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    if not (hasBureauPermissions or hasOrgPermissions):
+        raise PermissionDenied()
+
     new_query = deepcopy(query)
     new_query["id"] = id
     active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
@@ -98,6 +106,12 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id for export
     '''
+
+    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    if not (hasBureauPermissions or hasOrgPermissions):
+        raise PermissionDenied()
+
     new_query = deepcopy(query)
     new_query["id"] = id
     active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
@@ -141,10 +155,14 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
             active_handshake_perdet = True
         else:
             active_handshake_perdet = False
+    
+    fullname = bid.get("full_name", None)
+    if fullname:
+        fullname = fullname.rstrip(' Nmn')
 
     return {
         "emp_id": emp_id,
-        "name": bid.get("full_name"),
+        "name": fullname,
         "email": pydash.get(bid, "userDetails.gal_smtp_email_address_text"),
         "grade": bid.get("grade_code"),
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
@@ -361,5 +379,5 @@ def get_bureau_shortlist_indicator(data):
     Adds a shortlist indicator field to position results
     '''
     for position in data["results"]:
-        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=position["id"]).exists()
+        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=str(int(position["id"]))).exists()
     return data

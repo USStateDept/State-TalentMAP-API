@@ -66,7 +66,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
         # Revoke any previously offered handshakes for this cp_id
         hsToArchive = BidHandshake.objects.exclude(bidder_perdet=pk).filter(cp_id=cp_id)
-        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now(), expiration_date=None)
+        hsToArchive.update(last_editing_user=user, status='R', update_date=datetime.now(), date_revoked=datetime.now())
         expiration = pydash.get(request, 'data.expiration_date')
 
         if hs.exists():
@@ -80,7 +80,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
             hs.update(last_editing_user=user, status='O', bidder_status=None, update_date=datetime.now(),
                 date_offered=datetime.now(), expiration_date=expiration)
 
-            bureauHandshakeNotification(pk, cp_id, True)
+            bureauHandshakeNotification(pk, cp_id, True, self.request.META['HTTP_JWT'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             # Only use serializer for PUT body data
@@ -92,7 +92,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
             BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
                 status='O', date_offered=datetime.now(), expiration_date=expiration)
 
-            bureauHandshakeNotification(pk, cp_id, True)
+            bureauHandshakeNotification(pk, cp_id, True, self.request.META['HTTP_JWT'])
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, cp_id, format=None):
@@ -113,7 +113,7 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
             user = UserProfile.objects.get(user=self.request.user)
             hs.update(last_editing_user=user, bidder_perdet=pk, cp_id=cp_id, status='R',
                 update_date=datetime.now(), date_revoked=datetime.now())
-            bureauHandshakeNotification(pk, cp_id, False)
+            bureauHandshakeNotification(pk, cp_id, False, self.request.META['HTTP_JWT'])
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
