@@ -32,7 +32,7 @@ djangorestframework==3.12.3
 djangorestframework-bulk==0.2.1
 djangorestframework-csv==2.1.0
 djangorestframework-filters==1.0.0.dev2
-djangosaml2==0.50.0
+djangosaml2==0.16.11
 drf-extensions==0.3.1
 drf-yasg==1.20.0
 freezegun==0.3.10
@@ -67,7 +67,7 @@ PyJWT==1.7.1
 pylint==2.5.3
 pylint-exit==1.1.0
 pyOpenSSL==17.5.0
-pysaml2==7.0.1
+pysaml2==4.4.0
 pytest==3.5.0
 pytest-cov==2.5.1
 pytest-django==3.1.2
