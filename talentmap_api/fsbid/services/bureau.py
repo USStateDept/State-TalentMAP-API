@@ -136,7 +136,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     cdo = None
     classifications = None
     has_competing_rank = None
-    emp_id = bid.get("perdet_seq_num", None)
+    emp_id = str(int(float(bid.get("perdet_seq_num", None))))
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
         classifications = classifications_services.get_client_classification(jwt, emp_id)
