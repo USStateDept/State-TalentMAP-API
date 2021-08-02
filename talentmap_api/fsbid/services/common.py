@@ -172,8 +172,9 @@ def sorting_values(sort):
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
-    if query_mapping_function and query:
-        url = f"{api_root}/{uri}?{query_mapping_function(query)}"
+    queryClone = query or {}
+    if query_mapping_function:
+        url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     else:
         url = f"{api_root}/{uri}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
