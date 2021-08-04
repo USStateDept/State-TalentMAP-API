@@ -32,6 +32,7 @@ from talentmap_api.available_positions.serializers.serializers import AvailableP
 from talentmap_api.available_positions.filters import AvailablePositionRankingFilter, AvailablePositionRankingLockFilter
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
+from talentmap_api.fsbid.services.reference import get_cycles
 
 import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
@@ -414,6 +415,8 @@ class BureauBiddersRankings(APIView):
         """
         Return position information for all of bidders' bids including their ranking information for those positions
         """
+        cycles = get_cycles(request.META['HTTP_JWT'])
+        cycles = pydash.map_(cycles, 'id')
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
         user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
         shortlist_bids = []

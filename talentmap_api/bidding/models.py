@@ -46,6 +46,7 @@ class BidHandshake(models.Model):
 
     bidder_perdet = models.CharField(max_length=255, null=False, help_text="The bidder being offered a handshake")
     cp_id = models.CharField(max_length=255, null=False, help_text="The cycle position ID")
+    bid_cycle_id = models.IntegerField(null=True, help_text="The bid cycle ID")
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,

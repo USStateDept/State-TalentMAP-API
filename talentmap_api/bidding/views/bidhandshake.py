@@ -30,6 +30,7 @@ from talentmap_api.common.common_helpers import in_group_or_403, bidderHandshake
 from talentmap_api.common.permissions import isDjangoGroupMember
 import talentmap_api.fsbid.services.client as client_services
 import talentmap_api.fsbid.services.employee as empservices
+import talentmap_api.fsbid.services.available_positions as ap_services
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +89,11 @@ class BidHandshakeBureauActionView(FieldLimitableSerializerMixin,
 
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            ap = ap_services.get_available_position(cp_id, self.request.META['HTTP_JWT'])
+            bid_cycle_id = pydash.get(ap, 'bidcycle.id')
 
-            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id,
+            BidHandshake.objects.create(last_editing_user=user, owner=user, bidder_perdet=pk, cp_id=cp_id, bid_cycle_id=bid_cycle_id,
                 status='O', date_offered=datetime.now(), expiration_date=expiration)
 
             bureauHandshakeNotification(pk, cp_id, True, self.request.META['HTTP_JWT'])
