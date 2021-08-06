@@ -140,6 +140,8 @@ sort_dict = {
     "location_city": "geoloc.city",
     "location_country": "geoloc.country",
     "location_state": "geoloc.state",
+    "location": "location_city",
+    "location_code": "pos_location_code",
     "commuterPost": "cpn_desc",
     "tandem": "tandem_nbr",
     "bidder_grade": "grade_code",
