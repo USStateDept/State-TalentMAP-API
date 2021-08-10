@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_cycles(jwt_token):
     '''
-    Gets an indivdual available position by id
+    Common function to get bid cycles
     '''
     view = views.FSBidCyclesView
     uri = view.uri
