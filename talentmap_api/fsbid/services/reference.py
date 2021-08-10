@@ -4,9 +4,28 @@ import requests  # pylint: disable=unused-import
 
 from django.conf import settings
 
+import talentmap_api.fsbid.services.common as common
+from talentmap_api.fsbid.views import reference as views
+
 API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
+
+
+def get_cycles(jwt_token):
+    '''
+    Common function to get bid cycles
+    '''
+    view = views.FSBidCyclesView
+    uri = view.uri
+    mapping_function = view.mapping_function 
+
+    response = common.get_fsbid_results(
+        uri,
+        jwt_token,
+        mapping_function
+    )
+    return list(response)
 
 
 @staticmethod

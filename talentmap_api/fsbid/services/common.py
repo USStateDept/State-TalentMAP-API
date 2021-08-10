@@ -62,7 +62,7 @@ def get_pagination(query, count, base_url, host=None):
 def convert_multi_value(val):
     toReturn = None
     if val is not None:
-        toReturn = val.split(',')
+        toReturn = str(val).split(',')
     if toReturn is not None and len(toReturn[0]) is 0:
         toReturn = None
     return toReturn
@@ -481,7 +481,14 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
 def has_competing_rank(jwt, perdet, pk):
     rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
         "cp_id", flat=True)
-    for y in rankOneBids:
+    rankOneBids = list(rankOneBids)
+    aps = []
+    if rankOneBids:
+        ids = ','.join(rankOneBids)
+        ap = apservices.get_available_positions({ 'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1 }, jwt)
+        aps = pydash.map_(ap['results'], 'id')
+
+    for y in aps:
         hasBureauPermissions = empservices.has_bureau_permissions(y, jwt)
         hasOrgPermissions = empservices.has_org_permissions(y, jwt)
         if hasBureauPermissions or hasOrgPermissions:
