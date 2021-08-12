@@ -158,18 +158,25 @@ sort_dict = {
 mapBool = {True: 'Yes', False: 'No', 'default': ''}
 
 
-def sorting_values(sort):
+def sorting_values(sort, use_post=False):
     if sort is not None:
         results = []
         for s in sort.split(','):
-            direction = 'asc'
-            if s.startswith('-'):
-                direction = 'desc'
-                s = sort_dict.get(s[1:], None)
+            if use_post:
+                if s.startswith('-'):
+                    s = sort_dict.get(s[1:], None)
+                else:
+                    s = sort_dict.get(s, None)
+                results.append(s)
             else:
-                s = sort_dict.get(s, None)
-            if s is not None:
-                results.append(f"{s} {direction}")
+                direction = 'asc'
+                if s.startswith('-'):
+                    direction = 'desc'
+                    s = sort_dict.get(s[1:], None)
+                else:
+                    s = sort_dict.get(s, None)
+                if s is not None:
+                    results.append(f"{s} {direction}")
         return results
 
 
@@ -180,6 +187,19 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
     else:
         url = f"{api_root}/{uri}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
+
+
+def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o == None)
+    url = f"{api_root}/{uri}"
+    response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery, verify=False).json()  # nosec
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
@@ -205,29 +225,33 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False):
     '''
     Gets an individual record by the provided ID
     '''
-    response = get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
+    fetch_method = get_results_with_post if use_post else get_results
+    response = fetch_method(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 
-def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT, use_post=False):
     '''
     Gets items from FSBid
     '''
     pagination = get_pagination(query, count_function(query, jwt_token)['count'], base_url, host) if count_function else {}
+    fetch_method = get_results_with_post if use_post else get_results
     return {
         **pagination,
-        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
+        "results": fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False):
     '''
     Gets the total number of items for a filterset
     '''
+    args = {}
+
     newQuery = query.copy()
     countProp = "count(1)"
     if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
@@ -238,8 +262,14 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         countProp = "count"
     if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
         countProp = "cnt"
-    url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    if use_post:
+        url = f"{api_root}/{uri}"
+        args['json'] = query_mapping_function(newQuery)
+        method = requests.post
+    else: 
+        url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
+        method = requests.get
+    response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False, **args).json()  # nosec
     return {"count": response["Data"][0][countProp]}
 
 
@@ -380,7 +410,6 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
 
 def get_bids_csv(data, filename, jwt_token):
-    from talentmap_api.fsbid.services.available_positions import get_all_position
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
