@@ -83,11 +83,12 @@ class FSBidClassificationsView(BaseView):
         duplicate_results = list(results)
         unique_codes = set(map(lambda x: x['code'], duplicate_results))
 
-        nested_results, seasons, classification_text = [], [], ''
+        nested_results, seasons, classification_text, glossary_term = [], [], '', ''
         for code in unique_codes:
             for classification in duplicate_results:
                 if classification['code'] == code:
                     classification_text = classification['text']
+                    glossary_term = classification['glossary_term']
                     season_txt = classification['season_text'].split(' - ')
                     seasons.append({
                         'id': classification['id'],
@@ -97,7 +98,8 @@ class FSBidClassificationsView(BaseView):
             nested_results.append({
                 'code': code,
                 'text': classification_text,
-                'seasons': seasons
+                'seasons': seasons,
+                'glossary_term': glossary_term
             })
             seasons, classification_text = [], ''
         return nested_results

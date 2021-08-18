@@ -57,3 +57,16 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
         return None
 
     return fsbid_classifications_to_tmap(response.get("Data", {}))
+
+def get_user_classifications(jwt_token=None, perdet_seq_num=None):
+    '''
+    Get the user's classification(s)
+    '''
+    from talentmap_api.fsbid.services.client import fsbid_classifications_to_tmap
+    url = f"{BTP_ROOT}?request_params.perdet_seq_num={perdet_seq_num}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+
+    if response.get("Data") is None or response.get('return_code', -1) == -1:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    return fsbid_classifications_to_tmap(response.get("Data", {}))

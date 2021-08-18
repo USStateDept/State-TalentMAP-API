@@ -1,4 +1,5 @@
 import logging
+import pydash
 
 import requests  # pylint: disable=unused-import
 
@@ -143,12 +144,21 @@ def fsbid_locations_to_talentmap_locations(data):
 
 @staticmethod
 def fsbid_classifications_to_talentmap_classifications(data):
+    glossary_terms = {
+        'T': 'Tandem',
+        '8': '6 8 - Six Eight Year Rule',
+        'A': 'AMB Ambassador',
+        'F': 'Fair Share',
+        'P': 'Pickering Fellow',
+    }
+    gloss_term = pydash.get(glossary_terms, pydash.get(data, "tp_code", None), None)
     return {
         "code": data.get("tp_code", None),
         "text": data.get("tp_descr_txt", None),
         "disabled_ind": data.get("disabled_ind", "N") == "Y",
         "id": data.get("te_id", None),
         "season_text": data.get("te_descr_txt", None),
+        "glossary_term": gloss_term if gloss_term else pydash.get(data, "tp_descr_txt", None),
     }
 
 
