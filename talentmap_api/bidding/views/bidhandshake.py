@@ -31,6 +31,7 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 import talentmap_api.fsbid.services.client as client_services
 import talentmap_api.fsbid.services.employee as empservices
 import talentmap_api.fsbid.services.available_positions as ap_services
+import talentmap_api.fsbid.services.bid as bid_services
 
 logger = logging.getLogger(__name__)
 
@@ -137,10 +138,17 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
         '''
         user = UserProfile.objects.get(user=self.request.user)
         hs = BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id)
+        jwt = self.request.META['HTTP_JWT']
 
         if not BidHandshake.objects.filter(bidder_perdet=pk, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
+            # Return an error if a handshake has already been accepted within active
+            bids = bid_services.user_bids(pk, jwt)
+            accept_disabled = pydash.find(bids, lambda x: x['accept_handshake_disabled'] == True)
+            if accept_disabled:
+                return Response('A handshake has already been accepted', status=status.HTTP_409_CONFLICT)
+
             hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=True,
                 update_date=datetime.now(), date_accepted=datetime.now())
             cdoHandshakeNotification(pk, cp_id, True)
@@ -183,6 +191,12 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         if not BidHandshake.objects.filter(bidder_perdet=user.emp_id, cp_id=cp_id, status__in=['O', 'A', 'D']).exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:
+            # Return an error if a handshake has already been accepted within active
+            bids = bid_services.user_bids(user.emp_id, jwt)
+            accept_disabled = pydash.find(bids, lambda x: x['accept_handshake_disabled'] == True)
+            if accept_disabled:
+                return Response('A handshake has already been accepted', status=status.HTTP_409_CONFLICT)
+
             hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=False,
                 update_date=datetime.now(), date_accepted=datetime.now())
             bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, True)

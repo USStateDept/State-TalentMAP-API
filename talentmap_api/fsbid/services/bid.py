@@ -3,6 +3,7 @@ import jwt
 import requests
 import pydash
 import maya
+from copy import deepcopy
 
 from django.conf import settings
 
@@ -32,7 +33,7 @@ def user_bids(employee_id, jwt_token, position_id=None):
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
-    return mappedBids
+    return map_bids_to_disable_handshake_if_accepted(mappedBids)
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     '''
@@ -96,6 +97,18 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+
+
+def map_bids_to_disable_handshake_if_accepted(bids):
+    bidsClone = deepcopy(list(bids))
+    hasAcceptedHandshakeIds = pydash.chain(bidsClone).filter_(
+        lambda x: pydash.get(x, 'handshake.bidder_hs_code') == 'handshake_accepted' and pydash.get(x, 'handshake.hs_status_code') != 'handshake_revoked'
+    ).map('id').value()
+    bidsClone = pydash.map_(bidsClone, lambda x: {
+            **x,
+            'accept_handshake_disabled': False if not hasAcceptedHandshakeIds else True if x['id'] not in hasAcceptedHandshakeIds else False
+        })
+    return bidsClone
 
 
 def get_bid_status(statusCode, handshakeCode, assignmentCreateDate, panelMeetingStatus, handshakeAllowed):
