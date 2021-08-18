@@ -163,6 +163,7 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     # write the headers
     writer.writerow([
         smart_str(u"Name"),
+        smart_str(u"Email"),
         smart_str(u"Skill"),
         smart_str(u"Grade"),
         smart_str(u"Employee ID"),
@@ -171,8 +172,11 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     ])
 
     for record in data:
+        email_response = get_user_information(jwt_token, record['id'])
+        email = pydash.get(email_response, 'email') or 'None listed' 
         writer.writerow([
             smart_str(record["name"]),
+            email,
             smart_str(record["skills"]),
             smart_str("=\"%s\"" % record["grade"]),
             smart_str("=\"%s\"" % record["employee_id"]),

@@ -30,6 +30,8 @@ services:
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/Employees
       - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
+      - CP_API_V2_URL=http://host.docker.internal:3333/v2/cyclePositions
+      - USE_CP_API_V2=true
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
       - TP_API_URL=http://host.docker.internal:3333/TrackingPrograms

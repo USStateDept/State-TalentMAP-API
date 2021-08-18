@@ -22,6 +22,7 @@ import talentmap_api.fsbid.services.classifications as classifications_services
 import talentmap_api.fsbid.services.employee as empservices
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
+from talentmap_api.bidding.models import BidHandshake
 
 logger = logging.getLogger(__name__)
 
@@ -133,10 +134,12 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     Formats the response bureau position bids from FSBid
     '''
+    from talentmap_api.fsbid.services.reference import get_cycles
+
     cdo = None
     classifications = None
     has_competing_rank = None
-    emp_id = bid.get("perdet_seq_num", None)
+    emp_id = str(int(float(bid.get("perdet_seq_num", None))))
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
         classifications = classifications_services.get_client_classification(jwt, emp_id)
@@ -159,6 +162,14 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     fullname = bid.get("full_name", None)
     if fullname:
         fullname = fullname.rstrip(' Nmn')
+    
+    hasAcceptedOffer = False
+    cycles = get_cycles(jwt)
+    cycles = pydash.map_(cycles, 'id')
+    handshakesAccepted = BidHandshake.objects.filter(bidder_perdet=emp_id, status='A', bid_cycle_id__in=cycles).exclude(cp_id=cp_id).values_list("cp_id", flat=True)
+    handshakesAccepted = list(handshakesAccepted)
+    if handshakesAccepted:
+        hasAcceptedOffer = True
 
     return {
         "emp_id": emp_id,
@@ -178,6 +189,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
             **handshake,
         },
         "active_handshake_perdet": active_handshake_perdet,
+        "has_accepted_other_offer": hasAcceptedOffer,
     }
 
 
@@ -343,6 +355,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
         "request_params.overseas_ind": services.overseas_values(query),
         "request_params.languages": services.convert_multi_value(query.get("language_codes")),
         "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
+        "request_params.org_codes": services.convert_multi_value(query.get("position__org__code__in")),
         "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
         "request_params.location_codes": services.post_values(query),
         "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
