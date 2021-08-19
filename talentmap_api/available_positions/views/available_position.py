@@ -421,7 +421,7 @@ class BureauBiddersRankings(APIView):
 
         for bid in user_bids:
           try:
-            pos_id = str(pydash.get(bid, 'position.id'))
+            pos_id = str(int(pydash.get(bid, 'position_info.id')))
             rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
             if rank:
                 num_sl_bids += 1
