@@ -423,7 +423,7 @@ class BureauBiddersRankings(APIView):
           try:
             pos_id = str(int(pydash.get(bid, 'position_info.id')))
             rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
-            if rank:
+            if rank is not None:
                 num_sl_bids += 1
                 hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
                 hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
