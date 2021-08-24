@@ -416,26 +416,25 @@ class BureauBiddersRankings(APIView):
         """
         user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
         user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
-        shortlist_bids = []
-        try:
-            shortlist_bids = list(filter(lambda x: (user_rankings.filter(
-                cp_id=str(int(pydash.get(x, 'position_info.id')))).exists()), user_bids))
-        except Exception as e:
-            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+        num_sl_bids = 0
         filtered_bids = []
-        for bid in shortlist_bids:
-            try:
-                pos_id = str(int(pydash.get(bid, 'position_info.id')))
+
+        for bid in user_bids:
+          try:
+            pos_id = str(int(pydash.get(bid, 'position_info.id')))
+            rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+            if rank is not None:
+                num_sl_bids += 1
                 hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
                 hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
                 if hasOrgPermissions or hasBureauPermissions:
-                    bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+                    bid["ranking"] = rank
                     filtered_bids.append(bid)
-            except Exception as e:
-                logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+          except Exception as e:
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
 
         filtered_bids.sort(key=lambda x: x['ranking'])
-        other_sl_bids = len(shortlist_bids) - len(filtered_bids)
+        other_sl_bids = num_sl_bids - len(filtered_bids)
         return Response({
             "results": filtered_bids,
             "other-sl-bidcount": 0 if pydash.is_negative(other_sl_bids) else other_sl_bids,
