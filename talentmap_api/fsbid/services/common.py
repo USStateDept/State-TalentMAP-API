@@ -262,24 +262,21 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     args = {}
 
     newQuery = query.copy()
-    countProp = "count(1)"
     if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
-    if uri in 'CDOClients':
-        countProp = "count"
-    if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
-        countProp = "cnt"
     if use_post:
         url = f"{api_root}/{uri}"
         args['json'] = query_mapping_function(newQuery)
         method = requests.post
-    else: 
+    else:
         url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
         method = requests.get
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False, **args).json()  # nosec
-    return {"count": response["Data"][0][countProp]}
+    count = pydash.get(response, "Data[0]")
+    count = pydash.get(count, pydash.keys(count)[0])
+    return {"count": count}
 
 
 # pre-load since this data rarely changes
