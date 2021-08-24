@@ -23,7 +23,7 @@ def get_position_handshake_data(cp_id):
     return props
 
 
-def get_bidder_handshake_data(cp_id, perdet):
+def get_bidder_handshake_data(cp_id, perdet, exclude_revoked=False):
     '''
     Return handshake data for a given perdet and cp_id
     '''
@@ -51,6 +51,8 @@ def get_bidder_handshake_data(cp_id, perdet):
     }
 
     hs = BidHandshake.objects.filter(cp_id=cp_id, bidder_perdet=perdet)
+    if exclude_revoked:
+        hs = hs.exclude(status='R')
 
     if hs.exists():
         hs = hs.first()

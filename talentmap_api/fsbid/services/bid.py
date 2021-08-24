@@ -220,7 +220,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
 
     if showHandshakeData:
         data["handshake"] = {
-            **bh_services.get_bidder_handshake_data(cpId, perdet),
+            **bh_services.get_bidder_handshake_data(cpId, perdet, True),
         }
 
     return data
