@@ -16,7 +16,6 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
-import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.classifications as classifications_services
 import talentmap_api.fsbid.services.employee as empservices
 
@@ -34,6 +33,8 @@ def get_bureau_position(id, jwt_token):
     '''
     Gets an indivdual bureau position by id
     '''
+    import talentmap_api.fsbid.services.common as services
+
     return services.get_individual(
         "",
         id,
@@ -49,6 +50,8 @@ def get_bureau_positions(query, jwt_token, host=None):
     '''
     Gets all bureau positions
     '''
+    import talentmap_api.fsbid.services.common as services
+
     return services.send_get_request(
         "",
         query,
@@ -67,10 +70,14 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
+    import talentmap_api.fsbid.services.common as services
+
     return services.send_count_request("", query, partial(convert_bp_query, use_post=True), jwt_token, host, CP_API_V2_ROOT, True)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
+    import talentmap_api.fsbid.services.common as services
+
     data = services.send_get_csv_request(
         "availablePositions",
         query,
@@ -89,6 +96,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id
     '''
+    import talentmap_api.fsbid.services.common as services
 
     hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
     hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
@@ -111,6 +119,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id for export
     '''
+    import talentmap_api.fsbid.services.common as services
 
     hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
     hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
@@ -138,6 +147,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     Formats the response bureau position bids from FSBid
     '''
+    import talentmap_api.fsbid.services.common as services
     from talentmap_api.fsbid.services.reference import get_cycles
 
     cdo = None
@@ -201,6 +211,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
+
+    import talentmap_api.fsbid.services.common as services
 
     bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
 
@@ -347,6 +359,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
     '''
     Converts TalentMap filters into FSBid filters
     '''
+    import talentmap_api.fsbid.services.common as services
 
     prefix = ""
     if not use_post:
@@ -391,6 +404,8 @@ def convert_bp_bids_query(query):
     '''
     Converts TalentMap filters into FSBid filters
     '''
+    import talentmap_api.fsbid.services.common as services
+
     values = {
         "request_params.cp_id": query.get("id", None),
         "request_params.order_by": services.sorting_values(query.get("ordering", None)),
