@@ -14,7 +14,6 @@ from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
-import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.common as services
