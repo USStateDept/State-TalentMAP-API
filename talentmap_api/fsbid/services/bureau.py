@@ -27,7 +27,7 @@ from talentmap_api.bidding.models import BidHandshake
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
-CP_API_ROOT = settings.CP_API_URL
+CP_API_V2_ROOT = settings.CP_API_V2_URL
 
 
 def get_bureau_position(id, jwt_token):
@@ -37,10 +37,11 @@ def get_bureau_position(id, jwt_token):
     return services.get_individual(
         "",
         id,
-        convert_bp_query,
+        partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        CP_API_ROOT
+        CP_API_V2_ROOT,
+        True,
     )
 
 
@@ -51,13 +52,14 @@ def get_bureau_positions(query, jwt_token, host=None):
     return services.send_get_request(
         "",
         query,
-        convert_bp_query,
+        partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
         get_bureau_positions_count,
         "/api/v1/fsbid/bureau/positions/",
         host,
-        CP_API_ROOT,
+        CP_API_V2_ROOT,
+        True,
     )
 
 
@@ -65,7 +67,7 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("", query, convert_bp_query, jwt_token, host, CP_API_ROOT)
+    return services.send_count_request("", query, partial(convert_bp_query, use_post=True), jwt_token, host, CP_API_V2_ROOT, True)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -341,37 +343,46 @@ def fsbid_bureau_positions_to_talentmap(bp):
     }
 
 
-def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"]):
+def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=False):
     '''
     Converts TalentMap filters into FSBid filters
     '''
+
+    prefix = ""
+    if not use_post:
+        prefix = "request_params."
+
     values = {
         # Pagination
-        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        "request_params.page_index": int(query.get("page", 1)),
-        "request_params.page_size": query.get("limit", 25),
+        f"{prefix}order_by": services.sorting_values(query.get("ordering", None), use_post),
+        f"{prefix}page_index": int(query.get("page", 1)),
+        f"{prefix}page_size": query.get("limit", 25),
 
-        "request_params.cps_codes": services.convert_multi_value(
+        f"{prefix}cps_codes": services.convert_multi_value(
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
-        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        "request_params.overseas_ind": services.overseas_values(query),
-        "request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
-        "request_params.org_codes": services.convert_multi_value(query.get("position__org__code__in")),
-        "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        "request_params.location_codes": services.post_values(query),
-        "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        "request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
-        "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
-        "request_params.freeText": query.get("q", None),
-        "request_params.totalResults": query.get("getCount", 'false'),
+        f"{prefix}cp_ids": services.convert_multi_value(query.get("id", None)),
+        f"{prefix}assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
+        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
+        f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
+        f"{prefix}org_codes": services.convert_multi_value(query.get("position__org__code__in")),
+        f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        f"{prefix}location_codes": services.post_values(query),
+        f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        f"{prefix}differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        f"{prefix}pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        f"{prefix}post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}freeText": query.get("q", None),
+        f"{prefix}totalResults": query.get("getCount", 'false'),
     }
+
+    if use_post:
+        values[f"{prefix}totalResults"] = query.get("getCount", 'false')
+        return pydash.omit_by(values, lambda o: o == None)
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 

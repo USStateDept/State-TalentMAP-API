@@ -28,7 +28,7 @@ from talentmap_api.fsbid.services import employee as empservices
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
-CP_API_ROOT = settings.CP_API_URL
+CP_API_V2_ROOT = settings.CP_API_V2_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
@@ -266,7 +266,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
-    if api_root == CP_API_ROOT and not uri:
+    if api_root == CP_API_V2_ROOT and not uri:
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
