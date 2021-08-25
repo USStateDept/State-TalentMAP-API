@@ -33,9 +33,9 @@ def get_bureau_position(id, jwt_token):
     '''
     Gets an indivdual bureau position by id
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import get_individual
 
-    return services.get_individual(
+    return get_individual(
         "",
         id,
         partial(convert_bp_query, use_post=True),
@@ -50,9 +50,9 @@ def get_bureau_positions(query, jwt_token, host=None):
     '''
     Gets all bureau positions
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import send_get_request
 
-    return services.send_get_request(
+    return send_get_request(
         "",
         query,
         partial(convert_bp_query, use_post=True),
@@ -70,15 +70,15 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import send_count_request
 
-    return services.send_count_request("", query, partial(convert_bp_query, use_post=True), jwt_token, host, CP_API_V2_ROOT, True)
+    return send_count_request("", query, partial(convert_bp_query, use_post=True), jwt_token, host, CP_API_V2_ROOT, True)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import get_ap_and_pv_csv
 
-    data = services.send_get_csv_request(
+    data = send_get_csv_request(
         "availablePositions",
         query,
         convert_bp_query,
@@ -88,7 +88,7 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
     )
 
     count = get_bureau_positions_count(query, jwt_token)
-    response = services.get_ap_and_pv_csv(data, "cycle_positions", True)
+    response = get_ap_and_pv_csv(data, "cycle_positions", True)
     return response
 
 
@@ -96,7 +96,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import get_results
 
     hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
     hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
@@ -106,7 +106,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     new_query = deepcopy(query)
     new_query["id"] = id
     active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
-    return services.get_results(
+    return get_results(
         "bidders",
         new_query,
         convert_bp_bids_query,
@@ -119,7 +119,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id for export
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import get_bidders_csv
 
     hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
     hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
@@ -129,7 +129,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     new_query = deepcopy(query)
     new_query["id"] = id
     active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
-    data = services.send_get_csv_request(
+    data = send_get_csv_request(
         "bidders",
         new_query,
         convert_bp_bids_query,
@@ -140,14 +140,14 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
 
     pos_num = get_bureau_position(id, jwt_token)["position"]["position_number"]
     filename = f"position_{pos_num}_bidders"
-    response = services.get_bidders_csv(self, id, data, filename, True)
+    response = get_bidders_csv(self, id, data, filename, True)
     return response
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     Formats the response bureau position bids from FSBid
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import has_competing_rank
     from talentmap_api.fsbid.services.reference import get_cycles
 
     cdo = None
@@ -157,7 +157,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
         classifications = classifications_services.get_client_classification(jwt, emp_id)
-        has_competing_rank = services.has_competing_rank(jwt, emp_id, cp_id)
+        has_competing_rank = has_competing_rank(jwt, emp_id, cp_id)
 
     hasHandShakeOffered = False
     if bid.get("handshake_code", None) == "HS":
@@ -212,7 +212,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
 
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import get_post_overview_url, get_post_bidding_considerations_url, get_obc_id, parseLanguage
 
     bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
 
@@ -298,15 +298,15 @@ def fsbid_bureau_positions_to_talentmap(bp):
                 "id": None,
                 "code": bp.get("pos_location_code", None),
                 "tour_of_duty": bp.get("tod", None),
-                "post_overview_url": services.get_post_overview_url(bp.get("pos_location_code", None)),
-                "post_bidding_considerations_url": services.get_post_bidding_considerations_url(bp.get("pos_location_code", None)),
+                "post_overview_url": get_post_overview_url(bp.get("pos_location_code", None)),
+                "post_bidding_considerations_url": get_post_bidding_considerations_url(bp.get("pos_location_code", None)),
                 "cost_of_living_adjustment": None,
                 "differential_rate": bp.get("bt_differential_rate_num", None),
                 "danger_pay": bp.get("bt_danger_pay_num", None),
                 "rest_relaxation_point": None,
                 "has_consumable_allowance": None,
                 "has_service_needs_differential": None,
-                "obc_id": services.get_obc_id(bp.get("pos_location_code", None)),
+                "obc_id": get_obc_id(bp.get("pos_location_code", None)),
                 "location": {
                     "country": bp.get("location_country", None),
                     "code": bp.get("pos_location_code", None),
@@ -323,8 +323,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
                 "active": None
             },
             "languages": list(filter(None, [
-                services.parseLanguage(bp.get("lang1", None)),
-                services.parseLanguage(bp.get("lang2", None)),
+                parseLanguage(bp.get("lang1", None)),
+                parseLanguage(bp.get("lang2", None)),
             ])),
         },
         "bidcycle": {
@@ -359,7 +359,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
     '''
     Converts TalentMap filters into FSBid filters
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import sorting_values, convert_multi_value, overseas_values, post_values
 
     prefix = ""
     if not use_post:
@@ -367,28 +367,28 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
 
     values = {
         # Pagination
-        f"{prefix}order_by": services.sorting_values(query.get("ordering", None), use_post),
+        f"{prefix}order_by": sorting_values(query.get("ordering", None), use_post),
         f"{prefix}page_index": int(query.get("page", 1)),
         f"{prefix}page_size": query.get("limit", 25),
 
-        f"{prefix}cps_codes": services.convert_multi_value(
+        f"{prefix}cps_codes": convert_multi_value(
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
-        f"{prefix}cp_ids": services.convert_multi_value(query.get("id", None)),
-        f"{prefix}assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        f"{prefix}overseas_ind": services.overseas_values(query),
-        f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
-        f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
-        f"{prefix}org_codes": services.convert_multi_value(query.get("position__org__code__in")),
-        f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        f"{prefix}location_codes": services.post_values(query),
-        f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        f"{prefix}differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        f"{prefix}pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        f"{prefix}post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
-        f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
-        f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}cp_ids": convert_multi_value(query.get("id", None)),
+        f"{prefix}assign_cycles": convert_multi_value(query.get("is_available_in_bidcycle")),
+        f"{prefix}overseas_ind": overseas_values(query),
+        f"{prefix}languages": convert_multi_value(query.get("language_codes")),
+        f"{prefix}bureaus": convert_multi_value(query.get("position__bureau__code__in")),
+        f"{prefix}org_codes": convert_multi_value(query.get("position__org__code__in")),
+        f"{prefix}grades": convert_multi_value(query.get("position__grade__code__in")),
+        f"{prefix}location_codes": post_values(query),
+        f"{prefix}danger_pays": convert_multi_value(query.get("position__post__danger_pay__in")),
+        f"{prefix}differential_pays": convert_multi_value(query.get("position__post__differential_rate__in")),
+        f"{prefix}pos_numbers": convert_multi_value(query.get("position__position_number__in", None)),
+        f"{prefix}post_ind": convert_multi_value(query.get("position__post_indicator__in")),
+        f"{prefix}tod_codes": convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        f"{prefix}skills": convert_multi_value(query.get("position__skill__code__in")),
+        f"{prefix}us_codes": convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}cpn_codes": convert_multi_value(query.get("position__cpn_codes__in")),
         f"{prefix}freeText": query.get("q", None),
         f"{prefix}totalResults": query.get("getCount", 'false'),
     }
@@ -404,11 +404,11 @@ def convert_bp_bids_query(query):
     '''
     Converts TalentMap filters into FSBid filters
     '''
-    import talentmap_api.fsbid.services.common as services
+    from talentmap_api.fsbid.services.common import sorting_values
 
     values = {
         "request_params.cp_id": query.get("id", None),
-        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.order_by": sorting_values(query.get("ordering", None)),
         "request_params.handshake_code": query.get("handshake_code", None),
         "request_params.page_size": 500,
         "request_params.page_index": 1,
