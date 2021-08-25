@@ -409,7 +409,9 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
     
     if use_post:
-        return pydash.omit_by(values, lambda o: o == None)
+        if isinstance(values[f"{prefix}order_by"], list):
+            values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
+        return pydash.omit_by(values, lambda o: o is None or (o == [] and bool(o) is False))
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
