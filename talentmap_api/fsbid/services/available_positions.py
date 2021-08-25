@@ -411,7 +411,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
     if use_post:
         if isinstance(values[f"{prefix}order_by"], list):
             values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
-        return pydash.omit_by(values, lambda o: o is None or (o == [] and bool(o) is False))
+        return pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
