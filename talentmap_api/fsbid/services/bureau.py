@@ -35,11 +35,12 @@ def get_bureau_position(id, jwt_token):
     Gets an indivdual bureau position by id
     '''
     return services.get_individual(
-        "availablePositions",
+        "",
         id,
         convert_bp_query,
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
+        CP_API_ROOT
     )
 
 
@@ -48,7 +49,7 @@ def get_bureau_positions(query, jwt_token, host=None):
     Gets all bureau positions
     '''
     return services.send_get_request(
-        "availablePositions",
+        "",
         query,
         convert_bp_query,
         jwt_token,
@@ -56,6 +57,7 @@ def get_bureau_positions(query, jwt_token, host=None):
         get_bureau_positions_count,
         "/api/v1/fsbid/bureau/positions/",
         host,
+        CP_API_ROOT,
     )
 
 
@@ -63,7 +65,7 @@ def get_bureau_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of bureau positions for a filterset
     '''
-    return services.send_count_request("availablePositionsCount", query, convert_bp_query, jwt_token, host)
+    return services.send_count_request("", query, convert_bp_query, jwt_token, host, CP_API_ROOT)
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -238,6 +240,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "skill_secondary": skillSecondary,
             "skill_secondary_code": skillSecondaryCode,
             "bureau": f"({bp.get('pos_bureau_short_desc', None)}) {bp.get('pos_bureau_long_desc', None)}",
+            "bureau_code": bp.get('bureau_code', None),
             "bureau_short_desc": f"{bp.get('pos_bureau_short_desc', None)}",
             "organization": f"({bp.get('org_short_desc', None)}) {bp.get('org_long_desc', None)}",
             "tour_of_duty": bp.get("tod", None),

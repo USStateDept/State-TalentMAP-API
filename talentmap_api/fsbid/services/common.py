@@ -266,6 +266,10 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
+    if api_root == CP_API_ROOT and not uri:
+        newQuery['getCount'] = 'true'
+        newQuery['request_params.page_index'] = None
+        newQuery['request_params.page_size'] = None
     if use_post:
         url = f"{api_root}/{uri}"
         args['json'] = query_mapping_function(newQuery)
