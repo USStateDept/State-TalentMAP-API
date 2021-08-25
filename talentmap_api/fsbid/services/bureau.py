@@ -17,7 +17,6 @@ from talentmap_api.common.common_helpers import ensure_date, validate_values
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.classifications as classifications_services
-import talentmap_api.fsbid.services.employee as empservices
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 from talentmap_api.bidding.models import BidHandshake
@@ -76,7 +75,7 @@ def get_bureau_positions_count(query, jwt_token, host=None):
 
 
 def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
-    from talentmap_api.fsbid.services.common import get_ap_and_pv_csv
+    from talentmap_api.fsbid.services.common import get_ap_and_pv_csv, send_get_csv_request
 
     data = send_get_csv_request(
         "availablePositions",
@@ -97,9 +96,10 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     Gets all bids on an indivdual bureau position by id
     '''
     from talentmap_api.fsbid.services.common import get_results
+    from talentmap_api.fsbid.services.employee import has_bureau_permissions, has_org_permissions
 
-    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
-    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    hasBureauPermissions = has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = has_org_permissions(id, jwt_token)
     if not (hasBureauPermissions or hasOrgPermissions):
         raise PermissionDenied()
 
@@ -119,10 +119,11 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id for export
     '''
-    from talentmap_api.fsbid.services.common import get_bidders_csv
+    from talentmap_api.fsbid.services.common import get_bidders_csv, send_get_csv_request
+    from talentmap_api.fsbid.services.employee import has_bureau_permissions, has_org_permissions
 
-    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
-    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    hasBureauPermissions = has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = has_org_permissions(id, jwt_token)
     if not (hasBureauPermissions or hasOrgPermissions):
         raise PermissionDenied()
 
