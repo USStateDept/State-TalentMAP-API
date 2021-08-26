@@ -133,7 +133,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
         "perdet_seq_num": perdet_seq_num,
         "currentAssignmentOnly": "false",
     }
-    responseAllAssignemnts = send_get_request(
+    responseAllAssignments = send_get_request(
         "",
         query,
         convert_client_query,
@@ -160,7 +160,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
     # TO-DO: Use v2/clients here to fill out this payload
     # WS Request: Add current and historical assignments to one endpoint
     user_info = get_user_information(jwt_token, perdet_seq_num)
-    CLIENT = list(responseAllAssignemnts['results'])[0]
+    CLIENT = list(responseAllAssignments['results'])[0]
     CLIENT['cdo'] = cdo
     CLIENT['user_info'] = user_info
     CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
