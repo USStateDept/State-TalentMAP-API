@@ -145,9 +145,9 @@ class BidHandshakeCdoActionView(FieldLimitableSerializerMixin,
         else:
             # Return an error if a handshake has already been accepted within active
             bids = bid_services.user_bids(pk, jwt)
-            accept_disabled = pydash.find(bids, lambda x: x['accept_handshake_disabled'] == True)
+            accept_disabled = pydash.find(bids, lambda x: str(int(pydash.get(x, 'position_info.id'))) == str(int(cp_id)) and x['accept_handshake_disabled'] is True)
             if accept_disabled:
-                return Response('A handshake has already been accepted', status=status.HTTP_409_CONFLICT)
+                return Response('A handshake in this cycle position bid cycle has already been accepted', status=status.HTTP_409_CONFLICT)
 
             hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=True,
                 update_date=datetime.now(), date_accepted=datetime.now())
@@ -193,9 +193,9 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
         else:
             # Return an error if a handshake has already been accepted within active
             bids = bid_services.user_bids(user.emp_id, jwt)
-            accept_disabled = pydash.find(bids, lambda x: x['accept_handshake_disabled'] == True)
+            accept_disabled = pydash.find(bids, lambda x: str(int(pydash.get(x, 'position_info.id'))) == str(int(cp_id)) and x['accept_handshake_disabled'] is True)
             if accept_disabled:
-                return Response('A handshake has already been accepted', status=status.HTTP_409_CONFLICT)
+                return Response('A handshake in this cycle position bid cycle has already been accepted', status=status.HTTP_409_CONFLICT)
 
             hs.update(last_editing_bidder=user, status='A', bidder_status='A', is_cdo_update=False,
                 update_date=datetime.now(), date_accepted=datetime.now())

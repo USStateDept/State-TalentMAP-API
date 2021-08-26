@@ -100,13 +100,23 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
 
 
 def map_bids_to_disable_handshake_if_accepted(bids):
+    # Accepting a handshake should be disabled if another handshake within the same bid cycle has already been accepted
+
     bidsClone = deepcopy(list(bids))
+
+    # get the cp_id and related bid cycle id of accepted handshakes
     hasAcceptedHandshakeIds = pydash.chain(bidsClone).filter_(
         lambda x: pydash.get(x, 'handshake.bidder_hs_code') == 'handshake_accepted' and pydash.get(x, 'handshake.hs_status_code') != 'handshake_revoked'
-    ).map('id').value()
+    ).map(
+        lambda x: { 'cp_id': pydash.get(x, 'position_info.id'), 'cycle_id': pydash.get(x, 'position_info.bidcycle.id') }
+    ).value()
+
     bidsClone = pydash.map_(bidsClone, lambda x: {
             **x,
-            'accept_handshake_disabled': False if not hasAcceptedHandshakeIds else True if x['id'] not in hasAcceptedHandshakeIds else False
+            'accept_handshake_disabled': True if pydash.find(hasAcceptedHandshakeIds, lambda y:
+                y['cycle_id'] == pydash.get(x, 'position_info.bidcycle.id'))
+                and not pydash.find(hasAcceptedHandshakeIds, lambda y: y['cp_id'] == pydash.get(x, 'position_info.id'))
+                else False,
         })
     return bidsClone
 
@@ -210,7 +220,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
 
     if showHandshakeData:
         data["handshake"] = {
-            **bh_services.get_bidder_handshake_data(cpId, perdet),
+            **bh_services.get_bidder_handshake_data(cpId, perdet, True),
         }
 
     return data
