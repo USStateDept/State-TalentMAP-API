@@ -4,6 +4,7 @@ import maya
 from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
+import pydash
 
 import requests  # pylint: disable=unused-import
 
@@ -199,8 +200,9 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
 
     bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
-
+    lead_handshake = bh_services.get_lead_handshake_data(bp.get("cp_id", None))
     hasHandShakeOffered = False
+
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
     ted = ensure_date(bp.get("cp_ted_ovrrd_dt", None), utc_offset=-5)
@@ -329,6 +331,9 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "has_handshake_accepted": None
         }],
         "bid_handshake": bh_props,
+        "lead_handshake": {
+            **lead_handshake,
+        },
         "unaccompaniedStatus": bp.get("us_desc_text", None),
         "isConsumable": bp.get("bt_consumable_allowance_flg", None) == "Y",
         "isServiceNeedDifferential": bp.get("bt_service_needs_diff_flg", None) == "Y",
