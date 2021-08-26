@@ -3,6 +3,8 @@ import coreapi
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.schemas import AutoSchema
+from django.db.models import Max
+from django.db.models import Q
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,6 +12,7 @@ from rest_framework import status
 from talentmap_api.fsbid.filters import BureauPositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.available_positions.models import AvailablePositionRankingLock
+from talentmap_api.bidding.models import BidHandshake
 
 import talentmap_api.fsbid.services.bureau as services
 import talentmap_api.fsbid.services.available_positions as ap_services
@@ -47,6 +50,7 @@ class FSBidBureauPositionsListView(BaseView):
             coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
             coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
             coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
+            coreapi.Field("lead_hs_status_code", location='query', description='Handshake code(s) to filter on. (O, R, A, D)'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
             coreapi.Field("q", location='query', description='Text search'),
         ]
@@ -56,9 +60,31 @@ class FSBidBureauPositionsListView(BaseView):
         '''
         Gets all bureau positions
         '''
-        bureau_pos = services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'],
+        hs_query_codes = request.query_params.get('lead_hs_status_code', [])
+        # Filter by latest status(update_date) per cp_id
+        if len(hs_query_codes) == 0:
+            bureau_pos = services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'],
                                                    f"{request.scheme}://{request.get_host()}")
-        return Response(services.get_bureau_shortlist_indicator(bureau_pos))
+            return Response(services.get_bureau_shortlist_indicator(bureau_pos))
+
+        o_vals = BidHandshake.objects.values('cp_id').annotate(Max('update_date'))
+        q_statement = Q()
+        for v in o_vals:
+            q_statement |= (Q(cp_id__exact=v['cp_id']) & Q(update_date=v['update_date__max']))
+
+        hs_cp_ids = BidHandshake.objects.filter(q_statement).filter(status__in=hs_query_codes).values_list("cp_id", flat=True)
+
+        if len(hs_cp_ids) > 0:
+            cp_ids = ','.join(hs_cp_ids)
+            query_params_copy = request.query_params.copy()
+            query_params_copy["id"] = cp_ids
+            query_params_copy._mutable = False
+            bureau_pos = services.get_bureau_positions(query_params_copy, request.META['HTTP_JWT'],
+                                                       f"{request.scheme}://{request.get_host()}")
+
+            return Response(services.get_bureau_shortlist_indicator(bureau_pos))
+        else:
+            return Response({"count": 0, "next": None, "previous": None, "results": []})
 
 
 class FSBidBureauPositionsCSVView(BaseView):
