@@ -380,7 +380,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
         f"{prefix}page_size": query.get("limit", 25),
 
         f"{prefix}cps_codes": convert_multi_value(
-            validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
+            validate_values(query.get("cps_codes") or "HS,OP", allowed_status_codes)),
         f"{prefix}cp_ids": convert_multi_value(query.get("id", None)),
         f"{prefix}assign_cycles": convert_multi_value(query.get("is_available_in_bidcycle")),
         f"{prefix}overseas_ind": overseas_values(query),
