@@ -405,7 +405,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
 
     if use_post:
         values[f"{prefix}totalResults"] = query.get("getCount", 'false')
-        return pydash.omit_by(values, lambda o: o == None)
+        return pydash.omit_by(values, lambda o: o is None)
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
