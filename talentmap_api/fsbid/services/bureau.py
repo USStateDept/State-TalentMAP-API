@@ -218,8 +218,10 @@ def fsbid_bureau_positions_to_talentmap(bp):
 
     from talentmap_api.fsbid.services.common import get_post_overview_url, get_post_bidding_considerations_url, get_obc_id, parseLanguage
 
-    bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
-    lead_handshake = bh_services.get_lead_handshake_data(bp.get("cp_id", None))
+    cp_id = str(int(bp.get("cp_id", None)))
+
+    bh_props = bh_services.get_position_handshake_data(cp_id)
+    lead_handshake = bh_services.get_lead_handshake_data(cp_id)
     hasHandShakeOffered = False
 
     if bp.get("cp_status", None) == "HS":
@@ -234,7 +236,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
     if bp.get("pos_skill_code", None) == bp.get("pos_staff_ptrn_skill_code", None):
         skillSecondary = None
         skillSecondaryCode = None
-    
+
     handshake_allowed_date = None
     handshakeCycle = BidHandshakeCycle.objects.filter(cycle_id=bp.get("cycle_id", None))
     if handshakeCycle:
@@ -242,7 +244,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
         handshake_allowed_date = handshakeCycle.handshake_allowed_date
 
     return {
-        "id": bp.get("cp_id", None),
+        "id": cp_id,
         "status": None,
         "status_code": bp.get("cp_status", None),
         "ted": ted,
