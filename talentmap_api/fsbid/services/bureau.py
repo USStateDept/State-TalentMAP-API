@@ -156,12 +156,12 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
 
     cdo = None
     classifications = None
-    has_competing_rank = None
+    has_competing_rank_value = None
     emp_id = str(int(float(bid.get("perdet_seq_num", None))))
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
         classifications = classifications_services.get_client_classification(jwt, emp_id)
-        has_competing_rank = has_competing_rank(jwt, emp_id, cp_id)
+        has_competing_rank_value = has_competing_rank(jwt, emp_id, cp_id)
 
     hasHandShakeOffered = False
     if bid.get("handshake_code", None) == "HS":
@@ -202,7 +202,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
         "classifications": classifications,
-        "has_competing_rank": has_competing_rank,
+        "has_competing_rank": has_competing_rank_value,
         "handshake": {
             **handshake,
         },
