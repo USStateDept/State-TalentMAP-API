@@ -56,6 +56,30 @@ def get_unavailable_position(id, jwt_token):
     )
 
 
+def get_all_position(id, jwt_token):
+    '''
+    Gets an indivdual available position by id
+    '''
+
+    args = {
+        "uri": "",
+        "id": id,
+        "query_mapping_function": partial(convert_all_query, use_post=True),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = ''
+        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
+    return services.get_individual(
+        **args
+    )
+
+
 def get_available_positions(query, jwt_token, host=None, use_post=False):
     '''
     Gets available positions
@@ -473,13 +497,13 @@ def convert_up_query(query):
     return convert_ap_query(query, ["FP"])
 
 
-def convert_all_query(query):
+def convert_all_query(query, use_post=False):
     '''
     sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return convert_ap_query(query, ["FP", "OP", "HS"])
+    return convert_ap_query(query, ["FP", "OP", "HS"], False, use_post=use_post)
 
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
