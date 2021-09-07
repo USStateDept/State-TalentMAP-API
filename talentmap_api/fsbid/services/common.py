@@ -28,7 +28,7 @@ from talentmap_api.fsbid.services import employee as empservices
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
-CP_API_ROOT = settings.CP_API_URL
+CP_API_V2_ROOT = settings.CP_API_V2_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
@@ -266,6 +266,10 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         newQuery['getCount'] = 'true'
         newQuery['request_params.page_index'] = None
         newQuery['request_params.page_size'] = None
+    if api_root == CP_API_V2_ROOT and not uri:
+        newQuery['getCount'] = 'true'
+        newQuery['request_params.page_index'] = None
+        newQuery['request_params.page_size'] = None
     if use_post:
         url = f"{api_root}/{uri}"
         args['json'] = query_mapping_function(newQuery)
@@ -319,7 +323,7 @@ def get_post_bidding_considerations_url(post_id):
         return None
 
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None, use_post=False):
     '''
     Gets items from FSBid
     '''
@@ -329,8 +333,14 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         formattedQuery['ad_id'] = ad_id
     if limit is not None:
         formattedQuery['limit'] = limit
-    url = f"{base_url}/{uri}?{query_mapping_function(formattedQuery)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+
+    if use_post:
+        mappedQuery = pydash.omit_by(query_mapping_function(formattedQuery), lambda o: o == None)
+        url = f"{base_url}/{uri}"
+        response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery, verify=False).json()  # nosec
+    else:
+        url = f"{base_url}/{uri}?{query_mapping_function(formattedQuery)}"
+        response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")

@@ -56,7 +56,7 @@ def get_unavailable_position(id, jwt_token):
     )
 
 
-def get_available_positions(query, jwt_token, host=None):
+def get_available_positions(query, jwt_token, host=None, use_post=False):
     '''
     Gets available positions
     '''

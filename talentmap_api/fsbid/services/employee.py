@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.services.available_positions import get_available_position
+from talentmap_api.fsbid.services.bureau import get_bureau_positions
 
 API_ROOT = settings.EMPLOYEES_API_URL
 FSBID_ROOT = settings.FSBID_API_URL
@@ -82,10 +83,17 @@ ROLE_MAPPING = {
 }
 
 def has_bureau_permissions(cp_id, jwt_token):
-    pos = get_available_position(cp_id, jwt_token)
     bureauPermissions = list(get_bureau_permissions(jwt_token))
+    bureauCodes = (','.join(pydash.map_(bureauPermissions, 'code')))
+    pos = get_bureau_positions(
+        {
+            "id": cp_id,
+            "position__bureau__code__in": bureauCodes,
+        },
+        jwt_token
+    )
     try:
-        bureau = str(pos.get('position').get('bureau_code'))
+        bureau = str(pos['results'][0].get('position').get('bureau_code'))
         return any(x.get('code') == bureau for x in bureauPermissions)
     except:
         return False
