@@ -34,6 +34,7 @@ services:
       - USE_CP_API_V2=true
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
+      - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
       - TP_API_URL=http://host.docker.internal:3333/TrackingPrograms
       - BTP_API_URL=http://host.docker.internal:3333/BidderTrackingPrograms
       - EMAIL_ENABLED=true

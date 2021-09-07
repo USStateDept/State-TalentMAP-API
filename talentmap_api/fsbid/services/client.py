@@ -20,6 +20,7 @@ HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 SECREF_ROOT = settings.SECREF_URL
 CLIENTS_ROOT = settings.CLIENTS_API_URL
+CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
 logger = logging.getLogger(__name__)
 
@@ -47,16 +48,16 @@ def client(jwt_token, query, host=None):
     Get Clients by CDO
     '''
     from talentmap_api.fsbid.services.common import send_get_request
-    uri = "CDOClients"
     response = send_get_request(
-        uri,
+        "",
         query,
         convert_client_query,
         jwt_token,
         fsbid_clients_to_talentmap_clients,
         get_clients_count,
-        "/api/v1/fsbid/CDOClients/",
-        host
+        "/api/v2/clients/",
+        host,
+        CLIENTS_ROOT_V2,
     )
 
     return response
@@ -121,22 +122,48 @@ def client_suggestions(jwt_token, perdet_seq_num):
     return values
 
 
-def single_client(jwt_token, perdet_seq_num):
+def single_client(jwt_token, perdet_seq_num, host=None):
     '''
     Get a single client for a CDO
     '''
-    from talentmap_api.fsbid.services.common import get_fsbid_results
+    from talentmap_api.fsbid.services.common import send_get_request
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    uri = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=false"
-    uriCurrentAssignment = f"CDOClients?request_params.ad_id={ad_id}&request_params.perdet_seq_num={perdet_seq_num}&request_params.currentAssignmentOnly=true"
-    response = get_fsbid_results(uri, jwt_token, fsbid_clients_to_talentmap_clients)
-    responseCurrentAssignment = get_fsbid_results(uriCurrentAssignment, jwt_token, fsbid_clients_to_talentmap_clients)
+    query = {
+        "ad_id": ad_id,
+        "perdet_seq_num": perdet_seq_num,
+        "currentAssignmentOnly": "false",
+    }
+    responseAllAssignments = send_get_request(
+        "",
+        query,
+        convert_client_query,
+        jwt_token,
+        fsbid_clients_to_talentmap_clients,
+        get_clients_count,
+        "/api/v2/clients/",
+        host,
+        CLIENTS_ROOT_V2,
+    )
+    query["currentAssignmentOnly"] = "true"
+    responseCurrentAssignment = send_get_request(
+        "",
+        query,
+        convert_client_query,
+        jwt_token,
+        fsbid_clients_to_talentmap_clients,
+        get_clients_count,
+        "/api/v2/clients/",
+        host,
+        CLIENTS_ROOT_V2,
+    )
     cdo = cdo_services.single_cdo(jwt_token, perdet_seq_num)
+    # TO-DO: Use v2/clients here to fill out this payload
+    # WS Request: Add current and historical assignments to one endpoint
     user_info = get_user_information(jwt_token, perdet_seq_num)
-    CLIENT = list(response)[0]
+    CLIENT = list(responseAllAssignments['results'])[0]
     CLIENT['cdo'] = cdo
     CLIENT['user_info'] = user_info
-    CLIENT['current_assignment'] = list(responseCurrentAssignment)[0].get('current_assignment', {})
+    CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
     return CLIENT
 
 
@@ -262,6 +289,8 @@ def fsbid_clients_to_talentmap_clients(data):
         # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
         # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
+        "languages": fsbid_languages_to_tmap(data.get("languages", [])),
+        # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
         "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
@@ -336,6 +365,7 @@ def convert_client_query(query, isCount=None):
         "request_params.page_size": query.get("limit", 25),
         "request_params.currentAssignmentOnly": query.get("currentAssignmentOnly", 'true'),
         "request_params.get_count": query.get("getCount", 'false'),
+        "request_params.perdet_seq_num": query.get("perdet_seq_num", None),
     }
     if isCount:
         values['request_params.page_size'] = None
