@@ -35,11 +35,12 @@ def get_unavailable_position(id, jwt_token):
     Gets an indivdual unavailable position by id
     '''
     return services.get_individual(
-        "availablePositions",
+        "",
         id,
         convert_up_query,
         jwt_token,
-        fsbid_ap_to_talentmap_ap
+        fsbid_ap_to_talentmap_ap,
+        CP_ROOT,
     )
 
 
