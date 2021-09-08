@@ -237,7 +237,9 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         countProp = "cnt"
     url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    return {"count": response["Data"][0][countProp]}
+    count = pydash.get(response, "Data[0]")
+    count = pydash.get(count, pydash.keys(count)[0])
+    return {"count": count}
 
 
 # pre-load since this data rarely changes
