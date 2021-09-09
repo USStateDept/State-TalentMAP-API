@@ -361,7 +361,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
         if ap:
-            row.append(smart_str(record["has_service_needs_differential"]))
+            row.append(smart_str(record["isServiceNeedDifferential"]))
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
