@@ -159,7 +159,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(data.get('cp_id'))
     perdet = str(int(float(data.get('perdet_seq_num'))))
-    positionInfo = ap_services.get_all_position(str(cpId), jwt_token)
+    positionInfo = ap_services.get_available_position(str(cpId), jwt_token)
     cycle = pydash.get(positionInfo, 'bidcycle.id')
 
     showHandshakeData = True
@@ -169,6 +169,47 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
         handshake_allowed_date = handshakeCycle.handshake_allowed_date
         if handshake_allowed_date and handshake_allowed_date > maya.now().datetime():
             showHandshakeData = False
+    
+    positionInfoLegacy = {
+        "bidcycle": {
+            "name": data.get('cycle_nm_txt'),
+        },
+        "position": {
+            "id": cpId,
+            "position_number": data.get('pos_num_text'),
+            "status": "",
+            "grade": data.get("pos_grade_code"),
+            "skill": data.get("pos_skill_desc"),
+            "bureau": "",
+            "title": data.get("ptitle"),
+            "create_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
+            "update_date": "",
+            "post": {
+                "id": "",
+                "location": {
+                    "id": "",
+                    "country": data.get("location_country"),
+                    "code": "",
+                    "city": data.get("location_city"),
+                    "state": data.get("location_state"),
+                }
+            }
+        },
+        "bid_statistics": [
+            {
+                "id": "",
+                "bidcycle": data.get('cycle_nm_txt'),
+                "total_bids": data.get('cp_ttl_bidder_qty'),
+                "in_grade": data.get('cp_at_grd_qty'),
+                "at_skill": data.get('cp_in_cone_qty'),
+                "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
+                "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
+                "has_handshake_accepted": False
+            }
+        ],
+    }
+
+    position_info = positionInfo or positionInfoLegacy
 
     data = {
         "id": f"{perdet}_{cpId}",
@@ -192,7 +233,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
         "update_date": "",
         "reviewer": "",
         "cdo_bid": data.get('cdo_bid') == 'Y',
-        "position_info": positionInfo,
+        "position_info": position_info,
     }
 
     if showHandshakeData:
