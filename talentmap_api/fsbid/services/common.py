@@ -598,3 +598,18 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
 
         writer.writerow(row)
     return response
+
+
+def get_secondary_skill(pos = {}):
+    skillSecondary = f"{pos.get('pos_staff_ptrn_skill_desc', None)} ({pos.get('pos_staff_ptrn_skill_code')})"
+    skillSecondaryCode = pos.get("pos_staff_ptrn_skill_code", None)
+    if pos.get("pos_skill_code", None) == pos.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+    if not pos.get("pos_skill_code", None) or not pos.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+    return {
+        "skill_secondary": skillSecondary,
+        "skill_secondary_code": skillSecondaryCode,
+    }

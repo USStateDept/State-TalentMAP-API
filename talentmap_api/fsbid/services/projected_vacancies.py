@@ -116,6 +116,7 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
+    skill2 = services.get_secondary_skill(pv)
     return {
         "id": pv.get("fv_seq_num", None),
         "ted": ensure_date(pv.get("ted", None), utc_offset=-5),
@@ -131,6 +132,9 @@ def fsbid_pv_to_talentmap_pv(pv):
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
+            "skill_code": pv.get("pos_skill_code", None),
+            "skill_secondary": skill2.get("skill_secondary"),
+            "skill_secondary_code": skill2.get("skill_secondary_code"),
             "bureau": f"({pv.get('pos_bureau_short_desc', None)}) {pv.get('pos_bureau_long_desc', None)}",
             "organization": f"({pv.get('org_short_desc', None)}) {pv.get('org_long_desc', None)}",
             "tour_of_duty": pv.get("tod", None),

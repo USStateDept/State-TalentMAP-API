@@ -215,15 +215,7 @@ def fsbid_ap_to_talentmap_ap(ap):
     if ted is None:
         ted = ensure_date(ap.get("ted", None), utc_offset=-5)
 
-    skillSecondary = f"{ap.get('pos_staff_ptrn_skill_desc', None)} ({ap.get('pos_staff_ptrn_skill_code')})"
-    skillSecondaryCode = ap.get("pos_staff_ptrn_skill_code", None)
-    # If the primary and secondary skills are the same, we interpret this as there being no secondary skill
-    if ap.get("pos_skill_code", None) == ap.get("pos_staff_ptrn_skill_code", None):
-        skillSecondary = None
-        skillSecondaryCode = None
-    if not ap.get("pos_skill_code", None) or not ap.get("pos_staff_ptrn_skill_code", None):
-        skillSecondary = None
-        skillSecondaryCode = None
+    skill2 = services.get_secondary_skill(ap)
 
     return {
         "id": ap.get("cp_id", None),
@@ -241,8 +233,8 @@ def fsbid_ap_to_talentmap_ap(ap):
             "grade": ap.get("pos_grade_code", None),
             "skill": f"{ap.get('pos_skill_desc', None)} ({ap.get('pos_skill_code')})",
             "skill_code": ap.get("pos_skill_code", None),
-            "skill_secondary": skillSecondary,
-            "skill_secondary_code": skillSecondaryCode,
+            "skill_secondary": skill2.get("skill_secondary"),
+            "skill_secondary_code": skill2.get("skill_secondary_code"),
             "bureau": f"({ap.get('pos_bureau_short_desc', None)}) {ap.get('pos_bureau_long_desc', None)}",
             "bureau_code": ap.get('bureau_code', None),
             "organization": f"({ap.get('org_short_desc', None)}) {ap.get('org_long_desc', None)}",
