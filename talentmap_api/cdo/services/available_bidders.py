@@ -24,17 +24,43 @@ def get_available_bidders_stats():
     Returns Available Bidders status statistics
     '''
     ab = AvailableBidders.objects.all()
+    # be mindful how FE is handling keys
     stats = {
-        'UA': 0,
-        'IT': 0,
-        'OC': 0,
-        'AWOL': 0,
+        # 'UA': 0,
+        # 'IT': 0,
+        # 'OC': 0,
+        # 'AWOL': 0,
+        # 'Grade 01': 2,
+        # 'Grade 02': 2,
+        'status': {
+            'UA': 0,
+            'IT': 0,
+            'OC': 0,
+            'AWOL': 0,
+        },
+        'grade': {
+            '01': 0,
+            '02': 0,
+            '03': 0,
+            '04': 0,
+            '05': 0,
+            '06': 0,
+            '07': 0,
+            '08': 0,
+            '00': 0,
+            'MC': 0,
+            'OC': 0,
+            'OM': 0,
+        },
     }
     if ab:
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
                 stats[stat['status']] += 1
+        # for stat in ab.values('grade'):
+        #     if stat['status'] is not '':
+        #         stats[stat['status']] += 1
     return {
         "stats": stats
     }
@@ -45,6 +71,9 @@ def get_available_bidders_csv(request):
     Returns csv format of Available Bidders list
     '''
     data = client_services.get_available_bidders(request.META['HTTP_JWT'], True, request.query_params, f"{request.scheme}://{request.get_host()}")
+    print('------data-------')
+    print(data)
+    print('------data-------')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
