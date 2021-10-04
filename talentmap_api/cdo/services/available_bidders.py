@@ -57,7 +57,7 @@ def get_available_bidders_stats():
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
-                stats[stat['status']] += 1
+                stats['status'][stat['status']] += 1
         # for stat in ab.values('grade'):
         #     if stat['status'] is not '':
         #         stats[stat['status']] += 1
@@ -71,9 +71,6 @@ def get_available_bidders_csv(request):
     Returns csv format of Available Bidders list
     '''
     data = client_services.get_available_bidders(request.META['HTTP_JWT'], True, request.query_params, f"{request.scheme}://{request.get_host()}")
-    print('------data-------')
-    print(data)
-    print('------data-------')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=Available_Bidders_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
