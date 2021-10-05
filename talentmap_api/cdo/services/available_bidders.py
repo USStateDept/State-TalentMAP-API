@@ -26,12 +26,6 @@ def get_available_bidders_stats():
     ab = AvailableBidders.objects.all()
     # be mindful how FE is handling keys
     stats = {
-        # 'UA': 0,
-        # 'IT': 0,
-        # 'OC': 0,
-        # 'AWOL': 0,
-        # 'Grade 01': 2,
-        # 'Grade 02': 2,
         'status': {
             'UA': 0,
             'IT': 0,
@@ -40,17 +34,17 @@ def get_available_bidders_stats():
         },
         'grade': {
             '01': 0,
-            '02': 0,
-            '03': 0,
-            '04': 0,
-            '05': 0,
-            '06': 0,
-            '07': 0,
-            '08': 0,
-            '00': 0,
-            'MC': 0,
-            'OC': 0,
-            'OM': 0,
+            '02': 1,
+            '03': 2,
+            '04': 3,
+            '05': 4,
+            '06': 5,
+            '07': 6,
+            '08': 7,
+            '00': 8,
+            'MC': 9,
+            'OC': 10,
+            'OM': 11,
         },
     }
     if ab:
