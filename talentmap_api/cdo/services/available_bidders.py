@@ -26,13 +26,13 @@ def get_available_bidders_stats():
     ab = AvailableBidders.objects.all()
     # be mindful how FE is handling keys
     stats = {
-        'status': {
+        'Status': {
             'UA': 0,
             'IT': 0,
             'OC': 0,
             'AWOL': 0,
         },
-        'grade': {
+        'Grade': {
             '01': 0,
             '02': 1,
             '03': 2,
@@ -51,8 +51,9 @@ def get_available_bidders_stats():
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
-                stats['status'][stat['status']] += 1
-        # for stat in ab.values('grade'):
+                stats['Status'][stat['status']] += 1
+        # update this for grade
+        # for stat in ab.values('grade') :
         #     if stat['status'] is not '':
         #         stats[stat['status']] += 1
     return {
