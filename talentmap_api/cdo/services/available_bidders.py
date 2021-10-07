@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 API_ROOT = settings.FSBID_API_URL
 
 
-def get_available_bidders_stats():
+def get_available_bidders_stats(data):
     '''
     Returns Available Bidders status statistics
     '''
@@ -32,30 +32,26 @@ def get_available_bidders_stats():
             'OC': 0,
             'AWOL': 0,
         },
-        'Grade': {
-            '01': 0,
-            '02': 1,
-            '03': 2,
-            '04': 3,
-            '05': 4,
-            '06': 5,
-            '07': 6,
-            '08': 7,
-            '00': 8,
-            'MC': 9,
-            'OC': 10,
-            'OM': 11,
-        },
+        'Grade': {},
     }
+    # print('-------data-------')
+    # print(data)
+    # print('-------data-------')
     if ab:
         # get stats for status field
         for stat in ab.values('status'):
             if stat['status'] is not '':
                 stats['Status'][stat['status']] += 1
-        # update this for grade
-        # for stat in ab.values('grade') :
-        #     if stat['status'] is not '':
-        #         stats[stat['status']] += 1
+    if data:
+        for stat in data['results']:
+            stats['Grade'][stat['grade']] = 0
+        for stat in data['results']:
+            if stat['grade'] is not '':
+                stats['Grade'][stat['grade']] += 1
+
+    # print('------grade final update-------')
+    # print(stats['Grade'])
+    # print('------grade update-------')
     return {
         "stats": stats
     }
