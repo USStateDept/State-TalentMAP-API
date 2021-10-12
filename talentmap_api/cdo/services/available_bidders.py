@@ -52,27 +52,18 @@ def get_available_bidders_stats(data):
             if stat['status'] is not '':
                 stats['Status'][stat['status']] += 1
     if data:
-        for stat in data['results']:
-            stats['Bureau'][stat['current_assignment']['position']['bureau_code']] = 0
-            stats['Grade'][stat['grade']] = 0
-            stats['Location'][stat['pos_location']] = 0
-            stats['TED'][smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))] = 0
-            # stats['Skill'][stat['skills']] = 0
-            # if stat['available_bidder_details']['status'] is not None:
-            #     stats['Status'][stat['available_bidder_details']['status']] = 0
-        for stat in data['results']:
-            if stat['current_assignment']['position']['bureau_code'] is not '':
-                stats['Bureau'][stat['current_assignment']['position']['bureau_code']] += 1
-            if stat['grade'] is not '':
-                stats['Grade'][stat['grade']] += 1 
-            if stat['pos_location'] is not '':
-                stats['Location'][stat['pos_location']] += 1
-            if smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y')) is not '':
-                stats['TED'][smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))] += 1
+        # for bidder in data['results']: change to this
+        for bidder in data['results']:
+            stats['Grade'][bidder['grade']] = stats['Grade'].get(bidder['grade'], 0) + 1
+            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = stats['Bureau'].get(bidder['current_assignment']['position']['bureau_code'], 0) + 1
+            stats['Location'][bidder['pos_location']] = stats['Location'].get(bidder['pos_location'], 0) + 1
+            ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
+            stats['TED'][ted_key] = stats['TED'].get(ted_key, 0) + 1
+            # stats['Skill'][bidder['skills']] = stats['Skill'].get(bidder['skills'], 0) + 1
             # if stat['skills'] is not '':
             #     stats['Skill'][stat['skills']] += 1
-            # if stat['available_bidder_details']['status'] is not None:
-            #     stats['Status'][stat['available_bidder_details']['status']] += 1
+            # if bidder['available_bidder_details']['status'] is not None:
+            #     stats['Status'][bidder['available_bidder_details']['status']] = stats['Status'].get(bidder['available_bidder_details']['status'], 0) + 1
 
     print('------stats final update-------')
     print(stats)
