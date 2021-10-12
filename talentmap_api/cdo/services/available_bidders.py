@@ -12,7 +12,7 @@ from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
 import talentmap_api.fsbid.services.client as client_services
 
-from talentmap_api.common.common_helpers import formatCSV
+from talentmap_api.common.common_helpers import ensure_date, formatCSV
 
 logger = logging.getLogger(__name__)
 
@@ -25,17 +25,26 @@ def get_available_bidders_stats(data):
     '''
     ab = AvailableBidders.objects.all()
     # be mindful how FE is handling keys
+    # The request was to add the ability to see
+    # Skill, Grade, Location, Bureau/Post
+    # (preferably Bureau), and TED to the chart, in addition to the Status.
     stats = {
+        'Bureau': {}, # code comes through, not the full name, using post for now
+        'Grade': {},
+        'Location': {}, # need to verify what this should be, Location or Post?
+        # 'Post': {},
+        'Skill': {},
+        # 'Status': {},
         'Status': {
             'UA': 0,
             'IT': 0,
             'OC': 0,
             'AWOL': 0,
         },
-        'Grade': {},
+        'TED': {},
     }
     # print('-------data-------')
-    # print(data)
+    # print(data['results'][0]['skills'])
     # print('-------data-------')
     if ab:
         # get stats for status field
@@ -44,14 +53,30 @@ def get_available_bidders_stats(data):
                 stats['Status'][stat['status']] += 1
     if data:
         for stat in data['results']:
+            stats['Bureau'][stat['current_assignment']['position']['bureau_code']] = 0
             stats['Grade'][stat['grade']] = 0
+            stats['Location'][stat['pos_location']] = 0
+            stats['TED'][smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))] = 0
+            # stats['Skill'][stat['skills']] = 0
+            # if stat['available_bidder_details']['status'] is not None:
+            #     stats['Status'][stat['available_bidder_details']['status']] = 0
         for stat in data['results']:
+            if stat['current_assignment']['position']['bureau_code'] is not '':
+                stats['Bureau'][stat['current_assignment']['position']['bureau_code']] += 1
             if stat['grade'] is not '':
-                stats['Grade'][stat['grade']] += 1
+                stats['Grade'][stat['grade']] += 1 
+            if stat['pos_location'] is not '':
+                stats['Location'][stat['pos_location']] += 1
+            if smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y')) is not '':
+                stats['TED'][smart_str(maya.parse(data['results'][0]['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))] += 1
+            # if stat['skills'] is not '':
+            #     stats['Skill'][stat['skills']] += 1
+            # if stat['available_bidder_details']['status'] is not None:
+            #     stats['Status'][stat['available_bidder_details']['status']] += 1
 
-    # print('------grade final update-------')
-    # print(stats['Grade'])
-    # print('------grade update-------')
+    print('------stats final update-------')
+    print(stats)
+    print('------stats update-------')
     return {
         "stats": stats
     }
