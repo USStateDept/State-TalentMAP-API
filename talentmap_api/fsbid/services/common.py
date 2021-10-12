@@ -145,6 +145,7 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
+    "client_middle_name": "per_middle_name",
     "location_city": "geoloc.city",
     "location_country": "geoloc.country",
     "location_state": "geoloc.state",
