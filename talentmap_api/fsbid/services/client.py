@@ -534,6 +534,7 @@ def fsbid_assignments_to_tmap(assignments):
 
 def fsbid_languages_to_tmap(languages):
     tmap_languages = []
+    empty_score = '--'
     for x in languages:
         if not x.get('empl_language', None):
             continue
@@ -543,9 +544,9 @@ def fsbid_languages_to_tmap(languages):
             "code": x.get('empl_language_code', None),
             "language": x.get('empl_language', None),
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
-            "speaking_score": s if s else '--',
-            "reading_score": r if r else '--',
-            "custom_description": f"{x.get('empl_language')} {s if s else '--'}/{r if r else '--'}"
+            "speaking_score": s or empty_score,
+            "reading_score": r or empty_score,
+            "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
 
