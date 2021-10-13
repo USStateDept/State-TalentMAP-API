@@ -394,19 +394,25 @@ def map_skill_codes(data):
         if i == 1:
             index = ''
         code = pydash.get(data, f'per_skill{index}_code', None)
-        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None) # Not coming through with /Persons
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
 
 def map_skill_codes_additional(skills, employeeSkills):
     employeeCodesAdd = []
-    for w in employeeSkills:
-        foundSkill = [a for a in skills if a['skl_code'] == w['code']][0]
-        cone = foundSkill['jc_nm_txt']
-        foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
-        for x in foundSkillsByCone:
-            employeeCodesAdd.append(x['skl_code'])
+    try:
+        for w in employeeSkills:
+            foundSkill = [a for a in skills if a['skl_code'] == w['code']]
+            # some times, the user's skill is not in the full /skillCodes list
+            if foundSkill:
+                foundSkill = foundSkill[0]
+                cone = foundSkill['jc_nm_txt']
+                foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
+                for x in foundSkillsByCone:
+                    employeeCodesAdd.append(x['skl_code'])
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
     return set(employeeCodesAdd)
 
 

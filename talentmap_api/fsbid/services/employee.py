@@ -43,7 +43,8 @@ def get_employee_information(jwt_token, emp_id):
             "grade": pydash.get(employee, 'per_grade_code', '').replace(" ", ""),
             "skills_additional": map_skill_codes_additional(skills, employeeSkills),
         }
-    except:
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
         return {}
 
 
