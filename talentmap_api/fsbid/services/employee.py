@@ -83,32 +83,46 @@ ROLE_MAPPING = {
     "AO": "ao_user",
 }
 
-def has_bureau_permissions(cp_id, jwt_token):
-    bureauPermissions = list(get_bureau_permissions(jwt_token))
-    bureauCodes = (','.join(pydash.map_(bureauPermissions, 'code')))
+
+def has_bureau_or_org_permissions(cp_id, jwt_token, is_bureau=True):
+    get_permissions = get_bureau_permissions
+    query_prop = "position__bureau__code__in"
+
+    if not is_bureau:
+        get_permissions = get_org_permissions
+        query_prop = "position__org__code__in"
+
+    permissions = list(get_permissions(jwt_token))
+    codes = (','.join(pydash.map_(permissions, 'code')))
+
+    if not codes:
+        return False
     pos = get_bureau_positions(
         {
             "id": cp_id,
-            "position__bureau__code__in": bureauCodes,
+            query_prop: codes,
         },
         jwt_token
     )
     try:
-        bureau = str(pos['results'][0].get('position').get('bureau_code'))
-        return any(x.get('code') == bureau for x in bureauPermissions)
-    except:
+        pos_cp_id = pydash.get(pos, 'results[0].id')
+        if pos_cp_id:
+            pos_cp_id = str(int(pos_cp_id))
+        if pos_cp_id:
+            return cp_id == pos_cp_id
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
         return False
     return False
 
+
+def has_bureau_permissions(cp_id, jwt_token):
+    return has_bureau_or_org_permissions(cp_id, jwt_token, True)
+
+
 def has_org_permissions(cp_id, jwt_token):
-    pos = get_available_position(cp_id, jwt_token)
-    orgPermissions = list(get_org_permissions(jwt_token))
-    try:
-        org = str(pos.get('position').get('organization_code'))
-        return any(x.get('code') == org for x in orgPermissions)
-    except:
-        return False
-    return False
+    return has_bureau_or_org_permissions(cp_id, jwt_token, False)
+
 
 def get_bureau_permissions(jwt_token, host=None):
     '''
@@ -118,6 +132,7 @@ def get_bureau_permissions(jwt_token, host=None):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return map(map_bureau_permissions, response.get("Data", {}))
 
+
 def get_org_permissions(jwt_token, host=None):
     '''
     Gets a list of organization codes assigned to the user
@@ -126,12 +141,14 @@ def get_org_permissions(jwt_token, host=None):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     return map(map_org_permissions, response.get("Data", {}))
 
+
 def map_bureau_permissions(data):
     return {
         "code": data.get('bur', None),
         "long_description": data.get('bureau_long_desc', None),
         "short_description": data.get('bureau_short_desc', None),
     }
+
 
 def map_org_permissions(data):
     return {
