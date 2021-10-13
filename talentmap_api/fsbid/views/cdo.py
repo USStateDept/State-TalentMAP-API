@@ -90,7 +90,8 @@ class FSBidListBidActionView(APIView):
                 send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class FSBidListBidRegisterView(APIView):
@@ -130,7 +131,8 @@ class FSBidListBidRegisterView(APIView):
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def delete(self, request, pk, client_id):
         '''
@@ -154,7 +156,8 @@ class FSBidListBidRegisterView(APIView):
             registeredHandshakeNotification(pk, jwt, client_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class FSBidListPositionActionView(BaseView):
@@ -226,4 +229,5 @@ class FSBidClientEditClassifications(APIView):
                 id = classifications_services.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
             return Response(status=status.HTTP_200_OK, data=id)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)

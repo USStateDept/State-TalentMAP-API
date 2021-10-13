@@ -394,19 +394,25 @@ def map_skill_codes(data):
         if i == 1:
             index = ''
         code = pydash.get(data, f'per_skill{index}_code', None)
-        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None) # Not coming through with /Persons
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
 
 def map_skill_codes_additional(skills, employeeSkills):
     employeeCodesAdd = []
-    for w in employeeSkills:
-        foundSkill = [a for a in skills if a['skl_code'] == w['code']][0]
-        cone = foundSkill['jc_nm_txt']
-        foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
-        for x in foundSkillsByCone:
-            employeeCodesAdd.append(x['skl_code'])
+    try:
+        for w in employeeSkills:
+            foundSkill = [a for a in skills if a['skl_code'] == w['code']]
+            # some times, the user's skill is not in the full /skillCodes list
+            if foundSkill:
+                foundSkill = foundSkill[0]
+                cone = foundSkill['jc_nm_txt']
+                foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
+                for x in foundSkillsByCone:
+                    employeeCodesAdd.append(x['skl_code'])
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
     return set(employeeCodesAdd)
 
 
@@ -534,16 +540,19 @@ def fsbid_assignments_to_tmap(assignments):
 
 def fsbid_languages_to_tmap(languages):
     tmap_languages = []
+    empty_score = '--'
     for x in languages:
         if not x.get('empl_language', None):
             continue
+        r = str(x.get('empl_high_reading', '')).strip()
+        s = str(x.get('empl_high_speaking', '')).strip()
         tmap_languages.append({
             "code": x.get('empl_language_code', None),
             "language": x.get('empl_language', None),
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
-            "speaking_score": x.get('empl_high_speaking', None),
-            "reading_score": x.get('empl_high_reading', None),
-            "custom_description": f"{x.get('empl_language')} {x.get('empl_high_speaking', '--')}/{x.get('empl_high_reading', '--')}"
+            "speaking_score": s or empty_score,
+            "reading_score": r or empty_score,
+            "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
 
