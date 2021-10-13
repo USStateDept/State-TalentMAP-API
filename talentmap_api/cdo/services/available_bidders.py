@@ -8,7 +8,6 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.utils.encoding import smart_str
 
-from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
 import talentmap_api.fsbid.services.client as client_services
 
@@ -23,36 +22,20 @@ def get_available_bidders_stats(data):
     '''
     Returns Available Bidders status statistics
     '''
-    ab = AvailableBidders.objects.all()
-    # be mindful how FE is handling keys
-    # The request was to add the ability to see
-    # Skill, Grade, Location, Bureau/Post
-    # (preferably Bureau), and TED to the chart, in addition to the Status.
     stats = {
-        'Bureau': {}, # code comes through, not the full name, using post for now
+        'Bureau': {}, # code comes through, but only with the short name/acronym
         'Grade': {},
         'Location': {}, # need to verify what this should be, Location or Post?
         # 'Post': {},
         'Skill': {},
-        # 'Status': {},
-        'Status': {
-            'UA': 0,
-            'IT': 0,
-            'OC': 0,
-            'AWOL': 0,
-        },
+        'Status': {},
         'TED': {},
     }
     # print('-------data-------')
     # print(data['results'][0]['skills'])
     # print('-------data-------')
-    if ab:
-        # get stats for status field
-        for stat in ab.values('status'):
-            if stat['status'] is not '':
-                stats['Status'][stat['status']] += 1
     if data:
-        # for bidder in data['results']: change to this
+        # get stats for various fields
         for bidder in data['results']:
             stats['Grade'][bidder['grade']] = stats['Grade'].get(bidder['grade'], 0) + 1
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = stats['Bureau'].get(bidder['current_assignment']['position']['bureau_code'], 0) + 1
@@ -62,8 +45,8 @@ def get_available_bidders_stats(data):
             # stats['Skill'][bidder['skills']] = stats['Skill'].get(bidder['skills'], 0) + 1
             # if stat['skills'] is not '':
             #     stats['Skill'][stat['skills']] += 1
-            # if bidder['available_bidder_details']['status'] is not None:
-            #     stats['Status'][bidder['available_bidder_details']['status']] = stats['Status'].get(bidder['available_bidder_details']['status'], 0) + 1
+            if bidder['available_bidder_details']['status'] is not None:
+                stats['Status'][bidder['available_bidder_details']['status']] = stats['Status'].get(bidder['available_bidder_details']['status'], 0) + 1
 
     print('------stats final update-------')
     print(stats)
