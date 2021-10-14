@@ -354,6 +354,20 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     return map(mapping_function, response.get("Data", {}))
 
 
+def get_bid_stats_for_csv(record):
+    # initial value
+    bid_stats_row_value = 'N/A'
+    bid_stats = pydash.get(record, 'bid_statistics[0]')
+    total_bids = pydash.get(bid_stats, 'total_bids')
+    in_grade_bids = pydash.get(bid_stats, 'in_grade')
+    at_skill_bids = pydash.get(bid_stats, 'at_skill')
+    in_grade_at_skill_bids = pydash.get(bid_stats, 'in_grade_at_skill')
+    # make sure all bid counts are numbers
+    if not pydash.some([total_bids, in_grade_bids, at_skill_bids, in_grade_at_skill_bids], lambda x: not pydash.is_number(x)):
+        bid_stats_row_value = f"{total_bids}({in_grade_bids}/{at_skill_bids}){in_grade_at_skill_bids}"
+    return bid_stats_row_value
+
+
 def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
     response = HttpResponse(content_type='text/csv')
@@ -387,6 +401,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     if ap:
         headers.append(smart_str(u"Status Code"))
     headers.append(smart_str(u"Position Number"))
+    if ap:
+        headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
 
@@ -424,6 +440,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         if ap:
             row.append(smart_str(record.get("status_code")))
         row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        if ap:
+            row.append(get_bid_stats_for_csv(record))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
@@ -460,6 +478,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
     headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
+    headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
 
     writer.writerow(headers)
@@ -495,6 +514,7 @@ def get_bids_csv(data, filename, jwt_token):
                 row.append(smart_str(record.get("status")))
             row.append(hs_status)
             row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
+            row.append(get_bid_stats_for_csv(pydash.get(record, 'position_info')))
             row.append(smart_str(record["position_info"]["position"]["description"]["content"]))
 
             writer.writerow(row)
