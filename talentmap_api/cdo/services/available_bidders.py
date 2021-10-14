@@ -23,7 +23,7 @@ def get_available_bidders_stats(data):
     Returns Available Bidders status statistics
     '''
     stats = {
-        'Bureau': {}, # code comes through, but only with the short name/acronym
+        'Bureau': {},  # code comes through, but only with the short name/acronym
         'Grade': {},
         'Location': {}, # need to verify what this should be, Location or Post?
         # 'Post': {},
@@ -31,22 +31,43 @@ def get_available_bidders_stats(data):
         'Status': {},
         'TED': {},
     }
-    # print('-------data-------')
-    # print(data['results'][0]['skills'])
-    # print('-------data-------')
+    # print('-------skills-------')
+    # print(list(filter(None, data['results'][0]['skills'])))
+    # # code as top level key and value
+    # # description as name
+    # print('-------skills-------')
+
     if data:
         # get stats for various fields
         for bidder in data['results']:
-            stats['Grade'][bidder['grade']] = stats['Grade'].get(bidder['grade'], 0) + 1
-            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = stats['Bureau'].get(bidder['current_assignment']['position']['bureau_code'], 0) + 1
-            stats['Location'][bidder['pos_location']] = stats['Location'].get(bidder['pos_location'], 0) + 1
+            if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
+                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0, 'color': '#112E51'}
+            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
+
+            if bidder['grade'] not in stats['Grade']:
+                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0, 'color': '#112E51'}
+            stats['Grade'][bidder['grade']]['value'] += 1
+
+            if bidder['pos_location'] not in stats['Location']:
+                stats['Location'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
+            stats['Location'][bidder['pos_location']]['value'] += 1
+
             ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
-            stats['TED'][ted_key] = stats['TED'].get(ted_key, 0) + 1
-            # stats['Skill'][bidder['skills']] = stats['Skill'].get(bidder['skills'], 0) + 1
+            if ted_key not in stats['TED']:
+                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
+            stats['TED'][ted_key]['value'] += 1
+
+            ab_status_key = bidder['available_bidder_details']['status']
+            if bidder['available_bidder_details']['status'] is not None:
+                if ab_status_key not in stats['Status']:
+                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
+                stats['Status'][ab_status_key]['value'] += 1
+
+
+            # skill_key = list(filter(None, bidder['skills']))
+            # stats['Skill'][skill_key] = stats['Skill'].get(skill_key, 0) + 1
             # if stat['skills'] is not '':
             #     stats['Skill'][stat['skills']] += 1
-            if bidder['available_bidder_details']['status'] is not None:
-                stats['Status'][bidder['available_bidder_details']['status']] = stats['Status'].get(bidder['available_bidder_details']['status'], 0) + 1
 
     print('------stats final update-------')
     print(stats)
