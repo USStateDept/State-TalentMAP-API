@@ -243,14 +243,14 @@ def fsbid_clients_to_talentmap_clients(data):
     middle_name = get_middle_name(employee)
 
     return {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
-        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
+        "shortened_name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -359,8 +359,8 @@ def map_skill_codes(data):
         index = f'_{i}'
         if i == 1:
             index = ''
-        code = data.get(f'per_skill{index}_code', None)
-        desc = data.get(f'per_skill{index}_code_desc', None)
+        code = pydash.get(data, f'per_skill{index}_code', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
@@ -441,11 +441,13 @@ def fsbid_classifications_to_tmap(cs):
     if type(cs) is list:
         for x in cs:
             tmap_classifications.append(
-                x.get('tp_code', None)
+                # resolves disrepancy between string and number comparison
+                pydash.to_number(x.get('te_id', None))
             )
     else:
         tmap_classifications.append(
-            cs.get('tp_code', None),
+            # resolves disrepancy between string and number comparison
+            pydash.to_number(cs.get('te_id', None))
         )
     return tmap_classifications
 
@@ -473,6 +475,7 @@ def fsbid_assignments_to_tmap(assignments):
                         "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
                         "skill_code": pos.get("pos_skill_code", None),
                         "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
+                        "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
                         "organization": pos.get('pos_org_short_desc', None),
                         "position_number": pos.get('pos_seq_num', None),
                         "title": pos.get("pos_title_desc", None),
@@ -528,7 +531,7 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
     stats = get_available_bidders_stats()
     return {
         **stats,
-        **response,
+        "results": list({v['perdet_seq_number']:v for v in response.get('results')}.values()),
     }
 
 # Can update to reuse client mapping once client v2 is updated and released with all the new fields
@@ -593,7 +596,7 @@ def fsbid_available_bidder_to_talentmap(data):
     middle_name = get_middle_name(employee)
 
     res = {
-        "id": str(int(employee.get("pert_external_id", None))),
+        "id": str(employee.get("pert_external_id", None)),
         "cdo": {
             "full_name": data.get('cdo_fullname', None),
             "last_name": data.get('cdo_last_name', None),
@@ -601,13 +604,13 @@ def fsbid_available_bidder_to_talentmap(data):
             "email": data.get('cdo_email', None),
             "hru_id": data.get("hru_id", None),
         },
-        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
         "initials": initials,
-        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
+        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
-        "employee_id": str(int(employee.get("pert_external_id", None))),
+        "employee_id": str(employee.get("pert_external_id", None)),
         "role_code": data.get("rl_cd", None),
         "pos_location": map_location(location),
         # not exposed in FSBid yet
@@ -632,7 +635,7 @@ def convert_available_bidder_query(query):
     ordering = query.get("ordering", "name").lstrip("-")
     values = {
         "order_by": ordering,
-        "is_asc": sort_asc,
+        "is_asc": 'true' if sort_asc else 'false',
         "ad_id": query.get("ad_id", None),
     }
 

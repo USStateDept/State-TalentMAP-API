@@ -1,15 +1,21 @@
 import logging
 import jwt
 import requests
+import pydash
+import maya
 
 from django.conf import settings
 
 from django.utils.encoding import smart_str
 
+from talentmap_api.bidding.models import BidHandshakeCycle
+
 from talentmap_api.common.common_helpers import ensure_date
 
-from talentmap_api.bidding.models import Bid
+from talentmap_api.bidding.models import Bid, BidHandshake
 import talentmap_api.fsbid.services.common as services
+import talentmap_api.bidding.services.bidhandshake as bh_services
+import talentmap_api.fsbid.services.available_positions as ap_services
 
 API_ROOT = settings.FSBID_API_URL
 
@@ -25,8 +31,8 @@ def user_bids(employee_id, jwt_token, position_id=None):
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
-    return [fsbid_bid_to_talentmap_bid(bid) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(fsbid_bid_to_talentmap_bid, filteredBids.get('Data', []))
-
+    mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
+    return mappedBids
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     '''
@@ -35,8 +41,6 @@ def get_user_bids_csv(employee_id, jwt_token, position_id=None):
     data = user_bids(employee_id, jwt_token, position_id)
 
     response = services.get_bids_csv(list(data), "bids", jwt_token)
-
-    logger.info(response)
 
     return response
 
@@ -65,7 +69,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
 
 def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
-    Submits a bid on a position
+    Registers a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}&hs_cd=HS"
@@ -76,7 +80,7 @@ def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
 
 def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
-    Submits a bid on a position
+    Unregisters a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
@@ -144,7 +148,7 @@ def can_delete_bid(bidStatus, cycleStatus):
     return bidStatus == Bid.Status.draft or (bidStatus == Bid.Status.submitted and cycleStatus == 'A')
 
 
-def fsbid_bid_to_talentmap_bid(data):
+def fsbid_bid_to_talentmap_bid(data, jwt_token):
     bidStatus = get_bid_status(
         data.get('bs_cd'),
         data.get('ubw_hndshk_offrd_flg'),
@@ -153,26 +157,23 @@ def fsbid_bid_to_talentmap_bid(data):
         data.get('handshake_allowed_ind')
     )
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
-    cpId = int(float(data.get('cp_id')))
-    perdet = str(int(data.get('perdet_seq_num')))
+    cpId = int(data.get('cp_id'))
+    perdet = str(int(float(data.get('perdet_seq_num'))))
+    positionInfo = ap_services.get_available_position(str(cpId), jwt_token)
+    cycle = pydash.get(positionInfo, 'bidcycle.id')
 
-    return {
-        "id": f"{perdet}_{cpId}",
-        "bidcycle": data.get('cycle_nm_txt'),
-        "emp_id": data.get('perdet_seq_num'),
-        "user": "",
-        "bid_statistics": [
-            {
-                "id": "",
-                "bidcycle": data.get('cycle_nm_txt'),
-                "total_bids": data.get('cp_ttl_bidder_qty'),
-                "in_grade": data.get('cp_at_grd_qty'),
-                "at_skill": data.get('cp_in_cone_qty'),
-                "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
-                "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
-                "has_handshake_accepted": False
-            }
-        ],
+    showHandshakeData = True
+    handshakeCycle = BidHandshakeCycle.objects.filter(cycle_id=cycle)
+    if handshakeCycle:
+        handshakeCycle = handshakeCycle.first()
+        handshake_allowed_date = handshakeCycle.handshake_allowed_date
+        if handshake_allowed_date and handshake_allowed_date > maya.now().datetime():
+            showHandshakeData = False
+    
+    positionInfoLegacy = {
+        "bidcycle": {
+            "name": data.get('cycle_nm_txt'),
+        },
         "position": {
             "id": cpId,
             "position_number": data.get('pos_num_text'),
@@ -194,15 +195,33 @@ def fsbid_bid_to_talentmap_bid(data):
                 }
             }
         },
+        "bid_statistics": [
+            {
+                "id": "",
+                "bidcycle": data.get('cycle_nm_txt'),
+                "total_bids": data.get('cp_ttl_bidder_qty'),
+                "in_grade": data.get('cp_at_grd_qty'),
+                "at_skill": data.get('cp_in_cone_qty'),
+                "in_grade_at_skill": data.get('cp_at_grd_in_cone_qty'),
+                "has_handshake_offered": data.get('ubw_hndshk_offrd_flg') == 'Y',
+                "has_handshake_accepted": False
+            }
+        ],
+    }
+
+    position_info = positionInfo or positionInfoLegacy
+
+    data = {
+        "id": f"{perdet}_{cpId}",
+        "emp_id": data.get('perdet_seq_num'),
+        "user": "",
         "waivers": [],
         "can_delete": canDelete,
         "status": bidStatus,
         "panel_status": data.get('panel_meeting_status', ''),
         "draft_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "submitted_date": ensure_date(data.get('ubw_submit_dt'), utc_offset=-5),
-        "handshake_offered_date": "",
         "handshake_accepted_date": ensure_date(data.get("ubw_hndshk_offrd_dt"), utc_offset=-5),
-        "handshake_declined_date": "",
         "in_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "scheduled_panel_date": ensure_date(data.get('panel_meeting_date'), utc_offset=-5),
         "approved_date": ensure_date(data.get('assignment_date'), utc_offset=-5),
@@ -213,5 +232,13 @@ def fsbid_bid_to_talentmap_bid(data):
         "create_date": ensure_date(data.get('ubw_create_dt'), utc_offset=-5),
         "update_date": "",
         "reviewer": "",
-        "cdo_bid": data.get('cdo_bid') == 'Y'
+        "cdo_bid": data.get('cdo_bid') == 'Y',
+        "position_info": position_info,
     }
+
+    if showHandshakeData:
+        data["handshake"] = {
+            **bh_services.get_bidder_handshake_data(cpId, perdet),
+        }
+
+    return data

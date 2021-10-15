@@ -1,6 +1,7 @@
 import coreapi
 import maya
 import logging
+import pydash
 
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.shortcuts import get_object_or_404
@@ -36,6 +37,7 @@ import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
 import talentmap_api.fsbid.services.employee as empservices
+import talentmap_api.fsbid.services.bid as bidservices
 
 logger = logging.getLogger(__name__)
 
@@ -396,3 +398,45 @@ class AvailablePositionHighlightActionView(APIView):
         position.is_highlighted = False
         position.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BureauBiddersRankings(APIView):
+
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
+
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("perdet", location='query', description='perdet of Bureau bidder'),
+            coreapi.Field("cp_id", location='query', description='cp_id of position'),
+        ]
+    )
+
+    def get(self, request, pk, cp_id):
+        """
+        Return position information for all of bidders' bids including their ranking information for those positions
+        """
+        user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
+        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
+        shortlist_bids = []
+        try:
+            shortlist_bids = list(filter(lambda x: (user_rankings.filter(
+                cp_id=str(int(pydash.get(x, 'position_info.id')))).exists()), user_bids))
+        except Exception as e:
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+        filtered_bids = []
+        for bid in shortlist_bids:
+            try:
+                pos_id = str(int(pydash.get(bid, 'position_info.id')))
+                hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
+                hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
+                if hasOrgPermissions or hasBureauPermissions:
+                    bid["ranking"] = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+                    filtered_bids.append(bid)
+            except Exception as e:
+                logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+
+        filtered_bids.sort(key=lambda x: x['ranking'])
+        other_sl_bids = len(shortlist_bids) - len(filtered_bids)
+        return Response({
+            "results": filtered_bids,
+            "other-sl-bidcount": 0 if pydash.is_negative(other_sl_bids) else other_sl_bids,
+        })

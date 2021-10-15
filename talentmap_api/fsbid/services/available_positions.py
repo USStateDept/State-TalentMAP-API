@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+CP_ROOT = settings.CP_API_URL
 
 
 def get_available_position(id, jwt_token):
@@ -34,11 +35,12 @@ def get_unavailable_position(id, jwt_token):
     Gets an indivdual unavailable position by id
     '''
     return services.get_individual(
-        "availablePositions",
+        "",
         id,
         convert_up_query,
         jwt_token,
-        fsbid_ap_to_talentmap_ap
+        fsbid_ap_to_talentmap_ap,
+        CP_ROOT,
     )
 
 
@@ -47,11 +49,12 @@ def get_all_position(id, jwt_token):
     Gets an indivdual position by id
     '''
     return services.get_individual(
-        "availablePositions",
+        "",
         id,
         convert_all_query,
         jwt_token,
-        fsbid_ap_to_talentmap_ap
+        fsbid_ap_to_talentmap_ap,
+        CP_ROOT,
     )
 
 

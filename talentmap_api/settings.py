@@ -18,7 +18,12 @@ import saml2
 import saml2.saml
 
 from saml2.config import SPConfig
+from django.apps import AppConfig
 
+
+# For upgrade to django 3.x
+AppConfig.default = False
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # This supports swagger https
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -44,6 +49,17 @@ def bool_env_variable(name):
     return get_delineated_environment_variable(name) in ["1", "True", "true", True]
 
 
+# SMTP email settings
+EMAIL_ENABLED = bool_env_variable("EMAIL_ENABLED")
+EMAIL_HOST = get_delineated_environment_variable("EMAIL_HOST")
+EMAIL_PORT = get_delineated_environment_variable("EMAIL_PORT")
+EMAIL_HOST_USER = get_delineated_environment_variable("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_delineated_environment_variable("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = bool_env_variable("EMAIL_USE_TLS")
+EMAIL_FROM_ADDRESS = get_delineated_environment_variable("EMAIL_FROM_ADDRESS")
+EMAIL_IS_DEV = bool_env_variable("EMAIL_IS_DEV")
+EMAIL_DEV_TO = get_delineated_environment_variable("EMAIL_DEV_TO")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -64,10 +80,6 @@ ALLOWED_HOSTS = ['*']
 
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
-
-# Login paths
-LOGIN_URL = 'rest_framework:login'
-LOGOUT_URL = 'rest_framework:logout'
 
 # Check for SAML2 enable
 if ENABLE_SAML2:
@@ -104,7 +116,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_expiring_authtoken',
     'rest_framework_filters',
-    'rest_framework_swagger',
+    'drf_yasg',
     'debug_toolbar',
     'djangosaml2',
     'simple_history',
@@ -252,6 +264,7 @@ if ENABLE_SAML2:
                     'name': 'TalentMAP',
                     'allow_unsolicited': True,
                     'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                    'want_response_signed': False,
                     'endpoints': {
                         # url and binding to the assetion consumer service view
                         # do not change the binding or service name
@@ -501,6 +514,8 @@ CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http:/
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
+TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
+BTP_API_URL = get_delineated_environment_variable('BTP_API_URL', 'http://mock_fsbid:3333/BidderTrackingPrograms')
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
@@ -532,6 +547,8 @@ SWAGGER_SETTINGS = {
             "description": "JWT authorization"
         },
     },
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
 }
 
 FAVORITES_LIMIT = 50

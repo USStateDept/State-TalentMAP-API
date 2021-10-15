@@ -1,4 +1,6 @@
 import logging
+import pydash
+import maya
 from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
@@ -6,11 +8,18 @@ from copy import deepcopy
 import requests  # pylint: disable=unused-import
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
+
+from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date, validate_values
 
-import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.cdo as cdoservices
+import talentmap_api.bidding.services.bidhandshake as bh_services
+import talentmap_api.fsbid.services.common as services
+import talentmap_api.fsbid.services.classifications as classifications_services
+import talentmap_api.fsbid.services.employee as empservices
 
 from talentmap_api.available_positions.models import AvailablePositionRanking
 
@@ -75,14 +84,21 @@ def get_bureau_position_bids(id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id
     '''
+
+    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    if not (hasBureauPermissions or hasOrgPermissions):
+        raise PermissionDenied()
+
     new_query = deepcopy(query)
     new_query["id"] = id
+    active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
     return services.get_results(
         "bidders",
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id, active_perdet=active_perdet),
         CP_API_ROOT,
     )
 
@@ -90,14 +106,21 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
     Gets all bids on an indivdual bureau position by id for export
     '''
+
+    hasBureauPermissions = empservices.has_bureau_permissions(id, jwt_token)
+    hasOrgPermissions = empservices.has_org_permissions(id, jwt_token)
+    if not (hasBureauPermissions or hasOrgPermissions):
+        raise PermissionDenied()
+
     new_query = deepcopy(query)
     new_query["id"] = id
+    active_perdet = bh_services.get_position_handshake_data(id)['active_handshake_perdet']
     data = services.send_get_csv_request(
         "bidders",
         new_query,
         convert_bp_bids_query,
         jwt_token,
-        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token),
+        partial(fsbid_bureau_position_bids_to_talentmap, jwt=jwt_token, cp_id=id, active_perdet=active_perdet),
         CP_API_ROOT,
     )
 
@@ -106,23 +129,41 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     response = services.get_bidders_csv(self, id, data, filename, True)
     return response
 
-def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
+def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     Formats the response bureau position bids from FSBid
     '''
-
     cdo = None
-    emp_id = bid.get("perdet_seq_num", None)
+    classifications = None
+    has_competing_rank = None
+    emp_id = str(int(float(bid.get("perdet_seq_num", None))))
     if emp_id is not None:
         cdo = cdoservices.single_cdo(jwt, emp_id)
+        classifications = classifications_services.get_client_classification(jwt, emp_id)
+        has_competing_rank = services.has_competing_rank(jwt, emp_id, cp_id)
 
     hasHandShakeOffered = False
     if bid.get("handshake_code", None) == "HS":
         hasHandShakeOffered = True
     ted = ensure_date(bid.get("TED", None), utc_offset=-5)
+
+    handshake = bh_services.get_bidder_handshake_data(cp_id, emp_id)
+
+    active_handshake_perdet = None
+    if active_perdet:
+        if int(active_perdet) == int(emp_id):
+            active_handshake_perdet = True
+        else:
+            active_handshake_perdet = False
+    
+    fullname = bid.get("full_name", None)
+    if fullname:
+        fullname = fullname.rstrip(' Nmn')
+
     return {
         "emp_id": emp_id,
-        "name": bid.get("full_name"),
+        "name": fullname,
+        "email": pydash.get(bid, "userDetails.gal_smtp_email_address_text"),
         "grade": bid.get("grade_code"),
         "skill": f"{bid.get('skill_desc', None)} ({bid.get('skill_code')})",
         "skill_code": bid.get("skill_code", None),
@@ -131,6 +172,12 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         "cdo": cdo,
+        "classifications": classifications,
+        "has_competing_rank": has_competing_rank,
+        "handshake": {
+            **handshake,
+        },
+        "active_handshake_perdet": active_handshake_perdet,
     }
 
 
@@ -138,6 +185,9 @@ def fsbid_bureau_positions_to_talentmap(bp):
     '''
     Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
+
+    bh_props = bh_services.get_position_handshake_data(bp.get("cp_id", None))
+
     hasHandShakeOffered = False
     if bp.get("cp_status", None) == "HS":
         hasHandShakeOffered = True
@@ -151,6 +201,12 @@ def fsbid_bureau_positions_to_talentmap(bp):
     if bp.get("pos_skill_code", None) == bp.get("pos_staff_ptrn_skill_code", None):
         skillSecondary = None
         skillSecondaryCode = None
+    
+    handshake_allowed_date = None
+    handshakeCycle = BidHandshakeCycle.objects.filter(cycle_id=bp.get("cycle_id", None))
+    if handshakeCycle:
+        handshakeCycle = handshakeCycle.first()
+        handshake_allowed_date = handshakeCycle.handshake_allowed_date
 
     return {
         "id": bp.get("cp_id", None),
@@ -248,7 +304,8 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "cycle_start_date": None,
             "cycle_deadline_date": None,
             "cycle_end_date": None,
-            "active": None
+            "active": None,
+            "handshake_allowed_date": handshake_allowed_date,
         },
         "bid_statistics": [{
             "id": None,
@@ -259,6 +316,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
             "has_handshake_offered": hasHandShakeOffered,
             "has_handshake_accepted": None
         }],
+        "bid_handshake": bh_props,
         "unaccompaniedStatus": bp.get("us_desc_text", None),
         "isConsumable": bp.get("bt_consumable_allowance_flg", None) == "Y",
         "isServiceNeedDifferential": bp.get("bt_service_needs_diff_flg", None) == "Y",
@@ -321,5 +379,5 @@ def get_bureau_shortlist_indicator(data):
     Adds a shortlist indicator field to position results
     '''
     for position in data["results"]:
-        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=position["id"]).exists()
+        position["has_short_list"] = AvailablePositionRanking.objects.filter(cp_id=str(int(position["id"]))).exists()
     return data

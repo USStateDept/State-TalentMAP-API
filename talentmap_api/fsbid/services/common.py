@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.http import QueryDict
 
 import maya
+import pydash
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -152,6 +153,9 @@ sort_dict = {
 }
 
 
+mapBool = {True: 'Yes', False: 'No', 'default': ''}
+
+
 def sorting_values(sort):
     if sort is not None:
         results = []
@@ -168,12 +172,18 @@ def sorting_values(sort):
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
-    url = f"{api_root}/{uri}?{query_mapping_function(query)}"
+    if query_mapping_function and query:
+        url = f"{api_root}/{uri}?{query_mapping_function(query)}"
+    else:
+        url = f"{api_root}/{uri}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
     if response.get("Data") is None or response.get('return_code', -1) == -1:
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
-    return list(map(mapping_function, response.get("Data", {})))
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
 
 
 def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
@@ -196,7 +206,8 @@ def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function,
     '''
     Gets an individual record by the provided ID
     '''
-    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)), None)
+    response = get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
+    return pydash.get(response, '[0]') or None
 
 
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
@@ -226,15 +237,25 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         countProp = "cnt"
     url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    return {"count": response["Data"][0][countProp]}
+    count = pydash.get(response, "Data[0]")
+    count = pydash.get(count, pydash.keys(count)[0])
+    return {"count": count}
 
+
+# pre-load since this data rarely changes
+obc_vals = list([])
+
+def get_obc_vals():
+    global obc_vals
+    if not obc_vals:
+        obc_vals = list(Obc.objects.values())
+    return obc_vals
 
 def get_obc_id(post_id):
+    obc = pydash.find(get_obc_vals(), lambda x: x['code'] == post_id)
 
-    obc = Obc.objects.filter(code=post_id)
-    if obc.count() == 1:
-        for p in obc:
-            return p.obc_id
+    if obc:
+        return obc['obc_id']
 
     return None
 
@@ -323,7 +344,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             ted = "None listed"
         try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y'))
         except:
             posteddate = "None listed"
 
@@ -340,7 +361,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
         if ap:
-            row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+            row.append(smart_str(record["isServiceNeedDifferential"]))
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
@@ -377,46 +398,53 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
-    # headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Service Need Differential"))
+    headers.append(smart_str(u"Handshake Offered"))
+    headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle"))
     headers.append(smart_str(u"Bid Status"))
+    headers.append(smart_str(u"Handshake Status"))
+    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
     headers.append(smart_str(u"Capsule Description"))
 
     writer.writerow(headers)
 
     for record in data:
-        position_data = get_all_position(smart_str(record["position"]["id"]), jwt_token)
-        if position_data is not None:
+        if record["position_info"] is not None:
             try:
-                ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
+                ted = smart_str(maya.parse(record["position_info"]["ted"]).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
-
+            hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
             row = []
-            row.append(smart_str(record["position"]["title"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
-            row.append(smart_str(record["position"]["skill"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
-            row.append(smart_str(position_data["position"]["bureau"]))
-            row.append(smart_str(record["position"]["post"]["location"]["city"]))
-            row.append(smart_str(record["position"]["post"]["location"]["country"]))
-            row.append(smart_str(position_data["position"]["tour_of_duty"]))
-            row.append(smart_str(parseLanguagesString(position_data["position"]["languages"])))
-            # row.append(smart_str(position_data["position"]["post"].get("has_service_needs_differential")))
-            row.append(smart_str(position_data["position"]["post"]["differential_rate"]))
-            row.append(smart_str(position_data["position"]["post"]["danger_pay"]))
+            row.append(smart_str(pydash.get(record, "position_info.position.title")))
+            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["position_number"]))
+            row.append(smart_str(pydash.get(record, "position_info.position.skill")))
+            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["grade"]))
+            row.append(smart_str(pydash.get(record, "position_info.position.bureau")))
+            row.append(smart_str(pydash.get(record, "position_info.position.post.location.city")))
+            row.append(smart_str(pydash.get(record, "position_info.position.post.location.country")))
+            row.append(smart_str(pydash.get(record, "position_info.position.tour_of_duty")))
+            row.append(smart_str(parseLanguagesString(pydash.get(record, "position_info.position.languages"))))
+            row.append(smart_str(pydash.get(record, "position_info.isServiceNeedDifferential")))
+            row.append(smart_str(pydash.get(record, "position_info.bid_statistics[0].has_handshake_offered")))
+            row.append(smart_str(pydash.get(record, "position_info.isDifficultToStaff")))
+            row.append(smart_str(pydash.get(record, "position_info.position.post.differential_rate")))
+            row.append(smart_str(pydash.get(record, "position_info.position.post.danger_pay")))
             row.append(ted)
-            row.append(smart_str(position_data["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["bidcycle"]))
+            row.append(smart_str(pydash.get(record, "position_info.position.current_assignment.user")))
+            row.append(smart_str(pydash.get(record, "position_info.bidcycle.name")))
             if record.get("status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
                 row.append(smart_str(record.get("status")))
-            row.append(smart_str(position_data["position"]["description"]["content"]))
+            row.append(hs_status)
+            row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
+            row.append(smart_str(pydash.get(record, "position_info.position.description.content")))
 
             writer.writerow(row)
     return response
@@ -449,12 +477,12 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
-def has_competing_rank(self, perdet, pk):
+def has_competing_rank(jwt, perdet, pk):
     rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
         "cp_id", flat=True)
     for y in rankOneBids:
-        hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
-        hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
+        hasBureauPermissions = empservices.has_bureau_permissions(y, jwt)
+        hasOrgPermissions = empservices.has_org_permissions(y, jwt)
         if hasBureauPermissions or hasOrgPermissions:
             # don't bother continuing the loop if we've already found one
             return True
@@ -479,6 +507,8 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
+    headers.append(smart_str(u"Handshake Status"))
+    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
 
     writer.writerow(headers)
 
@@ -498,18 +528,20 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
-        record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
+        hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
         row = []
         row.append(smart_str(record["name"]))
-        row.append(smart_str(record["has_competing_rank"]))
+        row.append(mapBool[pydash.get(record, 'has_competing_rank', 'default')])
         row.append(submit_date)
-        row.append(smart_str(record["has_handshake_offered"]))
+        row.append(mapBool[pydash.get(record, 'has_handshake_offered', 'default')])
         row.append(smart_str(record["skill"]))
         row.append(smart_str("=\"%s\"" % record["grade"]))
         row.append(smart_str(record["language"]))
         row.append(ted)
         row.append(cdo_name)
         row.append(cdo_email)
+        row.append(hs_status)
+        row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
 
         writer.writerow(row)
     return response

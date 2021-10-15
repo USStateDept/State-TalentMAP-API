@@ -8,11 +8,14 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.user_profile.models import UserProfile
+from talentmap_api.cdo.models import AvailableBidders
 from talentmap_api.messaging.models import Notification
 from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
+from talentmap_api.common.common_helpers import send_email, registeredHandshakeNotification
 import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
+import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -73,14 +76,18 @@ class FSBidListBidActionView(APIView):
             services.submit_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            
+            message = f"Bid on a position has been submitted by CDO {user}."
 
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been submitted by CDO {user}")
+            if owner:
+                Notification.objects.create(owner=owner,
+                                            tags=['bidding'],
+                                            message=message)
+                send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -94,18 +101,33 @@ class FSBidListBidRegisterView(APIView):
         '''
         Registers a bid
         '''
+        jwt = request.META['HTTP_JWT']
+
         try:
-            services.register_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            services.register_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
+                message = f"Bid on position has been registered by CDO {user}"
+
+                # Generate a notification
+                if owner:
+                    Notification.objects.create(owner=owner,
+                                                tags=['bidding'],
+                                                message=message)
+                    send_email(subject=message, body='Navigate to TalentMAP to see your updated bid tracker.', recipients=[owner.user.email])
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for registering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            finally:
+                # Remove the bidder from the available bidders list
+                ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
+                if ab.exists():
+                    ab.first().delete()
+                
+                # Notify other bidders
+                registeredHandshakeNotification(pk, jwt, client_id, True)
 
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been registered by CDO {user}")
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -114,18 +136,22 @@ class FSBidListBidRegisterView(APIView):
         '''
         Unregisters a bid
         '''
+        jwt = request.META['HTTP_JWT']
         try:
-            services.unregister_bid_on_position(client_id, pk, request.META['HTTP_JWT'])
+            services.unregister_bid_on_position(client_id, pk, jwt)
             user = UserProfile.objects.get(user=self.request.user)
             try:
-                owner = UserProfile.objects.get(emp_id=client_id)
+                owner = UserProfile.objects.filter(emp_id=client_id).first()
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for unregistering bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
-            Notification.objects.create(owner=owner,
-                                        tags=['bidding'],
-                                        message=f"Bid on position id={pk} has been unregistered by CDO {user}")
+            if owner:
+                Notification.objects.create(owner=owner,
+                                            tags=['bidding'],
+                                            message=f"Bid on position has been unregistered by CDO {user}")
+            # Notify other bidders
+            registeredHandshakeNotification(pk, jwt, client_id, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
@@ -156,13 +182,14 @@ class FSBidListPositionActionView(BaseView):
         services.bid_on_position(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for adding bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
-        Notification.objects.create(owner=owner,
-                                    tags=['bidding'],
-                                    message=f"Bid on position id={pk} has been added to your bid list by CDO {user}")
+        if owner:
+            Notification.objects.create(owner=owner,
+                                        tags=['bidding'],
+                                        message=f"Bid on position id={pk} has been added to your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk, client_id, format=None):
@@ -172,11 +199,31 @@ class FSBidListPositionActionView(BaseView):
         services.remove_bid(client_id, pk, request.META['HTTP_JWT'])
         user = UserProfile.objects.get(user=self.request.user)
         try:
-            owner = UserProfile.objects.get(emp_id=client_id)
+            owner = UserProfile.objects.filter(emp_id=client_id).first()
         except ObjectDoesNotExist:
             logger.info(f"User with emp_id={client_id} did not exist. No notification created for removing bid on position id={pk}.")
             return Response(status=status.HTTP_204_NO_CONTENT)
-        Notification.objects.create(owner=owner,
-                                    tags=['bidding'],
-                                    message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
+        if owner:
+            Notification.objects.create(owner=owner,
+                                        tags=['bidding'],
+                                        message=f"Bid on position id={pk} has been removed from your bid list by CDO {user}")
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FSBidClientEditClassifications(APIView):
+
+    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+
+    def put(self, request, client_id):
+        '''
+        Inserts/Deletes the classifications for the client
+        '''
+        try:
+            id = []
+            if request.data['insert']:
+                id = classifications_services.insert_client_classification(request.META['HTTP_JWT'], client_id, request.data['insert'])
+            if request.data['delete']:
+                id = classifications_services.delete_client_classification(request.META['HTTP_JWT'], client_id, request.data['delete'])
+            return Response(status=status.HTTP_200_OK, data=id)
+        except Exception as e:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
