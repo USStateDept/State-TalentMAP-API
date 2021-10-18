@@ -63,17 +63,18 @@ def get_available_bidders_stats(data):
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
                 stats['Status'][ab_status_key]['value'] += 1
 
-
             # skill_key = list(filter(None, bidder['skills']))
             # stats['Skill'][skill_key] = stats['Skill'].get(skill_key, 0) + 1
             # if stat['skills'] is not '':
             #     stats['Skill'][stat['skills']] += 1
 
-    print('------stats final update-------')
-    print(stats)
-    print('------stats update-------')
+    biddersStats = [{}]
+    for stat in stats:
+        biddersStats[0][stat] = []
+        for s in stats[stat]:
+            biddersStats[0][stat].append(stats[stat][s])
     return {
-        "stats": stats
+        "stats": biddersStats
     }
 
 
