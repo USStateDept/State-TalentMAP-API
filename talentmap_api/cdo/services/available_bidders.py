@@ -31,6 +31,14 @@ def get_available_bidders_stats(data):
         'Status': {},
         'TED': {},
     }
+    statsCount = {
+        'Bureau': 0,
+        'Grade': 0,
+        'Location': 0,
+        'Skill': 0,
+        'Status': 0,
+        'TED': 0,
+    }
     # print('-------skills-------')
     # print(list(filter(None, data['results'][0]['skills'])))
     # # code as top level key and value
@@ -43,38 +51,57 @@ def get_available_bidders_stats(data):
             if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
                 stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0, 'color': '#112E51'}
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
+            statsCount['Bureau'] += 1
 
             if bidder['grade'] not in stats['Grade']:
                 stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0, 'color': '#112E51'}
             stats['Grade'][bidder['grade']]['value'] += 1
+            statsCount['Grade'] += 1
 
             if bidder['pos_location'] not in stats['Location']:
                 stats['Location'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
             stats['Location'][bidder['pos_location']]['value'] += 1
+            statsCount['Location'] += 1
 
             ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
             if ted_key not in stats['TED']:
                 stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
             stats['TED'][ted_key]['value'] += 1
+            statsCount['TED'] += 1
 
+            # const statsSum = Object.values(get(stats[0], selectedStat, {})[0].value).reduce((a, b) => a + b, 0);
             ab_status_key = bidder['available_bidder_details']['status']
             if bidder['available_bidder_details']['status'] is not None:
                 if ab_status_key not in stats['Status']:
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
                 stats['Status'][ab_status_key]['value'] += 1
+                statsCount['Status'] += 1
+
+        print('statusCount')
+        print(statsCount)
+        print('statusCount')
 
             # skill_key = list(filter(None, bidder['skills']))
             # stats['Skill'][skill_key] = stats['Skill'].get(skill_key, 0) + 1
             # if stat['skills'] is not '':
             #     stats['Skill'][stat['skills']] += 1
 
-    biddersStats = [{}]
+        # color randomizer
+        # number_of_colors = 8
+        # color = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+        # for i in range(number_of_colors)]
+
+    biddersStats = {}
     for stat in stats:
-        biddersStats[0][stat] = []
+        biddersStats[stat] = []
         for s in stats[stat]:
-            biddersStats[0][stat].append(stats[stat][s])
+            biddersStats[stat].append(stats[stat][s])
+    print('bidderStats')
+    print(biddersStats)
+    print('bidderStats')
     return {
-        "stats": biddersStats
+        "stats": biddersStats,
+        "statsCount": statsCount
     }
 
 
