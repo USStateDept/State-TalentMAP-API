@@ -58,11 +58,13 @@ def get_available_bidders_stats(data):
             stats['Post'][bidder['pos_location']]['value'] += 1
             stats_count['Post'] += 1
 
-            ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
-            if ted_key not in stats['TED']:
-                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
-            stats['TED'][ted_key]['value'] += 1
-            stats_count['TED'] += 1
+            skill_copy = deepcopy(filter(None, bidder['skills']))
+            skill = list(skill_copy)
+            skill_key = skill[0]['code']
+            if skill_key not in stats['Skill']:
+                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0, 'color': '#112E51'}
+            stats['Skill'][skill_key]['value'] += 1
+            stats_count['Skill'] += 1
 
             ab_status_key = bidder['available_bidder_details']['status']
             if ab_status_key is not None:
@@ -71,13 +73,12 @@ def get_available_bidders_stats(data):
                 stats['Status'][ab_status_key]['value'] += 1
                 stats_count['Status'] += 1
 
-            skill_copy = deepcopy(filter(None, bidder['skills']))
-            skill = list(skill_copy)
-            skill_key = skill[0]['code']
-            if skill_key not in stats['Skill']:
-                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0, 'color': '#112E51'}
-            stats['Skill'][skill_key]['value'] += 1
-            stats_count['Skill'] += 1
+            ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
+            if ted_key not in stats['TED']:
+                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
+            stats['TED'][ted_key]['value'] += 1
+            stats_count['TED'] += 1
+
 
         # color randomizer
         # number_of_colors = 8
