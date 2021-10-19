@@ -100,6 +100,7 @@ def get_available_bidders_stats(data):
     print('bidderStats')
     return {
         "stats": biddersStats,
+        "statsCount": stats_count
     }
 
 
