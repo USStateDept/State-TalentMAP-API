@@ -23,10 +23,9 @@ def get_available_bidders_stats(data):
     Returns Available Bidders status statistics
     '''
     stats = {
-        'Bureau': {},  # code comes through, but only with the short name/acronym
+        'Bureau': {},  # comes through, but only with the short name/acronym
         'Grade': {},
-        'Location': {}, # need to verify what this should be, Location or Post?
-        # 'Post': {},
+        'Post': {},
         'Skill': {},
         'Status': {},
         'TED': {},
@@ -34,7 +33,7 @@ def get_available_bidders_stats(data):
     stats_count = {
         'Bureau': 0,
         'Grade': 0,
-        'Location': 0,
+        'Post': 0,
         'Skill': 0,
         'Status': 0,
         'TED': 0,
@@ -58,10 +57,10 @@ def get_available_bidders_stats(data):
             stats['Grade'][bidder['grade']]['value'] += 1
             stats_count['Grade'] += 1
 
-            if bidder['pos_location'] not in stats['Location']:
-                stats['Location'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
-            stats['Location'][bidder['pos_location']]['value'] += 1
-            stats_count['Location'] += 1
+            if bidder['pos_location'] not in stats['Post']:
+                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
+            stats['Post'][bidder['pos_location']]['value'] += 1
+            stats_count['Post'] += 1
 
             ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
             if ted_key not in stats['TED']:
