@@ -2,6 +2,7 @@ import logging
 import csv
 import maya
 import pydash
+from copy import deepcopy
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -38,11 +39,6 @@ def get_available_bidders_stats(data):
         'Status': 0,
         'TED': 0,
     }
-    # print('-------skills-------')
-    # print(list(filter(None, data['results'][0]['skills'])))
-    # # code as top level key and value
-    # # description as name
-    # print('-------skills-------')
 
     if data:
         # get stats for various fields
@@ -69,16 +65,19 @@ def get_available_bidders_stats(data):
             stats_count['TED'] += 1
 
             ab_status_key = bidder['available_bidder_details']['status']
-            if bidder['available_bidder_details']['status'] is not None:
+            if ab_status_key is not None:
                 if ab_status_key not in stats['Status']:
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
                 stats['Status'][ab_status_key]['value'] += 1
                 stats_count['Status'] += 1
 
-            # skill_key = list(filter(None, bidder['skills']))
-            # stats['Skill'][skill_key] = stats['Skill'].get(skill_key, 0) + 1
-            # if stat['skills'] is not '':
-            #     stats['Skill'][stat['skills']] += 1
+            skill_copy = deepcopy(filter(None, bidder['skills']))
+            skill = list(skill_copy)
+            skill_key = skill[0]['code']
+            if skill_key not in stats['Skill']:
+                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0, 'color': '#112E51'}
+            stats['Skill'][skill_key]['value'] += 1
+            stats_count['Skill'] += 1
 
         # color randomizer
         # number_of_colors = 8
