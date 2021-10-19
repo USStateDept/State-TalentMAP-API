@@ -95,12 +95,12 @@ def get_available_bidders_stats(data):
             stats[stat][s]['percent'] = round(stat_value / stat_total, 2)
             biddersStats[stat].append(stats[stat][s])
 
+    biddersStats['Count'] = stats_count
     print('bidderStats')
     print(biddersStats)
     print('bidderStats')
     return {
         "stats": biddersStats,
-        "statsCount": stats_count
     }
 
 
