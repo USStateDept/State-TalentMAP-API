@@ -31,7 +31,7 @@ def get_available_bidders_stats(data):
         'Status': {},
         'TED': {},
     }
-    stats_count = {
+    stats_sum = {
         'Bureau': 0,
         'Grade': 0,
         'Post': 0,
@@ -46,17 +46,17 @@ def get_available_bidders_stats(data):
             if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
                 stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0, 'color': '#112E51'}
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
-            stats_count['Bureau'] += 1
+            stats_sum['Bureau'] += 1
 
             if bidder['grade'] not in stats['Grade']:
                 stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0, 'color': '#112E51'}
             stats['Grade'][bidder['grade']]['value'] += 1
-            stats_count['Grade'] += 1
+            stats_sum['Grade'] += 1
 
             if bidder['pos_location'] not in stats['Post']:
                 stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
             stats['Post'][bidder['pos_location']]['value'] += 1
-            stats_count['Post'] += 1
+            stats_sum['Post'] += 1
 
             skill_copy = deepcopy(filter(None, bidder['skills']))
             skill = list(skill_copy)
@@ -64,20 +64,20 @@ def get_available_bidders_stats(data):
             if skill_key not in stats['Skill']:
                 stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0, 'color': '#112E51'}
             stats['Skill'][skill_key]['value'] += 1
-            stats_count['Skill'] += 1
+            stats_sum['Skill'] += 1
 
             ab_status_key = bidder['available_bidder_details']['status']
             if ab_status_key is not None:
                 if ab_status_key not in stats['Status']:
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
                 stats['Status'][ab_status_key]['value'] += 1
-                stats_count['Status'] += 1
+                stats_sum['Status'] += 1
 
             ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
             if ted_key not in stats['TED']:
                 stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
             stats['TED'][ted_key]['value'] += 1
-            stats_count['TED'] += 1
+            stats_sum['TED'] += 1
 
 
         # color randomizer
@@ -87,14 +87,14 @@ def get_available_bidders_stats(data):
 
     biddersStats = {}
     for stat in stats:
-        stat_total = stats_count[stat]
+        stat_total = stats_sum[stat]
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
             stats[stat][s]['percent'] = round(stat_value / stat_total, 2)
             biddersStats[stat].append(stats[stat][s])
 
-    biddersStats['Count'] = stats_count
+    biddersStats['Sum'] = stats_sum
     print('bidderStats')
     print(biddersStats)
     print('bidderStats')
