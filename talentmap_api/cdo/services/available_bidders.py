@@ -92,11 +92,11 @@ def get_available_bidders_stats(data):
     biddersStats = {}
     for stat in stats:
         color_pos = 0
-        stat_total = stats_sum[stat]
+        stat_sum = stats_sum[stat]
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
-            stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_total)
+            stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_sum)
             stats[stat][s]['color'] = colors[color_pos]
             biddersStats[stat].append(stats[stat][s])
             color_pos += 1
