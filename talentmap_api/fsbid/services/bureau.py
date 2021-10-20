@@ -79,12 +79,13 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
     from talentmap_api.fsbid.services.common import get_ap_and_pv_csv, send_get_csv_request
 
     data = send_get_csv_request(
-        "availablePositions",
+        "",
         query,
-        convert_bp_query,
+        partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        API_ROOT,
+        CP_API_V2_ROOT,
+        None,
         None,
         None,
         True,
