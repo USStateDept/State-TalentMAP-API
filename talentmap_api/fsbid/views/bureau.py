@@ -142,7 +142,7 @@ class FSBidBureauPositionBidsView(BaseView):
 
         return Response(result)
 
-class FSBidBureauPositionBidsExportView(BaseView):
+class FSBidBureauPositionBidsCSVView(BaseView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = BureauPositionsFilter
 
