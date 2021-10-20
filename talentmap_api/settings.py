@@ -532,6 +532,9 @@ AD_ID = 'DOMAIN\\USERNAME'
 OBC_URL = get_delineated_environment_variable('OBC_URL', 'http://localhost:4000')
 OBC_URL_EXTERNAL = get_delineated_environment_variable('OBC_URL_EXTERNAL', 'http://localhost:4000/external')
 
+# SSL cert
+HRONLINE_CERT = get_delineated_environment_variable('HRONLINE_CERT', None)
+
 # defaults from https://pypi.org/project/django-cors-headers/ plus our custom headers
 CORS_ALLOW_HEADERS = [
     'accept',

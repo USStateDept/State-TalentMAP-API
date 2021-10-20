@@ -1,5 +1,4 @@
 import logging
-import requests
 import jwt
 import pydash
 
@@ -8,6 +7,7 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.services.available_positions import get_available_position
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
+from talentmap_api.requests import requests
 
 API_ROOT = settings.EMPLOYEES_API_URL
 FSBID_ROOT = settings.FSBID_API_URL
@@ -22,7 +22,7 @@ def get_employee_perdet_seq_num(jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/userInfo?ad_id={ad_id}"
-    employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return next(iter(employee.get('Data', [])), {}).get('perdet_seq_num')
 
 
@@ -32,10 +32,10 @@ def get_employee_information(jwt_token, emp_id):
     '''
     url = f"{FSBID_ROOT}/Persons?request_params.perdet_seq_num={emp_id}"
     skillUrl = f"{FSBID_ROOT}/skillCodes"
-    employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     employee = next(iter(employee.get('Data', [])), {})
     employeeSkills = map_skill_codes(employee)
-    skills = requests.get(skillUrl, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    skills = requests.get(skillUrl, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     skills = pydash.get(skills, 'Data', [])
     try:
         return {
@@ -129,7 +129,7 @@ def get_bureau_permissions(jwt_token, host=None):
     Gets a list of bureau codes assigned to the bureau_user
     '''
     url = f"{FSBID_ROOT}/bureauPermissions"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return map(map_bureau_permissions, response.get("Data", {}))
 
 
@@ -138,7 +138,7 @@ def get_org_permissions(jwt_token, host=None):
     Gets a list of organization codes assigned to the user
     '''
     url = f"{ORG_ROOT}/Permissions"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return map(map_org_permissions, response.get("Data", {}))
 
 
