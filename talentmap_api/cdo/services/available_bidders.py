@@ -91,7 +91,7 @@ def get_available_bidders_stats(data):
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
-            stats[stat][s]['percent'] = round(stat_value / stat_total, 2)
+            stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_total)
             biddersStats[stat].append(stats[stat][s])
 
     biddersStats['Sum'] = stats_sum
