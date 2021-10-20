@@ -59,7 +59,8 @@ class FSBidListBidActionView(APIView):
             services.submit_bid_on_position(user.emp_id, pk, request.META['HTTP_JWT'])
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=e)
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class FSBidListPositionActionView(APIView):
