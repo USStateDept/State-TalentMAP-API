@@ -2,6 +2,7 @@ import logging
 import csv
 import maya
 import pydash
+import random
 from copy import deepcopy
 
 from django.conf import settings
@@ -44,17 +45,17 @@ def get_available_bidders_stats(data):
         # get stats for various fields
         for bidder in data['results']:
             if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
-                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0, 'color': '#112E51'}
+                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
             stats_sum['Bureau'] += 1
 
             if bidder['grade'] not in stats['Grade']:
-                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0, 'color': '#112E51'}
+                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
             stats['Grade'][bidder['grade']]['value'] += 1
             stats_sum['Grade'] += 1
 
             if bidder['pos_location'] not in stats['Post']:
-                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0, 'color': '#112E51'}
+                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
             stats['Post'][bidder['pos_location']]['value'] += 1
             stats_sum['Post'] += 1
 
@@ -62,42 +63,46 @@ def get_available_bidders_stats(data):
             skill = list(skill_copy)
             skill_key = skill[0]['code']
             if skill_key not in stats['Skill']:
-                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0, 'color': '#112E51'}
+                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0}
             stats['Skill'][skill_key]['value'] += 1
             stats_sum['Skill'] += 1
 
             ab_status_key = bidder['available_bidder_details']['status']
             if ab_status_key is not None:
                 if ab_status_key not in stats['Status']:
-                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0, 'color': '#112E51'}
+                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
                 stats['Status'][ab_status_key]['value'] += 1
                 stats_sum['Status'] += 1
 
             ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
             if ted_key not in stats['TED']:
-                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0, 'color': '#112E51'}
+                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0}
             stats['TED'][ted_key]['value'] += 1
             stats_sum['TED'] += 1
 
 
-        # color randomizer
-        # number_of_colors = 8
-        # color = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-        # for i in range(number_of_colors)]
+    # color randomizer
+    stats_length = []
+    for stat in stats:
+        stats_length.append(len(stats[stat]))
+    num_of_colors = max(stats_length)
+    colors = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(num_of_colors)]
 
+    # creating final data structure to pass to FE
     biddersStats = {}
     for stat in stats:
+        color_pos = 0
         stat_total = stats_sum[stat]
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
             stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_total)
+            stats[stat][s]['color'] = colors[color_pos]
             biddersStats[stat].append(stats[stat][s])
+            color_pos += 1
 
     biddersStats['Sum'] = stats_sum
-    print('bidderStats')
-    print(biddersStats)
-    print('bidderStats')
+
     return {
         "stats": biddersStats,
     }
