@@ -58,7 +58,7 @@ def get_unavailable_position(id, jwt_token):
 
 def get_all_position(id, jwt_token):
     '''
-    Gets an indivdual available position by id
+    Gets an indivdual cycle position by id
     '''
 
     args = {
