@@ -3,6 +3,7 @@ import logging
 import csv
 from datetime import datetime
 import requests_cache
+from copy import deepcopy
 
 from django.conf import settings
 from django.db.models import Q
@@ -162,6 +163,9 @@ sort_dict = {
     "bidder_ted": "TED",
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
+    # End Todo
+    "bidlist_create_date": "create_date",
+    "bidlist_location": "position_info.position.post.location.city",
 }
 
 
@@ -639,3 +643,58 @@ def get_secondary_skill(pos = {}):
         "skill_secondary": skillSecondary,
         "skill_secondary_code": skillSecondaryCode,
     }
+
+
+APPROVED_PROP = 'approved'
+CLOSED_PROP = 'closed'
+DRAFT_PROP = 'draft'
+DECLINED_PROP = 'declined'
+HAND_SHAKE_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_DECLINED_PROP = 'handshake_declined'
+PRE_PANEL_PROP = 'pre_panel'
+IN_PANEL_PROP = 'in_panel'
+SUBMITTED_PROP = 'submitted'
+PANEL_RESCHEDULED_PROP = 'panel_rescheduled'
+HAND_SHAKE_NEEDS_REGISTER_PROP = 'handshake_needs_registered'
+HAND_SHAKE_OFFERED_PROP = 'handshake_offered'
+HAND_SHAKE_OFFER_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_OFFER_DECLINED_PROP = 'handshake_declined'
+HAND_SHAKE_REVOKED_PROP = 'handshake_offer_revoked'
+
+bid_status_order = {
+  DECLINED_PROP: 10,
+  CLOSED_PROP: 20,
+  HAND_SHAKE_DECLINED_PROP: 30,
+  HAND_SHAKE_OFFER_DECLINED_PROP: 40,
+  HAND_SHAKE_REVOKED_PROP: 50,
+  DRAFT_PROP: 60,
+  SUBMITTED_PROP: 70,
+  HAND_SHAKE_OFFERED_PROP: 80,
+  HAND_SHAKE_OFFER_ACCEPTED_PROP: 90,
+  HAND_SHAKE_NEEDS_REGISTER_PROP: 100,
+  HAND_SHAKE_ACCEPTED_PROP: 110,
+  PRE_PANEL_PROP: 120,
+  PANEL_RESCHEDULED_PROP: 130,
+  IN_PANEL_PROP: 140,
+  APPROVED_PROP: 150,
+}
+
+def sort_bids(bidlist, ordering_query):
+    ordering = sorting_values(ordering_query)
+    bids = deepcopy(bidlist)
+    try:
+        if ordering and ordering[0]:
+            ordering = pydash.get(ordering, '[0]', '').split(' ')
+            order = pydash.get(ordering, '[0]')
+            is_asc = pydash.get(ordering, '[1]') == 'asc'
+            bids = sorted(bids, key=lambda x: pydash.get(x, order, '') or '', reverse=not is_asc)
+        elif ordering_query in ('status', '-status'):
+            bids = pydash.map_(bids, lambda x: { **x, "ordering": bid_status_order[x['status']] })
+            bids = pydash.sort_by(bids, "ordering", reverse=ordering_query[0] == '-')
+            bids = pydash.map_(bids, lambda x: pydash.omit(x, 'ordering'))
+            bids.reverse()
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+        return bidlist
+    return bids
+    
