@@ -144,6 +144,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -458,8 +459,8 @@ DATABASES = {
         'NAME': get_delineated_environment_variable("DATABASE_URL"),
         'USER': get_delineated_environment_variable("DATABASE_USER"),
         'PASSWORD': get_delineated_environment_variable("DATABASE_PW"),
-        'CONN_MAX_AGE': 300,
-        'OPTIONS': {'threaded': True}
+        # 'CONN_MAX_AGE': 300,
+        # 'OPTIONS': {'threaded': True}
     }
 }
 
@@ -530,6 +531,9 @@ SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 AD_ID = 'DOMAIN\\USERNAME'
 OBC_URL = get_delineated_environment_variable('OBC_URL', 'http://localhost:4000')
 OBC_URL_EXTERNAL = get_delineated_environment_variable('OBC_URL_EXTERNAL', 'http://localhost:4000/external')
+
+# SSL cert
+HRONLINE_CERT = get_delineated_environment_variable('HRONLINE_CERT', None)
 
 # defaults from https://pypi.org/project/django-cors-headers/ plus our custom headers
 CORS_ALLOW_HEADERS = [

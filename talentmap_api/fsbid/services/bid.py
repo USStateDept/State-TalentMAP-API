@@ -1,6 +1,5 @@
 import logging
 import jwt
-import requests
 import pydash
 import maya
 from copy import deepcopy
@@ -14,6 +13,8 @@ from talentmap_api.bidding.models import BidHandshakeCycle
 from talentmap_api.common.common_helpers import ensure_date
 
 from talentmap_api.bidding.models import Bid, BidHandshake
+from talentmap_api.fsbid.requests import requests
+
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.available_positions as ap_services
@@ -22,24 +23,25 @@ API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
-
-def user_bids(employee_id, jwt_token, position_id=None):
+def user_bids(employee_id, jwt_token, position_id=None, query={}):
     '''
     Get bids for a user on a position or all if no position
     '''
     url = f"{API_ROOT}/bids/?perdet_seq_num={employee_id}"
-    bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    ordering_query = query.get("ordering", None)
+    bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
+    mappedBids = services.sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
     return map_bids_to_disable_handshake_if_accepted(mappedBids)
 
-def get_user_bids_csv(employee_id, jwt_token, position_id=None):
+def get_user_bids_csv(employee_id, jwt_token, position_id=None, query={}):
     '''
     Export bids for a user to CSV
     '''
-    data = user_bids(employee_id, jwt_token, position_id)
+    data = user_bids(employee_id, jwt_token, position_id, query)
 
     response = services.get_bids_csv(list(data), "bids", jwt_token)
 
@@ -52,7 +54,7 @@ def bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
-    response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+    response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
 
@@ -63,7 +65,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
-    response = requests.put(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+    response = requests.put(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
 
@@ -74,7 +76,7 @@ def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}&hs_cd=HS"
-    response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+    response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
 
@@ -85,7 +87,7 @@ def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
-    response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+    response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
 
@@ -96,7 +98,7 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
-    return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False)  # nosec
+    return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
 
 
 def map_bids_to_disable_handshake_if_accepted(bids):

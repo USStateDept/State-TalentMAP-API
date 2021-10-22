@@ -9,11 +9,10 @@ from django.utils.encoding import smart_str
 import jwt
 import pydash
 
-import requests  # pylint: disable=unused-import
-
 import talentmap_api.fsbid.services.cdo as cdo_services
 import talentmap_api.fsbid.services.available_positions as services_ap
 from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.fsbid.requests import requests
 
 API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
@@ -30,8 +29,7 @@ def get_user_information(jwt_token, perdet_seq_num):
     Gets the office_phone and office_address for the employee
     '''
     url = f"{SECREF_ROOT}/user?request_params.perdet_seq_num={perdet_seq_num}"
-    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'},
-                            verify=False).json()  # nosec
+    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json() 
     user = next(iter(user.get('Data', [])), {})
     try:
         return {
@@ -394,19 +392,25 @@ def map_skill_codes(data):
         if i == 1:
             index = ''
         code = pydash.get(data, f'per_skill{index}_code', None)
-        desc = pydash.get(data, f'per_skill{index}_code_desc', None)
+        desc = pydash.get(data, f'per_skill{index}_code_desc', None) # Not coming through with /Persons
         skills.append({'code': code, 'description': desc})
     return filter(lambda x: x.get('code', None) is not None, skills)
 
 
 def map_skill_codes_additional(skills, employeeSkills):
     employeeCodesAdd = []
-    for w in employeeSkills:
-        foundSkill = [a for a in skills if a['skl_code'] == w['code']][0]
-        cone = foundSkill['jc_nm_txt']
-        foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
-        for x in foundSkillsByCone:
-            employeeCodesAdd.append(x['skl_code'])
+    try:
+        for w in employeeSkills:
+            foundSkill = [a for a in skills if a['skl_code'] == w['code']]
+            # some times, the user's skill is not in the full /skillCodes list
+            if foundSkill:
+                foundSkill = foundSkill[0]
+                cone = foundSkill['jc_nm_txt']
+                foundSkillsByCone = [b for b in skills if b['jc_nm_txt'] == cone]
+                for x in foundSkillsByCone:
+                    employeeCodesAdd.append(x['skl_code'])
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
     return set(employeeCodesAdd)
 
 
