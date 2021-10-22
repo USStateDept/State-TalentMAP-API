@@ -459,8 +459,8 @@ DATABASES = {
         'NAME': get_delineated_environment_variable("DATABASE_URL"),
         'USER': get_delineated_environment_variable("DATABASE_USER"),
         'PASSWORD': get_delineated_environment_variable("DATABASE_PW"),
-        'CONN_MAX_AGE': 300,
-        'OPTIONS': {'threaded': True}
+        # 'CONN_MAX_AGE': 300,
+        # 'OPTIONS': {'threaded': True}
     }
 }
 
