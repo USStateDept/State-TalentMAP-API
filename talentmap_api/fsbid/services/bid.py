@@ -13,7 +13,7 @@ from talentmap_api.bidding.models import BidHandshakeCycle
 from talentmap_api.common.common_helpers import ensure_date
 
 from talentmap_api.bidding.models import Bid, BidHandshake
-from talentmap_api.requests import requests
+from talentmap_api.fsbid.requests import requests
 
 import talentmap_api.fsbid.services.common as services
 import talentmap_api.bidding.services.bidhandshake as bh_services
