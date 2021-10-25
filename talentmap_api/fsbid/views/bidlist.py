@@ -27,7 +27,7 @@ class FSBidListView(APIView):
         Gets all bids for the current user and position information on those bids
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        return Response({"results": services.user_bids(user.emp_id, request.META['HTTP_JWT'])})
+        return Response({"results": services.user_bids(user.emp_id, request.META['HTTP_JWT'], query=request.query_params)})
 
 
 class FSBidBidListCSVView(APIView):
@@ -43,7 +43,7 @@ class FSBidBidListCSVView(APIView):
         Exports all bids of the current user to CSV
         '''
         user = UserProfile.objects.get(user=self.request.user)
-        return services.get_user_bids_csv(user.emp_id, request.META['HTTP_JWT'])
+        return services.get_user_bids_csv(user.emp_id, request.META['HTTP_JWT'], query=request.query_params)
 
 
 class FSBidListBidActionView(APIView):
