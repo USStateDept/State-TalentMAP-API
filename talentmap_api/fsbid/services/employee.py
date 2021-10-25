@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.services.available_positions import get_available_position
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
-from talentmap_api.requests import requests
+from talentmap_api.fsbid.requests import requests
 
 API_ROOT = settings.EMPLOYEES_API_URL
 FSBID_ROOT = settings.FSBID_API_URL
