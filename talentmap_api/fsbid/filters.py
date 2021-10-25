@@ -64,6 +64,7 @@ class AvailablePositionsFilter():
         "isEFMInside",
         "isEFMOutside",
         "position__cpn_codes__in",
+        "htf_indicator",
     ]
 
     use_api = True
@@ -98,6 +99,7 @@ class BureauPositionsFilter():
         "isEFMInside",
         "isEFMOutside",
         "position__cpn_codes__in",
+        "htf_indicator",
     ]
 
     use_api = True
