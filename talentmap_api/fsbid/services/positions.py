@@ -26,6 +26,15 @@ def fsbid_pos_to_talentmap_pos(ap):
     '''
     Converts the response generic position from FSBid to a format more in line with the Talentmap position
     '''
+    r1 = ap.get("pos_read_proficiency_1_code", None) or '--'
+    s1 = ap.get("pos_speak_proficiency_1_code", None) or '--'
+    l1 = ap.get("pos_language_1_desc", None)
+    rep1 = f"{l1} {r1}/{s1}"
+    r2 = ap.get("pos_read_proficiency_2_code", None) or '--'
+    s2 = ap.get("pos_speak_proficiency_2_code", None) or '--'
+    l2 = ap.get("pos_language_2_desc", None)
+    rep2 = f"{l2} {r2}/{s2}"
+
     return {
         "id": ap.get("pos_seq_num", None),
         "status": None,
@@ -40,7 +49,7 @@ def fsbid_pos_to_talentmap_pos(ap):
         "position": {
             "id": ap.get("pos_seq_num", None),
             "grade": ap.get("pos_grade_code", None),
-            "skill": f"{ap.get('pos_skill_desc', None)} ({ap.get('pos_skill_code')})",
+            "skill": f"{ap.get('pos_skill_desc', '')} {ap.get('pos_skill_code')}",
             "skill_code": ap.get("pos_skill_code", None),
             "skill_secondary": None,
             "skill_secondary_code": None,
@@ -114,18 +123,18 @@ def fsbid_pos_to_talentmap_pos(ap):
             },
             "languages": [
                 {
-                    "language": ap.get("pos_language_1_desc", None),
-                    "reading_proficiency": ap.get("pos_read_proficiency_1_code", None),
-                    "spoken_proficiency": ap.get("pos_speak_proficiency_1_code", None),
+                    "language": l1,
+                    "reading_proficiency": r1,
+                    "spoken_proficiency": s1,
                     # Fix this
-                    "representation": None,
+                    "representation": rep1,
                 },
                 {
-                    "language": ap.get("pos_language_2_desc", None),
-                    "reading_proficiency": ap.get("pos_read_proficiency_2_code", None),
-                    "spoken_proficiency": ap.get("pos_speak_proficiency_2_code", None),
+                    "language": l2,
+                    "reading_proficiency": r2,
+                    "spoken_proficiency": s2,
                     # Fix this
-                    "representation": None,
+                    "representation": rep2,
                 },
             ],
         },
