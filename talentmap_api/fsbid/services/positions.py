@@ -27,7 +27,7 @@ def fsbid_pos_to_talentmap_pos(ap):
     Converts the response generic position from FSBid to a format more in line with the Talentmap position
     '''
     return {
-        "id": None,
+        "id": ap.get("pos_seq_num", None),
         "status": None,
         "status_code": None,
         "ted": None,
