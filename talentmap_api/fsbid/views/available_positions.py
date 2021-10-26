@@ -45,6 +45,7 @@ class FSBidAvailablePositionsListView(BaseView):
             coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
             coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
             coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
+            coreapi.Field("htf_ind", location='query', description='Hard to Fill (Y/N)'),
             coreapi.Field("q", location='query', description='Text search'),
         ]
     )

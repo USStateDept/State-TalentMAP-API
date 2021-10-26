@@ -79,12 +79,13 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
     from talentmap_api.fsbid.services.common import get_ap_and_pv_csv, send_get_csv_request
 
     data = send_get_csv_request(
-        "availablePositions",
+        "",
         query,
-        convert_bp_query,
+        partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
-        API_ROOT,
+        CP_API_V2_ROOT,
+        None,
         None,
         None,
         True,
@@ -362,6 +363,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
         "isDifficultToStaff": bp.get("bt_most_difficult_to_staff_flg", None) == "Y",
         "isEFMInside": bp.get("bt_inside_efm_employment_flg", None) == "Y",
         "isEFMOutside": bp.get("bt_outside_efm_employment_flg", None) == "Y",
+        "isHardToFill": bp.get("hard_to_fill_ind", None) == "Y",
     }
 
 
@@ -399,6 +401,7 @@ def convert_bp_query(query, allowed_status_codes=["FP", "OP", "HS"], use_post=Fa
         f"{prefix}skills": convert_multi_value(query.get("position__skill__code__in")),
         f"{prefix}us_codes": convert_multi_value(query.get("position__us_codes__in")),
         f"{prefix}cpn_codes": convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}htf_ind": convert_multi_value(query.get("htf_indicator")),
         f"{prefix}freeText": query.get("q", None),
         f"{prefix}totalResults": query.get("getCount", 'false'),
     }

@@ -56,6 +56,30 @@ def get_unavailable_position(id, jwt_token):
     )
 
 
+def get_all_position(id, jwt_token):
+    '''
+    Gets an indivdual cycle position by id
+    '''
+
+    args = {
+        "uri": "",
+        "id": id,
+        "query_mapping_function": partial(convert_all_query, use_post=True),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = ''
+        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
+    return services.get_individual(
+        **args
+    )
+
+
 def get_available_positions(query, jwt_token, host=None, use_post=False):
     '''
     Gets available positions
@@ -331,6 +355,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
         "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
+        "isHardToFill": ap.get("hard_to_fill_ind", None) == "Y",
     }
 
 
@@ -367,6 +392,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
         f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
         f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
         f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}htf_ind": services.convert_multi_value(query.get("htf_indicator")),
         f"{prefix}freeText": query.get("q", None),
 
     }
@@ -399,7 +425,8 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
         values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
-    
+        values[f"{prefix}htf_ind2"] = services.convert_multi_value(query.get("htf_indicator-tandem"))
+
     if use_post:
         if isinstance(values[f"{prefix}order_by"], list):
             values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
@@ -435,6 +462,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.location_codes": services.post_values(query),
         "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
         "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
+        "request_params.htf_ind": services.convert_multi_value(query.get("htf_indicator", None)),
 
         # Common filters
         "request_params.overseas_ind2": services.overseas_values(query),
@@ -454,6 +482,7 @@ def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
         "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
         "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
         "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
+        "request_params.htf_ind2": services.convert_multi_value(query.get("htf_indicator-tandem", None)),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
@@ -465,13 +494,13 @@ def convert_up_query(query):
     return convert_ap_query(query, ["FP"])
 
 
-def convert_all_query(query):
+def convert_all_query(query, use_post=False):
     '''
     sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return convert_ap_query(query, ["FP", "OP", "HS"])
+    return convert_ap_query(query, ["FP", "OP", "HS"], False, use_post=use_post)
 
 
 def get_ap_favorite_ids(query, jwt_token, host=None):

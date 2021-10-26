@@ -164,6 +164,7 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "user": pv.get("incumbent", None),
                 "estimated_end_date": ensure_date(pv.get("ted", None), utc_offset=-5)
             },
+            "assignee": pv.get("assignee", None),
             "position_number": pv.get("position", None),
             "title": pv.get("pos_title_desc", None),
             "availability": {
