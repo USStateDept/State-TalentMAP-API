@@ -46,7 +46,7 @@ class FSBidListView(BaseView):
         '''
         Gets all bids for the client user
         '''
-        return Response({"results": services.user_bids(client_id, request.META['HTTP_JWT'])})
+        return Response({"results": services.user_bids(client_id, request.META['HTTP_JWT'], query=request.query_params)})
 
 
 class FSBidBidClientListCSVView(APIView):
@@ -61,7 +61,7 @@ class FSBidBidClientListCSVView(APIView):
         '''
         Exports all bids for the client's user to CSV
         '''
-        return services.get_user_bids_csv(client_id, request.META['HTTP_JWT'])
+        return services.get_user_bids_csv(client_id, request.META['HTTP_JWT'], query=request.query_params)
 
 
 class FSBidListBidActionView(APIView):
