@@ -82,10 +82,7 @@ def get_available_bidders_stats(data):
 
 
     # color randomizer
-    stats_length = []
-    for stat in stats:
-        stats_length.append(len(stats[stat]))
-    num_of_colors = max(stats_length)
+    num_of_colors = max(map(lambda x: len(stats[x]), stats.keys()))
     colors = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(num_of_colors)]
 
     # creating final data structure to pass to FE
