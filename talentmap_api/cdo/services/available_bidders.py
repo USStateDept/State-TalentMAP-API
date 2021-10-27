@@ -80,23 +80,15 @@ def get_available_bidders_stats(data):
             stats['TED'][ted_key]['value'] += 1
             stats_sum['TED'] += 1
 
-
-    # color randomizer
-    num_of_colors = max(map(lambda x: len(stats[x]), stats.keys()))
-    colors = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(num_of_colors)]
-
     # creating final data structure to pass to FE
     biddersStats = {}
     for stat in stats:
-        color_pos = 0
         stat_sum = stats_sum[stat]
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
             stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_sum)
-            stats[stat][s]['color'] = colors[color_pos]
             biddersStats[stat].append(stats[stat][s])
-            color_pos += 1
 
     biddersStats['Sum'] = stats_sum
 
