@@ -27,7 +27,7 @@ def get_available_position(id, jwt_token):
     args = {
         "uri": "availablePositions",
         "id": id,
-        "query_mapping_function": convert_ap_query,
+        "query_mapping_function": convert_all_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
         "use_post": USE_CP_API_V2,
@@ -35,7 +35,7 @@ def get_available_position(id, jwt_token):
 
     if USE_CP_API_V2:
         args['uri'] = 'available'
-        args['query_mapping_function'] = partial(convert_ap_query, use_post=True)
+        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
         args['api_root'] = CP_API_V2_URL
 
     return services.get_individual(
