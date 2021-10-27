@@ -43,7 +43,7 @@ def get_available_bidders_stats(data):
 
     if data:
         # get stats for various fields
-        for bidder in data['results']:
+        for bidder in pydash.get(data, 'results'):
             if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
                 stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
