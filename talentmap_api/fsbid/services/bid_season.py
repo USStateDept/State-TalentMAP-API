@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 
 from talentmap_api.common.common_helpers import ensure_date
-from talentmap_api.requests import requests
+from talentmap_api.fsbid.requests import requests
 
 API_ROOT = settings.FSBID_API_URL
 

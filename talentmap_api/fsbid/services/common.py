@@ -3,6 +3,7 @@ import logging
 import csv
 from datetime import datetime
 import requests_cache
+from copy import deepcopy
 
 from django.conf import settings
 from django.db.models import Q
@@ -23,7 +24,7 @@ from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
 from talentmap_api.fsbid.services import employee as empservices
-from talentmap_api.requests import requests
+from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +163,9 @@ sort_dict = {
     "bidder_ted": "TED",
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
+    # End Todo
+    "bidlist_create_date": "create_date",
+    "bidlist_location": "position_info.position.post.location.city",
 }
 
 
@@ -392,10 +396,13 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Languages"))
     if ap:
         headers.append(smart_str(u"Service Needs Differential"))
+        headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
+    if not ap:
+        headers.append(smart_str(u"Assignee"))
     headers.append(smart_str(u"Bid Cycle/Season"))
     if ap:
         headers.append(smart_str(u"Posted Date"))
@@ -431,10 +438,13 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
         if ap:
             row.append(smart_str(record["isServiceNeedDifferential"]))
+            row.append(smart_str(record["isHardToFill"]))
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
+        if not ap:
+            row.append(smart_str(pydash.get(record, 'position.assignee')))
         row.append(smart_str(record["bidcycle"]["name"]))
         if ap:
             row.append(posteddate)
@@ -485,38 +495,38 @@ def get_bids_csv(data, filename, jwt_token):
     writer.writerow(headers)
 
     for record in data:
-        if record["position_info"] is not None:
+        if pydash.get(record, 'position_info') is not None:
             try:
-                ted = smart_str(maya.parse(record["position_info"]["ted"]).datetime().strftime('%m/%d/%Y'))
+                ted = smart_str(maya.parse(pydash.get(record, 'position_info.ted')).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
-            hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
+            hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
-            row.append(smart_str(record["position_info"]["position"]["title"]))
-            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["position_number"]))
-            row.append(smart_str(record["position_info"]["position"]["skill"]))
-            row.append(smart_str("=\"%s\"" % record["position_info"]["position"]["grade"]))
-            row.append(smart_str(record["position_info"]["position"]["bureau"]))
-            row.append(smart_str(record["position_info"]["position"]["post"]["location"]["city"]))
-            row.append(smart_str(record["position_info"]["position"]["post"]["location"]["country"]))
-            row.append(smart_str(record["position_info"]["position"]["tour_of_duty"]))
-            row.append(smart_str(parseLanguagesString(record["position_info"]["position"]["languages"])))
-            row.append(smart_str(record["position_info"]["isServiceNeedDifferential"]))
-            row.append(smart_str(record["position_info"]["bid_statistics"][0]["has_handshake_offered"]))
-            row.append(smart_str(record["position_info"]["isDifficultToStaff"]))
-            row.append(smart_str(record["position_info"]["position"]["post"]["differential_rate"]))
-            row.append(smart_str(record["position_info"]["position"]["post"]["danger_pay"]))
+            row.append(smart_str(pydash.get(record, 'position_info.position.title')))
+            row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.position_number')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.skill')))
+            row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.grade')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.bureau')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.location.city')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.location.country')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.tour_of_duty')))
+            row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
+            row.append(smart_str(pydash.get(record, 'position_info.isServiceNeedDifferential')))
+            row.append(smart_str(pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')))
+            row.append(smart_str(pydash.get(record, 'position_info.isDifficultToStaff')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
-            row.append(smart_str(record["position_info"]["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["position_info"]["bidcycle"]["name"]))
-            if record.get("status") == "handshake_accepted":
+            row.append(smart_str(pydash.get(record, 'position_info.position.current_assignment.user')))
+            row.append(smart_str(pydash.get(record, 'position_info.bidcycle.name')))
+            if pydash.get(record, "status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
-                row.append(smart_str(record.get("status")))
+                row.append(smart_str(pydash.get(record, "status") or 'N/A'))
             row.append(hs_status)
             row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
             row.append(get_bid_stats_for_csv(pydash.get(record, 'position_info')))
-            row.append(smart_str(record["position_info"]["position"]["description"]["content"]))
+            row.append(smart_str(pydash.get(record, 'position_info.position.description.content')))
 
             writer.writerow(row)
     return response
@@ -639,3 +649,58 @@ def get_secondary_skill(pos = {}):
         "skill_secondary": skillSecondary,
         "skill_secondary_code": skillSecondaryCode,
     }
+
+
+APPROVED_PROP = 'approved'
+CLOSED_PROP = 'closed'
+DRAFT_PROP = 'draft'
+DECLINED_PROP = 'declined'
+HAND_SHAKE_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_DECLINED_PROP = 'handshake_declined'
+PRE_PANEL_PROP = 'pre_panel'
+IN_PANEL_PROP = 'in_panel'
+SUBMITTED_PROP = 'submitted'
+PANEL_RESCHEDULED_PROP = 'panel_rescheduled'
+HAND_SHAKE_NEEDS_REGISTER_PROP = 'handshake_needs_registered'
+HAND_SHAKE_OFFERED_PROP = 'handshake_offered'
+HAND_SHAKE_OFFER_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_OFFER_DECLINED_PROP = 'handshake_declined'
+HAND_SHAKE_REVOKED_PROP = 'handshake_offer_revoked'
+
+bid_status_order = {
+  DECLINED_PROP: 10,
+  CLOSED_PROP: 20,
+  HAND_SHAKE_DECLINED_PROP: 30,
+  HAND_SHAKE_OFFER_DECLINED_PROP: 40,
+  HAND_SHAKE_REVOKED_PROP: 50,
+  DRAFT_PROP: 60,
+  SUBMITTED_PROP: 70,
+  HAND_SHAKE_OFFERED_PROP: 80,
+  HAND_SHAKE_OFFER_ACCEPTED_PROP: 90,
+  HAND_SHAKE_NEEDS_REGISTER_PROP: 100,
+  HAND_SHAKE_ACCEPTED_PROP: 110,
+  PRE_PANEL_PROP: 120,
+  PANEL_RESCHEDULED_PROP: 130,
+  IN_PANEL_PROP: 140,
+  APPROVED_PROP: 150,
+}
+
+def sort_bids(bidlist, ordering_query):
+    ordering = sorting_values(ordering_query)
+    bids = deepcopy(bidlist)
+    try:
+        if ordering and ordering[0]:
+            ordering = pydash.get(ordering, '[0]', '').split(' ')
+            order = pydash.get(ordering, '[0]')
+            is_asc = pydash.get(ordering, '[1]') == 'asc'
+            bids = sorted(bids, key=lambda x: pydash.get(x, order, '') or '', reverse=not is_asc)
+        elif ordering_query in ('status', '-status'):
+            bids = pydash.map_(bids, lambda x: { **x, "ordering": bid_status_order[x['status']] })
+            bids = pydash.sort_by(bids, "ordering", reverse=ordering_query[0] == '-')
+            bids = pydash.map_(bids, lambda x: pydash.omit(x, 'ordering'))
+            bids.reverse()
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+        return bidlist
+    return bids
+    

@@ -2,7 +2,7 @@ import logging
 from urllib.parse import urlencode, quote
 import pydash
 from django.conf import settings
-from talentmap_api.requests import requests
+from talentmap_api.fsbid.requests import requests
 
 TP_ROOT = settings.TP_API_URL
 BTP_ROOT = settings.BTP_API_URL
