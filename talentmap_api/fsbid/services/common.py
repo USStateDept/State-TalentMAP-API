@@ -169,7 +169,7 @@ sort_dict = {
 }
 
 
-mapBool = {True: 'Yes', False: 'No', 'default': ''}
+mapBool = {True: 'Yes', False: 'No', 'default': '', None: ''}
 
 
 def sorting_values(sort, use_post=False):
@@ -437,8 +437,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
         if ap:
-            row.append(smart_str(record["isServiceNeedDifferential"]))
-            row.append(smart_str(record["isHardToFill"]))
+            row.append(mapBool[pydash.get(record, "isServiceNeedDifferential")])
+            row.append(mapBool[pydash.get(record, "isHardToFill")])
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
@@ -479,6 +479,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
     headers.append(smart_str(u"Service Need Differential"))
+    headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Handshake Offered"))
     headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
@@ -488,7 +489,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Bid Cycle"))
     headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
     headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
 
@@ -511,9 +512,10 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(pydash.get(record, 'position_info.position.post.location.country')))
             row.append(smart_str(pydash.get(record, 'position_info.position.tour_of_duty')))
             row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
-            row.append(smart_str(pydash.get(record, 'position_info.isServiceNeedDifferential')))
-            row.append(smart_str(pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')))
-            row.append(smart_str(pydash.get(record, 'position_info.isDifficultToStaff')))
+            row.append(mapBool[pydash.get(record, 'position_info.isServiceNeedDifferential')])
+            row.append(mapBool[pydash.get(record, 'position_info.isHardToFill')])
+            row.append(mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')])
+            row.append(mapBool[pydash.get(record, 'position_info.isDifficultToStaff')])
             row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
             row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
@@ -597,7 +599,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
 
     writer.writerow(headers)
 
