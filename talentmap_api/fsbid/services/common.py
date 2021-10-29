@@ -169,7 +169,7 @@ sort_dict = {
 }
 
 
-mapBool = {True: 'Yes', False: 'No', 'default': '', None: ''}
+mapBool = {True: 'Yes', False: 'No', 'default': '', None: 'N/A'}
 
 
 def sorting_values(sort, use_post=False):
