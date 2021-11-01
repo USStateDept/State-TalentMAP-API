@@ -395,6 +395,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
     headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Hist. Diff. to Staff"))
     if ap:
         headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Post Differential"))
@@ -415,6 +416,9 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     writer.writerow(headers)
 
     for record in data:
+        print("+++++++++++++++++++++++++")
+        print(record)
+        print("+++++++++++++++++++++++++")
         try:
             ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
         except:
@@ -437,6 +441,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
         row.append(mapBool[pydash.get(record, "isServiceNeedDifferential")])
+        row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
             row.append(mapBool[pydash.get(record, "isHardToFill")])
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
