@@ -416,9 +416,6 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     writer.writerow(headers)
 
     for record in data:
-        print("+++++++++++++++++++++++++")
-        print(record)
-        print("+++++++++++++++++++++++++")
         try:
             ted = smart_str(maya.parse(record["ted"]).datetime().strftime('%m/%d/%Y'))
         except:
