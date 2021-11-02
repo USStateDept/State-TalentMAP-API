@@ -363,7 +363,7 @@ def fsbid_bureau_positions_to_talentmap(bp):
         "isDifficultToStaff": bp.get("bt_most_difficult_to_staff_flg", None) == "Y",
         "isEFMInside": bp.get("bt_inside_efm_employment_flg", None) == "Y",
         "isEFMOutside": bp.get("bt_outside_efm_employment_flg", None) == "Y",
-        "isHardToFill": bp.get("hard_to_fill_ind", None) == "Y",
+        "isHardToFill": bp.get("acp_hard_to_fill_ind", None) == "Y",
     }
 
 

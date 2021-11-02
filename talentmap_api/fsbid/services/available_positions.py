@@ -355,7 +355,7 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
         "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
-        "isHardToFill": ap.get("hard_to_fill_ind", None) == "Y",
+        "isHardToFill": ap.get("acp_hard_to_fill_ind", None) == "Y",
     }
 
 
