@@ -516,14 +516,16 @@ CP_API_V2_URL = get_delineated_environment_variable('CP_API_V2_URL', 'http://moc
 ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/Organizations')
 CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http://mock_fsbid:3333/Clients')
 CLIENTS_API_V2_URL = get_delineated_environment_variable('CLIENTS_API_V2_URL', 'http://mock_fsbid:3333/v2/clients')
+PV_API_V2_URL = get_delineated_environment_variable('PV_API_V2_URL', 'http://mock_fsbid:3333/v2/futureVacancies')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
 TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
 BTP_API_URL = get_delineated_environment_variable('BTP_API_URL', 'http://mock_fsbid:3333/BidderTrackingPrograms')
 
-# Whether to use the /v2 POST for available positions
+# Whether to use the /v2 endpoints
 USE_CP_API_V2 = bool_env_variable("USE_CP_API_V2")
+USE_PV_API_V2 = bool_env_variable("USE_PV_API_V2")
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
