@@ -176,21 +176,14 @@ def sorting_values(sort, use_post=False):
     if sort is not None:
         results = []
         for s in sort.split(','):
-            if use_post:
-                if s.startswith('-'):
-                    s = sort_dict.get(s[1:], None)
-                else:
-                    s = sort_dict.get(s, None)
-                results.append(s)
+            direction = 'asc'
+            if s.startswith('-'):
+                direction = 'desc'
+                s = sort_dict.get(s[1:], None)
             else:
-                direction = 'asc'
-                if s.startswith('-'):
-                    direction = 'desc'
-                    s = sort_dict.get(s[1:], None)
-                else:
-                    s = sort_dict.get(s, None)
-                if s is not None:
-                    results.append(f"{s} {direction}")
+                s = sort_dict.get(s, None)
+            if s is not None:
+                results.append(f"{s} {direction}")
         return results
 
 
