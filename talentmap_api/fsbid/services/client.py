@@ -515,7 +515,8 @@ def fsbid_assignments_to_tmap(assignments):
                         "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
                         "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
                         "organization": pos.get('pos_org_short_desc', None),
-                        "position_number": pos.get('pos_seq_num', None),
+                        "position_number": pos.get('pos_num_text', None),
+                        "position_id": x.get('pos_seq_num', None),
                         "title": pos.get("pos_title_desc", None),
                         "post": {
                             "code": loc.get("gvt_geoloc_cd", None),

@@ -15,6 +15,9 @@ import talentmap_api.fsbid.services.client as client_services
 
 from talentmap_api.common.common_helpers import ensure_date, formatCSV
 
+from talentmap_api.common.common_helpers import formatCSV
+from talentmap_api.fsbid.services.common import mapBool
+
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
@@ -175,7 +178,7 @@ def get_available_bidders_csv(request):
             cdo_name,
             fields["cdo_email"],
             fields["comments"],
-            fields["is_shared"],
+            mapBool[fields["is_shared"]],
         ])
 
     return response

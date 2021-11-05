@@ -184,7 +184,7 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
     canDelete = True if data.get('delete_ind', 'Y') == 'Y' else False
     cpId = int(data.get('cp_id'))
     perdet = str(int(float(data.get('perdet_seq_num'))))
-    positionInfo = ap_services.get_all_position(str(cpId), jwt_token)
+    positionInfo = ap_services.get_all_position(str(cpId), jwt_token) or {}
     cycle = pydash.get(positionInfo, 'bidcycle.id')
 
     showHandshakeData = True
@@ -217,7 +217,10 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
         "update_date": "",
         "reviewer": "",
         "cdo_bid": data.get('cdo_bid') == 'Y',
-        "position_info": positionInfo,
+        "position_info": {
+            "id": cpId, # even if we can't return positionInfo, we can at least return id
+            **positionInfo,
+        },
     }
 
     if showHandshakeData:

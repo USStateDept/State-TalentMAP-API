@@ -169,28 +169,21 @@ sort_dict = {
 }
 
 
-mapBool = {True: 'Yes', False: 'No', 'default': ''}
+mapBool = {True: 'Yes', False: 'No', 'default': '', None: 'N/A'}
 
 
 def sorting_values(sort, use_post=False):
     if sort is not None:
         results = []
         for s in sort.split(','):
-            if use_post:
-                if s.startswith('-'):
-                    s = sort_dict.get(s[1:], None)
-                else:
-                    s = sort_dict.get(s, None)
-                results.append(s)
+            direction = 'asc'
+            if s.startswith('-'):
+                direction = 'desc'
+                s = sort_dict.get(s[1:], None)
             else:
-                direction = 'asc'
-                if s.startswith('-'):
-                    direction = 'desc'
-                    s = sort_dict.get(s[1:], None)
-                else:
-                    s = sort_dict.get(s, None)
-                if s is not None:
-                    results.append(f"{s} {direction}")
+                s = sort_dict.get(s, None)
+            if s is not None:
+                results.append(f"{s} {direction}")
         return results
 
 
@@ -270,12 +263,11 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     newQuery = query.copy()
     if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
         newQuery['getCount'] = 'true'
-        newQuery['request_params.page_index'] = None
-        newQuery['request_params.page_size'] = None
     if api_root == CP_API_V2_ROOT and not uri:
         newQuery['getCount'] = 'true'
-        newQuery['request_params.page_index'] = None
-        newQuery['request_params.page_size'] = None
+    if uri in ('availableTandem', 'tandem'):
+        newQuery['getCount'] = 'true'
+
     if use_post:
         url = f"{api_root}/{uri}"
         args['json'] = query_mapping_function(newQuery)
@@ -283,6 +275,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     else:
         url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
         method = requests.get
+
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
     countObj = pydash.get(response, "Data[0]")
     if len(pydash.keys(countObj)):
@@ -394,8 +387,9 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
+    headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Hist. Diff. to Staff"))
     if ap:
-        headers.append(smart_str(u"Service Needs Differential"))
         headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
@@ -436,9 +430,10 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["post"]["location"]["country"]))
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
+        row.append(mapBool[pydash.get(record, "isServiceNeedDifferential")])
+        row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
-            row.append(smart_str(record["isServiceNeedDifferential"]))
-            row.append(smart_str(record["isHardToFill"]))
+            row.append(mapBool[pydash.get(record, "isHardToFill")])
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
@@ -479,6 +474,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
     headers.append(smart_str(u"Service Need Differential"))
+    headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Handshake Offered"))
     headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
@@ -488,7 +484,7 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Bid Cycle"))
     headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
     headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
 
@@ -511,9 +507,10 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(pydash.get(record, 'position_info.position.post.location.country')))
             row.append(smart_str(pydash.get(record, 'position_info.position.tour_of_duty')))
             row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
-            row.append(smart_str(pydash.get(record, 'position_info.isServiceNeedDifferential')))
-            row.append(smart_str(pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')))
-            row.append(smart_str(pydash.get(record, 'position_info.isDifficultToStaff')))
+            row.append(mapBool[pydash.get(record, 'position_info.isServiceNeedDifferential')])
+            row.append(mapBool[pydash.get(record, 'position_info.isHardToFill')])
+            row.append(mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')])
+            row.append(mapBool[pydash.get(record, 'position_info.isDifficultToStaff')])
             row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
             row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
@@ -597,7 +594,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
     headers.append(smart_str(u"Handshake Status"))
-    headers.append(smart_str(u"Handshake Accepted/Declined by CDO"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
 
     writer.writerow(headers)
 

@@ -31,7 +31,9 @@ services:
       - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
       - CP_API_URL=http://host.docker.internal:3333/cyclePositions
       - CP_API_V2_URL=http://host.docker.internal:3333/v2/cyclePositions
+      - PV_API_V2_URL=http://host.docker.internal:3333/v2/futureVacancies
       - USE_CP_API_V2=true
+      - USE_PV_API_V2=true
       - ORG_API_URL=http://host.docker.internal:3333/Organizations
       - CLIENTS_API_URL=http://host.docker.internal:3333/Clients
       - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
