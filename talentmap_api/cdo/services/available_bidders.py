@@ -2,7 +2,6 @@ import logging
 import csv
 import maya
 import pydash
-import random
 from copy import deepcopy
 
 from django.conf import settings
