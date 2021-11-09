@@ -218,7 +218,9 @@ def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping
 
 def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False):
     url = f"{API_ROOT}/{uri}"
-    method = session if use_cache else requests
+    # TODO - fix SSL issue with use_cache
+    # method = session if use_cache else requests
+    method = requests
     response = method.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
 
     if response.get("Data") is None or response.get('return_code', -1) == -1:
