@@ -75,21 +75,21 @@ def get_available_bidders_stats(data):
                 stats['Status'][ab_status_key]['value'] += 1
                 stats_sum['Status'] += 1
 
-            ted_key = smart_str(maya.parse(bidder['current_assignment']['end_date']).datetime().strftime('%m/%d/%Y'))
+            ted_key = ensure_date(pydash.get(bidder, "current_assignment.end_date"), utc_offset=-5) or 'None listed'
+            ted_key = "None listed" if ted_key is "None listed" else smart_str(maya.parse(ted_key).datetime().strftime('%m/%d/%Y'))
             if ted_key not in stats['TED']:
                 stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0}
             stats['TED'][ted_key]['value'] += 1
             stats_sum['TED'] += 1
 
-    # creating final data structure to pass to FE
+    # adding percentage & creating final data structure to pass to FE
     biddersStats = {}
     for stat in stats:
         stat_sum = stats_sum[stat]
         biddersStats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
-            stats[stat][s]['percent'] = "{:.0%}".format(stat_value / stat_sum)
-            biddersStats[stat].append(stats[stat][s])
+            biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
     biddersStats['Sum'] = stats_sum
 
