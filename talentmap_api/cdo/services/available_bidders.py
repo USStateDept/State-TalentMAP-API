@@ -24,7 +24,7 @@ API_ROOT = settings.FSBID_API_URL
 
 def get_available_bidders_stats(data):
     '''
-    Returns Available Bidders status statistics
+    Returns all Available Bidders statistics
     '''
     stats = {
         'Bureau': {},  # comes through, but only with the short name/acronym
