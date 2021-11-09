@@ -61,8 +61,7 @@ def get_available_bidders_stats(data):
             stats['Post'][bidder['pos_location']]['value'] += 1
             stats_sum['Post'] += 1
 
-            skill_copy = deepcopy(filter(None, bidder['skills']))
-            skill = list(skill_copy)
+            skill = list(deepcopy(filter(None, bidder['skills'])))
             skill_key = skill[0]['code']
             if skill_key not in stats['Skill']:
                 stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0}
