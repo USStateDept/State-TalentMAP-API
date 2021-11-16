@@ -46,6 +46,7 @@ class FSBidAvailablePositionsListView(BaseView):
             openapi.Parameter("position__post__tour_of_duty__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TOD code'),
             openapi.Parameter("position__skill__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Skill Code'),
             openapi.Parameter("position__us_codes__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use code values from /references/unaccompaniedstatuses/'),
+            openapi.Parameter("htf_ind", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Hard to Fill (Y/N)'),
             openapi.Parameter("q", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Text search'),
         ])
 

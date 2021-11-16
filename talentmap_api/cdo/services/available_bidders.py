@@ -2,41 +2,99 @@ import logging
 import csv
 import maya
 import pydash
+from copy import deepcopy
 
 from django.conf import settings
 from django.http import HttpResponse
 from datetime import datetime
 from django.utils.encoding import smart_str
 
-from talentmap_api.cdo.models import AvailableBidders
 import talentmap_api.bureau.services.available_bidders as bureau_services
 import talentmap_api.fsbid.services.client as client_services
 
+from talentmap_api.common.common_helpers import ensure_date, formatCSV
+
 from talentmap_api.common.common_helpers import formatCSV
+from talentmap_api.fsbid.services.common import mapBool
 
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 
 
-def get_available_bidders_stats():
+def get_available_bidders_stats(data):
     '''
-    Returns Available Bidders status statistics
+    Returns all Available Bidders statistics
     '''
-    ab = AvailableBidders.objects.all()
     stats = {
-        'UA': 0,
-        'IT': 0,
-        'OC': 0,
-        'AWOL': 0,
+        'Bureau': {},  # comes through, but only with the short name/acronym
+        'Grade': {},
+        'Post': {},
+        'Skill': {},
+        'Status': {},
+        'TED': {},
     }
-    if ab:
-        # get stats for status field
-        for stat in ab.values('status'):
-            if stat['status'] is not '':
-                stats[stat['status']] += 1
+    stats_sum = {
+        'Bureau': 0,
+        'Grade': 0,
+        'Post': 0,
+        'Skill': 0,
+        'Status': 0,
+        'TED': 0,
+    }
+
+    if data:
+        # get stats for various fields
+        for bidder in pydash.get(data, 'results'):
+            if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
+                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
+            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
+            stats_sum['Bureau'] += 1
+
+            if bidder['grade'] not in stats['Grade']:
+                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
+            stats['Grade'][bidder['grade']]['value'] += 1
+            stats_sum['Grade'] += 1
+
+            if bidder['pos_location'] not in stats['Post']:
+                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
+            stats['Post'][bidder['pos_location']]['value'] += 1
+            stats_sum['Post'] += 1
+
+            skill = list(deepcopy(filter(None, bidder['skills'])))
+            skill_key = skill[0]['code']
+            if skill_key not in stats['Skill']:
+                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0}
+            stats['Skill'][skill_key]['value'] += 1
+            stats_sum['Skill'] += 1
+
+            ab_status_key = bidder['available_bidder_details']['status']
+            if ab_status_key is not None:
+                if ab_status_key not in stats['Status']:
+                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
+                stats['Status'][ab_status_key]['value'] += 1
+                stats_sum['Status'] += 1
+
+            ted_key = ensure_date(pydash.get(bidder, "current_assignment.end_date"), utc_offset=-5) or 'None listed'
+            ted_key = "None listed" if ted_key is "None listed" else smart_str(maya.parse(ted_key).datetime().strftime('%m/%d/%Y'))
+            if ted_key not in stats['TED']:
+                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0}
+            stats['TED'][ted_key]['value'] += 1
+            stats_sum['TED'] += 1
+
+    # adding percentage & creating final data structure to pass to FE
+    biddersStats = {}
+    for stat in stats:
+        stat_sum = stats_sum[stat]
+        biddersStats[stat] = []
+        for s in stats[stat]:
+            stat_value = stats[stat][s]['value']
+            biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
+
+    biddersStats['Sum'] = stats_sum
+
     return {
-        "stats": stats
+        "stats": biddersStats,
     }
 
 
@@ -118,7 +176,7 @@ def get_available_bidders_csv(request):
             cdo_name,
             fields["cdo_email"],
             fields["comments"],
-            fields["is_shared"],
+            mapBool[fields["is_shared"]],
         ])
 
     return response
