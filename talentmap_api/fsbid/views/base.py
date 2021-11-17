@@ -29,7 +29,4 @@ class BaseView(APIView):
             logger.warning(f"Invalid response from '\{self.uri}'.")
             return Response({"detail": "FSBID returned error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if callable(self.mod_function):
-            results = self.mod_function(results)
-
         return Response(results)

@@ -1,7 +1,14 @@
 import logging
 
+from django.conf import settings
+from rest_framework.response import Response
+from talentmap_api.fsbid.services.available_positions import API_ROOT
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.reference as services
+import talentmap_api.fsbid.services.common as common
+
+TP_ROOT = settings.TP_API_URL
+API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +80,12 @@ class FSBidConesView(BaseView):
 
 
 class FSBidClassificationsView(BaseView):
-    uri = "bidderTrackingPrograms"
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
+
+    def get(self, request):
+        results = common.get_results('', {}, None, request.META['HTTP_JWT'], self.mapping_function, TP_ROOT)
+        results = self.modClassifications(results)
+        return Response(results)
 
     # BTP return some duplicated objects with unique bid season references
     # This nests those unique values in an array under one object to aggregate the duplicated data
@@ -104,7 +115,6 @@ class FSBidClassificationsView(BaseView):
             seasons, classification_text = [], ''
         return nested_results
 
-    mod_function = modClassifications
 
 class FSBidPostIndicatorsView(BaseView):
     uri = "references/postAttributes?codeTableName=PostIndicatorTable"
