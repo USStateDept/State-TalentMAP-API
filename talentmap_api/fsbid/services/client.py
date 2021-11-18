@@ -572,7 +572,7 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
         host,
         CLIENTS_ROOT,
     )
-    stats = get_available_bidders_stats()
+    stats = get_available_bidders_stats(response)
     return {
         **stats,
         "results": list({v['perdet_seq_number']:v for v in response.get('results')}.values()),

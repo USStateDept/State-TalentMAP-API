@@ -2,7 +2,7 @@ import re
 import logging
 import csv
 from datetime import datetime
-import requests_cache
+# import requests_cache
 from copy import deepcopy
 
 from django.conf import settings
@@ -39,7 +39,7 @@ urls_expire_after = {
     '*/cycles': 30,
     '*': 0,  # Every other non-matching URL: do not cache
 }
-session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
+# session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
 
 
 def get_employee_profile_urls(clientid):
