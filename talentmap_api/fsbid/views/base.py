@@ -31,5 +31,5 @@ class BaseView(APIView):
 
         if callable(self.mod_function):
             results = self.mod_function(results)
- 
+
         return Response(results)
