@@ -8,7 +8,6 @@ import talentmap_api.fsbid.services.reference as services
 import talentmap_api.fsbid.services.common as common
 
 TP_ROOT = settings.TP_API_URL
-API_ROOT = settings.FSBID_API_URL
 
 logger = logging.getLogger(__name__)
 
