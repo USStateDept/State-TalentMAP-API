@@ -2,7 +2,6 @@ import logging
 
 from django.conf import settings
 from rest_framework.response import Response
-from talentmap_api.fsbid.services.available_positions import API_ROOT
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.reference as services
 import talentmap_api.fsbid.services.common as common
