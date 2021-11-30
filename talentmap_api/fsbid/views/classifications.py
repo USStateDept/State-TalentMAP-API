@@ -23,4 +23,4 @@ class FSBidClassificationsView(BaseView):
         '''
         Get user's classifications
         '''
-        return Response(classifications_services.get_user_classifications(request.META['HTTP_JWT'], pk))
+        return Response(classifications_services.get_client_classifications(request.META['HTTP_JWT'], pk))
