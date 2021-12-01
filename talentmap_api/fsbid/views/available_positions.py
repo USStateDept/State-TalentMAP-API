@@ -64,8 +64,6 @@ class FSBidAvailablePositionsTandemListView(BaseView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
-
             # Pagination
             openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Page Index'),
