@@ -66,8 +66,8 @@ class FSBidAvailablePositionsTandemListView(BaseView):
         manual_parameters=[
             # Pagination
             openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
-            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Page Index'),
-            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Page Limit'),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Index'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Limit'),
 
             openapi.Parameter("getCount", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Results Count'),
 
