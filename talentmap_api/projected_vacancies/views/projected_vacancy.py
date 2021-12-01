@@ -7,7 +7,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.schemas import AutoSchema
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
 
@@ -22,13 +24,12 @@ FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 class ProjectedVacancyFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
-
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-        ]
-    )
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.')
+        ])
 
     def get(self, request, *args, **kwargs):
         """

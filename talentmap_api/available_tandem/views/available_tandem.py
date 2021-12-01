@@ -10,7 +10,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins
-from rest_framework.schemas import AutoSchema
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.available_tandem.models import AvailableFavoriteTandem
 from talentmap_api.user_profile.models import UserProfile
@@ -40,13 +42,12 @@ class AvailableFilter():
 class AvailableFavoriteTandemListView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-            coreapi.Field("ordering", location='query', type='integer', description='Ordering'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter('ordering', openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering')
+        ])
 
     def get(self, request, *args, **kwargs):
         """
@@ -87,12 +88,11 @@ class FavoritesTandemCSVView(APIView):
     permission_classes = (IsAuthenticated,)
     filter_class = AvailableFilter
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("exclude_available", type='boolean', location='query', description='Whether to exclude available positions'),
-            coreapi.Field("exclude_projected", type='boolean', location='query', description='Whether to exclude projected vacancies'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('exclude_available', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude available positions'),
+            openapi.Parameter('exclude_projected', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude projected vacancies'),
+        ])
 
     def get(self, request, *args, **kwargs):
         """

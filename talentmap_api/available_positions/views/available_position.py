@@ -16,7 +16,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins
-from rest_framework.schemas import AutoSchema
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from rest_framework_bulk import (
     ListBulkCreateUpdateDestroyAPIView,
@@ -60,12 +62,11 @@ class AvailablePositionFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.')
+        ])
 
     def get(self, request, *args, **kwargs):
         """
@@ -243,12 +244,11 @@ class FavoritesCSVView(APIView):
     permission_classes = (IsAuthenticated,)
     filter_class = AvailablePositionsFilter
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("exclude_available", type='boolean', location='query', description='Whether to exclude available positions'),
-            coreapi.Field("exclude_projected", type='boolean', location='query', description='Whether to exclude projected vacancies'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('exclude_available', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude available positions'),
+            openapi.Parameter('exclude_projected', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude projected vacancies')
+        ])
 
     def get(self, request, *args, **kwargs):
         """
@@ -403,12 +403,11 @@ class BureauBiddersRankings(APIView):
 
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("perdet", location='query', description='perdet of Bureau bidder'),
-            coreapi.Field("cp_id", location='query', description='cp_id of position'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('id', openapi.IN_PATH, type=openapi.TYPE_STRING, description='perdet of Bureau bidder'),
+            openapi.Parameter('cp_id', openapi.IN_PATH, type=openapi.TYPE_STRING, description='cp_id of position')
+        ])
 
     def get(self, request, pk, cp_id):
         """

@@ -3,7 +3,9 @@ import coreapi
 from django.shortcuts import get_object_or_404
 from datetime import datetime
 
-from rest_framework.schemas import AutoSchema
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -30,11 +32,10 @@ class AvailableBiddersListView(APIView):
     serializer_class = AvailableBiddersSerializer
     permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('ordering', openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Which field to use when ordering the results.')
+        ])
 
     def get(self, request):
         '''

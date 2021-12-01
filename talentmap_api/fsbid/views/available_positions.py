@@ -4,10 +4,11 @@ import math
 import random
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.schemas import AutoSchema
-
 from rest_framework.response import Response
 from rest_framework import status
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
@@ -23,32 +24,31 @@ class FSBidAvailablePositionsListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
-    schema = AutoSchema(
-        manual_fields=[
-            # Pagination
-            coreapi.Field("ordering", location='query', description='Ordering'),
-            coreapi.Field("page", location='query', description='Page Index'),
-            coreapi.Field("limit", location='query', description='Page Limit'),
 
-            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
-            coreapi.Field("id", location="query", description="Available Position ids"),
-            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
-            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
-            coreapi.Field("position__post__code__in", location='query', description='Post id'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
-            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
-            coreapi.Field("htf_ind", location='query', description='Hard to Fill (Y/N)'),
-            coreapi.Field("q", location='query', description='Text search'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Index'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Limit'),
+
+            openapi.Parameter("cps_codes", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake status (HS,OP)'),
+            openapi.Parameter("id", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Available Position ids"),
+            openapi.Parameter("is_available_in_bidcycle", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bid Cycle id'),
+            openapi.Parameter("is_domestic", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Is the position domestic? (true/false)'),
+            openapi.Parameter("language_codes", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Language code'),
+            openapi.Parameter("position__bureau__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bureau Code'),
+            openapi.Parameter("position__grade__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Grade Code'),
+            openapi.Parameter("position__position_number__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Position Numbers'),
+            openapi.Parameter("position__post__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Post id'),
+            openapi.Parameter("position__post__danger_pay__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Danger pay'),
+            openapi.Parameter("position__post__differential_rate__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Diff. Rate'),
+            openapi.Parameter("position__post_indicator__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use name values from /references/postindicators/'),
+            openapi.Parameter("position__post__tour_of_duty__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TOD code'),
+            openapi.Parameter("position__skill__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Skill Code'),
+            openapi.Parameter("position__us_codes__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use code values from /references/unaccompaniedstatuses/'),
+            openapi.Parameter("htf_ind", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Hard to Fill (Y/N)'),
+            openapi.Parameter("q", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Text search'),
+        ])
 
     def get(self, request, *args, **kwargs):
         '''
@@ -61,48 +61,48 @@ class FSBidAvailablePositionsTandemListView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
-    schema = AutoSchema(
-        manual_fields=[
-            # Pagination
-            coreapi.Field("ordering", location='query', description='Ordering'),
-            coreapi.Field("page", location='query', description='Page Index'),
-            coreapi.Field("limit", location='query', description='Page Limit'),
 
-            coreapi.Field("getCount", location='query', description='Results Count'),
+    @swagger_auto_schema(
+        manual_parameters=[
+            # Pagination
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Index'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Limit'),
+
+            openapi.Parameter("getCount", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Results Count'),
 
             # Tandem 1
-            coreapi.Field("cps_codes", location='query', description='Handshake status (HS,OP)'),
-            coreapi.Field("id", location="query", description="Available Position ids"),
-            coreapi.Field("is_available_in_bidcycle", location='query', description='Bid Cycle id'),
-            coreapi.Field("language_codes", location='query', description='Language code'),
-            coreapi.Field("position__bureau__code__in", location='query', description='Bureau Code'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__position_number__in", location='query', description='Position Numbers'),
-            coreapi.Field("position__post__tour_of_duty__code__in", location='query', description='TOD code - tandem'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
+            openapi.Parameter("cps_codes", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake status (HS,OP)'),
+            openapi.Parameter("id", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Available Position ids"),
+            openapi.Parameter("is_available_in_bidcycle", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bid Cycle id'),
+            openapi.Parameter("language_codes", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Language code'),
+            openapi.Parameter("position__bureau__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bureau Code'),
+            openapi.Parameter("position__grade__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Grade Code'),
+            openapi.Parameter("position__position_number__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Position Numbers'),
+            openapi.Parameter("position__post__tour_of_duty__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TOD code - tandem'),
+            openapi.Parameter("position__skill__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Skill Code'),
 
             # Common
-            coreapi.Field("is_domestic", location='query', description='Is the position domestic? (true/false)'),
-            coreapi.Field("position__post__code__in", location='query', description='Post id'),
-            coreapi.Field("position__post__danger_pay__in", location='query', description='Danger pay'),
-            coreapi.Field("position__post__differential_rate__in", location='query', description='Diff. Rate'),
-            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
-            coreapi.Field("position__us_codes__in", location='query', description='Use code values from /references/unaccompaniedstatuses/'),
-            coreapi.Field("position__cpn_codes__in", location='query', description='Use code values from /references/commuterposts/'),
-            coreapi.Field("q", location='query', description='Text search'),
+            openapi.Parameter("is_domestic", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Is the position domestic? (true/false)'),
+            openapi.Parameter("position__post__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Post id'),
+            openapi.Parameter("position__post__danger_pay__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Danger pay'),
+            openapi.Parameter("position__post__differential_rate__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Diff. Rate'),
+            openapi.Parameter("position__post_indicator__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use name values from /references/postindicators/'),
+            openapi.Parameter("position__us_codes__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use code values from /references/unaccompaniedstatuses/'),
+            openapi.Parameter("position__cpn_codes__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use code values from /references/commuterposts/'),
+            openapi.Parameter("q", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Text search'),
 
             # Tandem 2
-            coreapi.Field("cps_codes-tandem", location='query', description='Handshake status (HS,OP) - tandem'),
-            coreapi.Field("id-tandem", location="query", description="Available Position ids - tandem"),
-            coreapi.Field("is_available_in_bidcycle-tandem", location='query', description='Bid Cycle id - tandem'),
-            coreapi.Field("language_codes-tandem", location='query', description='Language code - tandem'),
-            coreapi.Field("position__bureau__code__in-tandem", location='query', description='Bureau Code - tandem'),
-            coreapi.Field("position__grade__code__in-tandem", location='query', description='Grade Code - tandem'),
-            coreapi.Field("position__position_number__in-tandem", location='query', description='Position Numbers'),
-            coreapi.Field("position__post__tour_of_duty__code__in-tandem", location='query', description='TOD code - tandem'),
-            coreapi.Field("position__skill__code__in-tandem", location='query', description='Skill Code - tandem'),
-        ]
-    )
+            openapi.Parameter("cps_codes-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake status (HS,OP) - tandem'),
+            openapi.Parameter("id-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Available Position ids - tandem"),
+            openapi.Parameter("is_available_in_bidcycle-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bid Cycle id - tandem'),
+            openapi.Parameter("language_codes-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Language code - tandem'),
+            openapi.Parameter("position__bureau__code__in-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Bureau Code - tandem'),
+            openapi.Parameter("position__grade__code__in-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Grade Code - tandem'),
+            openapi.Parameter("position__position_number__in-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Position Numbers'),
+            openapi.Parameter("position__post__tour_of_duty__code__in-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TOD code - tandem'),
+            openapi.Parameter("position__skill__code__in-tandem", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Skill Code - tandem'),
+        ])
 
     def get(self, request, *args, **kwargs):
         '''
@@ -190,14 +190,14 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_class = AvailablePositionsFilter
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("limit", location='query', description='Page Limit'),
-            coreapi.Field("position__grade__code__in", location='query', description='Grade Code'),
-            coreapi.Field("position__post_indicator__in", location='query', description='Use name values from /references/postindicators/'),
-            coreapi.Field("position__skill__code__in", location='query', description='Skill Code'),
-        ]
-    )
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Limit'),
+            openapi.Parameter("position__grade__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Grade Code'),
+            openapi.Parameter("position__post_indicator__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Use name values from /references/postindicators/'),
+            openapi.Parameter("position__skill__code__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Skill Code'),
+        ])
 
     def get(self, request, *args, **kwargs):
         '''
