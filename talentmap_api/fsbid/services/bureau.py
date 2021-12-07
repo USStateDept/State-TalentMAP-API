@@ -202,8 +202,8 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
         "has_handshake_offered": hasHandShakeOffered,
         "submitted_date": ensure_date(bid.get('ubw_submit_dt'), utc_offset=-5),
         # fsbid hs offered stats are for register, not to be confused with TM HS functionality
-        "handshake_registered": bid.get('handshake_offered_flag'),
-        "handshake_registered_date": ensure_date(bid.get('handshake_offered_dt'), utc_offset=-5),
+        "handshake_registered": bid.get('ubw_handshake_offered_flag'),
+        "handshake_registered_date": ensure_date(bid.get('ubw_handshake_offered_dt'), utc_offset=-5),
         "cdo": cdo,
         "classifications": classifications,
         "has_competing_rank": has_competing_rank_value,
