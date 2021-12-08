@@ -16,6 +16,7 @@ import dj_database_url
 
 import saml2
 import saml2.saml
+import pydash
 
 from saml2.config import SPConfig
 from django.apps import AppConfig
@@ -345,6 +346,14 @@ if ENABLE_SAML2:
         })  # End SAML config
         return conf
 
+
+def skip_lb_requests(record):
+    record = pydash.get(record, 'args[0]')
+    if isinstance(record, str) and record.startswith('HEAD / HTTP'):
+        return False
+    return True
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -360,12 +369,17 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'skip_lb_requests': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': skip_lb_requests
+        }
     },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
+            'filters': ['skip_lb_requests'],
         },
         'auth': {
             'level': 'DEBUG',

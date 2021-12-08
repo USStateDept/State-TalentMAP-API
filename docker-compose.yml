@@ -3,14 +3,14 @@ services:
   app:
     build:
       context: .
-    ports:
-      - 8000:8000
     links:
       - oracle
       - mock_fsbid
     depends_on:
       - oracle
       - mock_fsbid
+    deploy:
+      replicas: ${REPLICAS-1}
     # use this to run in https server locally
     # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
     command: >
@@ -39,6 +39,18 @@ services:
       - EMAIL_DEV_TO=${EMAIL_DEV_TO}
       - USE_CP_API_V2=true
       - USE_PV_API_V2=true
+  haproxy:
+    image: eeacms/haproxy
+    depends_on:
+    - app
+    ports:
+    - "8000:5000"
+    - "1936:1936"
+    environment:
+      BACKENDS: "app"
+      BACKENDS_PORT: "8000"
+      DNS_ENABLED: "true"
+      LOG_LEVEL: "info"
   oracle:
     ports:
       - 1521:1521
