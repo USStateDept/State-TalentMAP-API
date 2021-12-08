@@ -33,9 +33,9 @@ def get_user_information(jwt_token, perdet_seq_num):
     user = next(iter(user.get('Data', [])), {})
     try:
         return {
-            "office_address": user['gal_address_text'],
-            "office_phone": user['gal_phone_nbr_text'],
-            "email": user['gal_smtp_email_address_text'],
+            "office_address": pydash.get(user, 'gal_address_text'),
+            "office_phone": pydash.get(user, 'gal_phone_nbr_text'),
+            "email": pydash.get(user, 'gal_smtp_email_address_text'),
         }
     except:
         return {}
@@ -291,7 +291,7 @@ def fsbid_clients_to_talentmap_clients(data):
         # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
+        "employee_profile_url": get_employee_profile_urls(employee.get("pert_external_id", None)),
     }
 
 
@@ -664,7 +664,7 @@ def fsbid_available_bidder_to_talentmap(data):
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": get_employee_profile_urls(employee.get("perdet_seq_num", None)),
+        "employee_profile_url": get_employee_profile_urls(employee.get("pert_external_id", None)),
         "languages": fsbid_languages_to_tmap(data.get('languages', []) or []),
         "available_bidder_details": {
             **data.get("details", {}),
