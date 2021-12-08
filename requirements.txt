@@ -24,6 +24,7 @@ django-cors-headers==3.7.0
 django-debug-toolbar==3.2.1
 django-extensions==2.0.6
 django-filter==2.4.0
+django-health-check==3.16.4
 django-jsonfield==1.4.0
 django-simple-history==3.0.0
 django-sslserver==0.21
@@ -56,6 +57,7 @@ openapi-codec==1.3.2
 Paste==2.0.3
 pbr==4.0.1
 pluggy==0.6.0
+psutil==5.8.0
 psycopg2==2.7.4
 psycopg2-binary==2.7.4
 py==1.10.0

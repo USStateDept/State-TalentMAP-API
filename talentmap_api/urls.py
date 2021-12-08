@@ -95,6 +95,9 @@ urlpatterns = [
 
     # Swagger
     url(r'^$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
+    # Health Check
+    url(r'^ht/', include('health_check.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Auth patterns
