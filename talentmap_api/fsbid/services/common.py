@@ -235,12 +235,12 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=Fa
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False, use_id = True):
     '''
     Gets an individual record by the provided ID
     '''
     fetch_method = get_results_with_post if use_post else get_results
-    response = fetch_method(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
+    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 
@@ -703,3 +703,15 @@ def sort_bids(bidlist, ordering_query):
         return bidlist
     return bids
     
+# known comparators:
+# eq: equals
+# in: in
+def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
+    if not column and not value and not comparator:
+        return None
+    return f"{column}|{comparator}|{value}"
+
+
+def parse_agenda_remarks(remarks = ''):
+    values = remarks.split(';')
+    return pydash.filter_(values, lambda o: o)
