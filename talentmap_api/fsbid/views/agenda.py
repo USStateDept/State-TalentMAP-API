@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgendaItemView(BaseView):
-    permission_classes = [Or(IsAuthenticated, isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao'),)]
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao'),)]
 
     @swagger_auto_schema(
         manual_parameters=[
