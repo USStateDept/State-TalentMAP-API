@@ -30,6 +30,5 @@ class AgendaItemView(BaseView):
         '''
         Gets all clients for a CDO
         '''
-        logger.info(request.query_params)
         return Response(services.get_agenda_items(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
 
