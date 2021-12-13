@@ -52,6 +52,25 @@ class AllUserPermissionView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        queryset = User.objects.all().order_by('last_name')
+        ordering = self.request.query_params.get('sort', 'last_name')
+        filtering = self.request.query_params.get('filter', [])
+        username_filter = self.request.query_params.get('q_username', '')
+        name_filter = self.request.query_params.get('q_name', '')
+
+        print("+++++++++++++++++++++++++++++++++++++++++")
+        # print(ordering)
+        queryset = User.objects.all().order_by(ordering)
+
+        print(filtering)
+        if len(filtering) > 0:
+            queryset = User.objects.all().order_by(ordering).filter(groups__in=filtering)
+
+        # print(username_filter)
+        # print(name_filter)
+        # username and name filters should be OR
+        # .filter(username=username_filter, last_name=name_filter, first_name=name_filter)
+        # queryset = User.objects.filter(**params)
+        print("+++++++++++++++++++++++++++++++++++++++++")
+
         queryset = self.serializer_class.prefetch_model(User, queryset)
         return queryset
