@@ -712,6 +712,19 @@ def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
     return f"{column}|{comparator}|{value}"
 
 
+def categorize_remark(remark = ''):
+    obj = { 'title': remark, 'type': None }
+    if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
+        obj['type'] = 'person'
+    return obj
+
+
 def parse_agenda_remarks(remarks = ''):
+    # split by semi colon
     values = remarks.split(';')
-    return pydash.filter_(values, lambda o: o)
+    # remove Nmn (no middle name) from Creator and CDO
+    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '') if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
+    # remove nulls or empty spaces
+    values = pydash.filter_(values, lambda o: o and o != ' ')
+    values = pydash.map_(values, categorize_remark)
+    return values
