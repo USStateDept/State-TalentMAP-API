@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
@@ -53,24 +54,28 @@ class AllUserPermissionView(FieldLimitableSerializerMixin,
 
     def get_queryset(self):
         ordering = self.request.query_params.get('sort', 'last_name')
-        filtering = self.request.query_params.get('filter', [])
+        filtering = self.request.query_params.get('filters', [])
         username_filter = self.request.query_params.get('q_username', '')
         name_filter = self.request.query_params.get('q_name', '')
 
-        print("+++++++++++++++++++++++++++++++++++++++++")
-        # print(ordering)
-        queryset = User.objects.all().order_by(ordering)
+        fields = {}
 
-        print(filtering)
-        if len(filtering) > 0:
-            queryset = User.objects.all().order_by(ordering).filter(groups__in=filtering)
+        if filtering:
+            filters = [x for x in filtering.split(',')]
+            fields['groups__in'] = filters
+            # queryset = User.objects.all().filter(groups__in=filters)
 
-        # print(username_filter)
-        # print(name_filter)
-        # username and name filters should be OR
-        # .filter(username=username_filter, last_name=name_filter, first_name=name_filter)
-        # queryset = User.objects.filter(**params)
-        print("+++++++++++++++++++++++++++++++++++++++++")
+        if username_filter:
+            # queryset = User.objects.all().filter(username__icontains=username_filter)
+            fields['username__icontains'] = username_filter
+
+        if ordering:
+            queryset = User.objects.all().order_by(ordering).filter(**fields)
+        else:
+            queryset = User.objects.all().filter(**fields)
+
+        if name_filter:
+            queryset = queryset.filter(Q(first_name__icontains=name_filter) | Q(last_name__icontains=name_filter))
 
         queryset = self.serializer_class.prefetch_model(User, queryset)
         return queryset
