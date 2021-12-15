@@ -65,9 +65,6 @@ class FSBidBureauPositionsListView(BaseView):
         Gets all bureau positions
         '''
         hs_query_codes = request.query_params.get('lead_hs_status_code', [])
-        print("************************************************")
-        print(hs_query_codes)
-        print("************************************************")
         # Filter by latest status(update_date) per cp_id
         if len(hs_query_codes) == 0:
             bureau_pos = services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'],
