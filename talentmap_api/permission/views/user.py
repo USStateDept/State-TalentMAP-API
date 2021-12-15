@@ -63,10 +63,8 @@ class AllUserPermissionView(FieldLimitableSerializerMixin,
         if filtering:
             filters = [x for x in filtering.split(',')]
             fields['groups__in'] = filters
-            # queryset = User.objects.all().filter(groups__in=filters)
 
         if username_filter:
-            # queryset = User.objects.all().filter(username__icontains=username_filter)
             fields['username__icontains'] = username_filter
 
         if ordering:
