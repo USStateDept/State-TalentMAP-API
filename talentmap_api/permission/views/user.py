@@ -53,7 +53,7 @@ class AllUserPermissionView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        ordering = self.request.query_params.get('sort', 'last_name')
+        ordering = self.request.query_params.get('sort', '')
         filtering = self.request.query_params.get('filters', [])
         username_filter = self.request.query_params.get('q_username', '')
         name_filter = self.request.query_params.get('q_name', '')
