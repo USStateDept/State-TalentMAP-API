@@ -60,6 +60,8 @@ services:
       DNS_ENABLED: "true"
       LOG_LEVEL: "info"
   oracle:
+    ports:
+        - 1521:1521
     image: mjoyce91/oracle193db:fast
     volumes:
       - oracle:/var/lib/oracle/data/:delegated
