@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
@@ -52,6 +53,27 @@ class AllUserPermissionView(FieldLimitableSerializerMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        queryset = User.objects.all().order_by('last_name')
+        ordering = self.request.query_params.get('sort', '')
+        filtering = self.request.query_params.get('filters', [])
+        username_filter = self.request.query_params.get('q_username', '')
+        name_filter = self.request.query_params.get('q_name', '')
+
+        fields = {}
+
+        if filtering:
+            filters = [x for x in filtering.split(',')]
+            fields['groups__in'] = filters
+
+        if username_filter:
+            fields['username__icontains'] = username_filter
+
+        if ordering:
+            queryset = User.objects.all().order_by(ordering).filter(**fields)
+        else:
+            queryset = User.objects.all().filter(**fields)
+
+        if name_filter:
+            queryset = queryset.filter(Q(first_name__icontains=name_filter) | Q(last_name__icontains=name_filter))
+
         queryset = self.serializer_class.prefetch_model(User, queryset)
         return queryset
