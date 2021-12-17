@@ -36,6 +36,7 @@ def get_user_information(jwt_token, perdet_seq_num):
             "office_address": pydash.get(user, 'gal_address_text'),
             "office_phone": pydash.get(user, 'gal_phone_nbr_text'),
             "email": pydash.get(user, 'gal_smtp_email_address_text'),
+            "hru_id": pydash.get(user, 'hru_id'),
         }
     except:
         return {}
@@ -125,6 +126,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
     Get a single client for a CDO
     '''
     from talentmap_api.fsbid.services.common import send_get_request
+    from talentmap_api.fsbid.services.common import get_employee_profile_urls
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
         "ad_id": ad_id,
@@ -162,6 +164,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
     CLIENT['cdo'] = cdo
     CLIENT['user_info'] = user_info
     CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
+    CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'))
     return CLIENT
 
 
@@ -212,7 +215,6 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
 
 def fsbid_clients_to_talentmap_clients(data):
-    from talentmap_api.fsbid.services.common import get_employee_profile_urls
     employee = data.get('employee', None)
     current_assignment = None
     assignments = None
@@ -291,7 +293,6 @@ def fsbid_clients_to_talentmap_clients(data):
         # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": get_employee_profile_urls(employee.get("pert_external_id", None)),
     }
 
 
@@ -580,7 +581,6 @@ def get_available_bidders(jwt_token, isCDO, query, host=None):
 
 # Can update to reuse client mapping once client v2 is updated and released with all the new fields
 def fsbid_available_bidder_to_talentmap(data):
-    from talentmap_api.fsbid.services.common import get_employee_profile_urls
     employee = data.get('employee', None)
     current_assignment = None
     assignments = None
@@ -664,7 +664,6 @@ def fsbid_available_bidder_to_talentmap(data):
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
-        "employee_profile_url": get_employee_profile_urls(employee.get("pert_external_id", None)),
         "languages": fsbid_languages_to_tmap(data.get('languages', []) or []),
         "available_bidder_details": {
             **data.get("details", {}),

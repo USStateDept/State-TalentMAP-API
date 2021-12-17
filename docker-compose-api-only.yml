@@ -47,6 +47,8 @@ services:
       - EMAIL_USE_TLS=false
       - EMAIL_IS_DEV=false
       - EMAIL_DEV_TO=${EMAIL_DEV_TO}
+      - HRDATA_URL=http://localhost:3333/HR
+      - HRDATA_URL_EXTERNAL=http://localhost:3333/HR
   haproxy:
     image: eeacms/haproxy
     depends_on:
