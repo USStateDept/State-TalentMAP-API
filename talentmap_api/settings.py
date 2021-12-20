@@ -142,6 +142,13 @@ INSTALLED_APPS = [
     'talentmap_api.stats',
     'talentmap_api.fsbid',
     'talentmap_api.cdo',
+
+    # Health Check
+    'health_check',                             # required
+    'health_check.db',                          # stock Django health checkers
+    'health_check.storage',
+    'health_check.contrib.migrations',
+    'health_check.contrib.psutil',              # disk and memory utilization; requires psutil
 ]
 
 MIDDLEWARE = [
