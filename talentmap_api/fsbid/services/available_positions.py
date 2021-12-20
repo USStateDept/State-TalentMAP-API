@@ -401,7 +401,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
         f"{prefix}cp_ids": services.convert_multi_value(query.get("id", None)),
         f"{prefix}assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}overseas_ind": services.convert_multi_value(services.overseas_values(query)),
         f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
         f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
@@ -427,7 +427,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
         values[f"{prefix}count"] = query.get("getCount", 'false')
         values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,location_code,tandem,{ordering}", use_post)
         # Common filters
-        values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
+        values[f"{prefix}overseas_ind2"] = services.convert_multi_value(services.overseas_values(query))
         values[f"{prefix}location_codes2"] = services.post_values(query)
         values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
         values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
