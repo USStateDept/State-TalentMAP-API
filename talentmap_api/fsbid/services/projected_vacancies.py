@@ -288,7 +288,7 @@ def convert_pv_query(query, isTandem=False, use_post=False):
         # Tandem 1 filters
         f"{prefix}seq_nums": services.convert_multi_value(query.get("id", None)),
         f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
-        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}overseas_ind": services.convert_multi_value(services.overseas_values(query)),
         f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
         f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
@@ -312,7 +312,7 @@ def convert_pv_query(query, isTandem=False, use_post=False):
         values[f"{prefix}count"] = query.get("getCount", 'false')
         values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,tandem,{ordering}")
         # Common filters
-        values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
+        values[f"{prefix}overseas_ind2"] = services.convert_multi_value(services.overseas_values(query))
         values[f"{prefix}location_codes2"] = services.post_values(query)
         values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
         values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
