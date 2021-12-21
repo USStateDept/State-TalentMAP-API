@@ -235,12 +235,12 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=Fa
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False, use_id = True):
     '''
     Gets an individual record by the provided ID
     '''
     fetch_method = get_results_with_post if use_post else get_results
-    response = fetch_method(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
+    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 
@@ -703,3 +703,31 @@ def sort_bids(bidlist, ordering_query):
         return bidlist
     return bids
     
+# known comparators:
+# eq: equals
+# in: in
+def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
+    if not column and not value and not comparator:
+        return None
+    return f"{column}|{comparator}|{value}"
+
+
+def categorize_remark(remark = ''):
+    obj = { 'title': remark, 'type': None }
+    if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
+        obj['type'] = 'person'
+    return obj
+
+
+def parse_agenda_remarks(remarks_string = ''):
+    remarks = remarks_string
+    if pydash.starts_with(remarks, 'Remarks:'):
+        remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
+    # split by semi colon
+    values = remarks.split(';')
+    # remove Nmn (no middle name) from Creator and CDO
+    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
+    # remove nulls or empty spaces
+    values = pydash.filter_(values, lambda o: o and o != ' ')
+    values = pydash.map_(values, categorize_remark)
+    return values

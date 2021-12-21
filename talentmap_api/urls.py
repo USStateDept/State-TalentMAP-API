@@ -48,6 +48,8 @@ urlpatterns = [
     url(r'^api/v1/fsbid/classifications/', include('talentmap_api.fsbid.urls.classifications')),
     url(r'^api/v1/fsbid/positions/', include('talentmap_api.fsbid.urls.positions')),
 
+    # Agenda
+    url(r'^api/v1/fsbid/agenda/', include('talentmap_api.fsbid.urls.agenda')),
 
     # Projected Vacancies
     url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
