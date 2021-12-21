@@ -719,11 +719,14 @@ def categorize_remark(remark = ''):
     return obj
 
 
-def parse_agenda_remarks(remarks = ''):
+def parse_agenda_remarks(remarks_string = ''):
+    remarks = remarks_string
+    if pydash.starts_with(remarks, 'Remarks:'):
+        remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
     # split by semi colon
     values = remarks.split(';')
     # remove Nmn (no middle name) from Creator and CDO
-    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '') if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
+    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
     # remove nulls or empty spaces
     values = pydash.filter_(values, lambda o: o and o != ' ')
     values = pydash.map_(values, categorize_remark)
