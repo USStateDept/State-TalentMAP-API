@@ -336,7 +336,11 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     Gets items from FSBid
     '''
     formattedQuery = query
-    formattedQuery._mutable = True
+    try:
+        formattedQuery._mutable = True
+    except:#nosec
+        pass
+
     if ad_id is not None:
         formattedQuery['ad_id'] = ad_id
     if limit is not None:
@@ -734,3 +738,63 @@ def parse_agenda_remarks(remarks_string = ''):
     values = pydash.filter_(values, lambda o: o and o != ' ')
     values = pydash.map_(values, categorize_remark)
     return values
+
+
+def get_aih_csv(data, filename):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Position Title"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Org"))
+    headers.append(smart_str(u"ETA"))
+    headers.append(smart_str(u"TED"))
+    headers.append(smart_str(u"TOD"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Panel Date"))
+    headers.append(smart_str(u"Status"))
+    headers.append(smart_str(u"Remarks"))
+    writer.writerow(headers)
+
+    for record in data:
+        try:
+            ted = smart_str(maya.parse(pydash.get(record, "assignment.ted")).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+
+        try:
+            eta = smart_str(maya.parse(pydash.get(record, "assignment.eta")).datetime().strftime('%m/%d/%Y'))
+        except:
+            eta = "None listed"
+
+        try:
+            panelDate = smart_str(maya.parse(pydash.get(record, "panel_date")).datetime().strftime('%m/%d/%Y'))
+        except:
+            panelDate = "None listed"
+        
+        try:
+            remarks = pydash.map_(pydash.get(record, "remarks", []), 'title')
+            remarks = pydash.join(remarks, '; ')
+        except:
+            remarks = 'None listed'
+
+        row = []
+        # need to update
+        row.append(smart_str(pydash.get(record, "assignment.pos_title")))
+        row.append(smart_str(pydash.get(record, "assignment.pos_num")))
+        row.append(smart_str(pydash.get(record, "assignment.org")))
+        row.append(eta)
+        row.append(ted)
+        row.append(smart_str(pydash.get(record, "assignment.tod")))
+        row.append(smart_str(pydash.get(record, "assignment.grade")))
+        row.append(panelDate)
+        row.append(smart_str(pydash.get(record, "status")))
+        row.append(smart_str(remarks))
+
+        writer.writerow(row)
+    return response

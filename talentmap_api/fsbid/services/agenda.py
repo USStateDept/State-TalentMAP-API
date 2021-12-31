@@ -59,6 +59,29 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
 
     return agenda_items
 
+
+def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
+
+    args = {
+        "uri": "",
+        "query": query,
+        "query_mapping_function": convert_agenda_item_query,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(fsbid_agenda_items_to_talentmap_agenda_items, jwt_token=jwt_token),
+        "host": host,
+        "use_post": False,
+        "base_url": AGENDA_ITEM_API_ROOT,
+    }
+
+    data = services.send_get_csv_request(
+        **args
+    )
+
+    response = services.get_aih_csv(data, "agenda_item_history")
+
+    return response
+
+
 # Placeholder. Isn't used and doesn't work.
 def get_agenda_items_count(query, jwt_token, host=None, use_post=False):
     '''

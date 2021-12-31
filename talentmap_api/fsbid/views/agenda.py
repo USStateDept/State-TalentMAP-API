@@ -28,7 +28,17 @@ class AgendaItemView(BaseView):
 
     def get(self, request):
         '''
-        Gets all clients for a CDO
+        Gets all Agenda Items for a CDO/AO
         '''
         return Response(services.get_agenda_items(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
+
+
+class AgendaItemCSVView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao'),)]
+
+    def get(self, request):
+        """
+        Return a list of all of the items in Agenda Item History for CSV export
+        """
+        return services.get_agenda_item_history_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
 
