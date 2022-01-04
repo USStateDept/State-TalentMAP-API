@@ -68,8 +68,8 @@ def get_available_bidders_stats(data):
             stats['Skill'][skill_key]['value'] += 1
             stats_sum['Skill'] += 1
 
-            ab_status_key = bidder['available_bidder_details']['status']
-            if ab_status_key is not None:
+            ab_status_key = pydash.get(bidder, 'available_bidder_details.status')
+            if ab_status_key:
                 if ab_status_key not in stats['Status']:
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
                 stats['Status'][ab_status_key]['value'] += 1
