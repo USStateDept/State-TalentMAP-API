@@ -46,7 +46,7 @@ def get_available_bidders_csv(request):
 
     fields_info = {
         "name": None,
-        "skills": {"default": "No Skills listed", },
+        "skills": {"default": "No Skills listed", "description_and_code": True},
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
         "org": {"path": 'current_assignment.position.organization', },
@@ -57,7 +57,7 @@ def get_available_bidders_csv(request):
     }
 
     for record in data["results"]:
-        languages = f'' if pydash.get(record, ["languages"]) else "None listed"
+        languages = '' if pydash.get(record, ["languages"]) else "None listed"
         if languages is not "None listed":
             for language in record["languages"]:
                 languages += f'{language["custom_description"]}, '
@@ -66,12 +66,17 @@ def get_available_bidders_csv(request):
         cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
+
+        try:
+            ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
+        except:
+            ted = 'None listed'
         writer.writerow([
             fields["name"],
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
-            maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y'),
+            ted,
             fields["org"],
             fields["city"],
             fields["state"],

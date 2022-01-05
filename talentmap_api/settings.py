@@ -16,9 +16,16 @@ import dj_database_url
 
 import saml2
 import saml2.saml
+import pydash
 
 from saml2.config import SPConfig
+from django.apps import AppConfig
 
+
+
+# For upgrade to django 3.x
+AppConfig.default = False
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # This supports swagger https
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -44,6 +51,17 @@ def bool_env_variable(name):
     return get_delineated_environment_variable(name) in ["1", "True", "true", True]
 
 
+# SMTP email settings
+EMAIL_ENABLED = bool_env_variable("EMAIL_ENABLED")
+EMAIL_HOST = get_delineated_environment_variable("EMAIL_HOST")
+EMAIL_PORT = get_delineated_environment_variable("EMAIL_PORT")
+EMAIL_HOST_USER = get_delineated_environment_variable("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_delineated_environment_variable("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = bool_env_variable("EMAIL_USE_TLS")
+EMAIL_FROM_ADDRESS = get_delineated_environment_variable("EMAIL_FROM_ADDRESS")
+EMAIL_IS_DEV = bool_env_variable("EMAIL_IS_DEV")
+EMAIL_DEV_TO = get_delineated_environment_variable("EMAIL_DEV_TO")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -64,10 +82,6 @@ ALLOWED_HOSTS = ['*']
 
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
-
-# Login paths
-LOGIN_URL = 'rest_framework:login'
-LOGOUT_URL = 'rest_framework:logout'
 
 # Check for SAML2 enable
 if ENABLE_SAML2:
@@ -104,7 +118,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_expiring_authtoken',
     'rest_framework_filters',
-    'rest_framework_swagger',
+    'drf_yasg',
     'debug_toolbar',
     'djangosaml2',
     'simple_history',
@@ -129,9 +143,17 @@ INSTALLED_APPS = [
     'talentmap_api.stats',
     'talentmap_api.fsbid',
     'talentmap_api.cdo',
+
+    # Health Check
+    'health_check',                             # required
+    'health_check.db',                          # stock Django health checkers
+    'health_check.storage',
+    'health_check.contrib.migrations',
+    'health_check.contrib.psutil',              # disk and memory utilization; requires psutil
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -252,6 +274,7 @@ if ENABLE_SAML2:
                     'name': 'TalentMAP',
                     'allow_unsolicited': True,
                     'name_id_format': saml2.saml.NAMEID_FORMAT_PERSISTENT,
+                    'want_response_signed': False,
                     'endpoints': {
                         # url and binding to the assetion consumer service view
                         # do not change the binding or service name
@@ -331,6 +354,14 @@ if ENABLE_SAML2:
         })  # End SAML config
         return conf
 
+
+def skip_lb_requests(record):
+    record = pydash.get(record, 'args[0]')
+    if isinstance(record, str) and record.startswith('HEAD / HTTP'):
+        return False
+    return True
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -346,12 +377,17 @@ LOGGING = {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'skip_lb_requests': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': skip_lb_requests
+        }
     },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
+            'filters': ['skip_lb_requests'],
         },
         'auth': {
             'level': 'DEBUG',
@@ -445,6 +481,8 @@ DATABASES = {
         'NAME': get_delineated_environment_variable("DATABASE_URL"),
         'USER': get_delineated_environment_variable("DATABASE_USER"),
         'PASSWORD': get_delineated_environment_variable("DATABASE_PW"),
+        # 'CONN_MAX_AGE': 300,
+        # 'OPTIONS': {'threaded': True}
     }
 }
 
@@ -496,11 +534,21 @@ FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://moc
 SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/v2/SECREF')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
 CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/cyclePositions')
+CP_API_V2_URL = get_delineated_environment_variable('CP_API_V2_URL', 'http://mock_fsbid:3333/v2/cyclePositions')
 ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/Organizations')
 CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http://mock_fsbid:3333/Clients')
+CLIENTS_API_V2_URL = get_delineated_environment_variable('CLIENTS_API_V2_URL', 'http://mock_fsbid:3333/v2/clients')
+PV_API_V2_URL = get_delineated_environment_variable('PV_API_V2_URL', 'http://mock_fsbid:3333/v2/futureVacancies')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
+TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
+AGENDA_ITEM_API_URL = get_delineated_environment_variable('AGENDA_ITEM_API_URL', 'http://mock_fsbid:3333/AgendaItems')
+PERSON_API_URL = get_delineated_environment_variable('PERSON_API_URL', 'http://mock_fsbid:3333/v3/persons')
+
+# Whether to use the /v2 endpoints
+USE_CP_API_V2 = bool_env_variable("USE_CP_API_V2")
+USE_PV_API_V2 = bool_env_variable("USE_PV_API_V2")
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 
@@ -508,6 +556,9 @@ SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 AD_ID = 'DOMAIN\\USERNAME'
 OBC_URL = get_delineated_environment_variable('OBC_URL', 'http://localhost:4000')
 OBC_URL_EXTERNAL = get_delineated_environment_variable('OBC_URL_EXTERNAL', 'http://localhost:4000/external')
+
+# SSL cert
+HRONLINE_CERT = get_delineated_environment_variable('HRONLINE_CERT', None)
 
 # defaults from https://pypi.org/project/django-cors-headers/ plus our custom headers
 CORS_ALLOW_HEADERS = [
@@ -532,6 +583,8 @@ SWAGGER_SETTINGS = {
             "description": "JWT authorization"
         },
     },
+    'LOGIN_URL': 'rest_framework:login',
+    'LOGOUT_URL': 'rest_framework:logout',
 }
 
 FAVORITES_LIMIT = 50

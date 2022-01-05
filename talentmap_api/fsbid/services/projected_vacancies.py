@@ -3,6 +3,7 @@ from functools import partial
 from urllib.parse import urlencode, quote
 
 import requests  # pylint: disable=unused-import
+import pydash
 
 from django.conf import settings
 
@@ -11,6 +12,8 @@ from talentmap_api.fsbid.services import common as services
 
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+USE_PV_API_V2 = settings.USE_PV_API_V2
+PV_API_V2_URL = settings.PV_API_V2_URL
 
 logger = logging.getLogger(__name__)
 
@@ -19,53 +22,112 @@ def get_projected_vacancy(id, jwt_token):
     '''
     Gets an indivdual projected vacancy by id
     '''
+
+    args = {
+        "uri": "futureVacancies",
+        "id": id,
+        "query_mapping_function": convert_pv_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_pv_to_talentmap_pv,
+        "use_post": USE_PV_API_V2,
+    }
+
+    if USE_PV_API_V2:
+        args['uri'] = ''
+        args['query_mapping_function'] = partial(convert_pv_query, use_post=True)
+        args['api_root'] = PV_API_V2_URL
+
     return services.get_individual(
-        "futureVacancies",
-        id,
-        convert_pv_query,
-        jwt_token,
-        fsbid_pv_to_talentmap_pv
+        **args
     )
 
 
 def get_projected_vacancies(query, jwt_token, host=None):
+    args = {
+        "uri": "futureVacancies",
+        "query": query,
+        "query_mapping_function": convert_pv_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_pv_to_talentmap_pv,
+        "count_function": get_projected_vacancies_count,
+        "base_url": "/api/v1/fsbid/projected_vacancies/",
+        "host": host,
+        "use_post": USE_PV_API_V2,
+    }
+
+    if USE_PV_API_V2:
+        args['uri'] = ''
+        args['query_mapping_function'] = partial(convert_pv_query, use_post=True)
+        args['count_function'] = partial(get_projected_vacancies_count, use_post=True)
+        args['api_root'] = PV_API_V2_URL
+
     return services.send_get_request(
-        "futureVacancies",
-        query,
-        convert_pv_query,
-        jwt_token,
-        fsbid_pv_to_talentmap_pv,
-        get_projected_vacancies_count,
-        "/api/v1/fsbid/projected_vacancies/",
-        host
+        **args
     )
 
 
 def get_projected_vacancies_tandem(query, jwt_token, host=None):
+    args = {
+        "uri": "positions/futureVacancies/tandem",
+        "query": query,
+        "query_mapping_function": partial(convert_pv_query, isTandem=True),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_pv_to_talentmap_pv,
+        "count_function": get_projected_vacancies_tandem_count,
+        "base_url": "/api/v1/fsbid/projected_vacancies/tandem/",
+        "host": host,
+        "use_post": USE_PV_API_V2,
+    }
+
+    if USE_PV_API_V2:
+        args['uri'] = 'tandem'
+        args['query_mapping_function'] = partial(convert_pv_query, isTandem=True, use_post=True)
+        args['count_function'] = partial(get_projected_vacancies_tandem_count, use_post=True)
+        args['api_root'] = PV_API_V2_URL
+
     return services.send_get_request(
-        "positions/futureVacancies/tandem",
-        query,
-        partial(convert_pv_query, isTandem=True),
-        jwt_token,
-        fsbid_pv_to_talentmap_pv,
-        get_projected_vacancies_tandem_count,
-        "/api/v1/fsbid/projected_vacancies/tandem/",
-        host
+        **args
     )
 
 
-def get_projected_vacancies_count(query, jwt_token, host=None):
+def get_projected_vacancies_count(query, jwt_token, host=None, use_post=False):
     '''
     Gets the total number of PVs for a filterset
     '''
-    return services.send_count_request("futureVacanciesCount", query, convert_pv_query, jwt_token, host)
+    args = {
+        "uri": "futureVacanciesCount",
+        "query": query,
+        "query_mapping_function": partial(convert_pv_query, use_post=use_post),
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+    }
+
+    if use_post:
+        args['uri'] = "count"
+        args['api_root'] = PV_API_V2_URL
+
+    return services.send_count_request(**args)
 
 
-def get_projected_vacancies_tandem_count(query, jwt_token, host=None):
+def get_projected_vacancies_tandem_count(query, jwt_token, host=None, use_post=False):
     '''
     Gets the total number of tandem PVs for a filterset
     '''
-    return services.send_count_request("positions/futureVacancies/tandem", query, partial(convert_pv_query, isTandem=True), jwt_token, host)
+    args = {
+        "uri": "positions/futureVacancies/tandem",
+        "query": query,
+        "query_mapping_function": partial(convert_pv_query, isTandem=True, use_post=use_post),
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+    }
+
+    if use_post:
+        args['uri'] = "tandem"
+        args['api_root'] = PV_API_V2_URL
+
+    return services.send_count_request(**args)
 
 
 def get_projected_vacancies_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -116,6 +178,7 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
+    skill2 = services.get_secondary_skill(pv)
     return {
         "id": pv.get("fv_seq_num", None),
         "ted": ensure_date(pv.get("ted", None), utc_offset=-5),
@@ -131,6 +194,9 @@ def fsbid_pv_to_talentmap_pv(pv):
         "position": {
             "grade": pv.get("pos_grade_code", None),
             "skill": f"{pv.get('pos_skill_desc', None)} ({pv.get('pos_skill_code')})",
+            "skill_code": pv.get("pos_skill_code", None),
+            "skill_secondary": skill2.get("skill_secondary"),
+            "skill_secondary_code": skill2.get("skill_secondary_code"),
             "bureau": f"({pv.get('pos_bureau_short_desc', None)}) {pv.get('pos_bureau_long_desc', None)}",
             "organization": f"({pv.get('org_short_desc', None)}) {pv.get('org_long_desc', None)}",
             "tour_of_duty": pv.get("tod", None),
@@ -160,6 +226,7 @@ def fsbid_pv_to_talentmap_pv(pv):
                 "user": pv.get("incumbent", None),
                 "estimated_end_date": ensure_date(pv.get("ted", None), utc_offset=-5)
             },
+            "assignee": pv.get("assignee", None),
             "position_number": pv.get("position", None),
             "title": pv.get("pos_title_desc", None),
             "availability": {
@@ -197,16 +264,20 @@ def fsbid_pv_to_talentmap_pv(pv):
     }
 
 
-def convert_pv_query(query, isTandem=False):
+def convert_pv_query(query, isTandem=False, use_post=False):
     '''
     Converts TalentMap filters into FSBid filters
 
     The TalentMap filters align with the position search filter naming
     '''
+
     prefix = "fv_request_params."
 
     if isTandem:
         prefix = "request_params."
+
+    if use_post:
+        prefix = ""
 
     values = {
         # Pagination
@@ -217,7 +288,7 @@ def convert_pv_query(query, isTandem=False):
         # Tandem 1 filters
         f"{prefix}seq_nums": services.convert_multi_value(query.get("id", None)),
         f"{prefix}bid_seasons": services.convert_multi_value(query.get("is_available_in_bidseason")),
-        f"{prefix}overseas_ind": services.overseas_values(query),
+        f"{prefix}overseas_ind": services.convert_multi_value(services.overseas_values(query)),
         f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
         f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
         f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
@@ -241,7 +312,7 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}count"] = query.get("getCount", 'false')
         values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,tandem,{ordering}")
         # Common filters
-        values[f"{prefix}overseas_ind2"] = services.overseas_values(query)
+        values[f"{prefix}overseas_ind2"] = services.convert_multi_value(services.overseas_values(query))
         values[f"{prefix}location_codes2"] = services.post_values(query)
         values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
         values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
@@ -259,7 +330,16 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+    
+    if use_post:
+        if isinstance(values[f"{prefix}order_by"], list):
+            values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
+    
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    if use_post:
+        return valuesToReturn
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
 def get_pv_favorite_ids(query, jwt_token, host=None):

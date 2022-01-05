@@ -1,4 +1,5 @@
 import logging
+import pydash
 from functools import partial
 from urllib.parse import urlencode, quote
 
@@ -14,18 +15,31 @@ logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+USE_CP_API_V2 = settings.USE_CP_API_V2
+CP_API_V2_URL = settings.CP_API_V2_URL
 
 
 def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
     '''
+
+    args = {
+        "uri": "availablePositions",
+        "id": id,
+        "query_mapping_function": convert_all_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = 'available'
+        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
     return services.get_individual(
-        "availablePositions",
-        id,
-        convert_ap_query,
-        jwt_token,
-        fsbid_ap_to_talentmap_ap
+        **args
     )
 
 
@@ -44,30 +58,53 @@ def get_unavailable_position(id, jwt_token):
 
 def get_all_position(id, jwt_token):
     '''
-    Gets an indivdual position by id
+    Gets an indivdual cycle position by id
     '''
+
+    args = {
+        "uri": "",
+        "id": id,
+        "query_mapping_function": partial(convert_all_query, use_post=True),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = ''
+        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
     return services.get_individual(
-        "availablePositions",
-        id,
-        convert_all_query,
-        jwt_token,
-        fsbid_ap_to_talentmap_ap
+        **args
     )
 
 
-def get_available_positions(query, jwt_token, host=None):
+def get_available_positions(query, jwt_token, host=None, use_post=False):
     '''
     Gets available positions
     '''
+
+    args = {
+        "uri": "availablePositions",
+        "query": query,
+        "query_mapping_function": convert_ap_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "count_function": get_available_positions_count,
+        "base_url": "/api/v1/fsbid/available_positions/",
+        "host": host,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = 'available'
+        args['query_mapping_function'] = partial(convert_ap_query, use_post=True)
+        args['count_function'] = partial(get_available_positions_count, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
     return services.send_get_request(
-        "availablePositions",
-        query,
-        convert_ap_query,
-        jwt_token,
-        fsbid_ap_to_talentmap_ap,
-        get_available_positions_count,
-        "/api/v1/fsbid/available_positions/",
-        host
+        **args
     )
 
 
@@ -75,30 +112,63 @@ def get_available_positions_tandem(query, jwt_token, host=None):
     '''
     Gets available positions
     '''
+    args = {
+        "uri": "positions/available/tandem",
+        "query": query,
+        "query_mapping_function": partial(convert_ap_query, isTandem=True),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ap_to_talentmap_ap,
+        "count_function": get_available_positions_tandem_count,
+        "base_url": "/api/v1/fsbid/available_positions/tandem/",
+        "host": host,
+        "use_post": USE_CP_API_V2,
+    }
+
+    if USE_CP_API_V2:
+        args['uri'] = 'availableTandem'
+        args['query_mapping_function'] = partial(convert_ap_query, isTandem=True, use_post=True)
+        args['count_function'] = partial(get_available_positions_tandem_count, use_post=True)
+        args['api_root'] = CP_API_V2_URL
+
     return services.send_get_request(
-        "positions/available/tandem",
-        query,
-        partial(convert_ap_query, isTandem=True),
-        jwt_token,
-        fsbid_ap_to_talentmap_ap,
-        get_available_positions_tandem_count,
-        "/api/v1/fsbid/available_positions/tandem/",
-        host
+        **args
     )
 
 
-def get_available_positions_count(query, jwt_token, host=None):
+def get_available_positions_count(query, jwt_token, host=None, use_post=False):
     '''
     Gets the total number of available positions for a filterset
     '''
-    return services.send_count_request("availablePositionsCount", query, convert_ap_query, jwt_token, host)
+    args = {
+        "uri": "availablePositionsCount",
+        "query": query,
+        "query_mapping_function": partial(convert_ap_query, use_post=use_post),
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+    }
+    if use_post:
+        args['uri'] = "availableCount"
+        args['api_root'] = CP_API_V2_URL
+    return services.send_count_request(**args)
 
 
-def get_available_positions_tandem_count(query, jwt_token, host=None):
+def get_available_positions_tandem_count(query, jwt_token, host=None, use_post=False):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
-    return services.send_count_request("positions/available/tandem", query, partial(convert_ap_query, isTandem=True), jwt_token, host)
+    args = {
+        "uri": "positions/available/tandem",
+        "query": query,
+        "query_mapping_function": partial(convert_ap_query, isTandem=True, use_post=use_post),
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+    }
+    if use_post:
+        args['uri'] = "availableTandem"
+        args['api_root'] = CP_API_V2_URL
+    return services.send_count_request(**args)
 
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
@@ -191,15 +261,7 @@ def fsbid_ap_to_talentmap_ap(ap):
     if ted is None:
         ted = ensure_date(ap.get("ted", None), utc_offset=-5)
 
-    skillSecondary = f"{ap.get('pos_staff_ptrn_skill_desc', None)} ({ap.get('pos_staff_ptrn_skill_code')})"
-    skillSecondaryCode = ap.get("pos_staff_ptrn_skill_code", None)
-    # If the primary and secondary skills are the same, we interpret this as there being no secondary skill
-    if ap.get("pos_skill_code", None) == ap.get("pos_staff_ptrn_skill_code", None):
-        skillSecondary = None
-        skillSecondaryCode = None
-    if not ap.get("pos_skill_code", None) or not ap.get("pos_staff_ptrn_skill_code", None):
-        skillSecondary = None
-        skillSecondaryCode = None
+    skill2 = services.get_secondary_skill(ap)
 
     return {
         "id": ap.get("cp_id", None),
@@ -217,8 +279,8 @@ def fsbid_ap_to_talentmap_ap(ap):
             "grade": ap.get("pos_grade_code", None),
             "skill": f"{ap.get('pos_skill_desc', None)} ({ap.get('pos_skill_code')})",
             "skill_code": ap.get("pos_skill_code", None),
-            "skill_secondary": skillSecondary,
-            "skill_secondary_code": skillSecondaryCode,
+            "skill_secondary": skill2.get("skill_secondary"),
+            "skill_secondary_code": skill2.get("skill_secondary_code"),
             "bureau": f"({ap.get('pos_bureau_short_desc', None)}) {ap.get('pos_bureau_long_desc', None)}",
             "bureau_code": ap.get('bureau_code', None),
             "organization": f"({ap.get('org_short_desc', None)}) {ap.get('org_long_desc', None)}",
@@ -315,121 +377,88 @@ def fsbid_ap_to_talentmap_ap(ap):
         "isDifficultToStaff": ap.get("bt_most_difficult_to_staff_flg", None) == "Y",
         "isEFMInside": ap.get("bt_inside_efm_employment_flg", None) == "Y",
         "isEFMOutside": ap.get("bt_outside_efm_employment_flg", None) == "Y",
+        "isHardToFill": ap.get("acp_hard_to_fill_ind", None) == "Y",
     }
 
 
-def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, use_post=False):
     '''
     Converts TalentMap filters into FSBid filters
     '''
+
+    prefix = ""
+    if not use_post:
+        prefix = "request_params."
+
     values = {
         # Pagination
-        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        "request_params.page_index": int(query.get("page", 1)),
-        "request_params.page_size": query.get("limit", 25),
+        f"{prefix}order_by": services.sorting_values(query.get("ordering", None), use_post),
+        f"{prefix}page_index": int(query.get("page", 1)),
+        f"{prefix}page_size": query.get("limit", 25),
 
         # Tandem 1 filters
-        "request_params.cps_codes": services.convert_multi_value(
+        f"{prefix}cps_codes": services.convert_multi_value(
             validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
-        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        "request_params.overseas_ind": services.overseas_values(query),
-        "request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
-        "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        "request_params.location_codes": services.post_values(query),
-        "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        "request_params.post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
-        "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        "request_params.us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
-        "request_params.cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
-        "request_params.freeText": query.get("q", None),
+        f"{prefix}cp_ids": services.convert_multi_value(query.get("id", None)),
+        f"{prefix}assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
+        f"{prefix}overseas_ind": services.convert_multi_value(services.overseas_values(query)),
+        f"{prefix}languages": services.convert_multi_value(query.get("language_codes")),
+        f"{prefix}bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
+        f"{prefix}grades": services.convert_multi_value(query.get("position__grade__code__in")),
+        f"{prefix}location_codes": services.post_values(query),
+        f"{prefix}danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
+        f"{prefix}differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
+        f"{prefix}pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
+        f"{prefix}post_ind": services.convert_multi_value(query.get("position__post_indicator__in")),
+        f"{prefix}tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
+        f"{prefix}skills": services.convert_multi_value(query.get("position__skill__code__in")),
+        f"{prefix}us_codes": services.convert_multi_value(query.get("position__us_codes__in")),
+        f"{prefix}cpn_codes": services.convert_multi_value(query.get("position__cpn_codes__in")),
+        f"{prefix}htf_ind": services.convert_multi_value(query.get("htf_indicator")),
+        f"{prefix}freeText": query.get("q", None),
 
     }
 
     if not isTandem:
-        values["request_params.get_count"] = query.get("getCount", 'false')
+        values[f"{prefix}get_count"] = query.get("getCount", 'false')
 
     if isTandem:
         ordering = query.get("ordering", None)
-        values["request_params.count"] = query.get("getCount", 'false')
-        values["request_params.order_by"] = services.sorting_values(f"commuterPost,location,tandem,{ordering}")
+        values[f"{prefix}count"] = query.get("getCount", 'false')
+        values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,location_code,tandem,{ordering}", use_post)
         # Common filters
-        values["request_params.overseas_ind2"] = services.overseas_values(query)
-        values["request_params.location_codes2"] = services.post_values(query)
-        values["request_params.danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
-        values["request_params.differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
-        values["request_params.post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
-        values["request_params.us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
-        values["request_params.cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
-        values["request_params.freeText2"] = query.get("q", None)
+        values[f"{prefix}overseas_ind2"] = services.convert_multi_value(services.overseas_values(query))
+        values[f"{prefix}location_codes2"] = services.post_values(query)
+        values[f"{prefix}danger_pays2"] = services.convert_multi_value(query.get("position__post__danger_pay__in"))
+        values[f"{prefix}differential_pays2"] = services.convert_multi_value(query.get("position__post__differential_rate__in"))
+        values[f"{prefix}post_ind2"] = services.convert_multi_value(query.get("position__post_indicator__in"))
+        values[f"{prefix}us_codes2"] = services.convert_multi_value(query.get("position__us_codes__in"))
+        values[f"{prefix}cpn_codes2"] = services.convert_multi_value(query.get("position__cpn_codes__in"))
+        values[f"{prefix}freeText2"] = query.get("q", None)
 
         # Tandem 2 filters
-        values["request_params.cps_codes2"] = services.convert_multi_value(
+        values[f"{prefix}cps_codes2"] = services.convert_multi_value(
             validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes))
-        values["request_params.cp_ids2"] = services.convert_multi_value(query.get("id-tandem", None))
-        values["request_params.assign_cycles2"] = services.convert_multi_value(query.get("is_available_in_bidcycle-tandem"))
-        values["request_params.languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
-        values["request_params.bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem"))
-        values["request_params.grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
-        values["request_params.pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
-        values["request_params.tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
-        values["request_params.skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
+        values[f"{prefix}cp_ids2"] = services.convert_multi_value(query.get("id-tandem", None))
+        values[f"{prefix}assign_cycles2"] = services.convert_multi_value(query.get("is_available_in_bidcycle-tandem"))
+        values[f"{prefix}languages2"] = services.convert_multi_value(query.get("language_codes-tandem"))
+        values[f"{prefix}bureaus2"] = services.convert_multi_value(query.get("position__bureau__code__in-tandem"))
+        values[f"{prefix}grades2"] = services.convert_multi_value(query.get("position__grade__code__in-tandem"))
+        values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
+        values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
+        values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
+        values[f"{prefix}htf_ind2"] = services.convert_multi_value(query.get("htf_indicator-tandem"))
 
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+    if use_post:
+        if isinstance(values[f"{prefix}order_by"], list):
+            values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
+    
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    if use_post:
+        return valuesToReturn
 
-def convert_ap_tandem_query(query, allowed_status_codes=["HS", "OP"]):
-    '''
-    Converts TalentMap tandem filters into FSBid tandem filters
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-    The TalentMap tandem filters align with the position search filter naming
-    '''
-    values = {
-        # Pagination
-        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        "request_params.page_index": int(query.get("page", 1)),
-        "request_params.page_size": query.get("limit", 25),
-
-        # Tandem 1 filters
-        "request_params.freeText": query.get("q", None),
-        "request_params.cps_codes": services.convert_multi_value(
-            validate_values(query.get("cps_codes", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.assign_cycles": services.convert_multi_value(query.get("is_available_in_bidcycle")),
-        "request_params.bureaus": services.convert_multi_value(query.get("position__bureau__code__in")),
-        "request_params.overseas_ind": services.overseas_values(query),
-        "request_params.danger_pays": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.grades": services.convert_multi_value(query.get("position__grade__code__in")),
-        "request_params.languages": services.convert_multi_value(query.get("language_codes")),
-        "request_params.differential_pays": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.skills": services.convert_multi_value(query.get("position__skill__code__in")),
-        "request_params.tod_codes": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in")),
-        "request_params.location_codes": services.post_values(query),
-        "request_params.pos_numbers": services.convert_multi_value(query.get("position__position_number__in", None)),
-        "request_params.cp_ids": services.convert_multi_value(query.get("id", None)),
-
-        # Common filters
-        "request_params.overseas_ind2": services.overseas_values(query),
-        "request_params.danger_pays2": services.convert_multi_value(query.get("position__post__danger_pay__in")),
-        "request_params.differential_pays2": services.convert_multi_value(query.get("position__post__differential_rate__in")),
-        "request_params.location_codes2": services.post_values(query),
-        "request_params.freeText2": query.get("q", None),
-
-        # Tandem 2 filters
-        "request_params.cps_codes2": services.convert_multi_value(
-            validate_values(query.get("cps_codes-tandem", "HS,OP,FP"), allowed_status_codes)),
-        "request_params.assign_cycles2": services.convert_multi_value(query.get("is_available_in_bidcycle-tandem")),
-        "request_params.bureaus2": services.convert_multi_value(query.get("position__bureau__code__in-tandem")),
-        "request_params.grades2": services.convert_multi_value(query.get("position__grade__code__in-tandem")),
-        "request_params.languages2": services.convert_multi_value(query.get("language_codes-tandem")),
-        "request_params.skills2": services.convert_multi_value(query.get("position__skill__code__in-tandem")),
-        "request_params.tod_codes2": services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem")),
-        "request_params.pos_numbers2": services.convert_multi_value(query.get("position__position_number__in-tandem", None)),
-        "request_params.cp_ids2": services.convert_multi_value(query.get("id-tandem", None)),
-    }
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
 
 def convert_up_query(query):
     '''
@@ -439,13 +468,13 @@ def convert_up_query(query):
     return convert_ap_query(query, ["FP"])
 
 
-def convert_all_query(query):
+def convert_all_query(query, use_post=False):
     '''
     sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return convert_ap_query(query, ["FP", "OP", "HS"])
+    return convert_ap_query(query, ["FP", "OP", "HS"], False, use_post=use_post)
 
 
 def get_ap_favorite_ids(query, jwt_token, host=None):

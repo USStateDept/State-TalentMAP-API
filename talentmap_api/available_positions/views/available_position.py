@@ -1,6 +1,7 @@
 import coreapi
 import maya
 import logging
+import pydash
 
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.shortcuts import get_object_or_404
@@ -15,7 +16,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, mixins
-from rest_framework.schemas import AutoSchema
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from rest_framework_bulk import (
     ListBulkCreateUpdateDestroyAPIView,
@@ -36,6 +39,7 @@ import talentmap_api.fsbid.services.available_positions as services
 import talentmap_api.fsbid.services.projected_vacancies as pvservices
 import talentmap_api.fsbid.services.common as comservices
 import talentmap_api.fsbid.services.employee as empservices
+import talentmap_api.fsbid.services.bid as bidservices
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +62,11 @@ class AvailablePositionFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.')
+        ])
 
     def get(self, request, *args, **kwargs):
         """
@@ -241,12 +244,11 @@ class FavoritesCSVView(APIView):
     permission_classes = (IsAuthenticated,)
     filter_class = AvailablePositionsFilter
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("exclude_available", type='boolean', location='query', description='Whether to exclude available positions'),
-            coreapi.Field("exclude_projected", type='boolean', location='query', description='Whether to exclude projected vacancies'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('exclude_available', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude available positions'),
+            openapi.Parameter('exclude_projected', openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='Whether to exclude projected vacancies')
+        ])
 
     def get(self, request, *args, **kwargs):
         """
@@ -396,3 +398,43 @@ class AvailablePositionHighlightActionView(APIView):
         position.is_highlighted = False
         position.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BureauBiddersRankings(APIView):
+
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('post_user')), ]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('id', openapi.IN_PATH, type=openapi.TYPE_STRING, description='perdet of Bureau bidder'),
+            openapi.Parameter('cp_id', openapi.IN_PATH, type=openapi.TYPE_STRING, description='cp_id of position')
+        ])
+
+    def get(self, request, pk, cp_id):
+        """
+        Return position information for all of bidders' bids including their ranking information for those positions
+        """
+        user_bids = bidservices.user_bids(pk, request.META['HTTP_JWT'])
+        user_rankings = AvailablePositionRanking.objects.filter(bidder_perdet=pk).exclude(cp_id=cp_id)
+        num_sl_bids = 0
+        filtered_bids = []
+
+        for bid in user_bids:
+          try:
+            pos_id = str(int(pydash.get(bid, 'position_info.id')))
+            rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+            if rank is not None:
+                num_sl_bids += 1
+                hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
+                hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
+                if hasOrgPermissions or hasBureauPermissions:
+                    bid["ranking"] = rank
+                    filtered_bids.append(bid)
+          except Exception as e:
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+
+        filtered_bids.sort(key=lambda x: x['ranking'])
+        other_sl_bids = num_sl_bids - len(filtered_bids)
+        return Response({
+            "results": filtered_bids,
+            "other-sl-bidcount": 0 if pydash.is_negative(other_sl_bids) else other_sl_bids,
+        })

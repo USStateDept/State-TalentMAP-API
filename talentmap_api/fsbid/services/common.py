@@ -2,7 +2,8 @@ import re
 import logging
 import csv
 from datetime import datetime
-import requests
+# import requests_cache
+from copy import deepcopy
 
 from django.conf import settings
 from django.db.models import Q
@@ -11,6 +12,7 @@ from django.utils.encoding import smart_str
 from django.http import QueryDict
 
 import maya
+import pydash
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -22,14 +24,23 @@ from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
 from talentmap_api.fsbid.services import employee as empservices
+from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
 
 API_ROOT = settings.FSBID_API_URL
-CP_API_ROOT = settings.CP_API_URL
+CP_API_V2_ROOT = settings.CP_API_V2_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+
+
+urls_expire_after = {
+    '*/cycles': 30,
+    '*': 0,  # Every other non-matching URL: do not cache
+}
+# session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
+
 
 def get_employee_profile_urls(clientid):
     suffix = f"Employees/{clientid}/EmployeeProfileReportByCDO"
@@ -61,7 +72,7 @@ def get_pagination(query, count, base_url, host=None):
 def convert_multi_value(val):
     toReturn = None
     if val is not None:
-        toReturn = val.split(',')
+        toReturn = str(val).split(',')
     if toReturn is not None and len(toReturn[0]) is 0:
         toReturn = None
     return toReturn
@@ -136,9 +147,12 @@ sort_dict = {
     "client_grade": "per_grade_code",
     "client_last_name": "per_last_name",
     "client_first_name": "per_first_name",
+    "client_middle_name": "per_middle_name",
     "location_city": "geoloc.city",
     "location_country": "geoloc.country",
     "location_state": "geoloc.state",
+    "location": "location_city",
+    "location_code": "pos_location_code",
     "commuterPost": "cpn_desc",
     "tandem": "tandem_nbr",
     "bidder_grade": "grade_code",
@@ -149,10 +163,19 @@ sort_dict = {
     "bidder_ted": "TED",
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
+    # Agenda Item History
+    "agenda_id": "aiseqnum",
+    "agenda_status": "aisdesctext",
+    # End Todo
+    "bidlist_create_date": "create_date",
+    "bidlist_location": "position_info.position.post.location.city",
 }
 
 
-def sorting_values(sort):
+mapBool = {True: 'Yes', False: 'No', 'default': '', None: 'N/A'}
+
+
+def sorting_values(sort, use_post=False):
     if sort is not None:
         results = []
         for s in sort.split(','):
@@ -168,19 +191,42 @@ def sorting_values(sort):
 
 
 def get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
-    url = f"{api_root}/{uri}?{query_mapping_function(query)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    if response.get("Data") is None or response.get('return_code', -1) == -1:
+    queryClone = query or {}
+    if query_mapping_function:
+        url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
+    else:
+        url = f"{api_root}/{uri}"
+    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
-    return list(map(mapping_function, response.get("Data", {})))
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
 
 
-def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
+def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o == None)
+    url = f"{api_root}/{uri}"
+    response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery).json()
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
+
+
+def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False):
     url = f"{API_ROOT}/{uri}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
+    # TODO - fix SSL issue with use_cache
+    # method = session if use_cache else requests
+    method = requests
+    response = method.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
 
-    if response.get("Data") is None or response.get('return_code', -1) == -1:
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
@@ -192,49 +238,73 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None):
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False, use_id = True):
     '''
     Gets an individual record by the provided ID
     '''
-    return next(iter(get_results(uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)), None)
+    fetch_method = get_results_with_post if use_post else get_results
+    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
+    return pydash.get(response, '[0]') or None
 
 
-def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT):
+def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT, use_post=False):
     '''
     Gets items from FSBid
     '''
     pagination = get_pagination(query, count_function(query, jwt_token)['count'], base_url, host) if count_function else {}
+    fetch_method = get_results_with_post if use_post else get_results
     return {
         **pagination,
-        "results": get_results(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
+        "results": fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False):
     '''
     Gets the total number of items for a filterset
     '''
+    args = {}
+
     newQuery = query.copy()
-    countProp = "count(1)"
     if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
         newQuery['getCount'] = 'true'
-        newQuery['request_params.page_index'] = None
-        newQuery['request_params.page_size'] = None
-    if uri in 'CDOClients':
-        countProp = "count"
-    if uri in ('positions/futureVacancies/tandem', 'positions/available/tandem'):
-        countProp = "cnt"
-    url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
-    return {"count": response["Data"][0][countProp]}
+    if api_root == CP_API_V2_ROOT and not uri:
+        newQuery['getCount'] = 'true'
+    if uri in ('availableTandem', 'tandem'):
+        newQuery['getCount'] = 'true'
 
+    if use_post:
+        url = f"{api_root}/{uri}"
+        args['json'] = query_mapping_function(newQuery)
+        method = requests.post
+    else:
+        url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
+        method = requests.get
+
+    response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
+    countObj = pydash.get(response, "Data[0]")
+    if len(pydash.keys(countObj)):
+        count = pydash.get(countObj, pydash.keys(countObj)[0])
+        return { "count": count }
+    else:
+        logger.error(f"No count property could be found. {response}")
+        raise KeyError('No count property could be found')
+
+
+# pre-load since this data rarely changes
+obc_vals = list([])
+
+def get_obc_vals():
+    global obc_vals
+    if not obc_vals:
+        obc_vals = list(Obc.objects.values())
+    return obc_vals
 
 def get_obc_id(post_id):
+    obc = pydash.find(get_obc_vals(), lambda x: x['code'] == post_id)
 
-    obc = Obc.objects.filter(code=post_id)
-    if obc.count() == 1:
-        for p in obc:
-            return p.obc_id
+    if obc:
+        return obc['obc_id']
 
     return None
 
@@ -261,24 +331,48 @@ def get_post_bidding_considerations_url(post_id):
         return None
 
 
-def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None):
+def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_function, base_url, host=None, ad_id=None, limit=None, use_post=False):
     '''
     Gets items from FSBid
     '''
     formattedQuery = query
-    formattedQuery._mutable = True
+    try:
+        formattedQuery._mutable = True
+    except:#nosec
+        pass
+
     if ad_id is not None:
         formattedQuery['ad_id'] = ad_id
     if limit is not None:
         formattedQuery['limit'] = limit
-    url = f"{base_url}/{uri}?{query_mapping_function(formattedQuery)}"
-    response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, verify=False).json()  # nosec
 
-    if response.get("Data") is None or response.get('return_code', -1) == -1:
+    if use_post:
+        mappedQuery = pydash.omit_by(query_mapping_function(formattedQuery), lambda o: o == None)
+        url = f"{base_url}/{uri}"
+        response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery).json()
+    else:
+        url = f"{base_url}/{uri}?{query_mapping_function(formattedQuery)}"
+        response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
 
     return map(mapping_function, response.get("Data", {}))
+
+
+def get_bid_stats_for_csv(record):
+    # initial value
+    bid_stats_row_value = 'N/A'
+    bid_stats = pydash.get(record, 'bid_statistics[0]')
+    total_bids = pydash.get(bid_stats, 'total_bids')
+    in_grade_bids = pydash.get(bid_stats, 'in_grade')
+    at_skill_bids = pydash.get(bid_stats, 'at_skill')
+    in_grade_at_skill_bids = pydash.get(bid_stats, 'in_grade_at_skill')
+    # make sure all bid counts are numbers
+    if not pydash.some([total_bids, in_grade_bids, at_skill_bids, in_grade_at_skill_bids], lambda x: not pydash.is_number(x)):
+        bid_stats_row_value = f"{total_bids}({in_grade_bids}/{at_skill_bids}){in_grade_at_skill_bids}"
+    return bid_stats_row_value
 
 
 def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
@@ -302,18 +396,24 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
+    headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Hist. Diff. to Staff"))
     if ap:
-        headers.append(smart_str(u"Service Needs Differential"))
+        headers.append(smart_str(u"Hard to Fill"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
+    if not ap:
+        headers.append(smart_str(u"Assignee"))
     headers.append(smart_str(u"Bid Cycle/Season"))
     if ap:
         headers.append(smart_str(u"Posted Date"))
     if ap:
         headers.append(smart_str(u"Status Code"))
     headers.append(smart_str(u"Position Number"))
+    if ap:
+        headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
     writer.writerow(headers)
 
@@ -323,7 +423,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             ted = "None listed"
         try:
-            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y')),
+            posteddate = smart_str(maya.parse(record["posted_date"]).datetime().strftime('%m/%d/%Y'))
         except:
             posteddate = "None listed"
 
@@ -339,18 +439,24 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(smart_str(record["position"]["post"]["location"]["country"]))
         row.append(smart_str(record["position"]["tour_of_duty"]))
         row.append(smart_str(parseLanguagesString(record["position"]["languages"])))
+        row.append(mapBool[pydash.get(record, "isServiceNeedDifferential")])
+        row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
-            row.append(smart_str(record["position"]["post"].get("has_service_needs_differential")))
+            row.append(mapBool[pydash.get(record, "isHardToFill")])
         row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
+        if not ap:
+            row.append(smart_str(pydash.get(record, 'position.assignee')))
         row.append(smart_str(record["bidcycle"]["name"]))
         if ap:
             row.append(posteddate)
         if ap:
             row.append(smart_str(record.get("status_code")))
         row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
+        if ap:
+            row.append(get_bid_stats_for_csv(record))
         row.append(smart_str(record["position"]["description"]["content"]))
 
         writer.writerow(row)
@@ -358,7 +464,6 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
 
 def get_bids_csv(data, filename, jwt_token):
-    from talentmap_api.fsbid.services.available_positions import get_all_position
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
@@ -377,46 +482,57 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Post Country"))
     headers.append(smart_str(u"Tour of Duty"))
     headers.append(smart_str(u"Languages"))
-    # headers.append(smart_str(u"Service Needs Differential"))
+    headers.append(smart_str(u"Service Need Differential"))
+    headers.append(smart_str(u"Hard to Fill"))
+    headers.append(smart_str(u"Handshake Offered"))
+    headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle"))
     headers.append(smart_str(u"Bid Status"))
+    headers.append(smart_str(u"Handshake Status"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
+    headers.append(smart_str(u"Bid Count"))
     headers.append(smart_str(u"Capsule Description"))
 
     writer.writerow(headers)
 
     for record in data:
-        position_data = get_all_position(smart_str(record["position"]["id"]), jwt_token)
-        if position_data is not None:
+        if pydash.get(record, 'position_info') is not None:
             try:
-                ted = smart_str(maya.parse(position_data["ted"]).datetime().strftime('%m/%d/%Y'))
+                ted = smart_str(maya.parse(pydash.get(record, 'position_info.ted')).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
-
+            hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
-            row.append(smart_str(record["position"]["title"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["position_number"]))
-            row.append(smart_str(record["position"]["skill"]))
-            row.append(smart_str("=\"%s\"" % record["position"]["grade"]))
-            row.append(smart_str(position_data["position"]["bureau"]))
-            row.append(smart_str(record["position"]["post"]["location"]["city"]))
-            row.append(smart_str(record["position"]["post"]["location"]["country"]))
-            row.append(smart_str(position_data["position"]["tour_of_duty"]))
-            row.append(smart_str(parseLanguagesString(position_data["position"]["languages"])))
-            # row.append(smart_str(position_data["position"]["post"].get("has_service_needs_differential")))
-            row.append(smart_str(position_data["position"]["post"]["differential_rate"]))
-            row.append(smart_str(position_data["position"]["post"]["danger_pay"]))
+            row.append(smart_str(pydash.get(record, 'position_info.position.title')))
+            row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.position_number')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.skill')))
+            row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.grade')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.bureau')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.location.city')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.location.country')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.tour_of_duty')))
+            row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
+            row.append(mapBool[pydash.get(record, 'position_info.isServiceNeedDifferential')])
+            row.append(mapBool[pydash.get(record, 'position_info.isHardToFill')])
+            row.append(mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')])
+            row.append(mapBool[pydash.get(record, 'position_info.isDifficultToStaff')])
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
-            row.append(smart_str(position_data["position"]["current_assignment"]["user"]))
-            row.append(smart_str(record["bidcycle"]))
-            if record.get("status") == "handshake_accepted":
+            row.append(smart_str(pydash.get(record, 'position_info.position.current_assignment.user')))
+            row.append(smart_str(pydash.get(record, 'position_info.bidcycle.name')))
+            if pydash.get(record, "status") == "handshake_accepted":
                 row.append(smart_str("handshake_registered"))
             else:
-                row.append(smart_str(record.get("status")))
-            row.append(smart_str(position_data["position"]["description"]["content"]))
+                row.append(smart_str(pydash.get(record, "status") or 'N/A'))
+            row.append(hs_status)
+            row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
+            row.append(get_bid_stats_for_csv(pydash.get(record, 'position_info')))
+            row.append(smart_str(pydash.get(record, 'position_info.position.description.content')))
 
             writer.writerow(row)
     return response
@@ -449,12 +565,19 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
 # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
-def has_competing_rank(self, perdet, pk):
+def has_competing_rank(jwt, perdet, pk):
     rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
         "cp_id", flat=True)
-    for y in rankOneBids:
-        hasBureauPermissions = empservices.has_bureau_permissions(y, self.request.META['HTTP_JWT'])
-        hasOrgPermissions = empservices.has_org_permissions(y, self.request.META['HTTP_JWT'])
+    rankOneBids = list(rankOneBids)
+    aps = []
+    if rankOneBids:
+        ids = ','.join(rankOneBids)
+        ap = apservices.get_available_positions({ 'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1 }, jwt)
+        aps = pydash.map_(ap['results'], 'id')
+
+    for y in aps:
+        hasBureauPermissions = empservices.has_bureau_permissions(y, jwt)
+        hasOrgPermissions = empservices.has_org_permissions(y, jwt)
         if hasBureauPermissions or hasOrgPermissions:
             # don't bother continuing the loop if we've already found one
             return True
@@ -479,6 +602,8 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"CDO"))
     headers.append(smart_str(u"CDO Email"))
+    headers.append(smart_str(u"Handshake Status"))
+    headers.append(smart_str(u"Bid Updated by CDO"))
 
     writer.writerow(headers)
 
@@ -498,18 +623,178 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
             cdo_name = ''
             cdo_email = ''
 
-        record['has_competing_rank'] = has_competing_rank(self, record.get('emp_id'), pk)
+        hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ')
         row = []
         row.append(smart_str(record["name"]))
-        row.append(smart_str(record["has_competing_rank"]))
+        row.append(mapBool[pydash.get(record, 'has_competing_rank', 'default')])
         row.append(submit_date)
-        row.append(smart_str(record["has_handshake_offered"]))
+        row.append(mapBool[pydash.get(record, 'has_handshake_offered', 'default')])
         row.append(smart_str(record["skill"]))
         row.append(smart_str("=\"%s\"" % record["grade"]))
         row.append(smart_str(record["language"]))
         row.append(ted)
         row.append(cdo_name)
         row.append(cdo_email)
+        row.append(hs_status)
+        row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
+
+        writer.writerow(row)
+    return response
+
+
+def get_secondary_skill(pos = {}):
+    skillSecondary = f"{pos.get('pos_staff_ptrn_skill_desc', None)} ({pos.get('pos_staff_ptrn_skill_code')})"
+    skillSecondaryCode = pos.get("pos_staff_ptrn_skill_code", None)
+    if pos.get("pos_skill_code", None) == pos.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+    if not pos.get("pos_skill_code", None) or not pos.get("pos_staff_ptrn_skill_code", None):
+        skillSecondary = None
+        skillSecondaryCode = None
+    return {
+        "skill_secondary": skillSecondary,
+        "skill_secondary_code": skillSecondaryCode,
+    }
+
+
+APPROVED_PROP = 'approved'
+CLOSED_PROP = 'closed'
+DRAFT_PROP = 'draft'
+DECLINED_PROP = 'declined'
+HAND_SHAKE_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_DECLINED_PROP = 'handshake_declined'
+PRE_PANEL_PROP = 'pre_panel'
+IN_PANEL_PROP = 'in_panel'
+SUBMITTED_PROP = 'submitted'
+PANEL_RESCHEDULED_PROP = 'panel_rescheduled'
+HAND_SHAKE_NEEDS_REGISTER_PROP = 'handshake_needs_registered'
+HAND_SHAKE_OFFERED_PROP = 'handshake_offered'
+HAND_SHAKE_OFFER_ACCEPTED_PROP = 'handshake_accepted'
+HAND_SHAKE_OFFER_DECLINED_PROP = 'handshake_declined'
+HAND_SHAKE_REVOKED_PROP = 'handshake_offer_revoked'
+
+bid_status_order = {
+  DECLINED_PROP: 10,
+  CLOSED_PROP: 20,
+  HAND_SHAKE_DECLINED_PROP: 30,
+  HAND_SHAKE_OFFER_DECLINED_PROP: 40,
+  HAND_SHAKE_REVOKED_PROP: 50,
+  DRAFT_PROP: 60,
+  SUBMITTED_PROP: 70,
+  HAND_SHAKE_OFFERED_PROP: 80,
+  HAND_SHAKE_OFFER_ACCEPTED_PROP: 90,
+  HAND_SHAKE_NEEDS_REGISTER_PROP: 100,
+  HAND_SHAKE_ACCEPTED_PROP: 110,
+  PRE_PANEL_PROP: 120,
+  PANEL_RESCHEDULED_PROP: 130,
+  IN_PANEL_PROP: 140,
+  APPROVED_PROP: 150,
+}
+
+def sort_bids(bidlist, ordering_query):
+    ordering = sorting_values(ordering_query)
+    bids = deepcopy(bidlist)
+    try:
+        if ordering and ordering[0]:
+            ordering = pydash.get(ordering, '[0]', '').split(' ')
+            order = pydash.get(ordering, '[0]')
+            is_asc = pydash.get(ordering, '[1]') == 'asc'
+            bids = sorted(bids, key=lambda x: pydash.get(x, order, '') or '', reverse=not is_asc)
+        elif ordering_query in ('status', '-status'):
+            bids = pydash.map_(bids, lambda x: { **x, "ordering": bid_status_order[x['status']] })
+            bids = pydash.sort_by(bids, "ordering", reverse=ordering_query[0] == '-')
+            bids = pydash.map_(bids, lambda x: pydash.omit(x, 'ordering'))
+            bids.reverse()
+    except Exception as e:
+        logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+        return bidlist
+    return bids
+    
+# known comparators:
+# eq: equals
+# in: in
+def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
+    if not column and not value and not comparator:
+        return None
+    return f"{column}|{comparator}|{value}|"
+
+
+def categorize_remark(remark = ''):
+    obj = { 'title': remark, 'type': None }
+    if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
+        obj['type'] = 'person'
+    return obj
+
+
+def parse_agenda_remarks(remarks_string = ''):
+    remarks = remarks_string
+    if pydash.starts_with(remarks, 'Remarks:'):
+        remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
+    # split by semi colon
+    values = remarks.split(';')
+    # remove Nmn (no middle name) from Creator and CDO
+    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
+    # remove nulls or empty spaces
+    values = pydash.filter_(values, lambda o: o and o != ' ')
+    values = pydash.map_(values, categorize_remark)
+    return values
+
+
+def get_aih_csv(data, filename):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    headers = []
+    headers.append(smart_str(u"Position Title"))
+    headers.append(smart_str(u"Position Number"))
+    headers.append(smart_str(u"Org"))
+    headers.append(smart_str(u"ETA"))
+    headers.append(smart_str(u"TED"))
+    headers.append(smart_str(u"TOD"))
+    headers.append(smart_str(u"Grade"))
+    headers.append(smart_str(u"Panel Date"))
+    headers.append(smart_str(u"Status"))
+    headers.append(smart_str(u"Remarks"))
+    writer.writerow(headers)
+
+    for record in data:
+        try:
+            ted = smart_str(maya.parse(pydash.get(record, "assignment.ted")).datetime().strftime('%m/%d/%Y'))
+        except:
+            ted = "None listed"
+
+        try:
+            eta = smart_str(maya.parse(pydash.get(record, "assignment.eta")).datetime().strftime('%m/%d/%Y'))
+        except:
+            eta = "None listed"
+
+        try:
+            panelDate = smart_str(maya.parse(pydash.get(record, "panel_date")).datetime().strftime('%m/%d/%Y'))
+        except:
+            panelDate = "None listed"
+        
+        try:
+            remarks = pydash.map_(pydash.get(record, "remarks", []), 'title')
+            remarks = pydash.join(remarks, '; ')
+        except:
+            remarks = 'None listed'
+
+        row = []
+        # need to update
+        row.append(smart_str(pydash.get(record, "assignment.pos_title")))
+        row.append(smart_str(pydash.get(record, "assignment.pos_num")))
+        row.append(smart_str(pydash.get(record, "assignment.org")))
+        row.append(eta)
+        row.append(ted)
+        row.append(smart_str(pydash.get(record, "assignment.tod")))
+        row.append(smart_str(pydash.get(record, "assignment.grade")))
+        row.append(panelDate)
+        row.append(smart_str(pydash.get(record, "status")))
+        row.append(smart_str(remarks))
 
         writer.writerow(row)
     return response

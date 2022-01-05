@@ -1,7 +1,12 @@
 import logging
 
+from django.conf import settings
+from rest_framework.response import Response
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.reference as services
+import talentmap_api.fsbid.services.common as common
+
+TP_ROOT = settings.TP_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +78,40 @@ class FSBidConesView(BaseView):
 
 
 class FSBidClassificationsView(BaseView):
-    uri = "bidderTrackingPrograms"
     mapping_function = services.fsbid_classifications_to_talentmap_classifications
+
+    def get(self, request):
+        results = common.get_results('', {}, None, request.META['HTTP_JWT'], self.mapping_function, TP_ROOT)
+        results = self.modClassifications(results)
+        return Response(results)
+
+    # BTP return some duplicated objects with unique bid season references
+    # This nests those unique values in an array under one object to aggregate the duplicated data
+    # As of 03/21, the only applicable edge cases are `Tenured 4` and `Differential Bidder`
+    def modClassifications(self, results):
+        duplicate_results = list(results)
+        unique_codes = set(map(lambda x: x['code'], duplicate_results))
+
+        nested_results, seasons, classification_text, glossary_term = [], [], '', ''
+        for code in unique_codes:
+            for classification in duplicate_results:
+                if classification['code'] == code:
+                    classification_text = classification['text']
+                    glossary_term = classification['glossary_term']
+                    season_txt = classification['season_text'].split(' - ')
+                    seasons.append({
+                        'id': classification['id'],
+                        'season_text': season_txt[1] if len(season_txt) > 1 else None
+                    })
+
+            nested_results.append({
+                'code': code,
+                'text': classification_text,
+                'seasons': seasons,
+                'glossary_term': glossary_term
+            })
+            seasons, classification_text = [], ''
+        return nested_results
 
 
 class FSBidPostIndicatorsView(BaseView):

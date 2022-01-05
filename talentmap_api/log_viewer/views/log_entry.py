@@ -5,7 +5,8 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 import talentmap_api.log_viewer.services as services
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.schemas import AutoSchema
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class LogEntryListView(APIView):
@@ -29,11 +30,10 @@ class LogEntryView(APIView):
     def get_extra_actions(cls):
         return []
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("size", location='query', type='integer', description='Last x number of lines to retrieve from the log file.'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('size', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Last x number of lines to retrieve from the log file.')
+        ])
 
     def get(self, request, *args, **kwargs):
         '''

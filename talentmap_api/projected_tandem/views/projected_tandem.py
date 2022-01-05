@@ -10,8 +10,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.schemas import AutoSchema
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
@@ -30,13 +31,12 @@ class ProjectedFavoriteTandemListView(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-            coreapi.Field("ordering", location='query', type='integer', description='Ordering'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter('ordering', openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering.')
+        ])
 
     def get(self, request, *args, **kwargs):
         """

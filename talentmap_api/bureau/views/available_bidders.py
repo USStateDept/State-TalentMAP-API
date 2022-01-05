@@ -2,7 +2,9 @@ import logging
 import coreapi
 from rest_condition import Or
 
-from rest_framework.schemas import AutoSchema
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -17,11 +19,10 @@ class AvailableBiddersListView(APIView):
 
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('ordering', openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Which field to use when ordering the results.')
+        ])
 
     def get(self, request):
         """

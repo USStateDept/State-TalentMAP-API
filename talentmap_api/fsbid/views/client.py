@@ -1,26 +1,27 @@
 import coreapi
 
 from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.client as services
 
 
 class FSBidClientListView(BaseView):
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("hru_id", location='query', description='HRU id of the Agent'),
-            coreapi.Field("hru_id__in", location='query', description='HRU ids of the Agent (commma separated)'),
-            coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
-            coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes'),
-            coreapi.Field("q", location='query', description='Free Text'),
-            coreapi.Field("ordering", location='query', description='Which field to use when ordering the results.'),
-            coreapi.Field("page", location='query', type='integer', description='A page number within the paginated result set.'),
-            coreapi.Field("limit", location='query', type='integer', description='Number of results to return per page.'),
-            coreapi.Field("all_count", location='query', type='integer', description='Returns default value 99999 for front-end'),
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("hru_id", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='HRU id of the Agent'),
+            openapi.Parameter("hru_id__in", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='HRU ids of the Agent (commma separated)'),
+            openapi.Parameter("rl_cd", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Role code of the Agent'),
+            openapi.Parameter("hasHandshake", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='True or False filter for clients with any offered handshakes'),
+            openapi.Parameter("q", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Free Text'),
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Which field to use when ordering the results.'),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("all_count", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Returns default value 99999 for front-end'),
+        ])
 
     def get(self, request):
         '''
@@ -49,13 +50,12 @@ class FSBidClientSuggestionsView(BaseView):
 
 class FSBidClientCSVView(BaseView):
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field("hru_id", location='query', description='HRU id of the Agent'),
-            coreapi.Field("rl_cd", location='query', description='Role code of the Agent'),
-            coreapi.Field("hasHandshake", location='query', description='True or False filter for clients with any offered handshakes')
-        ]
-    )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("hru_id", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='HRU id of the Agent'),
+            openapi.Parameter("rl_cd", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Role code of the Agent'),
+            openapi.Parameter("hasHandshake", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description='True or False filter for clients with any offered handshakes')
+        ])
 
     def get(self, request, *args, **kwargs):
         '''

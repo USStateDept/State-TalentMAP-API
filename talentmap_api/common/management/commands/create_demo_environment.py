@@ -228,6 +228,8 @@ class Command(BaseCommand):
         ]
 
     def handle(self, *args, **options):
+        call_command("create_base_permissions")
+        call_command("create_obc")
         call_command("create_seeded_users")
         today = timezone.now()
 
