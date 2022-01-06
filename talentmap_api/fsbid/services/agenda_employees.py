@@ -1,6 +1,7 @@
 import logging
 import jwt
 import pydash
+import re
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
@@ -60,7 +61,8 @@ def convert_agenda_employees_query(query):
     filterKey = ''
     comparator = 'eq'
     if filterValue:
-        if filterValue.isdigit():
+        # employee IDs can contain letters, and names can contain numbers. This does a best guess at the user's intent
+        if len(''.join(re.findall('[0-9]+', filterValue))) > 2:
             filterKey = 'pertexternalid'
         else:
             filterKey = 'perpiifullname'
