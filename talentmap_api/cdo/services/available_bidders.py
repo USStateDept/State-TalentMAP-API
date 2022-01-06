@@ -28,19 +28,19 @@ def get_available_bidders_stats(data):
     '''
     stats = {
         'Bureau': {},  # comes through, but only with the short name/acronym
+        'CDO': {},
         'Grade': {},
         'Post': {},
         'Skill': {},
         'Status': {},
-        'TED': {},
     }
     stats_sum = {
         'Bureau': 0,
+        'CDO': 0,
         'Grade': 0,
         'Post': 0,
         'Skill': 0,
         'Status': 0,
-        'TED': 0,
     }
 
     if data:
@@ -51,6 +51,11 @@ def get_available_bidders_stats(data):
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
             stats_sum['Bureau'] += 1
 
+            if bidder['cdo']['full_name'] not in stats['CDO']:
+                stats['CDO'][bidder['cdo']['full_name']] = {'name': f"CDO {bidder['cdo']['full_name']}", 'value': 0}
+            stats['CDO'][bidder['cdo']['full_name']]['value'] += 1
+            stats_sum['CDO'] += 1
+            
             if bidder['grade'] not in stats['Grade']:
                 stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
             stats['Grade'][bidder['grade']]['value'] += 1
@@ -74,13 +79,6 @@ def get_available_bidders_stats(data):
                     stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
                 stats['Status'][ab_status_key]['value'] += 1
                 stats_sum['Status'] += 1
-
-            ted_key = ensure_date(pydash.get(bidder, "current_assignment.end_date"), utc_offset=-5) or 'None listed'
-            ted_key = "None listed" if ted_key is "None listed" else smart_str(maya.parse(ted_key).datetime().strftime('%m/%d/%Y'))
-            if ted_key not in stats['TED']:
-                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0}
-            stats['TED'][ted_key]['value'] += 1
-            stats_sum['TED'] += 1
 
     # adding percentage & creating final data structure to pass to FE
     biddersStats = {}
