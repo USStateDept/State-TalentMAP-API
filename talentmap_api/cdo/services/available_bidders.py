@@ -89,6 +89,8 @@ def get_available_bidders_stats(data):
             stat_value = stats[stat][s]['value']
             biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
+    biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda bidder: bidder['name'])
+    biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda bidder: bidder['name'])
     biddersStats['Sum'] = stats_sum
 
     return {
