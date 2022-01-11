@@ -99,12 +99,8 @@ def get_available_bidders_stats(data):
             stat_value = stats[stat][s]['value']
             biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
-    if len(biddersStats['Post']) > 18:
-        multiplePost = []
-        for post in biddersStats['Post']:
-            if post['value'] > 1:
-                multiplePost.append(post)
-        biddersStats['Post'] = multiplePost
+    if len(biddersStats['Post']) > 10:
+        biddersStats['Post'] = filter(lambda post: post['value'] > 1, biddersStats['Post'])
     
     biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda bidder: bidder['name'])
     biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda bidder: bidder['name'])
