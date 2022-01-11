@@ -102,8 +102,8 @@ def get_available_bidders_stats(data):
     if len(biddersStats['Post']) > 18:
         biddersStats['Post'] = filter(lambda post: post['value'] > 1, biddersStats['Post'])
     
-    biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda bidder: bidder['name'])
-    biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda bidder: bidder['name'])
+    biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda grade: grade['name'])
+    biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda skill: skill['name'])
     biddersStats['Sum'] = stats_sum
 
     return {
