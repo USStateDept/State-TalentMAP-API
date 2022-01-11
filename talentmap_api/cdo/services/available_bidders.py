@@ -30,6 +30,7 @@ def get_available_bidders_stats(data):
         'Bureau': {},  # comes through, but only with the short name/acronym
         'CDO': {},
         'Grade': {},
+        'OC Bureau': {},
         'Post': {},
         'Skill': {},
         'Status': {},
@@ -38,6 +39,7 @@ def get_available_bidders_stats(data):
         'Bureau': 0,
         'CDO': 0,
         'Grade': 0,
+        'OC Bureau': 0,
         'Post': 0,
         'Skill': 0,
         'Status': 0,
@@ -50,6 +52,14 @@ def get_available_bidders_stats(data):
                 stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
             stats_sum['Bureau'] += 1
+            
+            # may need to be remove, will follow up with product owners
+            ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
+            if ab_oc_bureau_key:
+                if bidder['available_bidder_details']['oc_bureau'] not in stats['OC Bureau']:
+                    stats['OC Bureau'][bidder['available_bidder_details']['oc_bureau']] = {'name': f"{bidder['available_bidder_details']['oc_bureau']}", 'value': 0}
+                stats['OC Bureau'][bidder['available_bidder_details']['oc_bureau']]['value'] += 1
+                stats_sum['OC Bureau'] += 1
 
             if bidder['cdo']['full_name'] not in stats['CDO']:
                 stats['CDO'][bidder['cdo']['full_name']] = {'name': f"CDO {bidder['cdo']['full_name']}", 'value': 0}
@@ -89,6 +99,16 @@ def get_available_bidders_stats(data):
             stat_value = stats[stat][s]['value']
             biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
+    # 18+ different post would cause 3+ columns to render
+    # no specific number was given
+    # based on FE styling this makes the most sense at the moment
+    if len(biddersStats['Post']) > 18:
+        multiplePost = []
+        for post in biddersStats['Post']:
+            if post['value'] > 1:
+                multiplePost.append(post)
+        biddersStats['Post'] = multiplePost
+    
     biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda bidder: bidder['name'])
     biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda bidder: bidder['name'])
     biddersStats['Sum'] = stats_sum
