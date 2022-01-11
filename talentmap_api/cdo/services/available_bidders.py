@@ -53,7 +53,7 @@ def get_available_bidders_stats(data):
             stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
             stats_sum['Bureau'] += 1
             
-            # may need to be remove, will follow up with product owners
+            # may need to remove, will follow up with product owners
             ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
             if ab_oc_bureau_key:
                 if bidder['available_bidder_details']['oc_bureau'] not in stats['OC Bureau']:
