@@ -99,9 +99,6 @@ def get_available_bidders_stats(data):
             stat_value = stats[stat][s]['value']
             biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
-    # 18+ different post would cause 3+ columns to render
-    # no specific number was given
-    # based on FE styling this makes the most sense at the moment
     if len(biddersStats['Post']) > 18:
         multiplePost = []
         for post in biddersStats['Post']:
