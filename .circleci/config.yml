@@ -152,6 +152,56 @@ jobs:
           command: |
             . venv/bin/activate
             pylint ./talentmap_api/ --rcfile=./.pylintrc --output-format=text || pylint-exit --error-fail $?
+  postman:
+    docker:
+      - *default-python-node
+      - *default-oracle-node
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Install Docker Compose
+          environment:
+            COMPOSE_VERSION: '1.29.2'
+          command: |
+            curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Build API
+          command: |
+            chmod -R 777 ./
+            REPLICAS=1 docker-compose up --no-start
+            docker cp talentmap_api/ project_app_1:/app/talentmap_api/
+            docker cp show_logo.py project_app_1:/app/
+            docker cp wait-for-oracle.sh project_app_1:/app/
+            docker cp create-oracle-user.sh project_app_1:/app/
+            docker cp manage.py project_app_1:/app/
+            docker cp setup.cfg project_app_1:/app/
+            docker cp healthcheck-alt.sql project_app_1:/app/
+            docker cp healthcheck.sql project_app_1:/app/
+            docker cp create-oracle-user.sql project_app_1:/app/
+      - run:
+          name: Run API
+          command: |
+            REPLICAS=1 docker-compose up -d
+            docker-compose run app sh -c "./wait-for-oracle.sh oracle:1521/oraclepdb talentmap1 talentmap1 '' true"
+            docker-compose run app python manage.py migrate
+            docker-compose run app python manage.py create_demo_environment
+            docker-compose run mock_fsbid npm run migrate
+            docker-compose run mock_fsbid npm run seed
+      - run:
+          name: Docker pull newman
+          command: |
+            docker pull postman/newman
+      - run:
+          name: Run newman
+          command: |
+            sed -i'.bak' -e 's/localhost:8000/haproxy:5000/g' TalentMAP-API.postman_environment.json
+            docker create --name newman --network container:project_app_1 -v "/$(pwd):/etc/newman" -t postman/newman:ubuntu
+            docker cp TalentMAP-API.postman_collection.json newman:/etc/newman
+            docker cp TalentMAP-API.postman_environment.json newman:/etc/newman
+            docker run --network container:project_app_1 -v "/$(pwd):/etc/newman" -t postman/newman:ubuntu run "TalentMAP-API.postman_collection.json" --environment="TalentMAP-API.postman_environment.json" --reporters="json,cli" --reporter-json-export="newman-results.json"
   zap:
     docker:
       - *default-python-node
@@ -193,6 +243,9 @@ workflows:
     jobs:
       - build
       - pylint
+      - postman:
+          requires:
+            - build
       - bandit:
           requires:
             - build
