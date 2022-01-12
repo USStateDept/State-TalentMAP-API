@@ -48,28 +48,29 @@ def get_available_bidders_stats(data):
     if data:
         # get stats for various fields
         for bidder in pydash.get(data, 'results'):
-            if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
-                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
-            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
+            ab_bureau_key = pydash.get(bidder, 'current_assignment.position.bureau_code')
+            if ab_bureau_key not in stats['Bureau']:
+                stats['Bureau'][ab_bureau_key] = {'name': f"{ab_bureau_key}", 'value': 0}
+            stats['Bureau'][ab_bureau_key]['value'] += 1
             stats_sum['Bureau'] += 1
-            
-            # may need to remove, will follow up with product owners
-            ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
-            if ab_oc_bureau_key:
-                if bidder['available_bidder_details']['oc_bureau'] not in stats['OC Bureau']:
-                    stats['OC Bureau'][bidder['available_bidder_details']['oc_bureau']] = {'name': f"{bidder['available_bidder_details']['oc_bureau']}", 'value': 0}
-                stats['OC Bureau'][bidder['available_bidder_details']['oc_bureau']]['value'] += 1
-                stats_sum['OC Bureau'] += 1
 
-            if bidder['cdo']['full_name'] not in stats['CDO']:
-                stats['CDO'][bidder['cdo']['full_name']] = {'name': f"CDO {bidder['cdo']['full_name']}", 'value': 0}
-            stats['CDO'][bidder['cdo']['full_name']]['value'] += 1
+            bidder_full_name = pydash.get(bidder, 'cdo.full_name')
+            if bidder_full_name not in stats['CDO']:
+                stats['CDO'][bidder_full_name] = {'name': f"CDO {bidder_full_name}", 'value': 0}
+            stats['CDO'][bidder_full_name]['value'] += 1
             stats_sum['CDO'] += 1
             
             if bidder['grade'] not in stats['Grade']:
                 stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
             stats['Grade'][bidder['grade']]['value'] += 1
             stats_sum['Grade'] += 1
+
+            ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
+            if ab_oc_bureau_key:
+                if ab_oc_bureau_key not in stats['OC Bureau']:
+                    stats['OC Bureau'][ab_oc_bureau_key] = {'name': f"{ab_oc_bureau_key}", 'value': 0}
+                stats['OC Bureau'][ab_oc_bureau_key]['value'] += 1
+                stats_sum['OC Bureau'] += 1
 
             if bidder['pos_location'] not in stats['Post']:
                 stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
