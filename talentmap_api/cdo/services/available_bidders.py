@@ -100,6 +100,7 @@ def get_available_bidders_stats(data):
             stat_value = stats[stat][s]['value']
             biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
+    # 18 was chosen due to UI Columns
     if len(biddersStats['Post']) > 18:
         biddersStats['Post'] = filter(lambda post: post['value'] > 1, biddersStats['Post'])
     
