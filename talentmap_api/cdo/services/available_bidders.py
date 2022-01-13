@@ -66,11 +66,10 @@ def get_available_bidders_stats(data):
             stats_sum['Grade'] += 1
 
             ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
-            if ab_oc_bureau_key:
-                if ab_oc_bureau_key not in stats['OC Bureau']:
-                    stats['OC Bureau'][ab_oc_bureau_key] = {'name': f"{ab_oc_bureau_key}", 'value': 0}
-                stats['OC Bureau'][ab_oc_bureau_key]['value'] += 1
-                stats_sum['OC Bureau'] += 1
+            if ab_oc_bureau_key not in stats['OC Bureau']:
+                stats['OC Bureau'][ab_oc_bureau_key] = {'name': f"{ab_oc_bureau_key}", 'value': 0}
+            stats['OC Bureau'][ab_oc_bureau_key]['value'] += 1
+            stats_sum['OC Bureau'] += 1
 
             if bidder['pos_location'] not in stats['Post']:
                 stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
@@ -85,11 +84,10 @@ def get_available_bidders_stats(data):
             stats_sum['Skill'] += 1
 
             ab_status_key = pydash.get(bidder, 'available_bidder_details.status')
-            if ab_status_key:
-                if ab_status_key not in stats['Status']:
-                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
-                stats['Status'][ab_status_key]['value'] += 1
-                stats_sum['Status'] += 1
+            if ab_status_key not in stats['Status']:
+                stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
+            stats['Status'][ab_status_key]['value'] += 1
+            stats_sum['Status'] += 1
 
     # adding percentage & creating final data structure to pass to FE
     biddersStats = {}
