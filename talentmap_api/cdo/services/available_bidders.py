@@ -54,15 +54,16 @@ def get_available_bidders_stats(data):
             stats['Bureau'][ab_bureau_key]['value'] += 1
             stats_sum['Bureau'] += 1
 
-            bidder_full_name = pydash.get(bidder, 'cdo.full_name')
-            if bidder_full_name not in stats['CDO']:
-                stats['CDO'][bidder_full_name] = {'name': f"CDO {bidder_full_name}", 'value': 0}
-            stats['CDO'][bidder_full_name]['value'] += 1
+            cdo_full_name_key = pydash.get(bidder, 'cdo.full_name')
+            if cdo_full_name_key not in stats['CDO']:
+                stats['CDO'][cdo_full_name_key] = {'name': f"CDO {cdo_full_name_key}", 'value': 0}
+            stats['CDO'][cdo_full_name_key]['value'] += 1
             stats_sum['CDO'] += 1
             
-            if bidder['grade'] not in stats['Grade']:
-                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
-            stats['Grade'][bidder['grade']]['value'] += 1
+            grade_key = pydash.get(bidder, 'grade')
+            if grade_key not in stats['Grade']:
+                stats['Grade'][grade_key] = {'name': f"Grade {grade_key}", 'value': 0}
+            stats['Grade'][grade_key]['value'] += 1
             stats_sum['Grade'] += 1
 
             ab_oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
@@ -71,9 +72,10 @@ def get_available_bidders_stats(data):
             stats['OC Bureau'][ab_oc_bureau_key]['value'] += 1
             stats_sum['OC Bureau'] += 1
 
-            if bidder['pos_location'] not in stats['Post']:
-                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
-            stats['Post'][bidder['pos_location']]['value'] += 1
+            post_key = pydash.get(bidder, 'pos_location')
+            if post_key not in stats['Post']:
+                stats['Post'][post_key] = {'name': f"{post_key}", 'value': 0}
+            stats['Post'][post_key]['value'] += 1
             stats_sum['Post'] += 1
 
             skill = list(deepcopy(filter(None, bidder['skills'])))
