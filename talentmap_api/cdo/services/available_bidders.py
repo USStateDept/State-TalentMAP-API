@@ -106,24 +106,29 @@ def get_available_bidders_stats(data):
             stats_sum['Status'] += 1
 
     # adding percentage & creating final data structure to pass to FE
-    biddersStats = {}
+    bidders_stats = {}
     for stat in stats:
         stat_sum = stats_sum[stat]
-        biddersStats[stat] = []
+        bidders_stats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
-            biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
+            bidders_stats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
+    # partition is used to handle the edge case when
+    # len(bidders_stats['Post']) is 18+ and all the posts only have a value of 1
     # 18 was chosen due to UI Columns
-    if len(biddersStats['Post']) > 18:
-        biddersStats['Post'] = filter(lambda post: post['value'] > 1, biddersStats['Post'])
+    if len(bidders_stats['Post']) > 18:
+        posts_partition = pydash.partition(bidders_stats['Post'], lambda post: post['value'] > 1)
+        take_from_pp = 18 - len(posts_partition[0])
+        posts_partition[0].extend(posts_partition[1][:take_from_pp])
+        bidders_stats['Post'] = posts_partition[0]
     
-    biddersStats['Grade'] = sorted(biddersStats['Grade'], key = lambda grade: grade['name'])
-    biddersStats['Skill'] = sorted(biddersStats['Skill'], key = lambda skill: skill['name'])
-    biddersStats['Sum'] = stats_sum
+    bidders_stats['Grade'] = sorted(bidders_stats['Grade'], key = lambda grade: grade['name'])
+    bidders_stats['Skill'] = sorted(bidders_stats['Skill'], key = lambda skill: skill['name'])
+    bidders_stats['Sum'] = stats_sum
 
     return {
-        "stats": biddersStats,
+        "stats": bidders_stats,
     }
 
 
