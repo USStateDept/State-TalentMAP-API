@@ -115,7 +115,7 @@ def get_available_bidders_stats(data):
             bidders_stats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
     # partition is used to handle the edge case when
-    # len(bidders_stats['Post']) is 18+ and all the posts only have a value of 1
+    # len(bidders_stats['Post']) > 18 and all the posts only have a value of 1
     # 18 was chosen due to UI Columns
     if len(bidders_stats['Post']) > 18:
         posts_partition = pydash.partition(bidders_stats['Post'], lambda post: post['value'] > 1)
