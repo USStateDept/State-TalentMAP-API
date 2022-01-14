@@ -58,7 +58,7 @@ def get_available_bidders_stats(data):
 
             cdo_full_name_key = pydash.get(bidder, 'cdo.full_name')
             if cdo_full_name_key not in stats['CDO']:
-                no_cdo = {'name': f"No CDO", 'value': 0}
+                no_cdo = {'name': f"None listed", 'value': 0}
                 cdo = {'name': f"{cdo_full_name_key}", 'value': 0}
                 stats['CDO'][cdo_full_name_key] = no_cdo if isinstance(cdo_full_name_key, type(None)) else cdo
             stats['CDO'][cdo_full_name_key]['value'] += 1
