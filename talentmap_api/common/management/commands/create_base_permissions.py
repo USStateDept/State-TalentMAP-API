@@ -22,6 +22,7 @@ class Command(BaseCommand):
             "bureau_user",
             "ao_user",
             "post_user",
+            "helppage_editor",
         ]
 
     def handle(self, *args, **options):
