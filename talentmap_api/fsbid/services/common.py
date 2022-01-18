@@ -163,6 +163,11 @@ sort_dict = {
     "bidder_ted": "TED",
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
+    # Agenda Employees Search
+    "agenda_employee_fullname": "perpiifullname",
+    "agenda_employee_firstname": "perpiifirstname",
+    "agenda_employee_lastname": "perpiilastname",
+    "agenda_employee_id": "pertexternalid",
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
