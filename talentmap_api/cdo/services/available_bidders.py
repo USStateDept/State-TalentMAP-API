@@ -52,46 +52,44 @@ def get_available_bidders_stats(data):
         for bidder in pydash.get(data, 'results'):
             bureau_key = pydash.get(bidder, 'current_assignment.position.bureau_code')
             if bureau_key not in stats['Bureau']:
-                stats['Bureau'][bureau_key] = none_listed if bureau_key == None else {'name': f"{bureau_key}", 'value': 0}
+                stats['Bureau'][bureau_key] = deepcopy(none_listed) if bureau_key == None else {'name': f"{bureau_key}", 'value': 0}
             stats['Bureau'][bureau_key]['value'] += 1
             stats_sum['Bureau'] += 1
 
             cdo_full_name_key = pydash.get(bidder, 'cdo.full_name')
             if cdo_full_name_key not in stats['CDO']:
-                stats['CDO'][cdo_full_name_key] = none_listed if cdo_full_name_key == None else {'name': f"{cdo_full_name_key}", 'value': 0}
+                stats['CDO'][cdo_full_name_key] = deepcopy(none_listed) if cdo_full_name_key == None else {'name': f"{cdo_full_name_key}", 'value': 0}
             stats['CDO'][cdo_full_name_key]['value'] += 1
             stats_sum['CDO'] += 1
             
             grade_key = pydash.get(bidder, 'grade')
             if grade_key not in stats['Grade']:
-                no_grade = none_listed
-                grade = {'name': f"Grade {grade_key}", 'value': 0}
-                stats['Grade'][grade_key] = none_listed if grade_key == None else {'name': f"Grade {grade_key}", 'value': 0}
+                stats['Grade'][grade_key] = deepcopy(none_listed) if grade_key == None else {'name': f"Grade {grade_key}", 'value': 0}
             stats['Grade'][grade_key]['value'] += 1
             stats_sum['Grade'] += 1
 
             oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
             if oc_bureau_key not in stats['OC Bureau']:
-                stats['OC Bureau'][oc_bureau_key] = none_listed if oc_bureau_key == None else {'name': f"{oc_bureau_key}", 'value': 0}
+                stats['OC Bureau'][oc_bureau_key] = deepcopy(none_listed) if oc_bureau_key == None else {'name': f"{oc_bureau_key}", 'value': 0}
             stats['OC Bureau'][oc_bureau_key]['value'] += 1
             stats_sum['OC Bureau'] += 1
 
             post_key = pydash.get(bidder, 'pos_location')
             if post_key not in stats['Post']:
-                stats['Post'][post_key] = none_listed if post_key == None else {'name': f"{post_key}", 'value': 0}
+                stats['Post'][post_key] = deepcopy(none_listed) if post_key == None else {'name': f"{post_key}", 'value': 0}
             stats['Post'][post_key]['value'] += 1
             stats_sum['Post'] += 1
 
             skill = list(deepcopy(filter(None, bidder['skills'])))
             skill_key = skill[0]['code']
             if skill_key not in stats['Skill']:
-                stats['Skill'][skill_key] = none_listed if skill_key == None else {'name': f"{skill[0]['description']}", 'value': 0}
+                stats['Skill'][skill_key] = deepcopy(none_listed) if skill_key == None else {'name': f"{skill[0]['description']}", 'value': 0}
             stats['Skill'][skill_key]['value'] += 1
             stats_sum['Skill'] += 1
 
             status_key = pydash.get(bidder, 'available_bidder_details.status')
             if status_key not in stats['Status']:
-                stats['Status'][status_key] = none_listed if status_key == None else {'name': f"{status_key}", 'value': 0}
+                stats['Status'][status_key] = deepcopy(none_listed) if status_key == None else {'name': f"{status_key}", 'value': 0}
             stats['Status'][status_key]['value'] += 1
             stats_sum['Status'] += 1
 
