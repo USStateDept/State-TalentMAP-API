@@ -27,7 +27,7 @@ def get_available_bidders_stats(data):
     Returns all Available Bidders statistics
     '''
     stats = {
-        'Bureau': {},  # comes through, but only with the short name/acronym
+        'Bureau': {},
         'CDO': {},
         'Grade': {},
         'OC Bureau': {},
@@ -45,14 +45,14 @@ def get_available_bidders_stats(data):
         'Status': 0,
     }
 
-    none_listed = 'None listed'
+    none_listed = {'name': 'None listed', 'value': 0}
 
     if data:
         # get stats for various fields
         for bidder in pydash.get(data, 'results'):
             bureau_key = pydash.get(bidder, 'current_assignment.position.bureau_code')
             if bureau_key not in stats['Bureau']:
-                no_bureau = {'name': none_listed, 'value': 0}
+                no_bureau = none_listed
                 bureau = {'name': f"{bureau_key}", 'value': 0}
                 stats['Bureau'][bureau_key] = no_bureau if isinstance(bureau_key, type(None)) else bureau
             stats['Bureau'][bureau_key]['value'] += 1
@@ -60,7 +60,7 @@ def get_available_bidders_stats(data):
 
             cdo_full_name_key = pydash.get(bidder, 'cdo.full_name')
             if cdo_full_name_key not in stats['CDO']:
-                no_cdo = {'name': none_listed, 'value': 0}
+                no_cdo = none_listed
                 cdo = {'name': f"{cdo_full_name_key}", 'value': 0}
                 stats['CDO'][cdo_full_name_key] = no_cdo if isinstance(cdo_full_name_key, type(None)) else cdo
             stats['CDO'][cdo_full_name_key]['value'] += 1
@@ -68,7 +68,7 @@ def get_available_bidders_stats(data):
             
             grade_key = pydash.get(bidder, 'grade')
             if grade_key not in stats['Grade']:
-                no_grade = {'name': none_listed, 'value': 0}
+                no_grade = none_listed
                 grade = {'name': f"Grade {grade_key}", 'value': 0}
                 stats['Grade'][grade_key] = no_grade if isinstance(grade_key, type(None)) else grade
             stats['Grade'][grade_key]['value'] += 1
@@ -76,7 +76,7 @@ def get_available_bidders_stats(data):
 
             oc_bureau_key = pydash.get(bidder, 'available_bidder_details.oc_bureau')
             if oc_bureau_key not in stats['OC Bureau']:
-                no_oc_bureau = {'name': none_listed, 'value': 0}
+                no_oc_bureau = none_listed
                 oc_bureau = {'name': f"{oc_bureau_key}", 'value': 0}
                 stats['OC Bureau'][oc_bureau_key] = no_oc_bureau if isinstance(oc_bureau_key, type(None)) else oc_bureau
             stats['OC Bureau'][oc_bureau_key]['value'] += 1
@@ -84,7 +84,7 @@ def get_available_bidders_stats(data):
 
             post_key = pydash.get(bidder, 'pos_location')
             if post_key not in stats['Post']:
-                no_post = {'name': none_listed, 'value': 0}
+                no_post = none_listed
                 post = {'name': f"{post_key}", 'value': 0}
                 stats['Post'][post_key] = no_post if isinstance(post_key, type(None)) else post
             stats['Post'][post_key]['value'] += 1
@@ -93,7 +93,7 @@ def get_available_bidders_stats(data):
             skill = list(deepcopy(filter(None, bidder['skills'])))
             skill_key = skill[0]['code']
             if skill_key not in stats['Skill']:
-                no_skill = {'name': none_listed, 'value': 0}
+                no_skill = none_listed
                 skill = {'name': f"{skill[0]['description']}", 'value': 0}
                 stats['Skill'][skill_key] = no_skill if isinstance(skill_key, type(None)) else skill
             stats['Skill'][skill_key]['value'] += 1
@@ -101,7 +101,7 @@ def get_available_bidders_stats(data):
 
             status_key = pydash.get(bidder, 'available_bidder_details.status')
             if status_key not in stats['Status']:
-                no_status = {'name': none_listed, 'value': 0}
+                no_status = none_listed
                 status = {'name': f"{status_key}", 'value': 0}
                 stats['Status'][status_key] = no_status if isinstance(status_key, type(None)) else status
             stats['Status'][status_key]['value'] += 1
