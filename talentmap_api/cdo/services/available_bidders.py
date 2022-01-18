@@ -54,7 +54,7 @@ def get_available_bidders_stats(data):
             if bureau_key not in stats['Bureau']:
                 no_bureau = none_listed
                 bureau = {'name': f"{bureau_key}", 'value': 0}
-                stats['Bureau'][bureau_key] = no_bureau if isinstance(bureau_key, type(None)) else bureau
+                stats['Bureau'][bureau_key] = no_bureau if bureau_key == None else bureau
             stats['Bureau'][bureau_key]['value'] += 1
             stats_sum['Bureau'] += 1
 
@@ -62,7 +62,7 @@ def get_available_bidders_stats(data):
             if cdo_full_name_key not in stats['CDO']:
                 no_cdo = none_listed
                 cdo = {'name': f"{cdo_full_name_key}", 'value': 0}
-                stats['CDO'][cdo_full_name_key] = no_cdo if isinstance(cdo_full_name_key, type(None)) else cdo
+                stats['CDO'][cdo_full_name_key] = no_cdo if cdo_full_name_key == None else cdo
             stats['CDO'][cdo_full_name_key]['value'] += 1
             stats_sum['CDO'] += 1
             
@@ -70,7 +70,7 @@ def get_available_bidders_stats(data):
             if grade_key not in stats['Grade']:
                 no_grade = none_listed
                 grade = {'name': f"Grade {grade_key}", 'value': 0}
-                stats['Grade'][grade_key] = no_grade if isinstance(grade_key, type(None)) else grade
+                stats['Grade'][grade_key] = no_grade if grade_key == None else grade
             stats['Grade'][grade_key]['value'] += 1
             stats_sum['Grade'] += 1
 
@@ -78,7 +78,7 @@ def get_available_bidders_stats(data):
             if oc_bureau_key not in stats['OC Bureau']:
                 no_oc_bureau = none_listed
                 oc_bureau = {'name': f"{oc_bureau_key}", 'value': 0}
-                stats['OC Bureau'][oc_bureau_key] = no_oc_bureau if isinstance(oc_bureau_key, type(None)) else oc_bureau
+                stats['OC Bureau'][oc_bureau_key] = no_oc_bureau if oc_bureau_key == None else oc_bureau
             stats['OC Bureau'][oc_bureau_key]['value'] += 1
             stats_sum['OC Bureau'] += 1
 
@@ -86,7 +86,7 @@ def get_available_bidders_stats(data):
             if post_key not in stats['Post']:
                 no_post = none_listed
                 post = {'name': f"{post_key}", 'value': 0}
-                stats['Post'][post_key] = no_post if isinstance(post_key, type(None)) else post
+                stats['Post'][post_key] = no_post if post_key == None else post
             stats['Post'][post_key]['value'] += 1
             stats_sum['Post'] += 1
 
@@ -95,7 +95,7 @@ def get_available_bidders_stats(data):
             if skill_key not in stats['Skill']:
                 no_skill = none_listed
                 skill = {'name': f"{skill[0]['description']}", 'value': 0}
-                stats['Skill'][skill_key] = no_skill if isinstance(skill_key, type(None)) else skill
+                stats['Skill'][skill_key] = no_skill if skill_key == None else skill
             stats['Skill'][skill_key]['value'] += 1
             stats_sum['Skill'] += 1
 
@@ -103,7 +103,7 @@ def get_available_bidders_stats(data):
             if status_key not in stats['Status']:
                 no_status = none_listed
                 status = {'name': f"{status_key}", 'value': 0}
-                stats['Status'][status_key] = no_status if isinstance(status_key, type(None)) else status
+                stats['Status'][status_key] = no_status if status_key == None else status
             stats['Status'][status_key]['value'] += 1
             stats_sum['Status'] += 1
 
