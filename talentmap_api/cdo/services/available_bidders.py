@@ -64,7 +64,7 @@ def get_available_bidders_stats(data):
             
             grade_key = pydash.get(bidder, 'grade')
             if grade_key not in stats['Grade']:
-                stats['Grade'][grade_key] = deepcopy(none_listed) if grade_key == None else {'name': f"Grade {grade_key}", 'value': 0}
+                stats['Grade'][grade_key] = deepcopy(none_listed) if grade_key == None else {'name': f"{grade_key}", 'value': 0}
             stats['Grade'][grade_key]['value'] += 1
             stats_sum['Grade'] += 1
 
