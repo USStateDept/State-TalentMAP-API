@@ -791,12 +791,12 @@ def get_aih_csv(data, filename):
         row = []
         # need to update
         row.append(smart_str(pydash.get(record, "assignment.pos_title")))
-        row.append(smart_str(pydash.get(record, "assignment.pos_num")))
+        row.append(smart_str("=\"%s\"" % pydash.get(record, "assignment.pos_num")))
         row.append(smart_str(pydash.get(record, "assignment.org")))
         row.append(eta)
         row.append(ted)
         row.append(smart_str(pydash.get(record, "assignment.tod")))
-        row.append(smart_str(pydash.get(record, "assignment.grade")))
+        row.append(smart_str("=\"%s\"" % pydash.get(record, "assignment.grade")))
         row.append(panelDate)
         row.append(smart_str(pydash.get(record, "status")))
         row.append(smart_str(remarks))
