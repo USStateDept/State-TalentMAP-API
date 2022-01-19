@@ -60,12 +60,12 @@ def get_available_bidders_stats(data):
     if data:
         # get stats for various fields
         for bidder in pydash.get(data, 'results'):
-            def map_object(x):
-                    key = pydash.get(bidder, x['key'])
-                    if key not in stats[x['statsKey']]:
-                        stats[x['statsKey']][key] = deepcopy(none_listed) if key == None else {'name': f"{key}", 'value': 0}
-                    stats[x['statsKey']][key]['value'] += 1
-                    stats_sum[x['statsKey']] += 1
+            def map_object(stat):
+                    key = pydash.get(bidder, stat['key'])
+                    if key not in stats[stat['statsKey']]:
+                        stats[stat['statsKey']][key] = deepcopy(none_listed) if key == None else {'name': f"{key}", 'value': 0}
+                    stats[stat['statsKey']][key]['value'] += 1
+                    stats_sum[stat['statsKey']] += 1
 
             pydash.for_each(config, map_object)
 
