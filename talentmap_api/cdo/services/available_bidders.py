@@ -62,19 +62,19 @@ def get_available_bidders_stats(data):
         # get stats for various fields
         for bidder in pydash.get(data, 'results'):
             def map_object(stat):
-                    if stat['key'] == 'skills':
-                        skill = list(deepcopy(filter(None, bidder[stat['key']])))
-                        skill_key = skill[0]['code']
-                        if skill_key not in stats['Skill']:
-                            stats['Skill'][skill_key] = deepcopy(none_listed) if skill_key == None else {'name': f"{skill[0]['description']}", 'value': 0}
-                        stats['Skill'][skill_key]['value'] += 1
-                        stats_sum[stat['statsKey']] += 1
-                    else:
-                        key = pydash.get(bidder, stat['key'])
-                        if key not in stats[stat['statsKey']]:
-                            stats[stat['statsKey']][key] = deepcopy(none_listed) if key == None else {'name': f"{key}", 'value': 0}
-                        stats[stat['statsKey']][key]['value'] += 1
-                        stats_sum[stat['statsKey']] += 1
+                key = pydash.get(bidder, stat['key'])
+                stats_key = stats[stat['statsKey']]
+                if stat['key'] == 'skills':
+                    skill = list(deepcopy(filter(None, bidder[stat['key']])))
+                    key = skill[0]['code']
+                    if key not in stats['Skill']:
+                        stats_key[key] = deepcopy(none_listed) if key == None else {'name': f"{skill[0]['description']}", 'value': 0}
+                else:
+                    if key not in stats[stat['statsKey']]:
+                        stats_key[key] = deepcopy(none_listed) if key == None else {'name': f"{key}", 'value': 0}
+
+                stats_key[key]['value'] += 1
+                stats_sum[stat['statsKey']] += 1
 
             pydash.for_each(config, map_object)
 
