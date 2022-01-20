@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgendaItemView(BaseView):
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao'),)]
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao_user'),)]
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -34,7 +34,7 @@ class AgendaItemView(BaseView):
 
 
 class AgendaItemCSVView(BaseView):
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao'),)]
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao_user'),)]
 
     def get(self, request):
         """
