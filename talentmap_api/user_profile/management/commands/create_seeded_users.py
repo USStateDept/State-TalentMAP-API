@@ -19,7 +19,7 @@ class Command(BaseCommand):
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, ["bidder"]),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, ["bidder"]),
-        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder"]),
+        ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder", "helppage_editor"]),
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["bidder", "cdo"]),
         ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder"]),
         ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, True, ["bidder"]),
