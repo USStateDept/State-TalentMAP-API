@@ -3,6 +3,7 @@ import logging
 from django.http import QueryDict
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from rest_framework import serializers
 
 from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
@@ -16,6 +17,8 @@ from talentmap_api.fsbid.services.client import get_user_information, fsbid_clie
 from talentmap_api.fsbid.services.common import get_fsbid_results
 
 logger = logging.getLogger(__name__)
+
+CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
 
 class UserSerializer(PrefetchedSerializer):
@@ -141,8 +144,8 @@ class UserProfileSerializer(PrefetchedSerializer):
             if not perdet:
                 return {}
 
-            uriCurrentAssignment = f"CDOClients?request_params.perdet_seq_num={perdet}&request_params.currentAssignmentOnly=true"
-            responseCurrentAssignment = get_fsbid_results(uriCurrentAssignment, jwt, fsbid_clients_to_talentmap_clients)
+            uriCurrentAssignment = f"?request_params.perdet_seq_num={perdet}&request_params.currentAssignmentOnly=true"
+            responseCurrentAssignment = get_fsbid_results(uriCurrentAssignment, jwt, fsbid_clients_to_talentmap_clients, None, False, CLIENTS_ROOT_V2)
             return list(responseCurrentAssignment)[0].get('current_assignment', {})
         except BaseException:
             return {}

@@ -19,7 +19,7 @@ import talentmap_api.fsbid.services.common as services
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.available_positions as ap_services
 
-API_ROOT = settings.FSBID_API_URL
+API_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     '''
     Get bids for a user on a position or all if no position
     '''
-    url = f"{API_ROOT}/bids/?perdet_seq_num={employee_id}"
+    url = f"{API_ROOT}/v1/bids/?perdet_seq_num={employee_id}"
     ordering_query = query.get("ordering", None)
     bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     filteredBids = {}
@@ -53,7 +53,7 @@ def bid_on_position(employeeId, cyclePositionId, jwt_token):
     Adds a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
+    url = f"{API_ROOT}/v1/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.post(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
@@ -64,7 +64,7 @@ def submit_bid_on_position(employeeId, cyclePositionId, jwt_token):
     Submits a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
+    url = f"{API_ROOT}/v1/bids/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.put(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
@@ -75,7 +75,7 @@ def register_bid_on_position(employeeId, cyclePositionId, jwt_token):
     Registers a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}&hs_cd=HS"
+    url = f"{API_ROOT}/v1/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}&hs_cd=HS"
     response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
@@ -86,7 +86,7 @@ def unregister_bid_on_position(employeeId, cyclePositionId, jwt_token):
     Unregisters a bid on a position
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
+    url = f"{API_ROOT}/v1/bids/handshake/?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     response = requests.patch(url, data={}, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
     response.raise_for_status()
     return response
@@ -97,7 +97,7 @@ def remove_bid(employeeId, cyclePositionId, jwt_token):
     Removes a bid from the users bid list
     '''
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    url = f"{API_ROOT}/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
+    url = f"{API_ROOT}/v1/bids?cp_id={cyclePositionId}&perdet_seq_num={employeeId}&ad_id={ad_id}"
     return requests.delete(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'})
 
 

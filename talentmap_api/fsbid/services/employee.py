@@ -10,8 +10,8 @@ from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.requests import requests
 
 API_ROOT = settings.EMPLOYEES_API_URL
-FSBID_ROOT = settings.FSBID_API_URL
 ORG_ROOT = settings.ORG_API_URL
+WS_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,8 @@ def get_employee_information(jwt_token, emp_id):
     '''
     Gets the grade and skills for the employee from FSBid
     '''
-    url = f"{FSBID_ROOT}/Persons?request_params.perdet_seq_num={emp_id}"
-    skillUrl = f"{FSBID_ROOT}/skillCodes"
+    url = f"{WS_ROOT}/v1/Persons?request_params.perdet_seq_num={emp_id}"
+    skillUrl = f"{WS_ROOT}/v1/references/skills"
     employee = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     employee = next(iter(employee.get('Data', [])), {})
     employeeSkills = map_skill_codes(employee)
@@ -128,7 +128,7 @@ def get_bureau_permissions(jwt_token, host=None):
     '''
     Gets a list of bureau codes assigned to the bureau_user
     '''
-    url = f"{FSBID_ROOT}/bureauPermissions"
+    url = f"{WS_ROOT}/v1/fsbid/bureauPermissions"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return map(map_bureau_permissions, response.get("Data", {}))
 

@@ -530,25 +530,21 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
-FSBID_API_URL = get_delineated_environment_variable('FSBID_API_URL', 'http://mock_fsbid:3333')
+WS_ROOT_API_URL = get_delineated_environment_variable('WS_ROOT_API_URL', 'http://mock_fsbid:3333')
 SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/v2/SECREF')
-EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/Employees')
-CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/cyclePositions')
+EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/v1/Employees')
+CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/v1/cyclePositions')
 CP_API_V2_URL = get_delineated_environment_variable('CP_API_V2_URL', 'http://mock_fsbid:3333/v2/cyclePositions')
-ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/Organizations')
-CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http://mock_fsbid:3333/Clients')
+ORG_API_URL = get_delineated_environment_variable('ORG_API_URL', 'http://mock_fsbid:3333/v1/Organizations')
+CLIENTS_API_URL = get_delineated_environment_variable('CLIENTS_API_URL', 'http://mock_fsbid:3333/v1/Clients')
 CLIENTS_API_V2_URL = get_delineated_environment_variable('CLIENTS_API_V2_URL', 'http://mock_fsbid:3333/v2/clients')
 PV_API_V2_URL = get_delineated_environment_variable('PV_API_V2_URL', 'http://mock_fsbid:3333/v2/futureVacancies')
 HRDATA_URL = get_delineated_environment_variable('HRDATA_URL', 'http://mock_fsbid:3333/HR')
 HRDATA_URL_EXTERNAL = get_delineated_environment_variable('HRDATA_URL_EXTERNAL', 'http://mock_fsbid:3333/HR')
 AVATAR_URL = get_delineated_environment_variable('AVATAR_URL', 'https://usdos.sharepoint.com/_layouts/15/userphoto.aspx')
-TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/TrackingPrograms')
-AGENDA_ITEM_API_URL = get_delineated_environment_variable('AGENDA_ITEM_API_URL', 'http://mock_fsbid:3333/AgendaItems')
+TP_API_URL = get_delineated_environment_variable('TP_API_URL', 'http://mock_fsbid:3333/v1/TrackingPrograms')
+AGENDA_ITEM_API_URL = get_delineated_environment_variable('AGENDA_ITEM_API_URL', 'http://mock_fsbid:3333/v1/AgendaItems')
 PERSON_API_URL = get_delineated_environment_variable('PERSON_API_URL', 'http://mock_fsbid:3333/v3/persons')
-
-# Whether to use the /v2 endpoints
-USE_CP_API_V2 = bool_env_variable("USE_CP_API_V2")
-USE_PV_API_V2 = bool_env_variable("USE_PV_API_V2")
 
 SAML_CONFIG_LOADER = 'talentmap_api.settings.config_settings_loader'
 

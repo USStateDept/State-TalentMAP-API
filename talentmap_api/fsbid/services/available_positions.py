@@ -13,9 +13,7 @@ from talentmap_api.available_positions.models import AvailablePositionDesignatio
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
-USE_CP_API_V2 = settings.USE_CP_API_V2
 CP_API_V2_URL = settings.CP_API_V2_URL
 
 
@@ -25,18 +23,14 @@ def get_available_position(id, jwt_token):
     '''
 
     args = {
-        "uri": "availablePositions",
+        "uri": "available",
         "id": id,
         "query_mapping_function": convert_all_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
-        "use_post": USE_CP_API_V2,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-
-    if USE_CP_API_V2:
-        args['uri'] = 'available'
-        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
-        args['api_root'] = CP_API_V2_URL
 
     return services.get_individual(
         **args
@@ -64,29 +58,25 @@ def get_all_position(id, jwt_token):
     args = {
         "uri": "",
         "id": id,
-        "query_mapping_function": partial(convert_all_query, use_post=True),
+        "query_mapping_function": convert_all_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
-        "use_post": USE_CP_API_V2,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-
-    if USE_CP_API_V2:
-        args['uri'] = ''
-        args['query_mapping_function'] = partial(convert_all_query, use_post=True)
-        args['api_root'] = CP_API_V2_URL
 
     return services.get_individual(
         **args
     )
 
 
-def get_available_positions(query, jwt_token, host=None, use_post=False):
+def get_available_positions(query, jwt_token, host=None):
     '''
     Gets available positions
     '''
 
     args = {
-        "uri": "availablePositions",
+        "uri": "available",
         "query": query,
         "query_mapping_function": convert_ap_query,
         "jwt_token": jwt_token,
@@ -94,14 +84,9 @@ def get_available_positions(query, jwt_token, host=None, use_post=False):
         "count_function": get_available_positions_count,
         "base_url": "/api/v1/fsbid/available_positions/",
         "host": host,
-        "use_post": USE_CP_API_V2,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-
-    if USE_CP_API_V2:
-        args['uri'] = 'available'
-        args['query_mapping_function'] = partial(convert_ap_query, use_post=True)
-        args['count_function'] = partial(get_available_positions_count, use_post=True)
-        args['api_root'] = CP_API_V2_URL
 
     return services.send_get_request(
         **args
@@ -113,75 +98,67 @@ def get_available_positions_tandem(query, jwt_token, host=None):
     Gets available positions
     '''
     args = {
-        "uri": "positions/available/tandem",
+        "uri": "availableTandem",
         "query": query,
         "query_mapping_function": partial(convert_ap_query, isTandem=True),
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
-        "count_function": get_available_positions_tandem_count,
+        "count_function": partial(get_available_positions_tandem_count),
         "base_url": "/api/v1/fsbid/available_positions/tandem/",
         "host": host,
-        "use_post": USE_CP_API_V2,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-
-    if USE_CP_API_V2:
-        args['uri'] = 'availableTandem'
-        args['query_mapping_function'] = partial(convert_ap_query, isTandem=True, use_post=True)
-        args['count_function'] = partial(get_available_positions_tandem_count, use_post=True)
-        args['api_root'] = CP_API_V2_URL
 
     return services.send_get_request(
         **args
     )
 
 
-def get_available_positions_count(query, jwt_token, host=None, use_post=False):
+def get_available_positions_count(query, jwt_token, host=None):
     '''
     Gets the total number of available positions for a filterset
     '''
     args = {
-        "uri": "availablePositionsCount",
+        "uri": "availableCount",
         "query": query,
-        "query_mapping_function": partial(convert_ap_query, use_post=use_post),
+        "query_mapping_function": convert_ap_query,
         "jwt_token": jwt_token,
         "host": host,
-        "use_post": use_post,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-    if use_post:
-        args['uri'] = "availableCount"
-        args['api_root'] = CP_API_V2_URL
     return services.send_count_request(**args)
 
 
-def get_available_positions_tandem_count(query, jwt_token, host=None, use_post=False):
+def get_available_positions_tandem_count(query, jwt_token, host=None):
     '''
     Gets the total number of available tandem positions for a filterset
     '''
     args = {
-        "uri": "positions/available/tandem",
+        "uri": "availableTandem",
         "query": query,
-        "query_mapping_function": partial(convert_ap_query, isTandem=True, use_post=use_post),
+        "query_mapping_function": partial(convert_ap_query, isTandem=True),
         "jwt_token": jwt_token,
         "host": host,
-        "use_post": use_post,
+        "use_post": True,
+        "api_root": CP_API_V2_URL,
     }
-    if use_post:
-        args['uri'] = "availableTandem"
-        args['api_root'] = CP_API_V2_URL
     return services.send_count_request(**args)
 
 
 def get_available_positions_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
-        "availablePositions",
+        "available",
         query,
         convert_ap_query,
         jwt_token,
         fsbid_ap_to_talentmap_ap,
-        API_ROOT,
+        CP_API_V2_URL,
         host,
         None,
-        limit
+        limit,
+        True,
     )
 
     count = get_available_positions_count(query, jwt_token)
@@ -195,15 +172,16 @@ def get_available_positions_csv(query, jwt_token, host=None, limit=None, include
 
 def get_available_positions_tandem_csv(query, jwt_token, host=None, limit=None, includeLimit=False):
     data = services.send_get_csv_request(
-        "positions/available/tandem",
+        "availableTandem",
         query,
         partial(convert_ap_query, isTandem=True),
         jwt_token,
         fsbid_ap_to_talentmap_ap,
-        API_ROOT,
+        CP_API_V2_URL,
         host,
         None,
-        limit
+        limit,
+        True,
     )
 
     count = get_available_positions_tandem_count(query, jwt_token)
@@ -381,18 +359,16 @@ def fsbid_ap_to_talentmap_ap(ap):
     }
 
 
-def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, use_post=False):
+def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
     '''
     Converts TalentMap filters into FSBid filters
     '''
 
     prefix = ""
-    if not use_post:
-        prefix = "request_params."
 
     values = {
         # Pagination
-        f"{prefix}order_by": services.sorting_values(query.get("ordering", None), use_post),
+        f"{prefix}order_by": services.sorting_values(query.get("ordering", None), True),
         f"{prefix}page_index": int(query.get("page", 1)),
         f"{prefix}page_size": query.get("limit", 25),
 
@@ -425,7 +401,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
     if isTandem:
         ordering = query.get("ordering", None)
         values[f"{prefix}count"] = query.get("getCount", 'false')
-        values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,location_code,tandem,{ordering}", use_post)
+        values[f"{prefix}order_by"] = services.sorting_values(f"commuterPost,location,location_code,tandem,{ordering}", True)
         # Common filters
         values[f"{prefix}overseas_ind2"] = services.convert_multi_value(services.overseas_values(query))
         values[f"{prefix}location_codes2"] = services.post_values(query)
@@ -449,15 +425,11 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False, u
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
         values[f"{prefix}htf_ind2"] = services.convert_multi_value(query.get("htf_indicator-tandem"))
 
-    if use_post:
-        if isinstance(values[f"{prefix}order_by"], list):
-            values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
+    if isinstance(values[f"{prefix}order_by"], list):
+        values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
     
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    if use_post:
-        return valuesToReturn
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+    return valuesToReturn
 
 
 def convert_up_query(query):
@@ -468,13 +440,13 @@ def convert_up_query(query):
     return convert_ap_query(query, ["FP"])
 
 
-def convert_all_query(query, use_post=False):
+def convert_all_query(query):
     '''
     sends FP(Filled Position), OP(Open Position), and HS(HandShake) status codes
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
-    return convert_ap_query(query, ["FP", "OP", "HS"], False, use_post=use_post)
+    return convert_ap_query(query, ["FP", "OP", "HS"], False)
 
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
@@ -486,7 +458,9 @@ def get_ap_favorite_ids(query, jwt_token, host=None):
         fsbid_favorites_to_talentmap_favorites_ids,
         get_available_positions_count,
         "/api/v1/fsbid/available_positions/",
-        host
+        host,
+        CP_API_V2_URL,
+        True,
     ).get('results')
 
 
