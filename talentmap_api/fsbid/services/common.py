@@ -28,11 +28,13 @@ from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
+API_ROOT = settings.WS_ROOT_API_URL
 CP_API_V2_ROOT = settings.CP_API_V2_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+PV_API_V2_URL = settings.PV_API_V2_URL
+CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
 
 urls_expire_after = {
@@ -224,8 +226,8 @@ def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping
         return response.get("Data", {})
 
 
-def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False):
-    url = f"{API_ROOT}/{uri}"
+def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False, api_root=API_ROOT):
+    url = f"{api_root}/{uri}"
     # TODO - fix SSL issue with use_cache
     # method = session if use_cache else requests
     method = requests
@@ -271,11 +273,11 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     args = {}
 
     newQuery = query.copy()
-    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
+    if api_root == CLIENTS_ROOT_V2 and not uri:
         newQuery['getCount'] = 'true'
-    if api_root == CP_API_V2_ROOT and not uri:
+    if api_root == CP_API_V2_ROOT and (not uri or uri in ('availableTandem')):
         newQuery['getCount'] = 'true'
-    if uri in ('availableTandem', 'tandem'):
+    if api_root == PV_API_V2_URL:
         newQuery['getCount'] = 'true'
 
     if use_post:

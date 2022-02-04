@@ -24,7 +24,6 @@ from talentmap_api.bidding.models import BidHandshake
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
 CP_API_ROOT = settings.CP_API_URL
 CP_API_V2_ROOT = settings.CP_API_V2_URL
 

@@ -38,34 +38,42 @@ def test_bidder_fixture(authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
 def test_bidlist_actions(authorized_client, authorized_user):
-    with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
-        mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = {'Data': [bid]}
-        response = authorized_client.get('/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
-        assert response.json()['results'][0]['emp_id'] == [bid][0]['perdet_seq_num']
+    with patch('talentmap_api.fsbid.services.bid.requests.post') as mock_post:
+        mock_post.return_value = Mock(ok=True)
+        mock_post.return_value.json.return_value = {'Data': []}
+
+        with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
+            mock_get.return_value = Mock(ok=True)
+            mock_get.return_value.json.return_value = {'Data': [bid]}
+            response = authorized_client.get('/api/v1/fsbid/bidlist/', HTTP_JWT=fake_jwt)
+            assert response.json()['results'][0]['emp_id'] == [bid][0]['perdet_seq_num']
 
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
 def test_bidlist_position_actions(authorized_client, authorized_user):
-    with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
-        # returns 404 when no position is found
-        mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = {'Data': []}
-        response = authorized_client.get('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
-        assert response.status_code == status.HTTP_404_NOT_FOUND
-        # returns 204 when position is found
-        mock_get.return_value = Mock(ok=True)
-        mock_get.return_value.json.return_value = {'Data': [bid]}
-        response = authorized_client.get('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
-        assert response.status_code == status.HTTP_204_NO_CONTENT
-
     with patch('talentmap_api.fsbid.services.bid.requests.post') as mock_post:
         mock_post.return_value = Mock(ok=True)
-        response = authorized_client.put('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        mock_post.return_value.json.return_value = {'Data': []}
 
-    with patch('talentmap_api.fsbid.services.bid.requests.delete') as mock_del:
-        mock_del.return_value = Mock(ok=True)
-        response = authorized_client.delete('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
-        assert response.status_code == status.HTTP_204_NO_CONTENT
+        with patch('talentmap_api.fsbid.services.bid.requests.get') as mock_get:
+            # returns 404 when no position is found
+            mock_get.return_value = Mock(ok=True)
+            mock_get.return_value.json.return_value = {'Data': []}
+            response = authorized_client.get('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
+            assert response.status_code == status.HTTP_404_NOT_FOUND
+            # returns 204 when position is found
+            mock_get.return_value = Mock(ok=True)
+            mock_get.return_value.json.return_value = {'Data': [bid]}
+            response = authorized_client.get('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
+            assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        with patch('talentmap_api.fsbid.services.bid.requests.post') as mock_post:
+            mock_post.return_value = Mock(ok=True)
+            response = authorized_client.put('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
+            assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        with patch('talentmap_api.fsbid.services.bid.requests.delete') as mock_del:
+            mock_del.return_value = Mock(ok=True)
+            response = authorized_client.delete('/api/v1/fsbid/bidlist/position/1/', HTTP_JWT=fake_jwt)
+            assert response.status_code == status.HTTP_204_NO_CONTENT

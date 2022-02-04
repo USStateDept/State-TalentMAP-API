@@ -19,8 +19,6 @@ from talentmap_api.fsbid.services.common import mapBool
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
-
 
 def get_available_bidders_stats(data):
     '''

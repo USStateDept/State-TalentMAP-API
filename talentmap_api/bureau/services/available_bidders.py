@@ -15,8 +15,6 @@ from talentmap_api.common.common_helpers import formatCSV
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
-
 
 def get_available_bidders_csv(request):
     '''
