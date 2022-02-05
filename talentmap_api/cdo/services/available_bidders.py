@@ -167,15 +167,19 @@ def get_available_bidders_csv(request):
 
         try:
             ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
+            step_letter_one = maya.parse(fields["step_letter_one"]).datetime().strftime('%m/%d/%Y')
+            step_letter_two = maya.parse(fields["step_letter_two"]).datetime().strftime('%m/%d/%Y')
         except:
             ted = 'None listed'
+            step_letter_one = 'None listed'
+            step_letter_two = 'None listed'
         writer.writerow([
             fields["name"],
             fields["status"],
             fields["oc_bureau"],
             fields["oc_reason"],
-            fields["step_letter_one"],
-            fields["step_letter_two"],
+            step_letter_one,
+            step_letter_two,
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
