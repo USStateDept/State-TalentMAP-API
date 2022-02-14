@@ -22,6 +22,8 @@ class AvailableBidders(models.Model):
     archived = models.BooleanField(default=False)
     is_shared = models.BooleanField(default=False, help_text="Shared with Bureau")
     last_editing_user = models.ForeignKey('user_profile.UserProfile', related_name='agent', null=False, on_delete=models.DO_NOTHING, help_text="The last user to edit")
+    step_letter_one = models.DateTimeField(null=True)
+    step_letter_two = models.DateTimeField(null=True)
 
     class Meta:
         managed = True

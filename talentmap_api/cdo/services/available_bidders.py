@@ -120,6 +120,8 @@ def get_available_bidders_csv(request):
         smart_str(u"Status"),
         smart_str(u"OC Bureau"),
         smart_str(u"OC Reason"),
+        smart_str(u"Step Letter One"),
+        smart_str(u"Step Letter Two"),
         smart_str(u"Skills"),
         smart_str(u"Grade"),
         smart_str(u"Languages"),
@@ -136,6 +138,8 @@ def get_available_bidders_csv(request):
     fields_info = {
         "name": None,
         "status": {"path": 'available_bidder_details.status', },
+        "step_letter_one": {"path": 'available_bidder_details.step_letter_one', },
+        "step_letter_two": {"path": 'available_bidder_details.step_letter_two', },
         "skills": {"default": "No Skills listed", "description_and_code": True},
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
@@ -165,11 +169,21 @@ def get_available_bidders_csv(request):
             ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
         except:
             ted = 'None listed'
+        try:
+            step_letter_one = maya.parse(fields["step_letter_one"]).datetime().strftime('%m/%d/%Y')
+        except:
+            step_letter_one = 'None listed'
+        try:
+            step_letter_two = maya.parse(fields["step_letter_two"]).datetime().strftime('%m/%d/%Y')
+        except:
+            step_letter_two = 'None listed'
         writer.writerow([
             fields["name"],
             fields["status"],
             fields["oc_bureau"],
             fields["oc_reason"],
+            step_letter_one,
+            step_letter_two,
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
