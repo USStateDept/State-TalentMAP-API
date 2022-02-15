@@ -7,7 +7,7 @@ from urllib.parse import urlencode, quote
 from django.conf import settings
 
 from talentmap_api.fsbid.services import common as services
-from talentmap_api.common.common_helpers import ensure_date
+from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_ITEM_API_ROOT = settings.AGENDA_ITEM_API_URL
 
@@ -126,8 +126,9 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
     legs = (list(map(
                 fsbid_legs_to_talentmap_legs, pydash.get(data, "agendaLegs", [])
             )))
+    sortedLegs = sort_legs(legs)
     legsToReturn.extend([assignment])
-    legsToReturn.extend(legs)
+    legsToReturn.extend(sortedLegs)
 
     return {
         "id": data.get("aiseqnum", None),

@@ -415,6 +415,28 @@ def get_avatar_url(email):
     else:
         return {}
 
+def sort_legs(agendaLegs):
+    '''
+    Sorts AgendaItems legs by ailetadate
+    When eta date is null, they are sorted by ailetdtedsepdate and pulled to front of sort
+    '''
+    #   pull out the nulls
+    nullLegs = []
+    for idx, val in enumerate(agendaLegs):
+        if not val['eta']:
+            nullLegs.append(val)
+            agendaLegs.pop(idx)
+
+    # sort legs
+    sortedLegs = sorted(agendaLegs, key=lambda d: d['eta'])
+
+    # sort nulls by ted
+    sortedNulls = sorted(nullLegs, key=lambda d: d['ted'])
+
+    # stick sortednulls in the front of legs
+    sortedNulls.extend(sortedLegs)
+    return sortedNulls
+
 
 def prep_string_for_list(str_val):
     '''
