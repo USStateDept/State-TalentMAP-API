@@ -118,7 +118,19 @@ def convert_agenda_item_query(query):
 
 
 def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
-
+    agendaStatusAbbrev = {
+        "Approved": "APR",
+        "Deferred - Proposed Position": "XXX",
+        "Disapproved": "DIS",
+        "Deferred": "DEF",
+        "Held": "HLD",
+        "Move to ML/ID": "MOV",
+        "Not Ready": "NR",
+        "Out of Order": "OOO",
+        "PIP": "PIP",
+        "Ready": "RDY",
+        "Withdrawn": "WDR"
+    }
     legsToReturn = []
     assignment = fsbid_aia_to_talentmap_aia(
                 pydash.get(data, "agendaAssignment[0]", {})
@@ -129,12 +141,14 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
     sortedLegs = sort_legs(legs)
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
+    statusFull = data.get("aisdesctext", None)
 
     return {
         "id": data.get("aiseqnum", None),
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", '')),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
-        "status": data.get("aisdesctext", None),
+        "status_full": statusFull,
+        "status_short": agendaStatusAbbrev.get(statusFull, None),
         "perdet": data.get("aiperdetseqnum", None),
 
         "assignment": fsbid_aia_to_talentmap_aia(
