@@ -23,15 +23,14 @@ def get_panel_dates(query, jwt_token, host=None):
     '''
     Get panel dates
     '''
-    print("🐈")
     args = {
-        "uri": "",
+        "uri": "references/dates",
         "query": query,
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_panel_to_talentmap_panel, jwt_token=jwt_token),
+        "mapping_function": fsbid_panel_to_talentmap_panel,
         "count_function": None,
-        "base_url": "/api/v1/panel/",
+        "base_url": "/api/v1/panels/",
         "host": host,
         "use_post": False,
         "api_root": PANEL_API_ROOT,
@@ -40,6 +39,9 @@ def get_panel_dates(query, jwt_token, host=None):
     panel = services.send_get_request(
         **args
     )
+    print("🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈")
+    print(panel)
+    print("🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈")
 
     return panel
 
@@ -50,10 +52,11 @@ def convert_panel_query(query):
     values = {
         # Pagination
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": query.get("limit", 1000),
-        "rp.columns": None,
-        "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', query.get("pmd-dateCode", None)),
+        "rp.pageRows": query.get("limit", 5),
+        # "rp.columns": None,
+        # "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', query.get("pmd-dateCode", None)),
     }
+
     # TODO: how are we handling multiple passes to rp.filters?
     # TODO: handle sending in columns - what to call them?
 
@@ -65,61 +68,61 @@ def convert_panel_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def fsbid_panel_to_talentmap_panel(data):
-
+    print("🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
+    print(data)
     return {
-        "seqnum": pydash.get(data, "pmseqnum", None),
-        "pmscode": pydash.get(data, "pmpmscode", None),
-        "pmtcode": pydash.get(data, "pmpmtcode", None),
-        "virtualind": pydash.get(data, "pmvirtualind", None),
-        "createid": pydash.get(data, "pmcreateid", None),
-        "createdate": pydash.get(data, "pmcreatedate", None),
-        "updateid": pydash.get(data, "pmupdateid", None),
-        "updatedate": pydash.get(data, "pmupdatedate", None),
-        "pmiseqnum": pydash.get(data, "pmiseqnum", None),
-        "pmimiccode": pydash.get(data, "pmimiccode", None),
-        # "pmipmseqnum": pydash.get(data, "pmipmseqnum", None),
-        "pmiofficialitemnum": pydash.get(data, "pmiofficialitemnum", None),
-        "pmiaddendumind": pydash.get(data, "pmiaddendumind", None),
-        "pmilabeltext": pydash.get(data, "pmilabeltext", None),
-        "pmicreateid": pydash.get(data, "pmicreateid", None),
-        "pmicreatedate": pydash.get(data, "pmicreatedate", None),
-        "pmiupdateid": pydash.get(data, "pmiupdateid", None),
-        "pmiupdatedate": pydash.get(data, "pmiupdatedate", None),
-        # "pmtcode": pydash.get(data, "pmtcode", None),
-        "pmtdesctext": pydash.get(data, "pmtdesctext", None),
-        "pmtcreateid": pydash.get(data, "pmtcreateid", None),
-        "pmtcreatedate": pydash.get(data, "pmtcreatedate", None),
-        "pmtupdateid": pydash.get(data, "pmtupdateid", None),
-        "pmtupdatedate": pydash.get(data, "pmtupdatedate", None),
-        # "pmscode": pydash.get(data, "pmscode", None),
-        "pmsdesctext": pydash.get(data, "pmsdesctext", None),
-        "pmscreateid": pydash.get(data, "pmscreateid", None),
-        "pmscreatedate": pydash.get(data, "pmscreatedate", None),
-        "pmsupdateid": pydash.get(data, "pmsupdateid", None),
-        "pmsupdatedate": pydash.get(data, "pmsupdatedate", None),
-        "pmdpmseqnum": pydash.get(data, "pmdpmseqnum", None),
-        "pmdmdtcode": pydash.get(data, "pmdmdtcode", None),
-        "pmddttm": pydash.get(data, "pmddttm", None),
-        "pmdcreateid": pydash.get(data, "pmdcreateid", None),
-        "pmdcreatedate": pydash.get(data, "pmdcreatedate", None),
-        "pmdupdateid": pydash.get(data, "pmdupdateid", None),
-        "pmdupdatedate": pydash.get(data, "pmdupdatedate", None),
-        "mdtcode": pydash.get(data, "mdtcode", None),
-        "mdtdesctext": pydash.get(data, "mdtdesctext", None),
-        "mdtincludetimeind": pydash.get(data, "mdtincludetimeind", None),
-        "mdtuserinputind": pydash.get(data, "mdtuserinputind", None),
-        "mdtordernum": pydash.get(data, "mdtordernum", None),
-        "mdtcreateid": pydash.get(data, "mdtcreateid", None),
-        "mdtcreatedate": pydash.get(data, "mdtcreatedate", None),
-        "mdtupdateid": pydash.get(data, "mdtupdateid", None),
-        "mdtupdatedate": pydash.get(data, "mdtupdatedate", None),
-        "miccode": pydash.get(data, "miccode", None),
-        "micdesctext": pydash.get(data, "micdesctext", None),
-        "micordernum": pydash.get(data, "micordernum", None),
-        "micvirtualallowedind": pydash.get(data, "micvirtualallowedind", None),
-        "miccreateid": pydash.get(data, "miccreateid", None),
-        "miccreatedate": pydash.get(data, "miccreatedate", None),
-        "micupdateid": pydash.get(data, "micupdateid", None),
-        "micupdatedate": pydash.get(data, "micupdatedate", None),
-        "rnum": pydash.get(data, "rnum", None),
+        "pm_seq_num": pydash.get(data, "pmdpmseqnum", None),
+        # "pm_seq_num": pydash.get(data, "pmseqnum", None), same as pmdpmseqnum
+        # "pms_code": pydash.get(data, "pmpmscode", None), same as pmscode
+        # "pmt_code": pydash.get(data, "pmpmtcode", None), same as pmtcode
+        "pm_virtual": pydash.get(data, "pmvirtualind", None),
+        "pm_create_id": pydash.get(data, "pmcreateid", None),
+        "pm_create_date": pydash.get(data, "pmcreatedate", None),
+        "pm_update_id": pydash.get(data, "pmupdateid", None),
+        "pm_update_date": pydash.get(data, "pmupdatedate", None),
+        "pmi_seq_num": pydash.get(data, "pmiseqnum", None),
+        # "pmimiccode": pydash.get(data, "pmimiccode", None), check against line 120: against 5k in dev1 - all the same
+        # "pmipmseqnum": pydash.get(data, "pmipmseqnum", None), same as pmdpmseqnum - checked against 5k in dev1
+        "pmi_official_num": pydash.get(data, "pmiofficialitemnum", None),
+        "pmi_addendum": pydash.get(data, "pmiaddendumind", None),
+        "pmi_label_text": pydash.get(data, "pmilabeltext", None),
+        "pmi_create_id": pydash.get(data, "pmicreateid", None),
+        "pmi_create_date": pydash.get(data, "pmicreatedate", None),
+        "pmi_update_id": pydash.get(data, "pmiupdateid", None),
+        "pmi_update_date": pydash.get(data, "pmiupdatedate", None),
+        "pmt_code": pydash.get(data, "pmtcode", None),
+        "pmt_desc_text": pydash.get(data, "pmtdesctext", None),
+        "pmt_create_id": pydash.get(data, "pmtcreateid", None),
+        "pmt_create_date": pydash.get(data, "pmtcreatedate", None),
+        "pmt_update_id": pydash.get(data, "pmtupdateid", None),
+        "pmt_update_date": pydash.get(data, "pmtupdatedate", None),
+        "pms_code": pydash.get(data, "pmscode", None),
+        "pms_desc_text": pydash.get(data, "pmsdesctext", None),
+        "pms_create_id": pydash.get(data, "pmscreateid", None),
+        "pms_create_date": pydash.get(data, "pmscreatedate", None),
+        "pms_update_id": pydash.get(data, "pmsupdateid", None),
+        "pms_update_date": pydash.get(data, "pmsupdatedate", None),
+        # "pmd_mdt_code": pydash.get(data, "pmdmdtcode", None), same as mdtcode
+        "pmd_dttm": pydash.get(data, "pmddttm", None),
+        "pmd_create_id": pydash.get(data, "pmdcreateid", None),
+        "pmd_create_date": pydash.get(data, "pmdcreatedate", None),
+        "pmd_update_id": pydash.get(data, "pmdupdateid", None),
+        "pmd_update_date": pydash.get(data, "pmdupdatedate", None),
+        "mdt_code": pydash.get(data, "mdtcode", None),
+        "mdt_desc_text": pydash.get(data, "mdtdesctext", None),
+        "mdt_include_time": pydash.get(data, "mdtincludetimeind", None),
+        "mdt_user_input": pydash.get(data, "mdtuserinputind", None),
+        # "mdt_ordernum": pydash.get(data, "mdtordernum", None),
+        "mdt_create_id": pydash.get(data, "mdtcreateid", None),
+        "mdt_create_date": pydash.get(data, "mdtcreatedate", None),
+        "mdt_update_id": pydash.get(data, "mdtupdateid", None),
+        "mdt_update_date": pydash.get(data, "mdtupdatedate", None),
+        "mic_code": pydash.get(data, "miccode", None),
+        "mic_desc_text": pydash.get(data, "micdesctext", None),
+        # "mic_ordernum": pydash.get(data, "micordernum", None),
+        "mic_virtual_ind": pydash.get(data, "micvirtualallowedind", None),
+        "mic_create_id": pydash.get(data, "miccreateid", None),
+        "mic_create_date": pydash.get(data, "miccreatedate", None),
+        "mic_update_id": pydash.get(data, "micupdateid", None),
+        "mic_update_date": pydash.get(data, "micupdatedate", None),
     }

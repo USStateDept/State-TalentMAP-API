@@ -18,7 +18,7 @@ from talentmap_api.common.permissions import isDjangoGroupMember
 
 from talentmap_api.fsbid.views.base import BaseView
 
-# import talentmap_api.fsbid.services.panel as services
+import talentmap_api.fsbid.services.panel as services
 
 logger = logging.getLogger(__name__)
 
