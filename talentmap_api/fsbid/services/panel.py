@@ -71,18 +71,21 @@ def fsbid_panel_to_talentmap_panel(data):
     print("🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
     print(data)
     return {
-        "pm_seq_num": pydash.get(data, "pmdpmseqnum", None),
         # "pm_seq_num": pydash.get(data, "pmseqnum", None), same as pmdpmseqnum
         # "pms_code": pydash.get(data, "pmpmscode", None), same as pmscode
         # "pmt_code": pydash.get(data, "pmpmtcode", None), same as pmtcode
+        # "pmimiccode": pydash.get(data, "pmimiccode", None), check against line 120: against 5k in dev1 - all the same
+        # "pmipmseqnum": pydash.get(data, "pmipmseqnum", None), same as pmdpmseqnum - checked against 5k in dev1
+        # "mic_ordernum": pydash.get(data, "micordernum", None),
+        # "pmd_mdt_code": pydash.get(data, "pmdmdtcode", None), same as mdtcode
+        # "mdt_ordernum": pydash.get(data, "mdtordernum", None),
+        "pm_seq_num": pydash.get(data, "pmdpmseqnum", None),
         "pm_virtual": pydash.get(data, "pmvirtualind", None),
         "pm_create_id": pydash.get(data, "pmcreateid", None),
         "pm_create_date": pydash.get(data, "pmcreatedate", None),
         "pm_update_id": pydash.get(data, "pmupdateid", None),
         "pm_update_date": pydash.get(data, "pmupdatedate", None),
         "pmi_seq_num": pydash.get(data, "pmiseqnum", None),
-        # "pmimiccode": pydash.get(data, "pmimiccode", None), check against line 120: against 5k in dev1 - all the same
-        # "pmipmseqnum": pydash.get(data, "pmipmseqnum", None), same as pmdpmseqnum - checked against 5k in dev1
         "pmi_official_num": pydash.get(data, "pmiofficialitemnum", None),
         "pmi_addendum": pydash.get(data, "pmiaddendumind", None),
         "pmi_label_text": pydash.get(data, "pmilabeltext", None),
@@ -102,7 +105,6 @@ def fsbid_panel_to_talentmap_panel(data):
         "pms_create_date": pydash.get(data, "pmscreatedate", None),
         "pms_update_id": pydash.get(data, "pmsupdateid", None),
         "pms_update_date": pydash.get(data, "pmsupdatedate", None),
-        # "pmd_mdt_code": pydash.get(data, "pmdmdtcode", None), same as mdtcode
         "pmd_dttm": pydash.get(data, "pmddttm", None),
         "pmd_create_id": pydash.get(data, "pmdcreateid", None),
         "pmd_create_date": pydash.get(data, "pmdcreatedate", None),
@@ -112,14 +114,12 @@ def fsbid_panel_to_talentmap_panel(data):
         "mdt_desc_text": pydash.get(data, "mdtdesctext", None),
         "mdt_include_time": pydash.get(data, "mdtincludetimeind", None),
         "mdt_user_input": pydash.get(data, "mdtuserinputind", None),
-        # "mdt_ordernum": pydash.get(data, "mdtordernum", None),
         "mdt_create_id": pydash.get(data, "mdtcreateid", None),
         "mdt_create_date": pydash.get(data, "mdtcreatedate", None),
         "mdt_update_id": pydash.get(data, "mdtupdateid", None),
         "mdt_update_date": pydash.get(data, "mdtupdatedate", None),
         "mic_code": pydash.get(data, "miccode", None),
         "mic_desc_text": pydash.get(data, "micdesctext", None),
-        # "mic_ordernum": pydash.get(data, "micordernum", None),
         "mic_virtual_ind": pydash.get(data, "micvirtualallowedind", None),
         "mic_create_id": pydash.get(data, "miccreateid", None),
         "mic_create_date": pydash.get(data, "miccreatedate", None),
