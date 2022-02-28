@@ -71,14 +71,6 @@ def fsbid_panel_to_talentmap_panel(data):
     print("🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
     print(data)
     return {
-        # "pm_seq_num": pydash.get(data, "pmseqnum", None), same as pmdpmseqnum
-        # "pms_code": pydash.get(data, "pmpmscode", None), same as pmscode
-        # "pmt_code": pydash.get(data, "pmpmtcode", None), same as pmtcode
-        # "pmimiccode": pydash.get(data, "pmimiccode", None), check against line 120: against 5k in dev1 - all the same
-        # "pmipmseqnum": pydash.get(data, "pmipmseqnum", None), same as pmdpmseqnum - checked against 5k in dev1
-        # "mic_ordernum": pydash.get(data, "micordernum", None),
-        # "pmd_mdt_code": pydash.get(data, "pmdmdtcode", None), same as mdtcode
-        # "mdt_ordernum": pydash.get(data, "mdtordernum", None),
         "pm_seq_num": pydash.get(data, "pmdpmseqnum", None),
         "pm_virtual": pydash.get(data, "pmvirtualind", None),
         "pm_create_id": pydash.get(data, "pmcreateid", None),
