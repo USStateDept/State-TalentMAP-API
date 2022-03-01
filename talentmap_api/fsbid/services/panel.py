@@ -18,7 +18,6 @@ PANEL_API_ROOT = settings.PANEL_API_URL
 logger = logging.getLogger(__name__)
 
 
-
 def get_panel_dates(query, jwt_token, host=None):
     '''
     Get panel dates
@@ -39,21 +38,19 @@ def get_panel_dates(query, jwt_token, host=None):
     panel = services.send_get_request(
         **args
     )
-    print("🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈")
-    print(panel)
-    print("🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈🐈")
 
     return panel
 
+
 def convert_panel_query(query):
     '''
-    Converts TalentMap filters into FSBid filters
+    Converts TalentMap query into FSBid query
     '''
+
     values = {
-        # Pagination
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 5),
-        # "rp.columns": None,
+        "rp.columns": query.get("columns", None),
         # "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', query.get("pmd-dateCode", None)),
     }
 
@@ -67,54 +64,65 @@ def convert_panel_query(query):
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
+
 def fsbid_panel_to_talentmap_panel(data):
-    print("🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
-    print(data)
-    return {
-        "pm_seq_num": pydash.get(data, "pmdpmseqnum", None),
-        "pm_virtual": pydash.get(data, "pmvirtualind", None),
-        "pm_create_id": pydash.get(data, "pmcreateid", None),
-        "pm_create_date": pydash.get(data, "pmcreatedate", None),
-        "pm_update_id": pydash.get(data, "pmupdateid", None),
-        "pm_update_date": pydash.get(data, "pmupdatedate", None),
-        "pmi_seq_num": pydash.get(data, "pmiseqnum", None),
-        "pmi_official_num": pydash.get(data, "pmiofficialitemnum", None),
-        "pmi_addendum": pydash.get(data, "pmiaddendumind", None),
-        "pmi_label_text": pydash.get(data, "pmilabeltext", None),
-        "pmi_create_id": pydash.get(data, "pmicreateid", None),
-        "pmi_create_date": pydash.get(data, "pmicreatedate", None),
-        "pmi_update_id": pydash.get(data, "pmiupdateid", None),
-        "pmi_update_date": pydash.get(data, "pmiupdatedate", None),
-        "pmt_code": pydash.get(data, "pmtcode", None),
-        "pmt_desc_text": pydash.get(data, "pmtdesctext", None),
-        "pmt_create_id": pydash.get(data, "pmtcreateid", None),
-        "pmt_create_date": pydash.get(data, "pmtcreatedate", None),
-        "pmt_update_id": pydash.get(data, "pmtupdateid", None),
-        "pmt_update_date": pydash.get(data, "pmtupdatedate", None),
-        "pms_code": pydash.get(data, "pmscode", None),
-        "pms_desc_text": pydash.get(data, "pmsdesctext", None),
-        "pms_create_id": pydash.get(data, "pmscreateid", None),
-        "pms_create_date": pydash.get(data, "pmscreatedate", None),
-        "pms_update_id": pydash.get(data, "pmsupdateid", None),
-        "pms_update_date": pydash.get(data, "pmsupdatedate", None),
-        "pmd_dttm": pydash.get(data, "pmddttm", None),
-        "pmd_create_id": pydash.get(data, "pmdcreateid", None),
-        "pmd_create_date": pydash.get(data, "pmdcreatedate", None),
-        "pmd_update_id": pydash.get(data, "pmdupdateid", None),
-        "pmd_update_date": pydash.get(data, "pmdupdatedate", None),
-        "mdt_code": pydash.get(data, "mdtcode", None),
-        "mdt_desc_text": pydash.get(data, "mdtdesctext", None),
-        "mdt_include_time": pydash.get(data, "mdtincludetimeind", None),
-        "mdt_user_input": pydash.get(data, "mdtuserinputind", None),
-        "mdt_create_id": pydash.get(data, "mdtcreateid", None),
-        "mdt_create_date": pydash.get(data, "mdtcreatedate", None),
-        "mdt_update_id": pydash.get(data, "mdtupdateid", None),
-        "mdt_update_date": pydash.get(data, "mdtupdatedate", None),
-        "mic_code": pydash.get(data, "miccode", None),
-        "mic_desc_text": pydash.get(data, "micdesctext", None),
-        "mic_virtual_ind": pydash.get(data, "micvirtualallowedind", None),
-        "mic_create_id": pydash.get(data, "miccreateid", None),
-        "mic_create_date": pydash.get(data, "miccreatedate", None),
-        "mic_update_id": pydash.get(data, "micupdateid", None),
-        "mic_update_date": pydash.get(data, "micupdatedate", None),
+    param_cols = ["mdt_code", "pms_code"]
+    # param_cols = query.get("columns", None)
+    # going to need a new send_get_request
+
+    defined_cols = {
+        'pm_seq_num': 'pmdpmseqnum',
+        'pmd_dttm': 'pmddttm',
     }
+
+    additional_cols = {
+        'pm_virtual': 'pm_virtual',
+        'pm_create_id': 'pm_create_id',
+        'pm_create_date': 'pm_create_date',
+        'pm_update_id': 'pm_update_id',
+        'pm_update_date': 'pm_update_date',
+        'pmi_seq_num': 'pmi_seq_num',
+        'pmi_official_num': 'pmi_official_num',
+        'pmi_addendum': 'pmi_addendum',
+        'pmi_label_text': 'pmi_label_text',
+        'pmi_create_id': 'pmi_create_id',
+        'pmi_create_date': 'pmi_create_date',
+        'pmi_update_id': 'pmi_update_id',
+        'pmi_update_date': 'pmi_update_date',
+        'pmt_code': 'pmt_code',
+        'pmt_desc_text': 'pmt_desc_text',
+        'pmt_create_id': 'pmt_create_id',
+        'pmt_create_date': 'pmt_create_date',
+        'pmt_update_id': 'pmt_update_id',
+        'pmt_update_date': 'pmt_update_date',
+        'pms_code': 'pms_code',
+        'pms_desc_text': 'pms_desc_text',
+        'pms_create_id': 'pms_create_id',
+        'pms_create_date': 'pms_create_date',
+        'pms_update_id': 'pms_update_id',
+        'pms_update_date': 'pms_update_date',
+        'pmd_create_id': 'pmd_create_id',
+        'pmd_create_date': 'pmd_create_date',
+        'pmd_update_id': 'pmd_update_id',
+        'pmd_update_date': 'pmd_update_date',
+        'mdt_code': 'mdt_code',
+        'mdt_desc_text': 'mdt_desc_text',
+        'mdt_include_time': 'mdt_include_time',
+        'mdt_user_input': 'mdt_user_input',
+        'mdt_create_id': 'mdt_create_id',
+        'mdt_create_date': 'mdt_create_date',
+        'mdt_update_id': 'mdt_update_id',
+        'mdt_update_date': 'mdt_update_date',
+        'mic_code': 'mic_code',
+        'mic_desc_text': 'mic_desc_text',
+        'mic_virtual_ind': 'mic_virtual_ind',
+        'mic_create_id': 'mic_create_id',
+        'mic_create_date': 'mic_create_date',
+        'mic_update_id': 'mic_update_id',
+        'mic_update_date': 'mic_update_date'
+    }
+
+    pydash.merge(defined_cols, pydash.pick(additional_cols, param_cols))
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), defined_cols.items())
+
+    return dict(mapped_tuples)

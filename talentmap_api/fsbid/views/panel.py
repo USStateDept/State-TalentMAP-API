@@ -29,11 +29,12 @@ class PanelDatesView(BaseView):
         manual_parameters=[
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("columns", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Additional Panel columns to grab.'),
+            # openapi.Parameter("filter", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Filter on these values.'),
         ])
 
     def get(self, request, *args, **kwargs):
         '''
         Gets panel dates
         '''
-        return services.get_panel_dates(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
-
+        return Response(services.get_panel_dates(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
