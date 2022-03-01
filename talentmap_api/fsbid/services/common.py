@@ -805,3 +805,21 @@ def get_aih_csv(data, filename):
 
         writer.writerow(row)
     return response
+
+def handling_template_columns(defined_cols, additional_cols, query, data):
+    param_cols = ["mdt_code", "pms_code"]
+    # param_cols = query.get("columns", [])
+
+    pydash.merge(defined_cols, pydash.pick(additional_cols, param_cols))
+    # print("🟪🟪🟪")
+    # print(defined_cols)
+    # print("🟪🟪🟪")
+
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), defined_cols.items())
+    return dict(mapped_tuples)
+
+
+def handling_template_filters():
+    # print("🐛🐛🐛🐛🐛🐛handling template filters🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛")
+
+    return "handling_template_filters return"

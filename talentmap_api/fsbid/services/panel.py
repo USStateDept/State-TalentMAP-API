@@ -64,65 +64,57 @@ def convert_panel_query(query):
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-
-def fsbid_panel_to_talentmap_panel(data):
-    param_cols = ["mdt_code", "pms_code"]
-    # param_cols = query.get("columns", None)
-    # going to need a new send_get_request
-
+def fsbid_panel_to_talentmap_panel(data, query={}):
     defined_cols = {
         'pm_seq_num': 'pmdpmseqnum',
         'pmd_dttm': 'pmddttm',
     }
 
     additional_cols = {
-        'pm_virtual': 'pm_virtual',
-        'pm_create_id': 'pm_create_id',
-        'pm_create_date': 'pm_create_date',
-        'pm_update_id': 'pm_update_id',
-        'pm_update_date': 'pm_update_date',
-        'pmi_seq_num': 'pmi_seq_num',
-        'pmi_official_num': 'pmi_official_num',
-        'pmi_addendum': 'pmi_addendum',
-        'pmi_label_text': 'pmi_label_text',
-        'pmi_create_id': 'pmi_create_id',
-        'pmi_create_date': 'pmi_create_date',
-        'pmi_update_id': 'pmi_update_id',
-        'pmi_update_date': 'pmi_update_date',
-        'pmt_code': 'pmt_code',
-        'pmt_desc_text': 'pmt_desc_text',
-        'pmt_create_id': 'pmt_create_id',
-        'pmt_create_date': 'pmt_create_date',
-        'pmt_update_id': 'pmt_update_id',
-        'pmt_update_date': 'pmt_update_date',
-        'pms_code': 'pms_code',
-        'pms_desc_text': 'pms_desc_text',
-        'pms_create_id': 'pms_create_id',
-        'pms_create_date': 'pms_create_date',
-        'pms_update_id': 'pms_update_id',
-        'pms_update_date': 'pms_update_date',
-        'pmd_create_id': 'pmd_create_id',
-        'pmd_create_date': 'pmd_create_date',
-        'pmd_update_id': 'pmd_update_id',
-        'pmd_update_date': 'pmd_update_date',
-        'mdt_code': 'mdt_code',
-        'mdt_desc_text': 'mdt_desc_text',
-        'mdt_include_time': 'mdt_include_time',
-        'mdt_user_input': 'mdt_user_input',
-        'mdt_create_id': 'mdt_create_id',
-        'mdt_create_date': 'mdt_create_date',
-        'mdt_update_id': 'mdt_update_id',
-        'mdt_update_date': 'mdt_update_date',
-        'mic_code': 'mic_code',
-        'mic_desc_text': 'mic_desc_text',
-        'mic_virtual_ind': 'mic_virtual_ind',
-        'mic_create_id': 'mic_create_id',
-        'mic_create_date': 'mic_create_date',
-        'mic_update_id': 'mic_update_id',
-        'mic_update_date': 'mic_update_date'
+        'pm_virtual': 'pmvirtualind',
+        'pm_create_id': 'pmcreateid',
+        'pm_create_date': 'pmcreatedate',
+        'pm_update_id': 'pmupdateid',
+        'pm_update_date': 'pmupdatedate',
+        'pmi_seq_num': 'pmiseqnum',
+        'pmi_official_num': 'pmiofficialitemnum',
+        'pmi_addendum': 'pmiaddendumind',
+        'pmi_label_text': 'pmilabeltext',
+        'pmi_create_id': 'pmicreateid',
+        'pmi_create_date': 'pmicreatedate',
+        'pmi_update_id': 'pmiupdateid',
+        'pmi_update_date': 'pmiupdatedate',
+        'pmt_code': 'pmtcode',
+        'pmt_desc_text': 'pmtdesctext',
+        'pmt_create_id': 'pmtcreateid',
+        'pmt_create_date': 'pmtcreatedate',
+        'pmt_update_id': 'pmtupdateid',
+        'pmt_update_date': 'pmtupdatedate',
+        'pms_code': 'pmscode',
+        'pms_desc_text': 'pmsdesctext',
+        'pms_create_id': 'pmscreateid',
+        'pms_create_date': 'pmscreatedate',
+        'pms_update_id': 'pmsupdateid',
+        'pms_update_date': 'pmsupdatedate',
+        'pmd_create_id': 'pmdcreateid',
+        'pmd_create_date': 'pmdcreatedate',
+        'pmd_update_id': 'pmdupdateid',
+        'pmd_update_date': 'pmdupdatedate',
+        'mdt_code': 'pmdmdtcode',
+        'mdt_desc_text': 'mdtdesctext',
+        'mdt_include_time': 'mdtincludetimeind',
+        'mdt_user_input': 'mdtuserinputind',
+        'mdt_create_id': 'mdtcreateid',
+        'mdt_create_date': 'mdtcreatedate',
+        'mdt_update_id': 'mdtupdateid',
+        'mdt_update_date': 'mdtupdatedate',
+        'mic_code': 'miccode',
+        'mic_desc_text': 'micdesctext',
+        'mic_virtual_ind': 'micvirtualallowedind',
+        'mic_create_id': 'miccreateid',
+        'mic_create_date': 'miccreatedate',
+        'mic_update_id': 'micupdateid',
+        'mic_update_date': 'micupdatedate',
     }
 
-    pydash.merge(defined_cols, pydash.pick(additional_cols, param_cols))
-    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), defined_cols.items())
-
-    return dict(mapped_tuples)
+    return services.handling_template_columns(defined_cols, additional_cols, query, data)
