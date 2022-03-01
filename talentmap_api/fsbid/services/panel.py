@@ -27,7 +27,7 @@ def get_panel_dates(query, jwt_token, host=None):
         "query": query,
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_panel_to_talentmap_panel,
+        "mapping_function": partial(fsbid_panel_to_talentmap_panel, query=query),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "host": host,

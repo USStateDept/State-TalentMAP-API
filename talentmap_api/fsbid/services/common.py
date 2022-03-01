@@ -807,13 +807,12 @@ def get_aih_csv(data, filename):
     return response
 
 def handling_template_columns(defined_cols, additional_cols, query, data):
-    param_cols = ["mdt_code", "pms_code"]
-    # param_cols = query.get("columns", [])
+    param_cols = convert_multi_value(query.get("columns", None))
 
-    pydash.merge(defined_cols, pydash.pick(additional_cols, param_cols))
-    # print("🟪🟪🟪")
-    # print(defined_cols)
-    # print("🟪🟪🟪")
+    if type(param_cols) is not list:
+        param_cols = [param_cols]
+
+    pydash.merge(defined_cols, pydash.pick(additional_cols, *param_cols))
 
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), defined_cols.items())
     return dict(mapped_tuples)
