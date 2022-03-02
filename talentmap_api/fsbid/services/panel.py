@@ -6,7 +6,6 @@ from functools import partial
 from copy import deepcopy
 import pydash
 
-# import requests  # pylint: disable=unused-import
 from django.conf import settings
 
 from django.conf import settings
@@ -49,9 +48,9 @@ def convert_panel_query(query):
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": query.get("limit", 5),
-        "rp.columns": ['pmscode', 'pmtcode'],
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}, {'col': 'pmscode', 'val': 'I', 'com': 'IN'}]),
+        "rp.pageRows": query.get("limit", 1000),
+        "rp.columns": ['pmtcode'],
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
@@ -65,7 +64,7 @@ def fsbid_panel_to_talentmap_panel(data):
 
     hard_coded = ['pm_seq_num', 'pmd_dttm']
 
-    add_these = ['pms_code', 'pmt_code']
+    add_these = ['pmt_code']
 
     cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',

@@ -721,8 +721,6 @@ def sort_bids(bidlist, ordering_query):
 # eq: equals
 # in: in
 def convert_to_fsbid_ql(filters):
-    # have to confirm if WS allows us to send in a single filter in an array
-    # multi filter format: ['pmdmdtcode|EQ|MEET|', 'pmscode|IN|I|'],
     formattedFilters = []
 
     for fil in filters:
