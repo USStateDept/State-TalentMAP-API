@@ -62,3 +62,14 @@ class FSBidClientCSVView(BaseView):
         Exports all clients to CSV
         '''
         return services.get_client_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+
+
+class FSBidClientAssignmentsHistoryView(BaseView):
+
+    def get(self, request, pk):
+        '''
+        Gets a single client's assignment history by perdet_seq_num
+        '''
+        print('-------in assgn hist client view--------')
+        print('-------in assign hist client view--------')
+        return Response(services.create_ai_assignment_history(request.META['HTTP_JWT'], pk))
