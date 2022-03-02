@@ -27,7 +27,7 @@ def get_panel_dates(query, jwt_token, host=None):
         "query": query,
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_panel_to_talentmap_panel, query=query),
+        "mapping_function": fsbid_panel_to_talentmap_panel,
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "host": host,
@@ -50,27 +50,35 @@ def convert_panel_query(query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 5),
-        "rp.columns": query.get("columns", None),
-        # "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', query.get("pmd-dateCode", None)),
+        "rp.columns": ['pmdmdtcode'],
+        "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', 'MEET', 'EQ'),
     }
 
     # TODO: how are we handling multiple passes to rp.filters?
-    # TODO: handle sending in columns - what to call them?
+    # we arent exposing rp.columns and rp.filter to the FE, so let's see how to handle in here.
+    # would be cool
 
     # a filter: pmdmdtcode|EQ|MEET|
-    # a col: pmdmdtcode
+    # a columns: pmscode, pmdmdtcode
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-def fsbid_panel_to_talentmap_panel(data, query={}):
-    defined_cols = {
+
+def fsbid_panel_to_talentmap_panel(data):
+    # 🚨 which resource is this, take note here. Panels?
+
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['pm_seq_num', 'pmd_dttm']
+
+    add_these = ['pm_virtual', 'pm_create_date', 'mdt_code']
+
+    cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',
         'pmd_dttm': 'pmddttm',
-    }
-
-    additional_cols = {
         'pm_virtual': 'pmvirtualind',
         'pm_create_id': 'pmcreateid',
         'pm_create_date': 'pmcreatedate',
@@ -117,4 +125,6 @@ def fsbid_panel_to_talentmap_panel(data, query={}):
         'mic_update_date': 'micupdatedate',
     }
 
-    return services.handling_template_columns(defined_cols, additional_cols, query, data)
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
