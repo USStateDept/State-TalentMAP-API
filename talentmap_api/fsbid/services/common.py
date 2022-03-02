@@ -203,6 +203,9 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
         url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     else:
         url = f"{api_root}/{uri}"
+
+
+
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
@@ -720,10 +723,26 @@ def sort_bids(bidlist, ordering_query):
 # known comparators:
 # eq: equals
 # in: in
-def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
-    if not column and not value and not comparator:
+
+# def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
+#     if not column and not value and not comparator:
+#         return None
+#     return f"{column}|{comparator}|{value}|"
+
+def convert_to_fsbid_ql(filters):
+    # have to confirm if WS allows us to send in a single filter in an array
+    # multi filter format: ['pmdmdtcode|EQ|MEET|', 'pmscode|IN|I|'],
+    formattedFilters = []
+
+    for fil in filters:
+        if fil['col'] and fil['val']:
+            comp = pydash.get(fil, 'com') or 'EQ'
+            formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
+
+    if not formattedFilters:
         return None
-    return f"{column}|{comparator}|{value}|"
+
+    return formattedFilters
 
 
 def categorize_remark(remark = ''):
@@ -812,9 +831,3 @@ def map_return_template_cols(cols, cols_mapping, data):
     props_to_map = pydash.pick(cols_mapping, *cols)
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), props_to_map.items())
     return dict(mapped_tuples)
-
-
-def handling_template_filters():
-    # print("🐛🐛🐛🐛🐛🐛handling template filters🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛")
-
-    return "handling_template_filters return"

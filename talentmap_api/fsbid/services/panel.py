@@ -50,16 +50,10 @@ def convert_panel_query(query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 5),
-        "rp.columns": ['pmdmdtcode'],
-        "rp.filter": services.convert_to_fsbid_ql('pmdmdtcode', 'MEET', 'EQ'),
+        "rp.columns": ['pmscode', 'pmtcode'],
+        # "rp.filter": ['pmdmdtcode|EQ|MEET|', 'pmscode|IN|I|'],
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}, {'col': 'pmscode', 'val': 'I', 'com': 'IN'}]),
     }
-
-    # TODO: how are we handling multiple passes to rp.filters?
-    # we arent exposing rp.columns and rp.filter to the FE, so let's see how to handle in here.
-    # would be cool
-
-    # a filter: pmdmdtcode|EQ|MEET|
-    # a columns: pmscode, pmdmdtcode
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
@@ -74,7 +68,7 @@ def fsbid_panel_to_talentmap_panel(data):
 
     hard_coded = ['pm_seq_num', 'pmd_dttm']
 
-    add_these = ['pm_virtual', 'pm_create_date', 'mdt_code']
+    add_these = ['pms_code', 'pmt_code']
 
     cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',
