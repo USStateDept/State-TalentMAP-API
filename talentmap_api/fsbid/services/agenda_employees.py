@@ -74,11 +74,14 @@ def convert_agenda_employees_query(query):
         "rp.pageNum": query.get("page", 1),
         "rp.pageRows": query.get("limit", 50),
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_employee_fullname")),
-        "rp.filter": services.convert_to_fsbid_ql(filterKey, filterValue, comparator),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': filterKey, 'val': filterValue, 'com': comparator}]),
         # services.convert_to_fsbid_ql('perdetseqnum', query.get("q", None)),
         # services.convert_to_fsbid_ql('perpiilastname', query.get("q", None)), TODO - passing multiples values
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    print("🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱")
+    print(urlencode(valuesToReturn, doseq=True, quote_via=quote))
+    print("🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱")
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def fsbid_agenda_employee_to_talentmap_agenda_employee(data):
