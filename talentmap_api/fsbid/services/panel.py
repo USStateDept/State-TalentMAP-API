@@ -60,8 +60,6 @@ def convert_panel_query(query):
 
 
 def fsbid_panel_to_talentmap_panel(data):
-    # 🚨 which resource is this, take note here. Panels?
-
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
