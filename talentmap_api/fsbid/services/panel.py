@@ -51,7 +51,6 @@ def convert_panel_query(query):
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 5),
         "rp.columns": ['pmscode', 'pmtcode'],
-        # "rp.filter": ['pmdmdtcode|EQ|MEET|', 'pmscode|IN|I|'],
         "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}, {'col': 'pmscode', 'val': 'I', 'com': 'IN'}]),
     }
 
