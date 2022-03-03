@@ -686,31 +686,3 @@ def convert_available_bidder_query(query):
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-
-
-def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
-    '''
-    Get the assignment history for create agenda item reserach
-    '''
-    print('------------create ai assign hist service------------')
-    print('perdert', perdet_seq_num)
-    print('------------create ai assign hist service------------')
-    from talentmap_api.fsbid.services.common import send_get_request
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    query = {
-        "ad_id": ad_id,
-        "perdet_seq_num": perdet_seq_num,
-        "currentAssignmentOnly": "false",
-    }
-    response = send_get_request(
-        "",
-        query,
-        convert_client_query,
-        jwt_token,
-        fsbid_assignments_to_tmap,
-        "/api/v1/assignments/",
-        host,
-        CLIENTS_ROOT_V2,
-    )
-
-    return response
