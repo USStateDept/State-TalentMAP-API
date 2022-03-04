@@ -4,9 +4,8 @@ from urllib.parse import urlencode, quote
 from django.conf import settings
 import jwt
 
-from talentmap_api.fsbid.requests import requests
+from talentmap_api.common.common_helpers import ensure_date
 
-# CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 ASSIGNMENTS_ROOT_V2 = settings.ASSIGNMENTS_API_V2_URL
 
 
@@ -17,13 +16,10 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     '''
     Get the assignment history for create agenda item reserach
     '''
-    print('------------create ai assign hist service test------------')
-    print('perdert', perdet_seq_num)
-    print('------------create ai assign hist service test------------')
     # TO-DO:
     # mapping for statuses needs to be updated
     from talentmap_api.fsbid.services.common import send_get_request
-    from talentmap_api.fsbid.services.client import fsbid_assignments_to_tmap, get_clients_count
+    from talentmap_api.fsbid.services.client import get_clients_count
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
         "ad_id": ad_id,
@@ -36,11 +32,10 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
         query,
         assignment_history_temp,
         jwt_token,
-        fsbid_assignments_to_tmap,
+        fsbid_assignment_history_to_tmap,
         get_clients_count,
         "/api/v1/assignments/",
         host,
-        # CLIENTS_ROOT_V2,
         ASSIGNMENTS_ROOT_V2,
     )
 
@@ -57,3 +52,33 @@ def assignment_history_temp(query):
         # "rp.filter": query.get("perdet_seq_num", None), asgperdetseqnum|EQ|6|
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+
+def fsbid_assignment_history_to_tmap(assignments):
+    assignmentsCopy = []
+    assignment_history = []
+    if type(assignments) is type(dict()):
+        assignmentsCopy.append(assignments)
+    else:
+        assignmentsCopy = assignments
+    
+    if type(assignmentsCopy) is type([]):
+        for x in assignmentsCopy:
+            print('assignmentsCOpy value',x)
+
+    if type(assignmentsCopy) is type([]):
+        for x in assignmentsCopy:
+            assignment_history.append(
+                {
+                    'asgposseqnum': x.get('asgposseqnum', None),
+                    'asgdasgseqnum': x.get('asgdasgseqnum', None),
+                    'asgdrevisionnum': x.get('asgdrevisionnum', None),
+                    'asgdasgscode': x.get('asgdasgscode', None),
+                    'asgdetadate': ensure_date(x.get('asgdetadate', None)),
+                    'asgdetdteddate': ensure_date(x.get('asgdetdteddate', None)),
+                    'asgdtoddesctext': x.get('asgdtoddesctext', None),
+                    'asgperdetseqnum': x.get('asgperdetseqnum', None),
+                    'asgscode': x.get('asgscode', None),
+                }
+            )
+    return assignment_history
