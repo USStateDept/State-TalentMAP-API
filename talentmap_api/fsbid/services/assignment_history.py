@@ -17,7 +17,7 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     Get the assignment history for create agenda item reserach
     '''
     # TO-DO:
-    # mapping for statuses needs to be updated
+    # mapping needs to be updated
     from talentmap_api.fsbid.services.common import send_get_request
     from talentmap_api.fsbid.services.client import get_clients_count
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
@@ -44,9 +44,8 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
 
 # temporary, still working on mapping in other PR's
 def assignment_history_temp(query):
-    '''
-    Needs to be updated
-    '''
+    # TO-DO:
+    # mapping needs to be updated
     values = {
         "rp.pageNum": 10,
         # "rp.filter": query.get("perdet_seq_num", None), asgperdetseqnum|EQ|6|
@@ -55,16 +54,14 @@ def assignment_history_temp(query):
 
 
 def fsbid_assignment_history_to_tmap(assignments):
+    # TO-DO:
+    # mapping needs to be updated
     assignmentsCopy = []
     assignment_history = []
     if type(assignments) is type(dict()):
         assignmentsCopy.append(assignments)
     else:
         assignmentsCopy = assignments
-    
-    if type(assignmentsCopy) is type([]):
-        for x in assignmentsCopy:
-            print('assignmentsCOpy value',x)
 
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
