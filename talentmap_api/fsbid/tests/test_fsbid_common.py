@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from talentmap_api.fsbid.services.common import sort_bids, get_bid_stats_for_csv, convert_to_fsbid_ql
+from talentmap_api.fsbid.services.common import sort_bids, get_bid_stats_for_csv, convert_to_fsbid_ql, map_return_template_cols
 
 
 def test_get_bid_stats_for_csv():
@@ -29,12 +29,17 @@ def test_get_bid_stats_for_csv():
 
 def test_sort_bids():
     mock_bids = [
-        { 'id': 1, 'status': 'declined', 'create_date': datetime.datetime(2022, 5, 17), 'position_info': { 'position': { 'post': { 'location': { 'city': 'Alpharetta' } } } } },
-        { 'id': 2, 'status': 'closed', 'create_date': datetime.datetime(2022, 5, 12), 'position_info': { 'position': { 'post': { 'location': { 'city': 'Denver' } } } } },
-        { 'id': 3, 'status': 'handshake_offered', 'create_date': datetime.datetime(2022, 5, 20), 'position_info': { 'position': { 'post': { 'location': { 'city': 'Washington' } } } } },
-        { 'id': 4, 'status': 'in_panel', 'create_date': datetime.datetime(2022, 5, 11), 'position_info': { 'position': { 'post': { 'location': { 'city': 'Bethesda' } } } } },
-        { 'id': 5, 'status': 'submitted', 'create_date': datetime.datetime(2022, 5, 14), 'position_info': { 'position': { 'post': { 'location': { 'city': None } } } },
-     }]
+        {'id': 1, 'status': 'declined', 'create_date': datetime.datetime(2022, 5, 17),
+         'position_info': {'position': {'post': {'location': {'city': 'Alpharetta'}}}}},
+        {'id': 2, 'status': 'closed', 'create_date': datetime.datetime(2022, 5, 12),
+         'position_info': {'position': {'post': {'location': {'city': 'Denver'}}}}},
+        {'id': 3, 'status': 'handshake_offered', 'create_date': datetime.datetime(2022, 5, 20),
+         'position_info': {'position': {'post': {'location': {'city': 'Washington'}}}}},
+        {'id': 4, 'status': 'in_panel', 'create_date': datetime.datetime(2022, 5, 11),
+         'position_info': {'position': {'post': {'location': {'city': 'Bethesda'}}}}},
+        {'id': 5, 'status': 'submitted', 'create_date': datetime.datetime(2022, 5, 14),
+         'position_info': {'position': {'post': {'location': {'city': None}}}},
+         }]
 
     bids = sort_bids(mock_bids, 'status')
     assert bids[0]['id'] == 4
@@ -58,11 +63,12 @@ def test_sort_bids():
     assert bids[4]['id'] == 3
 
     bids = sort_bids(mock_bids, 'bidlist_location')
-    assert bids[0]['id'] == 5 # empty strings come first
+    assert bids[0]['id'] == 5  # empty strings come first
     assert bids[1]['id'] == 1
     assert bids[2]['id'] == 4
     assert bids[3]['id'] == 2
     assert bids[4]['id'] == 3
+
 
 def test_convert_to_fsbid_ql():
     filters = []
@@ -88,3 +94,62 @@ def test_convert_to_fsbid_ql():
         'col1|EQ|6|',
         'col3|IN|4|'
     ]
+
+def test_map_return_template_cols():
+    cols = ['name', 'age', 'id', 'cp_id']
+
+    cols_mapping = {
+        'name': 'wsname',
+        'address': 'wsaddress',
+        'cp_id': 'wscpid',
+        'phone': 'wsphone',
+        'ted': 'wsted',
+        'age': 'wsage',
+        'pos': 'wspos',
+        'pmi_seq_num': 'wspmiseqnum',
+        'id': 'wsid',
+        'sep_eta': 'wssepeta'
+    }
+
+    data1 = {
+        "wsname": 'Tarek',
+        "wsaddress": '123 abc drive',
+        "wscpid": '7558',
+        "wsphone": '301-111-1111',
+        "wsted": "2025-06-15T00:00:00.000Z",
+        "wsage": None,
+        "wspos": "Spy",
+        "wspmiseqnum": "999999",
+        "wssepeta": "2025-06-15T00:00:00.000Z"
+    }
+
+    res = map_return_template_cols(cols, cols_mapping, data1)
+    print(res)
+    assert res == {
+        "name": 'Tarek',
+        "age": None,
+        "id": None,
+        "cp_id": '7558',
+    }
+
+    data2 = {
+        "wsname": 'Jenny',
+        "wsaddress": '456 def drive',
+        "wscpid": '65438',
+        "wsphone": '202-111-1111',
+        "wsted": "2023-06-15T00:00:00.000Z",
+        "wsage": None,
+        "wsid": '5555',
+        "wspos": "Spy",
+        "wspmiseqnum": "444444",
+        "wssepeta": "2023-06-15T00:00:00.000Z"
+    }
+
+    res = map_return_template_cols(cols, cols_mapping, data2)
+    print(res)
+    assert res == {
+        "name": 'Jenny',
+        "cp_id": '65438',
+        "age": None,
+        "id": '5555'
+    }

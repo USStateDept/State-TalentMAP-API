@@ -815,6 +815,11 @@ def get_aih_csv(data, filename):
     return response
 
 def map_return_template_cols(cols, cols_mapping, data):
+    print(cols)
+    print('🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸')
+    print(cols_mapping)
+    print('🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸')
+    print(data)
     # cols: an array of strs of the TM data names to map and return
     # cols_mapping: dict to map from TM names(key) to WS names(value)
     props_to_map = pydash.pick(cols_mapping, *cols)
