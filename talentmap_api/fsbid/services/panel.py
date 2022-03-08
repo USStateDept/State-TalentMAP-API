@@ -62,9 +62,9 @@ def fsbid_panel_to_talentmap_panel(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['pm_seq_num', 'pmd_dttm']
+    hard_coded = ['pm_seq_num', 'pmd_dttm', 'pmt_code']
 
-    add_these = ['pmt_code']
+    add_these = []
 
     cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',
