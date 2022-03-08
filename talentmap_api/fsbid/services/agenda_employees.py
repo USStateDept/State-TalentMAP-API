@@ -79,9 +79,6 @@ def convert_agenda_employees_query(query):
         # services.convert_to_fsbid_ql('perpiilastname', query.get("q", None)), TODO - passing multiples values
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    print("🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱")
-    print(urlencode(valuesToReturn, doseq=True, quote_via=quote))
-    print("🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱🪱")
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def fsbid_agenda_employee_to_talentmap_agenda_employee(data):
