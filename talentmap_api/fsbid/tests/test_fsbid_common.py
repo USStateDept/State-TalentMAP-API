@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from talentmap_api.fsbid.services.common import sort_bids, get_bid_stats_for_csv
+from talentmap_api.fsbid.services.common import sort_bids, get_bid_stats_for_csv, convert_to_fsbid_ql
 
 
 def test_get_bid_stats_for_csv():
@@ -63,3 +63,28 @@ def test_sort_bids():
     assert bids[2]['id'] == 4
     assert bids[3]['id'] == 2
     assert bids[4]['id'] == 3
+
+def test_convert_to_fsbid_ql():
+    filters = []
+    res = convert_to_fsbid_ql(filters)
+    assert res == None
+
+    filters = [{'col': 'aiperdetseqnum', 'val': 6}]
+    res = convert_to_fsbid_ql(filters)
+    assert res == ['aiperdetseqnum|EQ|6|']
+
+    filters = [{'col': 'aiperdetseqnum', 'val': 6, 'com': 'IN'}]
+    res = convert_to_fsbid_ql(filters)
+    assert res == ['aiperdetseqnum|IN|6|']
+
+    filters = [
+        {'col': 'col1', 'val': 6},
+        {'val': 6, 'com': 'IN'},
+        {'col': 'col3', 'val': 4, 'com': 'IN'},
+        {'col': 'col4', 'com': 'IN'}
+    ]
+    res = convert_to_fsbid_ql(filters)
+    assert res == [
+        'col1|EQ|6|',
+        'col3|IN|4|'
+    ]

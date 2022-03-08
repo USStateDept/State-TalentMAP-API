@@ -724,7 +724,7 @@ def convert_to_fsbid_ql(filters):
     formattedFilters = []
 
     for fil in filters:
-        if fil['col'] and fil['val']:
+        if pydash.get(fil, 'col') and pydash.get(fil, 'val'):
             comp = pydash.get(fil, 'com') or 'EQ'
             formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
 
