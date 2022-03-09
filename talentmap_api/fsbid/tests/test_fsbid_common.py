@@ -96,60 +96,52 @@ def test_convert_to_fsbid_ql():
     ]
 
 def test_map_return_template_cols():
-    cols = ['name', 'age', 'id', 'cp_id']
+    cols = ['name', 'id', 'cp_id', 'pmi_seq_num']
 
     cols_mapping = {
         'name': 'wsname',
-        'address': 'wsaddress',
+        'id': 'wsid',
         'cp_id': 'wscpid',
+        'pmi_seq_num': 'wspmiseqnum',
+        'address': 'wsaddress',
         'phone': 'wsphone',
         'ted': 'wsted',
-        'age': 'wsage',
         'pos': 'wspos',
-        'pmi_seq_num': 'wspmiseqnum',
-        'id': 'wsid',
-        'sep_eta': 'wssepeta'
     }
 
     data1 = {
         "wsname": 'Tarek',
         "wsaddress": '123 abc drive',
         "wscpid": '7558',
-        "wsphone": '301-111-1111',
+        "wsphone": None,
         "wsted": "2025-06-15T00:00:00.000Z",
-        "wsage": None,
-        "wspos": "Spy",
-        "wspmiseqnum": "999999",
-        "wssepeta": "2025-06-15T00:00:00.000Z"
+        "wspmiseqnum": None,
     }
 
     res = map_return_template_cols(cols, cols_mapping, data1)
     print(res)
     assert res == {
         "name": 'Tarek',
-        "age": None,
         "id": None,
         "cp_id": '7558',
+        "pmi_seq_num": None,
     }
 
     data2 = {
         "wsname": 'Jenny',
+        "wsid": 4,
         "wsaddress": '456 def drive',
         "wscpid": '65438',
         "wsphone": '202-111-1111',
-        "wsted": "2023-06-15T00:00:00.000Z",
-        "wsage": None,
-        "wsid": '5555',
-        "wspos": "Spy",
-        "wspmiseqnum": "444444",
-        "wssepeta": "2023-06-15T00:00:00.000Z"
+        "wsted": '2023-06-15T00:00:00.000Z',
+        "wspmiseqnum": '999999',
     }
 
     res = map_return_template_cols(cols, cols_mapping, data2)
     print(res)
     assert res == {
         "name": 'Jenny',
-        "cp_id": '65438',
-        "age": None,
-        "id": '5555'
+        "id": 4,
+        "cp_id": "65438",
+        "pmi_seq_num": '999999',
     }
