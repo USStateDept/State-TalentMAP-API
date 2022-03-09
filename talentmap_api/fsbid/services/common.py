@@ -729,7 +729,7 @@ def convert_to_fsbid_ql(filters):
             formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
 
     if not formattedFilters:
-        return None
+        return []
 
     return formattedFilters
 
