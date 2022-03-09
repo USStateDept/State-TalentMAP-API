@@ -73,7 +73,7 @@ def test_sort_bids():
 def test_convert_to_fsbid_ql():
     filters = []
     res = convert_to_fsbid_ql(filters)
-    assert res == None
+    assert res == []
 
     filters = [{'col': 'aiperdetseqnum', 'val': 6}]
     res = convert_to_fsbid_ql(filters)
