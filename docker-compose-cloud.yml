@@ -1,0 +1,64 @@
+version: '2'
+services:
+  app:
+    build:
+      context: .
+    deploy:
+      replicas: ${REPLICAS-1}
+    # use this to run in https server locally
+    # command: python manage.py runsslserver --certificate /app/talentmap_api/sp.crt --key /app/talentmap_api/sp.key 0.0.0.0:8000
+    command: >
+      bash -c "python show_logo.py
+      && echo 'Starting...'
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app:delegated
+    environment:
+      - TNS_ADMIN=./
+      - DJANGO_SECRET_KEY=development_secret_key
+      - DATABASE_URL=${ORACLE_URL}
+      - DATABASE_USER=${ORACLE_USER}
+      - DATABASE_PW=${ORACLE_PW}
+      - DJANGO_DEBUG=true
+      - WS_ROOT_API_URL=http://host.docker.internal:3333
+      - EMPLOYEES_API_URL=http://host.docker.internal:3333/v1/Employees
+      - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
+      - CP_API_URL=http://host.docker.internal:3333/v1/cyclePositions
+      - CP_API_V2_URL=http://host.docker.internal:3333/v2/cyclePositions
+      - PV_API_V2_URL=http://host.docker.internal:3333/v2/futureVacancies
+      - ORG_API_URL=http://host.docker.internal:3333/v1/Organizations
+      - CLIENTS_API_URL=http://host.docker.internal:3333/v1/Clients
+      - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
+      - TP_API_URL=http://host.docker.internal:3333/v1/TrackingPrograms
+      - AGENDA_ITEM_API_URL=http://host.docker.internal:3333/v1/AgendaItems
+      - PERSON_API_URL=http://host.docker.internal:3333/v3/persons
+      - EMAIL_ENABLED=true
+      - EMAIL_HOST=host.docker.internal
+      - EMAIL_PORT=1025
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_FROM_ADDRESS=talentmap-alert@local.dev
+      - EMAIL_USE_TLS=false
+      - EMAIL_IS_DEV=false
+      - EMAIL_DEV_TO=${EMAIL_DEV_TO}
+      - HRDATA_URL=http://localhost:3333/HR
+      - HRDATA_URL_EXTERNAL=http://localhost:3333/HR
+  haproxy:
+    image: eeacms/haproxy
+    depends_on:
+    - app
+    ports:
+    - "8000:5000"
+    - "1936:1936"
+    environment:
+      BACKENDS: "app"
+      BACKENDS_PORT: "8000"
+      DNS_ENABLED: "true"
+      LOG_LEVEL: "info"
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:80"
+      - "1025:25"
+volumes:
+  pgdata:
