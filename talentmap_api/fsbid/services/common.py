@@ -727,12 +727,13 @@ def convert_to_fsbid_ql(filters):
 
     for fil in filters:
         if pydash.get(fil, 'col') and pydash.get(fil, 'val'):
+            comp = pydash.get(fil, 'com') or 'EQ'
+            value = f"{fil['col']}|{comp}|{fil['val']}|"
             if pydash.get(fil, 'isDate'):
                 dateFormat = pydash.get(fil, 'dateFormat') if pydash.get(fil, 'dateFormat') else 'YYYY-MM-DD'
-                formattedFilters.append(f"{fil['val']}{dateFormat}")
+                formattedFilters.append(f"{value}{dateFormat}")
             else:
-                comp = pydash.get(fil, 'com') or 'EQ'
-                formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
+                formattedFilters.append(f"{value}")
 
     if not formattedFilters:
         return []
