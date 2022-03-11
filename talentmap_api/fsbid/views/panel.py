@@ -23,7 +23,7 @@ import talentmap_api.fsbid.services.panel as services
 logger = logging.getLogger(__name__)
 
 class PanelDatesView(BaseView):
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), )]
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
 
     @swagger_auto_schema(
         manual_parameters=[
