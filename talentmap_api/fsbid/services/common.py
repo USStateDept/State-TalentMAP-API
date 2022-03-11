@@ -168,7 +168,6 @@ sort_dict = {
     # Agenda Employees Search
     "agenda_employee_fullname": "tmperperfullname",
     "agenda_employee_id": "tmperpertexternalid",
-    "agenda_employee_id": "tmperpertexternalid",
     "agenda_employee_ted": "tmpercurrentted",
     "agenda_employee_panel_date": "tmperpanelmeetingdate",
     # Agenda Item History
@@ -723,13 +722,23 @@ def sort_bids(bidlist, ordering_query):
 # known comparators:
 # eq: equals
 # in: in
-def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq', isDate = False, dateFormat='YYYY-MM-DD'):
-    if not column and not value and not comparator:
-        return None
-    val = f"{column}|{comparator}|{value}|"
-    if isDate:
-        val = f"{val}{dateFormat}"
-    return val
+def convert_to_fsbid_ql(filters):
+    formattedFilters = []
+
+    for fil in filters:
+        if pydash.get(fil, 'col') and pydash.get(fil, 'val'):
+            comp = pydash.get(fil, 'com') or 'EQ'
+            value = f"{fil['col']}|{comp}|{fil['val']}|"
+            if pydash.get(fil, 'isDate'):
+                dateFormat = pydash.get(fil, 'dateFormat') if pydash.get(fil, 'dateFormat') else 'YYYY-MM-DD'
+                formattedFilters.append(f"{value}{dateFormat}")
+            else:
+                formattedFilters.append(f"{value}")
+
+    if not formattedFilters:
+        return []
+
+    return formattedFilters
 
 
 def categorize_remark(remark = ''):
@@ -811,3 +820,10 @@ def get_aih_csv(data, filename):
 
         writer.writerow(row)
     return response
+
+def map_return_template_cols(cols, cols_mapping, data):
+    # cols: an array of strs of the TM data names to map and return
+    # cols_mapping: dict to map from TM names(key) to WS names(value)
+    props_to_map = pydash.pick(cols_mapping, *cols)
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), props_to_map.items())
+    return dict(mapped_tuples)

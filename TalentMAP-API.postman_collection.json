@@ -1420,6 +1420,107 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Panel",
+			"item": [
+				{
+					"name": "GET /panel/dates/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema =     schema = {",
+									"    \"required\": [",
+									"        \"results\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"results\": {",
+									"            \"items\": {",
+									"                \"required\": [",
+									"                    \"pm_seq_num\",",
+									"                    \"pmd_dttm\",",
+									"                    \"pmt_code\"",
+									"                ],",
+									"                \"properties\": {",
+									"                    \"pm_seq_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/pm_seq_num\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"pmd_dttm\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/pmd_dttm\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"pmt_code\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/pmt_code\",",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"$id\": \"#/properties/results/items\",",
+									"                \"type\": \"object\"",
+									"            },",
+									"            \"$id\": \"#/properties/results\",",
+									"            \"type\": \"array\"",
+									"        }",
+									"    },",
+									"};",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/panel/dates/?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"panel",
+								"dates",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

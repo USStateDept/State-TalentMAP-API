@@ -157,40 +157,40 @@ def convert_agenda_employees_query(query):
     tedEnd = query.get("ted-end")
     
     filters = [
-        { "key": "tmpercurrentbureaucode", "comparator": "IN", "value": query.get("current-bureaus", None) },
-        { "key": "tmperhsbureaucode", "comparator": "IN", "value": query.get("handshake-bureaus", None) },
-        { "key": "tmpercurrentorgcode", "comparator": "IN", "value": query.get("current-organizations", None) },
-        { "key": "tmperhsorgcode", "comparator": "IN", "value": query.get("handshake-organizations", None) },
-        { "key": "tmpercdoid", "comparator": "IN", "value": query.get("cdos", None) },
-        { "key": "tmperperscode", "comparator": "IN", "value": "S,L,A,P,U" },
+        {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
+        {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus", None)},
+        {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations", None)},
+        {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
+        {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
+        {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U"},
     ]
 
     if query.get("handshake", None):
-        hsObj = { "key": "tmperhsind", "comparator": "IN" }
+        hsObj = {"col": "tmperhsind", "com": "IN"}
         hs = query.get("handshake", None)
         if hs == 'Y':
-            hsObj['value'] = 'HS'
+            hsObj['val'] = 'HS'
             filters.append(hsObj)
         elif hs == 'N':
-            hsObj['comparator'] = 'EQ'
-            hsObj['value'] = 'null'
+            hsObj['com'] = 'EQ'
+            hsObj['val'] = 'null'
             filters.append(hsObj)
 
     try:
         if tedStart and tedEnd:
             startVal = maya.parse(tedStart).datetime().strftime("%Y-%m-%d")
             endVal = maya.parse(tedEnd).datetime().strftime("%Y-%m-%d")
-            filters.append({ "key": "tmpercurrentted", "comparator": "GTEQ", "value": startVal, "isDate": True })
-            filters.append({ "key": "tmpercurrentted", "comparator": "LTEQ", "value": endVal, "isDate": True })
+            filters.append({"col": "tmpercurrentted", "com": "GTEQ", "val": startVal, "isDate": True})
+            filters.append({"col": "tmpercurrentted", "com": "LTEQ", "val": endVal, "isDate": True})
     except:
         logger.info(f"Invalid date {tedStart} or {tedEnd} could not be parsed.")
 
-    filters = pydash.filter_(filters, lambda o: o["value"] != None)
+    filters = pydash.filter_(filters, lambda o: o["val"] != None)
 
-    filters = pydash.map_(filters, lambda x: services.convert_to_fsbid_ql(x["key"], x["value"], x["comparator"], pydash.get(x, "isDate")))
+    filters = services.convert_to_fsbid_ql(filters)
 
     if qFilterKey and qFilterValue:
-        filters.append(services.convert_to_fsbid_ql(qFilterKey, qFilterValue, qComparator))
+        filters.append(services.convert_to_fsbid_ql([{'col': qFilterKey, 'val': qFilterValue, 'com': qComparator}]))
 
     values = {
         # Pagination
