@@ -166,10 +166,10 @@ sort_dict = {
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
     # Agenda Employees Search
-    "agenda_employee_fullname": "perpiifullname",
-    "agenda_employee_firstname": "perpiifirstname",
-    "agenda_employee_lastname": "perpiilastname",
-    "agenda_employee_id": "pertexternalid",
+    "agenda_employee_fullname": "tmperperfullname",
+    "agenda_employee_id": "tmperpertexternalid",
+    "agenda_employee_ted": "tmpercurrentted",
+    "agenda_employee_panel_date": "tmperpanelmeetingdate",
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
@@ -266,7 +266,7 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False, is_template=False):
     '''
     Gets the total number of items for a filterset
     '''
@@ -279,6 +279,8 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
         newQuery['getCount'] = 'true'
     if api_root == PV_API_V2_URL:
         newQuery['getCount'] = 'true'
+    if is_template:
+        newQuery['getCount'] = 'true'
 
     if use_post:
         url = f"{api_root}/{uri}"
@@ -287,7 +289,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     else:
         url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
         method = requests.get
-
+    
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
     countObj = pydash.get(response, "Data[0]")
     if len(pydash.keys(countObj)):
@@ -725,8 +727,12 @@ def convert_to_fsbid_ql(filters):
 
     for fil in filters:
         if pydash.get(fil, 'col') and pydash.get(fil, 'val'):
-            comp = pydash.get(fil, 'com') or 'EQ'
-            formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
+            if pydash.get(fil, 'isDate'):
+                dateFormat = pydash.get(fil, 'dateFormat') if pydash.get(fil, 'dateFormat') else 'YYYY-MM-DD'
+                formattedFilters.append(f"{fil['val']}{dateFormat}")
+            else:
+                comp = pydash.get(fil, 'com') or 'EQ'
+                formattedFilters.append(f"{fil['col']}|{comp}|{fil['val']}|")
 
     if not formattedFilters:
         return []
