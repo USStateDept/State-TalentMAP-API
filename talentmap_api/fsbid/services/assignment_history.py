@@ -76,24 +76,19 @@ def assignment_history_temp(query):
 def fsbid_assignment_history_to_tmap(assignments):
     # TO-DO:
     # mapping needs to be updated
-    assignmentsCopy = []
-    assignment_history = []
-    assignmentsCopy.append(assignments)
-
-    for x in assignmentsCopy:
-        assignment_history.append(
-            {
-                "asgposseqnum": x.get("asgposseqnum", None),
-                "asgdasgseqnum": x.get("asgdasgseqnum", None),
-                "asgdrevisionnum": x.get("asgdrevisionnum", None),
-                "asgdasgscode": x.get("asgdasgscode", None),
-                "asgdetadate": ensure_date(x.get("asgdetadate", None)),
-                "asgdetdteddate": ensure_date(x.get("asgdetdteddate", None)),
-                "asgdtoddesctext": x.get("asgdtoddesctext", None),
-                "asgperdetseqnum": x.get("asgperdetseqnum", None),
-                "asgscode": x.get("asgscode", None),
-            }
-        )
+    
+    assignment_history = {
+        "asgposseqnum": assignments["asgposseqnum"],
+        "asgdasgseqnum": assignments["asgdasgseqnum"],
+        "asgdrevisionnum": assignments["asgdrevisionnum"],
+        "asgdasgscode": assignments["asgdasgscode"],
+        "asgdetadate": ensure_date(assignments["asgdetadate"]),
+        "asgdetdteddate": ensure_date(assignments["asgdetdteddate"]),
+        "asgdtoddesctext": assignments["asgdtoddesctext"],
+        "asgperdetseqnum": assignments["asgperdetseqnum"],
+        "asgscode": "asgscode",
+    }
+    
     return assignment_history
 
 
@@ -104,8 +99,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
     hard_coded = [
         "asgposseqnum",
         "asgdasgseqnum",
-        "asgdrevisionnum"
-        "asgposseqnum",
+        "asgdrevisionnum",
         "asgdasgscode",
         "asgdetadate",
         "asgdtoddesctext",
