@@ -37,6 +37,8 @@ services:
       - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
       - TP_API_URL=http://host.docker.internal:3333/v1/TrackingPrograms
       - AGENDA_ITEM_API_URL=http://host.docker.internal:3333/v1/AgendaItems
+      # TODO: 🚨 when AgendaItems EPs get renamed to Agendas, delete L39 in favor of L41
+      - AGENDA_API_URL=http://host.docker.internal:3333/v1/agendas
       - PANEL_API_URL=http://host.docker.internal:3333/v1/panels
       - PERSON_API_URL=http://host.docker.internal:3333/v3/persons
       - SEPARATIONS_API_V2_URL=http://host.docker.internal:3333/v2/separations

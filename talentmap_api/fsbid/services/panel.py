@@ -131,11 +131,10 @@ def get_panel_categories(query, jwt_token):
         "api_root": PANEL_API_ROOT,
     }
 
-    panel = services.send_get_request(
+    panel_cats = services.send_get_request(
         **args
     )
-
-    return panel
+    return panel_cats
 
 
 def convert_panel_category_query(query):

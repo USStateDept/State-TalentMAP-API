@@ -10,6 +10,7 @@ from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_ITEM_API_ROOT = settings.AGENDA_ITEM_API_URL
+AGENDA_API_ROOT = settings.AGENDA_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -244,3 +245,58 @@ def fsbid_aia_to_talentmap_aia(data):
         "tod": pydash.get(data, "asgdtoddesctext", None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
     }
+
+def get_agenda_statuses(query, jwt_token):
+    '''
+    Get agenda statuses
+    '''
+    args = {
+        "uri": "references/statuses",
+        "query": query,
+        "query_mapping_function": convert_agenda_statuses_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_agenda_statuses,
+        "count_function": None,
+        "base_url": "/api/v1/agendas/",
+        "api_root": AGENDA_API_ROOT,
+    }
+
+    agenda_statuses = services.send_get_request(
+        **args
+    )
+
+    return agenda_statuses
+
+
+def convert_agenda_statuses_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": query.get("limit", 1000),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def fsbid_to_talentmap_agenda_statuses(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['code', 'abbr_desc_text', 'desc_text']
+
+    add_these = []
+
+    cols_mapping = {
+        'code': 'aiscode',
+        'abbr_desc_text': 'aisabbrdesctext',
+        'desc_text': 'aisdesctext',
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
