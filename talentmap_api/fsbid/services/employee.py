@@ -9,6 +9,8 @@ from talentmap_api.fsbid.services.available_positions import get_available_posit
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services import common as services
+from drf_yasg import openapi
+from urllib.parse import urlencode, quote
 
 API_ROOT = settings.EMPLOYEES_API_URL
 ORG_ROOT = settings.ORG_API_URL
@@ -152,7 +154,7 @@ def get_separations(query, jwt_token, host=None):
         "query": query,
         "query_mapping_function": convert_separations_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_separations_to_talentmap_panel,
+        "mapping_function": fsbid_to_talentmap_separations,
         "count_function": None,
         "base_url": "/v2/separations/",
         "api_root": SEPARATIONS_API_V2_URL,
@@ -173,21 +175,23 @@ def convert_separations_query(query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 1000),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': query.get('perdet')}]),
+        "rp.columns": 'sepperdetseqnum',
     }
+
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def separations_fsbid_to_talentmap(data):
+def fsbid_to_talentmap_separations(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
     hard_coded = ['seq_num', 'asgs_code', 'sepd_city', 'sepd_country_state', 'sepd_separation_date']
 
-    add_these = []
+    add_these = ['perdet_seq_num']
 
     cols_mapping = {
         'seq_num': 'sepseqnum',
