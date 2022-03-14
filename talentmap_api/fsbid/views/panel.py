@@ -35,7 +35,7 @@ class PanelDatesView(BaseView):
         '''
         Gets panel dates
         '''
-        return Response(services.get_panel_dates(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_panel_dates(request.query_params, request.META['HTTP_JWT']))
 
 class PanelCategoriesView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
@@ -50,4 +50,4 @@ class PanelCategoriesView(BaseView):
         '''
         Gets panel categories
         '''
-        return Response(services.get_panel_categories(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_panel_categories(request.query_params, request.META['HTTP_JWT']))
