@@ -1,5 +1,6 @@
 import logging
 import jwt
+import pydash
 from django.conf import settings
 from talentmap_api.common.common_helpers import get_avatar_url
 
@@ -17,6 +18,9 @@ def cdo(jwt_token):
     email = jwt.decode(jwt_token, verify=False).get('email')
     uri = f"Agents?ad_id={ad_id}&request_params.rl_cd=CDO&request_params.rl_cd=CDO3"
     response = get_fsbid_results(uri, jwt_token, fsbid_cdo_list_to_talentmap_cdo_list, email, False, CLIENTS_API_URL)
+    response = list(response)
+    response = [d for i, d in enumerate(response) if d['id'] not in [x['id'] for x in response[i + 1:]]] # dedup
+    response = pydash.order_by(response, ['name'])
     return response
 
 
