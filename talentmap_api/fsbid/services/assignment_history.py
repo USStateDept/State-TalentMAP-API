@@ -1,5 +1,5 @@
 import logging
-# import pydash
+import pydash
 # from copy import deepcopy
 from urllib.parse import urlencode, quote
 from django.conf import settings
@@ -41,7 +41,7 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
         query,
         assignment_history_temp,
         jwt_token,
-        fsbid_assignment_history_to_tmap,
+        fsbid_assignments_to_talentmap_assignments,
         get_clients_count,
         "/api/v1/assignments/",
         host,
@@ -59,12 +59,12 @@ def assignment_history_temp(query):
     # need to update filters
     # asgdasgseqnum|EQ|274115|
     # asgdrevisionnum|EQ|4|
-    # filters = [
-        # { "key": "asgdasgseqnum", "comparator": "EQ", "value": query.get("asgdasgseqnum", None) },
-        # { "key": "asgdrevisionnum", "comparator": "EQ", "value": query.get("asgdrevisionnum", None) },
-    # ]
-    # filters = pydash.filter_(filters, lambda o: o["value"] != None)
-    # filters = pydash.map_(filters, lambda x: services.convert_to_fsbid_ql(x["key"], x["value"], x["comparator"], pydash.get(x, "isDate")))
+    filters = [
+        { "key": "asgdasgseqnum", "comparator": "EQ", "value": query.get("asgdasgseqnum", None) },
+        { "key": "asgdrevisionnum", "comparator": "EQ", "value": query.get("asgdrevisionnum", None) },
+    ]
+    filters = pydash.filter_(filters, lambda o: o["value"] != None)
+    filters = pydash.map_(filters, lambda x: services.convert_to_fsbid_ql(x["key"], x["value"], x["comparator"], pydash.get(x, "isDate")))
     
     values = {
         "rp.pageNum": 10,
@@ -85,8 +85,8 @@ def fsbid_assignment_history_to_tmap(assignments):
         "asgdetadate": ensure_date(assignments["asgdetadate"]),
         "asgdetdteddate": ensure_date(assignments["asgdetdteddate"]),
         "asgdtoddesctext": assignments["asgdtoddesctext"],
-        "asgperdetseqnum": assignments["asgperdetseqnum"],
-        "asgscode": "asgscode",
+        # "asgperdetseqnum": assignments["asgperdetseqnum"],
+        # "asgscode": assignments"asgscode",
     }
     
     return assignment_history
