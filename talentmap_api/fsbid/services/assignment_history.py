@@ -23,7 +23,6 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
-        "ad_id": ad_id,
         "perdet_seq_num": perdet_seq_num,
     }
     response = send_get_request(
