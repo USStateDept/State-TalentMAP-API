@@ -17,7 +17,7 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     Get the assignment history for create agenda item reserach
     '''
     query = {
-        "perdet_seq_num": perdet_seq_num,
+        "asgperdetseqnum": perdet_seq_num,
     }
     response = services.send_get_request(
         "",
@@ -35,10 +35,10 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
 
 
 # temporary, still working on mapping in other PR's
-def assignment_history_temp(query): 
+def assignment_history_temp(query):
     filters = [
         # mock needs to be updated for query/perdet
-        # { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("perdet_seq_num", None) },        
+        # { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("asgperdetseqnum", None) },
         { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
     ]
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
