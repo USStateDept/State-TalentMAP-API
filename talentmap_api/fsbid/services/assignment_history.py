@@ -1,9 +1,7 @@
 import logging
 import pydash
-# from copy import deepcopy
 from urllib.parse import urlencode, quote
 from django.conf import settings
-import jwt
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.services import common as services
@@ -18,14 +16,10 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     '''
     Get the assignment history for create agenda item reserach
     '''
-    # TO-DO:
-    # mapping needs to be updated
-    from talentmap_api.fsbid.services.common import send_get_request
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
         "perdet_seq_num": perdet_seq_num,
     }
-    response = send_get_request(
+    response = services.send_get_request(
         "",
         query,
         assignment_history_temp,
@@ -41,12 +35,9 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
 
 
 # temporary, still working on mapping in other PR's
-def assignment_history_temp(query):
-    # TO-DO:
-    # mapping needs to be updated
-    # mock needs to be updated for query/perdet line 55
-
+def assignment_history_temp(query): 
     filters = [
+        # mock needs to be updated for query/perdet
         # { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("perdet_seq_num", None) },        
         { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
     ]
