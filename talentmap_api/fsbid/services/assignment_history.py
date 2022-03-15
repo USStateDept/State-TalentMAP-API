@@ -27,7 +27,7 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     query = {
         "ad_id": ad_id,
         "asgperdetseqnum": perdet_seq_num,
-        # "asgposseqnum": asgposseqnum,
+        # "asgposseqnum": 64327,
         # "asgdasgseqnum": asgdasgseqnum,
         # "asgdasgscode": asgdasgscode,
         # "asgdetadate": asgdetadate,
@@ -42,9 +42,9 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
         assignment_history_temp,
         jwt_token,
         fsbid_assignments_to_talentmap_assignments,
-        get_clients_count,
-        "/api/v1/assignments/",
-        host,
+        None,
+        "/api/v2/assignments/",
+        None,
         ASSIGNMENTS_ROOT_V2,
     )
 
@@ -52,44 +52,27 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
 
 
 # temporary, still working on mapping in other PR's
-def assignment_history_temp(query):
+def assignment_history_temp(perdet):
     # TO-DO:
     # mapping needs to be updated
     
     # need to update filters
-    # asgdasgseqnum|EQ|274115|
-    # asgdrevisionnum|EQ|4|
+    # look at eps that send pk in url
+    # follow view/service and pass along same way here
     filters = [
-        { "key": "asgdasgseqnum", "comparator": "EQ", "value": query.get("asgdasgseqnum", None) },
-        { "key": "asgdrevisionnum", "comparator": "EQ", "value": query.get("asgdrevisionnum", None) },
+        # { "col": "asgperdetseqnum", "com": "EQ", "val": perdet },        
+        { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
     ]
-    filters = pydash.filter_(filters, lambda o: o["value"] != None)
-    filters = pydash.map_(filters, lambda x: services.convert_to_fsbid_ql(x["key"], x["value"], x["comparator"], pydash.get(x, "isDate")))
-    
+    filters = pydash.filter_(filters, lambda o: o["val"] != None)
+    filters = services.convert_to_fsbid_ql(filters)
+
+
     values = {
-        "rp.pageNum": 10,
-        # "rp.filter": filters,
+        "rp.pageNum": 1,
+        "rp.filter": filters,
     }
-    return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-
-
-def fsbid_assignment_history_to_tmap(assignments):
-    # TO-DO:
-    # mapping needs to be updated
-    
-    assignment_history = {
-        "asgposseqnum": assignments["asgposseqnum"],
-        "asgdasgseqnum": assignments["asgdasgseqnum"],
-        "asgdrevisionnum": assignments["asgdrevisionnum"],
-        "asgdasgscode": assignments["asgdasgscode"],
-        "asgdetadate": ensure_date(assignments["asgdetadate"]),
-        "asgdetdteddate": ensure_date(assignments["asgdetdteddate"]),
-        "asgdtoddesctext": assignments["asgdtoddesctext"],
-        # "asgperdetseqnum": assignments["asgperdetseqnum"],
-        # "asgscode": assignments"asgscode",
-    }
-    
-    return assignment_history
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
 def fsbid_assignments_to_talentmap_assignments(data):
@@ -97,14 +80,14 @@ def fsbid_assignments_to_talentmap_assignments(data):
     # add_these are the additional data points we want returned
 
     hard_coded = [
-        "asgposseqnum",
-        "asgdasgseqnum",
-        "asgdrevisionnum",
-        "asgdasgscode",
-        "asgdetadate",
-        "asgdtoddesctext",
-        "asgperdetseqnum",
-        "asgscode",
+        "asg_pos_seq_num",
+        "asgd_asg_seq_num",
+        "asgd_eta_date",
+        "asgd_etd_ted_date",
+        "asgd_tod_desc_text",
+        "asg_perdet_seq_num",
+        "asgs_code",
+        "asgd_critical_need_ind",
         ]
 
     add_these = []
@@ -112,7 +95,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
     cols_mapping = {
         "asg_seq_num": "asgseqnum",
         "asg_emp_seq_nbr": "asgempseqnbr",
-        "asg_perdet_seqnum": "asgperdetseqnum",
+        "asg_perdet_seq_num": "asgperdetseqnum",
         "asg_pos_seq_num": "asgposseqnum",
         "asg_create_id": "asgcreateid",
         "asg_create_date": "asgcreatedate",
