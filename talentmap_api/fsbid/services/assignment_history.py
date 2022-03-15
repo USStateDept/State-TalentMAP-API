@@ -21,20 +21,10 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     # TO-DO:
     # mapping needs to be updated
     from talentmap_api.fsbid.services.common import send_get_request
-    from talentmap_api.fsbid.services.client import get_clients_count
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
-    # this will need to be updated based on template columns we want
     query = {
         "ad_id": ad_id,
-        "asgperdetseqnum": perdet_seq_num,
-        # "asgposseqnum": 64327,
-        # "asgdasgseqnum": asgdasgseqnum,
-        # "asgdasgscode": asgdasgscode,
-        # "asgdetadate": asgdetadate,
-        # # "asgdetdteddate": asgdetdteddate,
-        # "asgdtoddesctext": asgdtoddesctext,
-        # "asgdcriticalneedind": asgdcriticalneedind,
-        "rp.pageNum": 1, 
+        "perdet_seq_num": perdet_seq_num,
     }
     response = send_get_request(
         "",
@@ -52,20 +42,17 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
 
 
 # temporary, still working on mapping in other PR's
-def assignment_history_temp(perdet):
+def assignment_history_temp(query):
     # TO-DO:
     # mapping needs to be updated
-    
-    # need to update filters
-    # look at eps that send pk in url
-    # follow view/service and pass along same way here
+    # mock needs to be updated for query/perdet line 55
+
     filters = [
-        # { "col": "asgperdetseqnum", "com": "EQ", "val": perdet },        
+        # { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("perdet_seq_num", None) },        
         { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
     ]
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
     filters = services.convert_to_fsbid_ql(filters)
-
 
     values = {
         "rp.pageNum": 1,
