@@ -13,6 +13,8 @@ from drf_yasg import openapi
 
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
+import talentmap_api.fsbid.services.bid as bid_services
+# import talentmap_api.fsbid.services.assignment_history as asg_services #TODO: uncomment once v2/Assignments PR merges
 
 logger = logging.getLogger(__name__)
 
@@ -90,3 +92,24 @@ class FSBidSeparationsView(BaseView):
         Get an employee's separations
         '''
         return Response(services.get_separations(request.query_params, request.META['HTTP_JWT'], pk))
+
+class FSBidAssignmentSeparationsBidsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, pk):
+        '''
+        Get an employee's assignments,separations, and bids
+        '''
+        separations = services.get_separations(request.query_params, request.META['HTTP_JWT'], pk)
+        bids = bid_services.get_bids(request.query_params, request.META['HTTP_JWT'], pk)
+        # asg_history = asg_services.create_ai_assignment_history(request.query_params, request.META['HTTP_JWT'], pk) #TODO: uncomment once v2/assignments PR merges
+        # return Response({"separations": separations, "bids": bids, 'assignment_history': asg_history})  #TODO: uncomment once v2/assignments PR merges
+        return Response({"separations": separations, "bids": bids})
+
+

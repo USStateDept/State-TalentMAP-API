@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^bureau_permissions/$', views.FSBidBureauUserPermissionsView.as_view(), name='employee.FSBid-bureau-permission'),
     url(r'^org_permissions/$', views.FSBidOrgUserPermissionsView.as_view(), name='employee.FSBid-org-permission'),
     url(r'^separations/(?P<pk>[0-9]+)/$', views.FSBidSeparationsView.as_view(), name='employee.FSBid-separations'),
+    url(r'^asgSepBid/(?P<pk>[0-9]+)/$', views.FSBidAssignmentSeparationsBidsView.as_view(), name='employee.FSBid-assignments,separations,bids'),
 ]
 urlpatterns += router.urls
