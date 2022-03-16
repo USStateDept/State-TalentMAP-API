@@ -5,12 +5,14 @@ import maya
 from copy import deepcopy
 
 from django.conf import settings
+from functools import partial
 
 from django.utils.encoding import smart_str
 
 from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date
+from urllib.parse import urlencode, quote
 
 from talentmap_api.bidding.models import Bid, BidHandshake
 from talentmap_api.fsbid.requests import requests
@@ -20,6 +22,7 @@ import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.available_positions as ap_services
 
 API_ROOT = settings.WS_ROOT_API_URL
+BIDS_V2_ROOT = settings.BIDS_API_V2_URL
 
 logger = logging.getLogger(__name__)
 
@@ -229,3 +232,62 @@ def fsbid_bid_to_talentmap_bid(data, jwt_token):
         }
 
     return data
+
+def get_bids(query, jwt_token, pk):
+    '''
+    Get bids
+    '''
+    args = {
+        "uri": "",
+        "query": query,
+        "query_mapping_function": partial(convert_bids_query, pk),
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_bids,
+        "count_function": None,
+        "base_url": "api/v1/bidding/",
+        "api_root": BIDS_V2_ROOT,
+    }
+
+    bids = services.send_get_request(
+        **args
+    )
+
+    return bids
+
+
+def convert_bids_query(pk, query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": query.get("limit", 1000),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'perdet_seq_num', 'val': pk}]),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def fsbid_to_talentmap_bids(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['hs_code', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title']
+
+    add_these = []
+
+    cols_mapping = {
+        'hs_code': 'ubwhscode',
+        'pos_seq_num': 'cpposseqnum',
+        'pos_num': 'posnumtext',
+        'pos_org_short_desc': 'posorgshortdesc',
+        'pos_title': 'postitledesc',
+        'perdet': 'perdet_seq_num'
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)

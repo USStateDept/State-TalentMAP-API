@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^handshake/bureau/(?P<pk>[0-9]+)/(?P<cp_id>[0-9]+)/$', views.BidHandshakeBureauActionView.as_view({'put': 'put', 'delete': 'delete'}), name='bidding.CyclePosition-designation'),
     url(r'^handshake/cdo/(?P<pk>[0-9]+)/(?P<cp_id>[0-9]+)/$', views.BidHandshakeCdoActionView.as_view({'put': 'put', 'delete': 'delete'}), name='bidding.CyclePosition-designation'),
     url(r'^handshake/bidder/(?P<cp_id>[0-9]+)/$', views.BidHandshakeBidderActionView.as_view({'put': 'put', 'delete': 'delete'}), name='bidding.CyclePosition-designation'),
+    url(r'^bids/(?P<pk>[0-9]+)/$', views.BidsView.as_view(), name='bidding.bids'),
 ]
 
 
