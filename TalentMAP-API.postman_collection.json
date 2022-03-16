@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c6c127e1-bc4c-4caa-83a6-a193d3f00b76",
+		"_postman_id": "36971d4c-c827-4ead-9245-7e94f15ed320",
 		"name": "TalentMAP-API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1043,6 +1043,122 @@
 								{
 									"key": "position__grade__code__in",
 									"value": "08"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /fsbid/assignment_history/id/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema = {",
+									"    \"required\": [",
+									"        \"results\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"results\": {",
+									"            \"items\": {",
+									"                \"required\": [",
+									"                    \"asg_pos_seq_num\",",
+									"                    \"asgd_asg_seq_num\",",
+									"                    \"asgd_eta_date\",",
+									"                    \"asgd_etd_ted_date\",",
+									"                    \"asgd_tod_desc_text\",",
+									"                    \"asg_perdet_seq_num\",",
+									"                    \"asgs_code\",",
+									"                    \"asgd_critical_need_ind\",",
+									"                ],",
+									"                \"properties\": {",
+									"                    \"asg_pos_seq_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asg_pos_seq_num\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"asgd_asg_seq_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgd_asg_seq_num\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"asgd_eta_date\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgd_eta_date\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"asgd_etd_ted_date\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgd_etd_ted_date\",",
+									"                        \"type\": [\"null\", \"string\"]",
+									"                    },",
+									"                    \"asgd_tod_desc_text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgd_tod_desc_text\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"asg_perdet_seq_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asg_perdet_seq_num\",",
+									"                        \"type\": [\"null\", \"integer\"]",
+									"                    },",
+									"                    \"asgs_code\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgs_code\",",
+									"                        \"type\": [\"null\", \"string\"]",
+									"                    },",
+									"                    \"asgd_critical_need_ind\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/asgd_critical_need_ind\",",
+									"                        \"type\": [\"null\", \"string\"]",
+									"                    }",
+									"                },",
+									"                \"$id\": \"#/properties/results/items\",",
+									"                \"type\": \"object\"",
+									"            },",
+									"            \"$id\": \"#/properties/results\",",
+									"            \"type\": \"array\"",
+									"        }",
+									"    },",
+									"};",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/assignment_history/6/?page=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"assignment_history",
+								"6",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
 								}
 							]
 						}

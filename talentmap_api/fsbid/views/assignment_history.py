@@ -20,7 +20,6 @@ class FSBidAssignmentHistoryListView(BaseView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter("perdet", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Perdet of the employee'),
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
         ])
 
