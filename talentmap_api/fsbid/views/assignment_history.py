@@ -21,10 +21,11 @@ class FSBidAssignmentHistoryListView(BaseView):
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter('limit', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.')
         ])
 
     def get(self, request, pk):
         '''
         Gets a single client's assignment history
         '''
-        return Response(services.create_ai_assignment_history(request.META['HTTP_JWT'], pk))
+        return Response(services.assignment_history(request.META['HTTP_JWT'], pk))

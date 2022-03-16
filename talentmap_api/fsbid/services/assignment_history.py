@@ -12,7 +12,7 @@ ASSIGNMENTS_ROOT_V2 = settings.ASSIGNMENTS_API_V2_URL
 logger = logging.getLogger(__name__)
 
 
-def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
+def assignment_history(jwt_token, perdet_seq_num, host=None):
     '''
     Get the assignment history for create agenda item reserach
     '''
@@ -22,7 +22,7 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     response = services.send_get_request(
         "",
         query,
-        assignment_history_temp,
+        convert_assignment_history_query,
         jwt_token,
         fsbid_assignments_to_talentmap_assignments,
         None,
@@ -34,12 +34,9 @@ def create_ai_assignment_history(jwt_token, perdet_seq_num, host=None):
     return response
 
 
-# temporary, still working on mapping in other PR's
-def assignment_history_temp(query):
+def convert_assignment_history_query(query):
     filters = [
-        # mock needs to be updated for query/perdet
-        # { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("asgperdetseqnum", None) },
-        { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
+        { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("asgperdetseqnum", None) },
     ]
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
     filters = services.convert_to_fsbid_ql(filters)
