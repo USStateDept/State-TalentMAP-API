@@ -3,6 +3,7 @@ import jwt
 import pydash
 
 from django.conf import settings
+from functools import partial
 from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.services.available_positions import get_available_position
@@ -145,14 +146,14 @@ def get_org_permissions(jwt_token, host=None):
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     return map(map_org_permissions, response.get("Data", {}))
 
-def get_separations(query, jwt_token, host=None):
+def get_separations(query, jwt_token, pk):
     '''
     Get separations
     '''
     args = {
         "uri": "",
         "query": query,
-        "query_mapping_function": convert_separations_query,
+        "query_mapping_function": partial(convert_separations_query, pk),
         "jwt_token": jwt_token,
         "mapping_function": fsbid_to_talentmap_separations,
         "count_function": None,
@@ -167,7 +168,7 @@ def get_separations(query, jwt_token, host=None):
     return separations
 
 
-def convert_separations_query(query):
+def convert_separations_query(pk, query):
     '''
     Converts TalentMap query into FSBid query
     '''
@@ -175,7 +176,7 @@ def convert_separations_query(query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": query.get("limit", 1000),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': query.get('perdet')}]),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
         "rp.columns": 'sepperdetseqnum',
     }
 

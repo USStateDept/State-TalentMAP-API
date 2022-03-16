@@ -83,11 +83,10 @@ class FSBidSeparationsView(BaseView):
         manual_parameters=[
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
-            openapi.Parameter("perdet", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Perdet of the employee'),
         ])
 
-    def get(self, request):
+    def get(self, request, pk):
         '''
         Get an employee's separations
         '''
-        return Response(services.get_separations(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_separations(request.query_params, request.META['HTTP_JWT'], pk))
