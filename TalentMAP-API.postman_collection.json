@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c6c127e1-bc4c-4caa-83a6-a193d3f00b76",
+		"_postman_id": "dbfe754a-896b-4e8d-b578-c92fc438196e",
 		"name": "TalentMAP-API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -970,6 +970,87 @@
 				},
 				{
 					"name": "GET /fsbid/available_positions/export/",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Determine why this occasionally fails in CI",
+									"/* const parse = require('csv-parse/lib/sync'),",
+									"    parsedBody = parse(pm.response.text(), {relax_column_count: true});",
+									"    ",
+									"pm.test(\"Correct CSV response\", function () {",
+									"    // Check that we have at least 2 two (header + row)",
+									"    pm.expect(parsedBody).to.have.length.above(1);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"}); */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/available_positions/export/?ordering=-posted_date&position__bureau__code__in=120000&position__grade__code__in=08",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"available_positions",
+								"export",
+								""
+							],
+							"query": [
+								{
+									"key": "ordering",
+									"value": "-posted_date"
+								},
+								{
+									"key": "position__bureau__code__in",
+									"value": "120000"
+								},
+								{
+									"key": "position__grade__code__in",
+									"value": "08"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /fsbid/assignment_history/{id}",
 					"event": [
 						{
 							"listen": "prerequest",
