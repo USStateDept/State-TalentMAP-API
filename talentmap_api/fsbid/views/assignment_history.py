@@ -28,4 +28,4 @@ class FSBidAssignmentHistoryListView(BaseView):
         '''
         Gets a single client's assignment history
         '''
-        return Response(services.assignment_history(request.META['HTTP_JWT'], pk))
+        return Response(services.assignment_history(request.query_params, request.META['HTTP_JWT'], pk))

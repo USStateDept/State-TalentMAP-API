@@ -1143,7 +1143,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/api/v1/fsbid/assignment_history/6/?page=1&limit=1",
+							"raw": "{{host}}/api/v1/fsbid/assignment_history/{{tarek_id}}/?page=1&limit=1",
 							"host": [
 								"{{host}}"
 							],
@@ -1152,7 +1152,7 @@
 								"v1",
 								"fsbid",
 								"assignment_history",
-								"6",
+								"{{tarek_id}}",
 								""
 							],
 							"query": [

@@ -2,6 +2,7 @@ import logging
 import pydash
 from urllib.parse import urlencode, quote
 from django.conf import settings
+from functools import partial
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.services import common as services
@@ -12,17 +13,14 @@ ASSIGNMENTS_ROOT_V2 = settings.ASSIGNMENTS_API_V2_URL
 logger = logging.getLogger(__name__)
 
 
-def assignment_history(jwt_token, perdet_seq_num, host=None):
+def assignment_history(query, jwt_token, perdet_seq_num):
     '''
     Get the assignment history for create agenda item reserach
     '''
-    query = {
-        "asgperdetseqnum": perdet_seq_num,
-    }
     response = services.send_get_request(
         "",
         query,
-        convert_assignment_history_query,
+        partial(convert_assignment_history_query, perdet_seq_num),
         jwt_token,
         fsbid_assignments_to_talentmap_assignments,
         None,
@@ -34,16 +32,16 @@ def assignment_history(jwt_token, perdet_seq_num, host=None):
     return response
 
 
-def convert_assignment_history_query(query):
-    filters = [
-        { "col": "asgperdetseqnum", "com": "EQ", "val": query.get("asgperdetseqnum", None) },
-    ]
-    filters = pydash.filter_(filters, lambda o: o["val"] != None)
-    filters = services.convert_to_fsbid_ql(filters)
+def convert_assignment_history_query(perdet_seq_num, query):
+    filters = services.convert_to_fsbid_ql([
+        { "col": "asgperdetseqnum", "com": "EQ", "val": perdet_seq_num },
+    ])
 
     values = {
-        "rp.pageNum": 1,
+        "rp.pageNum": query.get('page', 1), 
+        "rp.pageRows": query.get('limit', 1), 
         "rp.filter": filters,
+        "rp.columns": "asgperdetseqnum",
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
