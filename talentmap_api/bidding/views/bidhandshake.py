@@ -18,8 +18,6 @@ from rest_framework import status
 
 from rest_condition import Or
 
-from talentmap_api.fsbid.views.base import BaseView
-
 from talentmap_api.bidding.serializers import BidHandshakeSerializer, BidHandshakeOfferSerializer
 import talentmap_api.cdo.services.available_bidders as services
 from talentmap_api.bidding.models import BidHandshake
@@ -218,18 +216,3 @@ class BidHandshakeBidderActionView(FieldLimitableSerializerMixin,
                 update_date=datetime.now(), date_declined=datetime.now())
             bidderHandshakeNotification(hs.first().owner, cp_id, user.emp_id, jwt, False)
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-class BidsView(BaseView):
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
-
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
-            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
-        ])
-
-    def get(self, request, pk):
-        """
-        Return a list of the users bids
-        """
-        return Response(bid_services.get_bids(request.query_params, request.META['HTTP_JWT'], pk))
