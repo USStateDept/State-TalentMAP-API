@@ -109,7 +109,7 @@ def convert_agenda_item_query(query):
         "rp.pageRows": query.get("limit", 1000),
         "rp.columns": None,
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_id")),
-        "rp.filter": services.convert_to_fsbid_ql('aiperdetseqnum', query.get("perdet", None)),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'aiperdetseqnum', 'val': query.get("perdet", None)}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
