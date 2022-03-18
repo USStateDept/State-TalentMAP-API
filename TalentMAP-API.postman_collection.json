@@ -1116,6 +1116,7 @@
 									"  pm.expect(pm.response.code).to.eql(200);",
 									"});",
 									"pm.test(\"Schema is valid\", function() {",
+									"    console.log('schema is valid', pm.response.json())",
 									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
 									"});"
 								],
