@@ -34,7 +34,8 @@ def assignment_history(query, jwt_token, perdet_seq_num):
 
 def convert_assignment_history_query(perdet_seq_num, query):
     filters = services.convert_to_fsbid_ql([
-        { "col": "asgperdetseqnum", "com": "EQ", "val": perdet_seq_num },
+        # { "col": "asgperdetseqnum", "com": "EQ", "val": perdet_seq_num },
+        { "col": "asgposseqnum", "com": "EQ", "val": 64327 },
     ])
 
     values = {
