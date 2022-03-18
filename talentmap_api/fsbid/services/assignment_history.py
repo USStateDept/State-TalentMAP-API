@@ -59,7 +59,6 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_tod_desc_text",
         "asg_perdet_seq_num",
         "asgs_code",
-        "asgd_critical_need_ind",
         ]
 
     add_these = []
