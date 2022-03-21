@@ -15,7 +15,24 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class AgendaItemView(BaseView):
+class AgendaView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao_user'),)]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("perdet", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Perdet of the employee'),
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Which field to use when ordering the results.'),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, id):
+        '''
+        Get single agenda by ai_seq_num
+        '''
+        return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], id))
+
+class AgendaListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao_user'),)]
 
     @swagger_auto_schema(
