@@ -26,11 +26,11 @@ class AgendaView(BaseView):
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
         ])
 
-    def get(self, request, id):
+    def get(self, request, pk):
         '''
         Get single agenda by ai_seq_num
         '''
-        return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], id))
+        return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], pk))
 
 class AgendaListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('bureau'), isDjangoGroupMember('ao_user'),)]
