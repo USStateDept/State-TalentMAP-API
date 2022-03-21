@@ -122,3 +122,6 @@ talentmap_api/saml2/remote_metadata/remote_metadata.xml
 #Test_Data
 talentmap_api/data/test_data/real/
 obc_consolidated.csv
+cwallet.sso
+sqlnet.ora
+tnsnames.ora
