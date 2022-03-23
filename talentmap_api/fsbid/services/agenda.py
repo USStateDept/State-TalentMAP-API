@@ -274,7 +274,7 @@ def convert_agenda_statuses_query(query):
     '''
 
     values = {
-        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageNum": query.get("page", 1),
         "rp.pageRows": query.get("limit", 1000),
     }
 

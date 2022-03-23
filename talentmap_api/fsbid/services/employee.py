@@ -15,7 +15,6 @@ from urllib.parse import urlencode, quote
 
 API_ROOT = settings.EMPLOYEES_API_URL
 ORG_ROOT = settings.ORG_API_URL
-SEPARATIONS_API_V2_URL = settings.SEPARATIONS_API_V2_URL
 WS_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
@@ -151,14 +150,14 @@ def get_separations(query, jwt_token, pk):
     Get separations
     '''
     args = {
-        "uri": "",
+        "uri": "v2/separations/",
         "query": query,
         "query_mapping_function": partial(convert_separations_query, pk),
         "jwt_token": jwt_token,
         "mapping_function": fsbid_to_talentmap_separations,
         "count_function": None,
         "base_url": "/v2/separations/",
-        "api_root": SEPARATIONS_API_V2_URL,
+        "api_root": WS_ROOT,
     }
 
     separations = services.send_get_request(
@@ -174,7 +173,7 @@ def convert_separations_query(pk, query):
     '''
 
     values = {
-        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageNum": query.get("page", 1),
         "rp.pageRows": query.get("limit", 1000),
         "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
         "rp.columns": 'sepperdetseqnum',

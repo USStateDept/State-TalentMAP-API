@@ -237,6 +237,7 @@ def get_bids(query, jwt_token, pk):
     '''
     Get bids
     '''
+
     args = {
         "uri": "",
         "query": query,
@@ -261,9 +262,9 @@ def convert_bids_query(pk, query):
     '''
 
     values = {
-        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageNum": query.get("page", 1),
         "rp.pageRows": query.get("limit", 1000),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'perdet_seq_num', 'val': pk}]),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'ubwperdetseqnum', 'val': pk}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
