@@ -110,7 +110,6 @@ def fsbid_assignments_to_talentmap_assignments(data):
     # need to confirm asgseqnum and asgdasgseqnum are the same value in DEV1
     # will remove one if they are the same
 
-    # NEED TO UPDATE POSTMAN STUFF WITH NAME CHANGES
     hard_coded = [
         "id",
         "position_id", 
