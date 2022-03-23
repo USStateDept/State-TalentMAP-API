@@ -107,7 +107,7 @@ def convert_agenda_item_query(query):
     values = {
         # Pagination
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": query.get("limit", 1000),
+        "rp.pageRows": int(query.get("limit", 1000)),
         "rp.columns": None,
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_id")),
         "rp.filter": services.convert_to_fsbid_ql([{'col': 'aiperdetseqnum', 'val': query.get("perdet", None)}]),
@@ -274,8 +274,8 @@ def convert_agenda_statuses_query(query):
     '''
 
     values = {
-        "rp.pageNum": query.get("page", 1),
-        "rp.pageRows": query.get("limit", 1000),
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])

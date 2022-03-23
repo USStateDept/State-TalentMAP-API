@@ -46,7 +46,7 @@ def convert_panel_query(query):
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": query.get("limit", 1000),
+        "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
     }
 
@@ -143,8 +143,8 @@ def convert_panel_category_query(query):
     '''
 
     values = {
-        "rp.pageNum": query.get("page", 1),
-        "rp.pageRows": query.get("limit", 1000),
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
