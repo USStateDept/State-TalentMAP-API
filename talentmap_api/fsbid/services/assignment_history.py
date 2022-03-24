@@ -64,7 +64,7 @@ def fsbid_assignment_history_to_tmap(data):
                                 "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
                                 "organization": pos.get('pos_org_short_desc', None),
                                 "position_number": pos.get('pos_num_text', None),
-                                "position_id": ('pos_seq_num', None),
+                                "position_id": x['position_id'],
                                 "title": pos.get("pos_title_desc", None),
                                 "post": {
                                     # "code": loc["gvt_geoloc_cd"],
