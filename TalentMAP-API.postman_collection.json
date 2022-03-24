@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b29c8ce5-937e-40f8-a5da-bd42db86d8da",
+		"_postman_id": "2f58a756-a63c-49ce-b059-90897668e4db",
 		"name": "TalentMAP-API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1719,7 +1719,7 @@
 			"name": "Employee",
 			"item": [
 				{
-					"name": "/fsbid/employee/asgSepBid",
+					"name": "/fsbid/employee/assignments_separations_bids",
 					"event": [
 						{
 							"listen": "test",
@@ -1863,7 +1863,7 @@
 								},
 								{
 									"key": "",
-									"value": null,
+									"value": "",
 									"disabled": true
 								}
 							]
