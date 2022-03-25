@@ -7,7 +7,7 @@ from functools import partial
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.services import common as services
 
-ASSIGNMENTS_ROOT_V2 = settings.ASSIGNMENTS_API_V2_URL
+API_ROOT = settings.WS_ROOT_API_URL
 
 
 logger = logging.getLogger(__name__)
@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 def assignment_history(query, jwt_token, perdet_seq_num):
     '''
-    Get the assignment history for create agenda item reserach
+    Get the assignment history for create agenda item research
     '''
     response = services.send_get_request(
-        "",
+        "v2/assignments/",
         query,
         partial(convert_assignment_history_query, perdet_seq_num),
         jwt_token,
@@ -26,14 +26,13 @@ def assignment_history(query, jwt_token, perdet_seq_num):
         None,
         "/api/v2/assignments/",
         None,
-        ASSIGNMENTS_ROOT_V2,
+        API_ROOT,
     )
 
-    res = fsbid_assignment_history_to_tmap(response)
-    return res
+    return assignment_history_to_client_format(response)
 
 
-def fsbid_assignment_history_to_tmap(data):
+def assignment_history_to_client_format(data):
     # needs to be updated once fully integrated
     from talentmap_api.fsbid.services.common import get_post_overview_url, get_post_bidding_considerations_url, get_obc_id
     assignmentsCopy = []
@@ -93,8 +92,8 @@ def convert_assignment_history_query(perdet_seq_num, query):
     ])
 
     values = {
-        "rp.pageNum": query.get('page', 1), 
-        "rp.pageRows": query.get('limit', 1000), 
+        "rp.pageNum": int(query.get('page', 1)), 
+        "rp.pageRows": int(query.get('limit', 1000)), 
         "rp.filter": filters,
         "rp.columns": "asgperdetseqnum",
     }
