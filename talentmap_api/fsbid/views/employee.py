@@ -15,8 +15,6 @@ import pydash
 
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
-import talentmap_api.fsbid.services.bid as bid_services
-import talentmap_api.fsbid.services.assignment_history as asg_services
 
 logger = logging.getLogger(__name__)
 
@@ -108,11 +106,6 @@ class FSBidAssignmentSeparationsBidsView(BaseView):
         '''
         Get an employee's assignments,separations, and bids
         '''
-        separations = services.get_separations(request.query_params, request.META['HTTP_JWT'], pk)
-        separations = pydash.get(separations, 'results') if pydash.get(separations, 'results') else []
-        bids = bid_services.get_bids(request.query_params, request.META['HTTP_JWT'], pk)
-        bids = pydash.get(bids, 'results') if pydash.get(bids, 'results') else []
-        asg_history = asg_services.assignment_history(request.query_params, request.META['HTTP_JWT'], pk)
-        return Response({"separations": separations, "bids": bids, 'assignment_history': asg_history})
+        return Response(services.get_assignments_separations_bids(request.query_params, request.META['HTTP_JWT'], pk))
 
 

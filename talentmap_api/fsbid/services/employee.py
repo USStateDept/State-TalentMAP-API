@@ -6,10 +6,12 @@ from django.conf import settings
 from functools import partial
 from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
-from talentmap_api.fsbid.services.available_positions import get_available_position
-from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.requests import requests
+from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.services import common as services
+import talentmap_api.fsbid.services.bid as bid_services
+import talentmap_api.fsbid.services.assignment_history as asg_services
+
 from drf_yasg import openapi
 from urllib.parse import urlencode, quote
 
@@ -242,4 +244,23 @@ def map_org_permissions(data):
         "code": data.get('org_code', None),
         "long_description": data.get('org_long_desc', None),
         "short_description": data.get('org_short_desc', None),
+    }
+
+def get_assignments_separations_bids(query, jwt_token, pk):
+    asg = asg_services.assignment_history(query, jwt_token, pk)
+    sep = get_separations(query, jwt_token, pk)
+    sep = pydash.get(sep, 'results') if pydash.get(sep, 'results') else []
+    bids = bid_services.get_bids(query, jwt_token, pk)
+    bids = pydash.get(bids, 'results') if pydash.get(bids, 'results') else []
+
+    return map(map_assignments_separations_bids, pydash.interleave(asg, sep, bids))
+
+
+def map_assignments_separations_bids(data):
+    return {
+        "name": 'Coming Soon',
+        "status": pydash.get(data, 'status') or pydash.get(data, 'asgs_code') or pydash.get(data, 'hs_code'),
+        "org": pydash.get(data, 'organization') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_org_short_desc'),
+        "pos_num": pydash.get(data, 'position_number') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_num'),
+        "pos_title": pydash.get(data, 'title') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_title'),
     }
