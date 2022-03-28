@@ -9,8 +9,6 @@ from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
 import talentmap_api.fsbid.services.common as services
-import talentmap_api.fsbid.services.bid as bid_services
-import talentmap_api.fsbid.services.assignment_history as asg_services
 
 from drf_yasg import openapi
 from urllib.parse import urlencode, quote
@@ -151,6 +149,8 @@ def get_separations(query, jwt_token, pk):
     '''
     Get separations
     '''
+    print(" 😃😃😃😃 sep")
+
     args = {
         "uri": "v2/separations/",
         "query": query,
@@ -247,10 +247,12 @@ def map_org_permissions(data):
     }
 
 def get_assignments_separations_bids(query, jwt_token, pk):
-    asg = asg_services.assignment_history(query, jwt_token, pk)
+    from talentmap_api.fsbid.services.bid import get_bids
+    from talentmap_api.fsbid.services.assignment_history import assignment_history
+    asg = assignment_history(query, jwt_token, pk)
     sep = get_separations(query, jwt_token, pk)
     sep = pydash.get(sep, 'results') if pydash.get(sep, 'results') else []
-    bids = bid_services.get_bids(query, jwt_token, pk)
+    bids = get_bids(query, jwt_token, pk)
     bids = pydash.get(bids, 'results') if pydash.get(bids, 'results') else []
 
     return map(map_assignments_separations_bids, pydash.interleave(asg, sep, bids))
