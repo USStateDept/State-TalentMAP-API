@@ -8,7 +8,6 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
-import talentmap_api.fsbid.services.common as services
 
 from drf_yasg import openapi
 from urllib.parse import urlencode, quote
@@ -149,6 +148,7 @@ def get_separations(query, jwt_token, pk):
     '''
     Get separations
     '''
+    from talentmap_api.fsbid.services.common import send_get_request
     args = {
         "uri": "v2/separations/",
         "query": query,
@@ -160,7 +160,7 @@ def get_separations(query, jwt_token, pk):
         "api_root": WS_ROOT,
     }
 
-    separations = services.send_get_request(
+    separations = send_get_request(
         **args
     )
 
@@ -171,11 +171,11 @@ def convert_separations_query(pk, query):
     '''
     Converts TalentMap query into FSBid query
     '''
-
+    from talentmap_api.fsbid.services.common import convert_to_fsbid_ql
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
+        "rp.filter": convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
         "rp.columns": 'sepperdetseqnum',
     }
 
