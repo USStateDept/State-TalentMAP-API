@@ -8,7 +8,6 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
-import talentmap_api.fsbid.services.common as services
 import talentmap_api.fsbid.services.bid as bid_services
 import talentmap_api.fsbid.services.assignment_history as asg_services
 
