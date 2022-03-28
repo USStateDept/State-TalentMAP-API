@@ -151,6 +151,7 @@ def get_separations(query, jwt_token, pk):
     '''
     Get separations
     '''
+    from talentmap_api.fsbid.services.common import send_get_request
     args = {
         "uri": "v2/separations/",
         "query": query,
@@ -162,7 +163,7 @@ def get_separations(query, jwt_token, pk):
         "api_root": WS_ROOT,
     }
 
-    separations = services.send_get_request(
+    separations = send_get_request(
         **args
     )
 
@@ -173,10 +174,11 @@ def convert_separations_query(pk, query):
     '''
     Converts TalentMap query into FSBid query
     '''
+    from talentmap_api.fsbid.services.common import convert_to_fsbid_ql
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
+        "rp.filter": convert_to_fsbid_ql([{'col': 'sepperdetseqnum', 'val': pk}]),
         "rp.columns": 'sepperdetseqnum',
     }
 
@@ -189,6 +191,7 @@ def convert_separations_query(pk, query):
 def fsbid_to_talentmap_separations(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
+    from talentmap_api.fsbid.services.common import map_return_template_cols
 
     hard_coded = ['seq_num', 'asgs_code', 'sepd_city', 'sepd_country_state', 'sepd_separation_date']
 
@@ -228,7 +231,7 @@ def fsbid_to_talentmap_separations(data):
 
     add_these.extend(hard_coded)
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
+    return map_return_template_cols(add_these, cols_mapping, data)
 
 def map_bureau_permissions(data):
     return {
