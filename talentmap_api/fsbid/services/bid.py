@@ -17,7 +17,6 @@ from urllib.parse import urlencode, quote
 from talentmap_api.bidding.models import Bid, BidHandshake
 from talentmap_api.fsbid.requests import requests
 
-import talentmap_api.fsbid.services.common as services
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.available_positions as ap_services
 
@@ -30,6 +29,7 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     '''
     Get bids for a user on a position or all if no position
     '''
+    from talentmap_api.fsbid.services.common import sort_bids
     url = f"{API_ROOT}/v1/bids/?perdet_seq_num={employee_id}"
     ordering_query = query.get("ordering", None)
     bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
@@ -37,16 +37,17 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
     mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
-    mappedBids = services.sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
+    mappedBids = sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
     return map_bids_to_disable_handshake_if_accepted(mappedBids)
 
 def get_user_bids_csv(employee_id, jwt_token, position_id=None, query={}):
     '''
     Export bids for a user to CSV
     '''
+    from talentmap_api.fsbid.services.common import get_bids_csv
     data = user_bids(employee_id, jwt_token, position_id, query)
 
-    response = services.get_bids_csv(list(data), "bids", jwt_token)
+    response = get_bids_csv(list(data), "bids", jwt_token)
 
     return response
 
@@ -237,6 +238,7 @@ def get_bids(query, jwt_token, pk):
     '''
     Get bids
     '''
+    from talentmap_api.fsbid.services.common import send_get_request
 
     args = {
         "uri": "",
@@ -249,7 +251,7 @@ def get_bids(query, jwt_token, pk):
         "api_root": BIDS_V2_ROOT,
     }
 
-    bids = services.send_get_request(
+    bids = send_get_request(
         **args
     )
 
@@ -260,11 +262,12 @@ def convert_bids_query(pk, query):
     '''
     Converts TalentMap query into FSBid query
     '''
+    from talentmap_api.fsbid.services.common import convert_to_fsbid_ql
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'ubwperdetseqnum', 'val': pk}, {'col': 'ubwhscode', 'val': 'HS'}]),
+        "rp.filter": convert_to_fsbid_ql([{'col': 'ubwperdetseqnum', 'val': pk}, {'col': 'ubwhscode', 'val': 'HS'}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
@@ -275,6 +278,7 @@ def convert_bids_query(pk, query):
 def fsbid_to_talentmap_bids(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
+    from talentmap_api.fsbid.services.common import map_return_template_cols
 
     hard_coded = ['hs_code', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title']
 
@@ -291,4 +295,4 @@ def fsbid_to_talentmap_bids(data):
 
     add_these.extend(hard_coded)
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
+    return map_return_template_cols(add_these, cols_mapping, data)
