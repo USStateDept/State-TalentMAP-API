@@ -42,3 +42,20 @@ class AgendaItemCSVView(BaseView):
         """
         return services.get_agenda_item_history_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
 
+class AgendaRemarksView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    def get(self, request):
+        """
+        Return a list of reference data for all remarks
+        """
+        return Response(services.get_agenda_remarks(request.query_params, request.META['HTTP_JWT']))
+
+class AgendaRemarkCategoriesView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    def get(self, request):
+        """
+        Return a list of reference data for all remark categories
+        """
+        return Response(services.get_agenda_remark_categories(request.query_params, request.META['HTTP_JWT']))
