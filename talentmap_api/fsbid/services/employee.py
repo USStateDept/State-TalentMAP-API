@@ -149,8 +149,6 @@ def get_separations(query, jwt_token, pk):
     '''
     Get separations
     '''
-    print(" 😃😃😃😃 sep")
-
     args = {
         "uri": "v2/separations/",
         "query": query,
