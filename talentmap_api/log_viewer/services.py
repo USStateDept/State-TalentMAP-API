@@ -10,7 +10,8 @@ log_dir = get_delineated_environment_variable('DJANGO_LOG_DIRECTORY', '/var/log/
 def get_log_list():
     files = []
     for file in os.listdir(log_dir):
-        files.append(file)
+        if file.endswith('.log'):
+            files.append(file)
 
     return {
         "data": files
