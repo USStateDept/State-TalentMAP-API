@@ -13,6 +13,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from rest_condition import Or
+
 from talentmap_api.cdo.serializers import AvailableBiddersSerializer
 import talentmap_api.cdo.services.available_bidders as services
 from talentmap_api.cdo.models import AvailableBidders
@@ -30,7 +32,7 @@ logger = logging.getLogger(__name__)
 class AvailableBiddersListView(APIView):
 
     serializer_class = AvailableBiddersSerializer
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -45,7 +47,7 @@ class AvailableBiddersListView(APIView):
 
 class AvailableBidderView(APIView):
 
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
     serializer_class = AvailableBiddersSerializer
 
     def get(self, request, pk):
@@ -56,7 +58,7 @@ class AvailableBidderView(APIView):
 
 
 class AvailableBiddersIdsListView(APIView):
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
 
 
     def get(self, request, *args, **kwargs):
@@ -76,7 +78,7 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
     add, remove, update an Available Bidder instance
     '''
     serializer_class = AvailableBiddersSerializer
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
 
     def put(self, serializer, pk, **ars):
         '''
@@ -112,7 +114,7 @@ class AvailableBiddersActionView(FieldLimitableSerializerMixin,
 
 class AvailableBiddersCSVView(APIView):
 
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
 
     def get(self, request, *args, **kwargs):
         """

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class AvailableBiddersListView(APIView):
 
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user')), ]
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -32,7 +32,7 @@ class AvailableBiddersListView(APIView):
 
 
 class AvailableBiddersCSVView(APIView):
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user')), ]
 
     def get(self, request, *args, **kwargs):
         """
