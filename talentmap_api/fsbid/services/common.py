@@ -250,7 +250,7 @@ def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function,
     Gets an individual record by the provided ID
     '''
     fetch_method = get_results_with_post if use_post else get_results
-    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
+    response = fetch_method(f"{uri}{id}" if use_id else uri, {"id": id}, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 

@@ -21,7 +21,6 @@ def get_available_position(id, jwt_token):
     '''
     Gets an indivdual available position by id
     '''
-
     args = {
         "uri": "available",
         "id": id,
@@ -30,8 +29,8 @@ def get_available_position(id, jwt_token):
         "mapping_function": fsbid_ap_to_talentmap_ap,
         "use_post": True,
         "api_root": CP_API_V2_URL,
+        "use_id": False,
     }
-
     return services.get_individual(
         **args
     )
@@ -365,7 +364,9 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
     '''
 
     prefix = ""
-
+    print('🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸')
+    print(query)
+    print('🐸🐸🐸🐸🐸🐸🐸🐸🐸🐸')
     values = {
         # Pagination
         f"{prefix}order_by": services.sorting_values(query.get("ordering", None), True),
@@ -446,6 +447,9 @@ def convert_all_query(query):
     to convert_ap_query request_params.cps_codes of anything
     but FP, OP, or HS will get removed from query
     '''
+    print('👾👾👾👾👾👾👾👾👾👾👾')
+    print(query)
+    print('👾👾👾👾👾👾👾👾👾👾👾')
     return convert_ap_query(query, ["FP", "OP", "HS"], False)
 
 
