@@ -190,7 +190,8 @@ def convert_agenda_employees_query(query):
     filters = services.convert_to_fsbid_ql(filters)
 
     if qFilterKey and qFilterValue:
-        filters.append(services.convert_to_fsbid_ql([{'col': qFilterKey, 'val': qFilterValue, 'com': qComparator}]))
+        qToAdd = (services.convert_to_fsbid_ql([{'col': qFilterKey, 'val': qFilterValue, 'com': qComparator}]))
+        filters = pydash.concat(qToAdd, filters)
 
     values = {
         # Pagination

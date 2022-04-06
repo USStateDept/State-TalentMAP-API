@@ -21,6 +21,7 @@ RUN        apt-get update && apt-get install -y libaio1 wget unzip \
 
 # We want xmlsec1 to support SAML SSO
 RUN apt-get update && apt-get install -y xmlsec1
+# You may need all of these to use SSO - yum install libffi-devel xmlsec1 xmlsec1-openssl
 
 RUN mkdir /app
 RUN mkdir /app/logs

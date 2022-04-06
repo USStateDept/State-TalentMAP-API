@@ -26,7 +26,7 @@ def get_single_agenda_item(jwt_token=None, ai_id = None):
         "jwt_token": jwt_token,
         "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "use_post": False,
-        "api_root": AGENDA_ITEM_API_ROOT,
+        "api_root": AGENDA_API_ROOT,
         "use_id": False,
     }
 
@@ -46,12 +46,12 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_agenda_items_to_talentmap_agenda_items, jwt_token=jwt_token),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
-        "base_url": "/api/v1/agenda_items/",
+        "base_url": "/api/v1/agendas/",
         "host": host,
         "use_post": False,
-        "api_root": AGENDA_ITEM_API_ROOT,
+        "api_root": AGENDA_API_ROOT,
     }
 
     agenda_items = services.send_get_request(
@@ -71,7 +71,7 @@ def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
         "mapping_function": partial(fsbid_agenda_items_to_talentmap_agenda_items, jwt_token=jwt_token),
         "host": host,
         "use_post": False,
-        "base_url": AGENDA_ITEM_API_ROOT,
+        "base_url": AGENDA_API_ROOT,
     }
 
     data = services.send_get_csv_request(
@@ -95,7 +95,7 @@ def get_agenda_items_count(query, jwt_token, host=None, use_post=False):
         "jwt_token": jwt_token,
         "host": host,
         "use_post": False,
-        "api_root": AGENDA_ITEM_API_ROOT,
+        "api_root": AGENDA_API_ROOT,
     }
     return services.send_count_request(**args)
 
@@ -143,7 +143,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
     statusFull = data.get("aisdesctext", None)
-
+  
     return {
         "id": data.get("aiseqnum", None),
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", '')),
@@ -194,7 +194,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "8162": "Remains of Deceased Dependents",
         "8169": "SMA Travel",
     }
-
+ 
     def map_tf(tf = None):
         return pydash.get(tf_mapping, tf, None)
 
