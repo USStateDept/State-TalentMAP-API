@@ -250,6 +250,7 @@ def get_agenda_statuses(query, jwt_token):
     '''
     Get agenda statuses
     '''
+    
     args = {
         "uri": "references/statuses",
         "query": query,
