@@ -287,19 +287,19 @@ def fsbid_to_talentmap_agenda_statuses(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-        hard_coded = ['code', 'abbr_desc_text', 'desc_text']
+    hard_coded = ['code', 'abbr_desc_text', 'desc_text']
 
-        add_these = []
+    add_these = []
 
-        cols_mapping = {
-            'code': 'aiscode',
-            'abbr_desc_text': 'aisabbrdesctext',
-            'desc_text': 'aisdesctext',
-        }
+    cols_mapping = {
+        'code': 'aiscode',
+        'abbr_desc_text': 'aisabbrdesctext',
+        'desc_text': 'aisdesctext',
+    }
 
-        add_these.extend(hard_coded)
+    add_these.extend(hard_coded)
 
-        return services.map_return_template_cols(add_these, cols_mapping, data)
+    return services.map_return_template_cols(add_these, cols_mapping, data)
 
 def get_agenda_remarks(query, jwt_token):
     '''
