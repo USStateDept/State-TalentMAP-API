@@ -283,7 +283,6 @@ def convert_agenda_statuses_query(query):
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-
 def fsbid_to_talentmap_agenda_statuses(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
@@ -296,6 +295,88 @@ def fsbid_to_talentmap_agenda_statuses(data):
         'code': 'aiscode',
         'abbr_desc_text': 'aisabbrdesctext',
         'desc_text': 'aisdesctext',
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_agenda_remarks(query, jwt_token):
+    '''
+    Get agenda remarks
+    '''
+    args = {
+        "uri": "references/remarks",
+        "query": query,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_agenda_remarks,
+        "count_function": None,
+        "base_url": "/api/v1/agendas/",
+        "api_root": AGENDA_API_ROOT,
+    }
+    
+    agenda_remarks = services.send_get_request(
+        **args
+    )
+
+    return agenda_remarks
+
+def fsbid_to_talentmap_agenda_remarks(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['seq_num', 'rc_code', 'order_num', 'short_desc_text', 'mutually_exclusive_ind', 'text', 'active_ind']
+
+    add_these = []
+
+    cols_mapping = {
+        'seq_num': 'rmrkseqnum',
+        'rc_code': 'rmrkrccode',
+        'order_num': 'rmrkordernum',
+        'short_desc_text': 'rmrkshortdesctext',
+        'mutually_exclusive_ind': 'rmrkmutuallyexclusiveind',
+        'text': 'rmrktext',
+        'active_ind': 'rmrkactiveind'
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
+
+
+def get_agenda_remark_categories(query, jwt_token):
+    '''
+    Get agenda remark categories
+    '''
+    args = {
+        "uri": "references/remark-categories",
+        "query": query,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_agenda_remark_categories,
+        "count_function": None,
+        "base_url": "/api/v1/agendas/",
+        "api_root": AGENDA_API_ROOT,
+    }
+
+    agenda_remark_categories = services.send_get_request(
+        **args
+    )
+
+    return agenda_remark_categories
+
+def fsbid_to_talentmap_agenda_remark_categories(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['code', 'desc_text']
+
+    add_these = []
+
+    cols_mapping = {
+        'code': 'rccode',
+        'desc_text': 'rcdesctext'
     }
 
     add_these.extend(hard_coded)
