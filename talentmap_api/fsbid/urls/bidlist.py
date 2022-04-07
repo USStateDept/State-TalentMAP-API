@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^position/(?P<pk>[0-9]+)/$', views.FSBidListPositionActionView.as_view(), name='bidding.FSBid-position-actions'),
     url(r'^position/(?P<pk>[0-9]+)/submit/$', views.FSBidListBidActionView.as_view(), name='bidding.FSBid-bid-actions'),
     url(r'^$', views.FSBidListView.as_view(), name="bidding-FSBid-bid-actions"),
+    url(r'^bids/(?P<pk>[0-9]+)/$', views.BidsView.as_view(), name='bidding.bids'),
 ]
 
 urlpatterns += router.urls

@@ -3,8 +3,14 @@ import logging
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
+from talentmap_api.fsbid.views.base import BaseView
 from rest_framework.response import Response
 from rest_framework import status
+
+from rest_condition import Or
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.common.permissions import isDjangoGroupMember
@@ -97,3 +103,18 @@ class FSBidListPositionActionView(APIView):
         user = UserProfile.objects.get(user=self.request.user)
         services.remove_bid(user.emp_id, pk, request.META['HTTP_JWT'])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class BidsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, pk):
+        """
+        Return a list of the users bids
+        """
+        return Response(services.get_bids(request.query_params, request.META['HTTP_JWT'], pk))
