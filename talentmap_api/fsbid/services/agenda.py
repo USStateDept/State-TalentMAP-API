@@ -311,6 +311,9 @@ def fsbid_to_talentmap_agenda_statuses(data):
         "query_mapping_function": None,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_to_talentmap_agenda_remarks,
+        "count_function": None,
+        "base_url": "/api/v1/agendas/",
+        "api_root": AGENDA_API_ROOT,
     }
     
     agenda_remarks = services.send_get_request(
