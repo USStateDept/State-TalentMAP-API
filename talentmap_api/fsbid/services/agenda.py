@@ -261,7 +261,7 @@ def get_agenda_statuses(query, jwt_token):
         "base_url": "/api/v1/agendas/",
         "api_root": AGENDA_API_ROOT,
     }
-      
+
     agenda_statuses = services.send_get_request(
         **args
     )
@@ -287,21 +287,21 @@ def fsbid_to_talentmap_agenda_statuses(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['code', 'abbr_desc_text', 'desc_text']
-      
-    add_these = []
+        hard_coded = ['code', 'abbr_desc_text', 'desc_text']
 
-    cols_mapping = {
-        'code': 'aiscode',
-        'abbr_desc_text': 'aisabbrdesctext',
-        'desc_text': 'aisdesctext',
-    }
+        add_these = []
 
-    add_these.extend(hard_coded)
+        cols_mapping = {
+            'code': 'aiscode',
+            'abbr_desc_text': 'aisabbrdesctext',
+            'desc_text': 'aisdesctext',
+        }
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
+        add_these.extend(hard_coded)
 
-  def get_agenda_remarks(query, jwt_token):
+        return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_agenda_remarks(query, jwt_token):
     '''
     Get agenda remarks
     '''
