@@ -38,6 +38,7 @@ services:
       - TP_API_URL=http://host.docker.internal:3333/v1/TrackingPrograms
       - AGENDA_ITEM_API_URL=http://host.docker.internal:3333/v1/AgendaItems
       - AGENDA_API_URL=http://host.docker.internal:3333/v1/agendas
+      - AGENDA_API_URL=http://host.docker.internal:3333/v1/Agendas
       - PANEL_API_URL=http://host.docker.internal:3333/v1/panels
       - PERSON_API_URL=http://host.docker.internal:3333/v3/persons
       - EMAIL_ENABLED=true
