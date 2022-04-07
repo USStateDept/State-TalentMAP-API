@@ -195,8 +195,8 @@ def convert_agenda_employees_query(query):
 
     values = {
         # Pagination
-        "rp.pageNum": query.get("page", 1),
-        "rp.pageRows": query.get("limit", 50),
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 50)),
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_employee_fullname")),
         "rp.filter": filters,
     }

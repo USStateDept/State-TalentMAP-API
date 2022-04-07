@@ -17,7 +17,7 @@ PANEL_API_ROOT = settings.PANEL_API_URL
 logger = logging.getLogger(__name__)
 
 
-def get_panel_dates(query, jwt_token, host=None):
+def get_panel_dates(query, jwt_token):
     '''
     Get panel dates
     '''
@@ -26,11 +26,9 @@ def get_panel_dates(query, jwt_token, host=None):
         "query": query,
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_panel_to_talentmap_panel,
+        "mapping_function": fsbid_to_talentmap_panel,
         "count_function": None,
         "base_url": "/api/v1/panels/",
-        "host": host,
-        "use_post": False,
         "api_root": PANEL_API_ROOT,
     }
 
@@ -48,7 +46,7 @@ def convert_panel_query(query):
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": query.get("limit", 1000),
+        "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
     }
 
@@ -57,7 +55,7 @@ def convert_panel_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_panel_to_talentmap_panel(data):
+def fsbid_to_talentmap_panel(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
@@ -112,6 +110,59 @@ def fsbid_panel_to_talentmap_panel(data):
         'mic_create_date': 'miccreatedate',
         'mic_update_id': 'micupdateid',
         'mic_update_date': 'micupdatedate',
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_panel_categories(query, jwt_token):
+    '''
+    Get panel categories
+    '''
+    args = {
+        "uri": "references/categories",
+        "query": query,
+        "query_mapping_function": convert_panel_category_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_panel_categories,
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+    }
+
+    panel_cats = services.send_get_request(
+        **args
+    )
+    return panel_cats
+
+
+def convert_panel_category_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def fsbid_to_talentmap_panel_categories(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['mic_code', 'mic_desc_text', 'pmt_code']
+
+    add_these = []
+
+    cols_mapping = {
+        'mic_code': 'miccode',
+        'mic_desc_text': 'micdesctext',
     }
 
     add_these.extend(hard_coded)
