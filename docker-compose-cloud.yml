@@ -31,9 +31,7 @@ services:
       - CLIENTS_API_URL=http://host.docker.internal:3333/v1/Clients
       - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
       - TP_API_URL=http://host.docker.internal:3333/v1/TrackingPrograms
-      - AGENDA_ITEM_API_URL=http://host.docker.internal:3333/v1/AgendaItems
       - AGENDA_API_URL=http://host.docker.internal:3333/v1/agendas
-      - AGENDA_API_URL=http://host.docker.internal:3333/v1/Agendas
       - PERSON_API_URL=http://host.docker.internal:3333/v3/persons
       - EMAIL_ENABLED=true
       - EMAIL_HOST=host.docker.internal
