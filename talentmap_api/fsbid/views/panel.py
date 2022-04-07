@@ -35,4 +35,19 @@ class PanelDatesView(BaseView):
         '''
         Gets panel dates
         '''
-        return Response(services.get_panel_dates(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_panel_dates(request.query_params, request.META['HTTP_JWT']))
+
+class PanelCategoriesView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets panel categories
+        '''
+        return Response(services.get_panel_categories(request.query_params, request.META['HTTP_JWT']))
