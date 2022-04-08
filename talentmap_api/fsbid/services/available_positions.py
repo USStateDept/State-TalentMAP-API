@@ -24,13 +24,12 @@ def get_available_position(id, jwt_token):
 
     args = {
         "uri": "available",
-        "id": id,
+        "query": {"id": id},
         "query_mapping_function": convert_all_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
         "use_post": True,
         "api_root": CP_API_V2_URL,
-        "use_id": False,
     }
 
     return services.get_individual(
