@@ -9,11 +9,11 @@ logger = logging.getLogger(__name__)
 
 def get_position(id, jwt_token):
     '''
-    Gets an indivdual unavailable position by id
+    Gets an individual unavailable position by id
     '''
     return services.get_individual(
         "Positions",
-        id,
+        {"id": id},
         convert_pos_query,
         jwt_token,
         fsbid_pos_to_talentmap_pos
