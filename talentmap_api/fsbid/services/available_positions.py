@@ -43,7 +43,7 @@ def get_unavailable_position(id, jwt_token):
     '''
     return services.get_individual(
         "availablePositions",
-        id,
+        {"id": id},
         convert_up_query,
         jwt_token,
         fsbid_ap_to_talentmap_ap
