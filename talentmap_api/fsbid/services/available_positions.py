@@ -58,7 +58,7 @@ def get_all_position(id, jwt_token):
 
     args = {
         "uri": "",
-        "id": id,
+        "query": {"id": id},
         "query_mapping_function": convert_all_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ap_to_talentmap_ap,
