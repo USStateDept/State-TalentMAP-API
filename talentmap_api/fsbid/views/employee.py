@@ -1,11 +1,17 @@
 import logging
 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly
+from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly, isDjangoGroupMember
 from rest_framework.response import Response
 from rest_framework import status
 
 from django.contrib.auth.models import Group
+
+from rest_condition import Or
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+import pydash
 
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
@@ -70,3 +76,36 @@ class FSBidOrgUserPermissionsView(BaseView):
         if result is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(result)
+
+
+class FSBidSeparationsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, pk):
+        '''
+        Get an employee's separations
+        '''
+        return Response(services.get_separations(request.query_params, request.META['HTTP_JWT'], pk))
+
+class FSBidAssignmentSeparationsBidsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+        ])
+
+    def get(self, request, pk):
+        '''
+        Get an employee's assignments,separations, and bids
+        '''
+        return Response(services.get_assignments_separations_bids(request.query_params, request.META['HTTP_JWT'], pk))
+
+

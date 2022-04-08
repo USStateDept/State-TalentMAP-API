@@ -1,9 +1,9 @@
 import pytest
 import datetime
-from talentmap_api.fsbid.services.common import sort_bids, get_bid_stats_for_csv, convert_to_fsbid_ql, map_return_template_cols
-
 
 def test_get_bid_stats_for_csv():
+    from talentmap_api.fsbid.services.common import get_bid_stats_for_csv
+
     mock = {
         'bid_statistics': [{'total_bids': 10, 'in_grade': 3, 'at_skill': 3, 'in_grade_at_skill': 2}]
     }
@@ -28,6 +28,8 @@ def test_get_bid_stats_for_csv():
 
 
 def test_sort_bids():
+    from talentmap_api.fsbid.services.common import sort_bids
+
     mock_bids = [
         {'id': 1, 'status': 'declined', 'create_date': datetime.datetime(2022, 5, 17),
          'position_info': {'position': {'post': {'location': {'city': 'Alpharetta'}}}}},
@@ -71,6 +73,8 @@ def test_sort_bids():
 
 
 def test_convert_to_fsbid_ql():
+    from talentmap_api.fsbid.services.common import convert_to_fsbid_ql
+
     filters = []
     res = convert_to_fsbid_ql(filters)
     assert res == []
@@ -96,6 +100,8 @@ def test_convert_to_fsbid_ql():
     ]
 
 def test_map_return_template_cols():
+    from talentmap_api.fsbid.services.common import map_return_template_cols
+
     cols = ['name', 'id', 'cp_id', 'pmi_seq_num']
 
     cols_mapping = {
@@ -119,7 +125,7 @@ def test_map_return_template_cols():
     }
 
     res = map_return_template_cols(cols, cols_mapping, data1)
-    print(res)
+
     assert res == {
         "name": 'Tarek',
         "id": None,
@@ -138,7 +144,7 @@ def test_map_return_template_cols():
     }
 
     res = map_return_template_cols(cols, cols_mapping, data2)
-    print(res)
+
     assert res == {
         "name": 'Jenny',
         "id": 4,

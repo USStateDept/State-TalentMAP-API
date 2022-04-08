@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "36971d4c-c827-4ead-9245-7e94f15ed320",
+		"_postman_id": "9fb6275e-a58d-4bdd-a1fd-1eb0dde04483",
 		"name": "TalentMAP-API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1059,59 +1059,55 @@
 									"var Ajv = require(\"ajv\"),",
 									"    ajv = new Ajv({logger: console}),",
 									"    schema = {",
-									"    \"required\": [",
-									"        \"results\"",
-									"    ],",
-									"    \"properties\": {",
-									"        \"results\": {",
-									"            \"items\": {",
-									"                \"required\": [",
-									"                    \"id\",",
-									"                    \"position_id\",",
-									"                    \"start_date\",",
-									"                    \"end_date\",",
-									"                    \"asgd_tod_desc_text\",",
-									"                    \"asgs_code\",",
-									"                ],",
-									"                \"properties\": {",
-									"                    \"id\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/id\",",
-									"                        \"type\": \"integer\"",
-									"                    },",
-									"                    \"position_id\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/position_id\",",
-									"                        \"type\": \"integer\"",
-									"                    },",
-									"                    \"start_date\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/start_date\",",
-									"                        \"type\": \"string\"",
-									"                    },",
-									"                    \"end_date\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/end_date\",",
-									"                        \"type\": [\"null\", \"string\"]",
-									"                    },",
-									"                    \"asgd_tod_desc_text\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/asgd_tod_desc_text\",",
-									"                        \"type\": \"string\"",
-									"                    },",
-									"                    \"asgs_code\": {",
-									"                        \"$id\": \"#/properties/results/items/properties/asgs_code\",",
-									"                        \"type\": [\"null\", \"string\"]",
-									"                    }",
+									"        \"items\": {",
+									"            \"required\": [",
+									"                \"id\",",
+									"                \"position_id\",",
+									"                \"start_date\",",
+									"                \"end_date\",",
+									"                \"status\",",
+									"                \"asgd_tod_desc_text\",",
+									"                \"position\",",
+									"            ],",
+									"            \"properties\": {",
+									"                \"id\": {",
+									"                    \"$id\": \"#/properties/id\",",
+									"                    \"type\": \"integer\"",
 									"                },",
-									"                \"$id\": \"#/properties/results/items\",",
-									"                \"type\": \"object\"",
+									"                \"position_id\": {",
+									"                    \"$id\": \"#/properties/position_id\",",
+									"                    \"type\": \"integer\"",
+									"                },",
+									"                \"start_date\": {",
+									"                    \"$id\": \"#/properties/start_date\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"end_date\": {",
+									"                    \"$id\": \"#/properties/end_date\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"status\": {",
+									"                    \"$id\": \"#/properties/status\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"asgd_tod_desc_text\": {",
+									"                    \"$id\": \"#/properties/asgd_tod_desc_text\",",
+									"                    \"type\": \"string\"",
+									"                },",
+									"                    \"position\": {",
+									"                    \"$id\": \"#/properties/position\",",
+									"                    \"type\": \"object\"",
+									"                },",
 									"            },",
-									"            \"$id\": \"#/properties/results\",",
-									"            \"type\": \"array\"",
-									"        }",
-									"    },",
-									"};",
+									"            \"$id\": \"#/items\",",
+									"            \"type\": \"object\"",
+									"        },",
+									"    };",
 									"pm.test(\"Status code is 200\", () => {",
 									"  pm.expect(pm.response.code).to.eql(200);",
 									"});",
 									"pm.test(\"Schema is valid\", function() {",
-									"    console.log('schema is valid', pm.response.json())",
+									"    console.log(pm.response.json())",
 									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
 									"});"
 								],
@@ -1536,7 +1532,7 @@
 			"name": "Panel",
 			"item": [
 				{
-					"name": "GET /panel/dates/",
+					"name": "/panel/dates/",
 					"event": [
 						{
 							"listen": "test",
@@ -1625,6 +1621,309 @@
 								{
 									"key": "limit",
 									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/panel/categories/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema = {",
+									"        \"required\": [",
+									"            \"results\"",
+									"        ],",
+									"        \"properties\": {",
+									"            \"results\": {",
+									"                \"items\": {",
+									"                    \"required\": [",
+									"                        \"mic_code\",",
+									"                        \"mic_desc_text\",",
+									"                    ],",
+									"                    \"properties\": {",
+									"                        \"mic_code\": {",
+									"                            \"$id\": \"#/properties/results/items/properties/mic_code\",",
+									"                            \"type\": \"string\"",
+									"                        },",
+									"                        \"mic_desc_text\": {",
+									"                            \"$id\": \"#/properties/results/items/properties/mic_desc_text\",",
+									"                            \"type\": \"string\"",
+									"                        }",
+									"                    },",
+									"                    \"$id\": \"#/properties/results/items\",",
+									"                    \"type\": \"object\"",
+									"                },",
+									"                \"$id\": \"#/properties/results\",",
+									"                \"type\": \"array\"",
+									"            }",
+									"        },",
+									"    };",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/panel/categories/?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"panel",
+								"categories",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Agendas",
+			"item": [
+				{
+					"name": "/fsbid/agenda/statuses/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema =     schema = {",
+									"    \"required\": [",
+									"        \"results\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"results\": {",
+									"            \"items\": {",
+									"                \"required\": [",
+									"                    \"code\",",
+									"                    \"abbr_desc_text\",",
+									"                    \"desc_text\"",
+									"                ],",
+									"                \"properties\": {",
+									"                    \"code\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/code\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"abbr_desc_text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/abbr_desc_text\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"desc_text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/desc_text\",",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"$id\": \"#/properties/results/items\",",
+									"                \"type\": \"object\"",
+									"            },",
+									"            \"$id\": \"#/properties/results\",",
+									"            \"type\": \"array\"",
+									"        }",
+									"    },",
+									"};",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/agenda/statuses/?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"agenda",
+								"statuses",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "/fsbid/employee/assignments_separations_bids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema = {",
+									"        \"items\": {",
+									"            \"required\": [",
+									"                \"name\",",
+									"                \"status\",",
+									"                \"org\",",
+									"                \"pos_num\",",
+									"                \"pos_title\",",
+									"            ],",
+									"            \"properties\": {",
+									"                \"name\": {",
+									"                    \"$id\": \"#/properties/name\",",
+									"                    \"type\": \"string\"",
+									"                },",
+									"                \"status\": {",
+									"                    \"$id\": \"#/properties/status\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"org\": {",
+									"                    \"$id\": \"#/properties/org\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"pos_num\": {",
+									"                    \"$id\": \"#/properties/pos_num\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"                \"pos_title\": {",
+									"                    \"$id\": \"#/properties/pos_title\",",
+									"                    \"type\": [\"null\", \"string\"]",
+									"                },",
+									"            },",
+									"            \"$id\": \"#/items\",",
+									"            \"type\": \"object\"",
+									"        },",
+									"    };",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"  console.log(pm.response.json())",
+									"  pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/employee/assignments_separations_bids/{{jenny_perdet}}/?page=1&limit=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"employee",
+								"assignments_separations_bids",
+								"{{jenny_perdet}}",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "1"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
 								}
 							]
 						}
