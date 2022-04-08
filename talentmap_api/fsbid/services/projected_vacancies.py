@@ -23,7 +23,7 @@ def get_projected_vacancy(id, jwt_token):
 
     args = {
         "uri": "",
-        "id": id,
+        "query": {"id": id},
         "query_mapping_function": convert_pv_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_pv_to_talentmap_pv,
