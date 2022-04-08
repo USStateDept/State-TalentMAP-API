@@ -36,7 +36,7 @@ def get_bureau_position(id, jwt_token):
 
     return get_individual(
         "",
-        id,
+        {"id": id},
         partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
