@@ -1,5 +1,4 @@
 import logging
-import jwt
 import pydash
 from functools import partial
 from urllib.parse import urlencode, quote
@@ -15,19 +14,18 @@ AGENDA_API_ROOT = settings.AGENDA_API_URL
 logger = logging.getLogger(__name__)
 
 
-def get_single_agenda_item(jwt_token=None, ai_id = None):
+def get_single_agenda_item(jwt_token=None, pk=None):
     '''
     Get single agenda item
     '''
     args = {
         "uri": "",
-        "id": ai_id,
+        "query": {'aiseqnum': pk},
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "use_post": False,
         "api_root": AGENDA_API_ROOT,
-        "use_id": False,
     }
 
     agenda_item = services.get_individual(
@@ -110,7 +108,10 @@ def convert_agenda_item_query(query):
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.columns": None,
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_id")),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'aiperdetseqnum', 'val': query.get("perdet", None)}]),
+        "rp.filter": services.convert_to_fsbid_ql([
+            {'col': 'aiperdetseqnum', 'val': query.get("perdet", None)},
+            {'col': 'aiseqnum', 'val': query.get("aiseqnum", None)}
+        ]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
