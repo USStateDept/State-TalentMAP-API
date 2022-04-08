@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9fb6275e-a58d-4bdd-a1fd-1eb0dde04483",
+		"_postman_id": "d89c5bc1-b060-4dc9-a81a-f3ce140e543d",
 		"name": "TalentMAP-API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1815,6 +1815,195 @@
 									"key": "limit",
 									"value": "5"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/fsbid/agenda/remarks/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema =     schema = {",
+									"    \"required\": [",
+									"        \"results\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"results\": {",
+									"            \"items\": {",
+									"                \"required\": [",
+									"                    \"seq_num\",",
+									"                    \"rc_code\",",
+									"                    \"order_num\",",
+									"                    \"short_desc_text\",",
+									"                    \"mutually_exclusive_ind\",",
+									"                    \"text\",",
+									"                    \"active_ind\"",
+									"                ],",
+									"                \"properties\": {",
+									"                    \"seq_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/seq_num\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"rc_code\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/rc_code\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"order_num\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/order_num\",",
+									"                        \"type\": \"integer\"",
+									"                    },",
+									"                    \"short_desc_text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/short_desc_text\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"mutually_exclusive_ind\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/mutually_exclusive_ind\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/text\",",
+									"                        \"type\": [\"string\", \"null\"]",
+									"                    },",
+									"                    \"active_ind\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/active_ind\",",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"$id\": \"#/properties/results/items\",",
+									"                \"type\": \"object\"",
+									"            },",
+									"            \"$id\": \"#/properties/results\",",
+									"            \"type\": \"array\"",
+									"        }",
+									"    },",
+									"};",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/agenda/remarks/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"agenda",
+								"remarks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/fsbid/agenda/remark-categories/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var Ajv = require(\"ajv\"),",
+									"    ajv = new Ajv({logger: console}),",
+									"    schema =     schema = {",
+									"    \"required\": [",
+									"        \"results\"",
+									"    ],",
+									"    \"properties\": {",
+									"        \"results\": {",
+									"            \"items\": {",
+									"                \"required\": [",
+									"                    \"code\",",
+									"                    \"desc_text\"",
+									"                ],",
+									"                \"properties\": {",
+									"                    \"code\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/code\",",
+									"                        \"type\": \"string\"",
+									"                    },",
+									"                    \"desc_text\": {",
+									"                        \"$id\": \"#/properties/results/items/properties/desc_text\",",
+									"                        \"type\": \"string\"",
+									"                    }",
+									"                },",
+									"                \"$id\": \"#/properties/results/items\",",
+									"                \"type\": \"object\"",
+									"            },",
+									"            \"$id\": \"#/properties/results\",",
+									"            \"type\": \"array\"",
+									"        }",
+									"    },",
+									"};",
+									"",
+									"pm.test(\"Status code is 200\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Schema is valid\", function() {",
+									"    pm.expect(ajv.validate(schema, pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{Authorization}}",
+								"type": "text"
+							},
+							{
+								"key": "jwt",
+								"value": "{{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/v1/fsbid/agenda/remark-categories/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"fsbid",
+								"agenda",
+								"remark-categories",
+								""
 							]
 						}
 					},
