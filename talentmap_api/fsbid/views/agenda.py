@@ -37,7 +37,7 @@ class AgendaItemListView(BaseView):
 
     def get(self, request):
         '''
-        Gets all Agenda Items for a CDO/AO
+        Gets all Agenda Items
         '''
         return Response(services.get_agenda_items(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
 
@@ -45,9 +45,15 @@ class AgendaItemListView(BaseView):
 class AgendaItemCSVView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("perdet", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Perdet of the Employee.'),
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Which field to use when ordering the results.'),
+        ])
+
     def get(self, request):
         """
-        Return a list of all of the items in Agenda Item History for CSV export
+        Return a list of Agenda Items for CSV export
         """
         return services.get_agenda_item_history_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
 
