@@ -45,13 +45,17 @@ def get_unavailable_position(id, jwt_token):
     '''
     Gets an indivdual unavailable position by id
     '''
-    return services.get_individual(
+    ua_pos = services.send_get_request(
         "availablePositions",
         {"id": id},
         convert_up_query,
         jwt_token,
-        fsbid_ap_to_talentmap_ap
+        fsbid_ap_to_talentmap_ap,
+        None,
+        "/api/v1/fsbid/available_positions/"
     )
+
+    return pydash.get(ua_pos, 'results[0]') or None
 
 
 def get_all_position(id, jwt_token):
