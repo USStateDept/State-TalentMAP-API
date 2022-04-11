@@ -24,15 +24,16 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
-        "use_post": False,
+        "count_function": None,
+        "base_url": "/api/v1/fsbid/agenda/",
         "api_root": AGENDA_API_ROOT,
     }
 
-    agenda_item = services.get_individual(
+    agenda_item = services.send_get_request(
         **args
     )
 
-    return agenda_item
+    return pydash.get(agenda_item, 'results[0]') or None
 
 
 def get_agenda_items(jwt_token=None, query = {}, host=None):
