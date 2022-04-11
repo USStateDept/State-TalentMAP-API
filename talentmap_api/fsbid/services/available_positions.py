@@ -30,11 +30,15 @@ def get_available_position(id, jwt_token):
         "mapping_function": fsbid_ap_to_talentmap_ap,
         "use_post": True,
         "api_root": CP_API_V2_URL,
+        "count_function": None,
+        "base_url": "/api/v1/fsbid/available_positions/",
     }
 
-    return services.get_individual(
+    ap_position = services.send_get_request(
         **args
     )
+
+    return pydash.get(ap_position, 'results[0]') or None
 
 
 def get_unavailable_position(id, jwt_token):
