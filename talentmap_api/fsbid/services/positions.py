@@ -1,6 +1,8 @@
 import logging
 from urllib.parse import urlencode, quote
 
+import pydash
+
 from talentmap_api.fsbid.services import common as services
 
 
