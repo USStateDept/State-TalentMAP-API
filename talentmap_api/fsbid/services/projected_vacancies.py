@@ -20,20 +20,23 @@ def get_projected_vacancy(id, jwt_token):
     '''
     Gets an indivdual projected vacancy by id
     '''
-
     args = {
         "uri": "",
-        "id": id,
+        "query": {"id": id},
         "query_mapping_function": convert_pv_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_pv_to_talentmap_pv,
+        "count_function": None,
         "use_post": True,
+        "base_url": "/api/v1/fsbid/projected_vacancies/",
         "api_root": PV_API_V2_URL,
     }
 
-    return services.get_individual(
+    pv = services.send_get_request(
         **args
     )
+
+    return pydash.get(pv, 'results[0]') or None
 
 
 def get_projected_vacancies(query, jwt_token, host=None):

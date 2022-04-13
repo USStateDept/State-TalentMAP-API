@@ -32,17 +32,22 @@ def get_bureau_position(id, jwt_token):
     '''
     Gets an indivdual bureau position by id
     '''
-    from talentmap_api.fsbid.services.common import get_individual
+    from talentmap_api.fsbid.services.common import send_get_request
 
-    return get_individual(
+    bureau_pos = send_get_request(
         "",
-        id,
+        {"id": id},
         partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
+        None,
+        "/api/v1/fsbid/bureau/",
+        None,
         CP_API_V2_ROOT,
         True,
     )
+
+    return pydash.get(bureau_pos, 'results[0]') or None
 
 
 def get_bureau_positions(query, jwt_token, host=None):

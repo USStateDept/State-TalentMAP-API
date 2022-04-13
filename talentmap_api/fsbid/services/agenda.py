@@ -1,5 +1,4 @@
 import logging
-import jwt
 import pydash
 from functools import partial
 from urllib.parse import urlencode, quote
@@ -15,26 +14,26 @@ AGENDA_API_ROOT = settings.AGENDA_API_URL
 logger = logging.getLogger(__name__)
 
 
-def get_single_agenda_item(jwt_token=None, ai_id = None):
+def get_single_agenda_item(jwt_token=None, pk=None):
     '''
     Get single agenda item
     '''
     args = {
         "uri": "",
-        "id": ai_id,
+        "query": {'aiseqnum': pk},
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
-        "use_post": False,
+        "count_function": None,
+        "base_url": "/api/v1/fsbid/agenda/",
         "api_root": AGENDA_API_ROOT,
-        "use_id": False,
     }
 
-    agenda_item = services.get_individual(
+    agenda_item = services.send_get_request(
         **args
     )
 
-    return agenda_item
+    return pydash.get(agenda_item, 'results[0]') or None
 
 
 def get_agenda_items(jwt_token=None, query = {}, host=None):
@@ -68,7 +67,7 @@ def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_agenda_items_to_talentmap_agenda_items, jwt_token=jwt_token),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "host": host,
         "use_post": False,
         "base_url": AGENDA_API_ROOT,
@@ -110,7 +109,10 @@ def convert_agenda_item_query(query):
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.columns": None,
         "rp.orderBy": services.sorting_values(query.get("ordering", "agenda_id")),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'aiperdetseqnum', 'val': query.get("perdet", None)}]),
+        "rp.filter": services.convert_to_fsbid_ql([
+            {'col': 'aiperdetseqnum', 'val': query.get("perdet", None)},
+            {'col': 'aiseqnum', 'val': query.get("aiseqnum", None)}
+        ]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])

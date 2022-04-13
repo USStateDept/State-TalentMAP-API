@@ -245,12 +245,12 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=Fa
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False, use_id = True):
+def get_individual(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False):
     '''
     Gets an individual record by the provided ID
     '''
     fetch_method = get_results_with_post if use_post else get_results
-    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
+    response = fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 
