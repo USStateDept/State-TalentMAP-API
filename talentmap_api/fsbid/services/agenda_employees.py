@@ -148,6 +148,7 @@ def convert_agenda_employees_query(query):
         # employee IDs can contain letters, and names can contain numbers. This does a best guess at the user's intent
         if len(''.join(re.findall('[0-9]+', qFilterValue))) > 2:
             qFilterKey = 'tmperpertexternalid'
+            qFilterValue = qFilterValue.upper()
         else:
             qFilterKey = 'tmperperfullname'
             qComparator = 'contains'
