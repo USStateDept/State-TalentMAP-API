@@ -463,7 +463,7 @@ def convert_all_query(query):
 
 def get_ap_favorite_ids(query, jwt_token, host=None):
     return services.send_get_request(
-        "availablePositions",
+        "available",
         query,
         convert_ap_query,
         jwt_token,
