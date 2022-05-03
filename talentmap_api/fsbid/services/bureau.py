@@ -158,7 +158,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
     from talentmap_api.fsbid.services.common import has_competing_rank
     from talentmap_api.fsbid.services.reference import get_cycles
-    from talentmap_api.fsbid.services.client import get_middle_name
 
     cdo = None
     classifications = None
@@ -182,7 +181,11 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
             active_handshake_perdet = True
         else:
             active_handshake_perdet = False
-    
+
+    fullname = bid.get("full_name", None)
+    if fullname:
+        fullname = fullname.rstrip(' Nmn')
+
     hasAcceptedOffer = False
     cycles = get_cycles(jwt)
     cycles = pydash.map_(cycles, 'id')
@@ -191,11 +194,6 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     if handshakesAccepted:
         hasAcceptedOffer = True
     
-    employee = pydash.get(bid, 'employee')
-    
-    middle_name = get_middle_name(employee)
-    suffix_name = f" {employee['per_suffix_name']}" if pydash.get(employee, 'per_suffix_name') else ''
-    fullname = f"{employee.get('per_last_name', None)}{suffix_name}, {employee.get('per_first_name', None)} {middle_name['initial']}",
 
     return {
         "emp_id": emp_id,
