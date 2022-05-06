@@ -61,7 +61,6 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
-    import talentmap_api.fsbid.services.client as client_services
 
     args = {
         "uri": "",
@@ -78,11 +77,7 @@ def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
         **args
     )
 
-    perdet = int(query.get("perdet")) if isinstance(query.get("perdet", None), str) else ""
-    client = client_services.single_client(jwt_token, perdet).get('name') if isinstance(perdet, int) else "None listed"
-    filename = f"agenda_item_history_{client}" if isinstance(perdet, int) and client is not "None listed" else "agenda_item_history" 
-
-    response = services.get_aih_csv(data, filename)
+    response = services.get_aih_csv(data, f"agenda_item_history_{query.get('client')}")
 
     return response
 
