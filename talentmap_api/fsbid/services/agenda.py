@@ -77,7 +77,7 @@ def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
         **args
     )
 
-    response = services.get_aih_csv(data, "agenda_item_history")
+    response = services.get_aih_csv(data, f"agenda_item_history_{query.get('client')}")
 
     return response
 
