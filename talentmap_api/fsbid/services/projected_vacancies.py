@@ -161,10 +161,13 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
+    ted = ensure_date(pv.get("fv_override_ted_date", None), utc_offset=-5)
+    if ted is None:
+        ted = ensure_date(pv.get("ted", None), utc_offset=-5)
     skill2 = services.get_secondary_skill(pv)
     return {
         "id": pv.get("fv_seq_num", None),
-        "ted": ensure_date(pv.get("ted", None), utc_offset=-5),
+        "ted": ted,
         "bidcycle": {
             "id": pv.get("bsn_id", None),
             "name": pv.get("bsn_descr_text", None),
