@@ -37,8 +37,6 @@ services:
       - EMAIL_USE_TLS=false
       - EMAIL_IS_DEV=false
       - EMAIL_DEV_TO=${EMAIL_DEV_TO}
-      - USE_CP_API_V2=true
-      - USE_PV_API_V2=true
   haproxy:
     image: eeacms/haproxy
     depends_on:

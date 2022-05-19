@@ -45,7 +45,7 @@ def test_bidder_fixture(authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
 def test_projected_vacancies_actions(authorized_client, authorized_user):
-    with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
+    with patch('talentmap_api.fsbid.services.common.requests.post') as mock_get:
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [pv], "return_code": 0}
         response = authorized_client.get('/api/v1/fsbid/projected_vacancies/', HTTP_JWT=fake_jwt)
@@ -55,7 +55,7 @@ def test_projected_vacancies_actions(authorized_client, authorized_user):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.usefixtures("test_bidder_fixture")
 def test_projected_vacancy_actions(authorized_client, authorized_user):
-    with patch('talentmap_api.fsbid.services.common.requests.get') as mock_get:
+    with patch('talentmap_api.fsbid.services.common.requests.post') as mock_get:
         mock_get.return_value = Mock(ok=True)
         mock_get.return_value.json.return_value = {"Data": [pv], "return_code": 0}
         response = authorized_client.get(f'/api/v1/fsbid/projected_vacancies/{pv["fv_seq_num"]}/', HTTP_JWT=fake_jwt)

@@ -24,7 +24,6 @@ from talentmap_api.bidding.models import BidHandshake
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
 CP_API_ROOT = settings.CP_API_URL
 CP_API_V2_ROOT = settings.CP_API_V2_URL
 
@@ -33,17 +32,22 @@ def get_bureau_position(id, jwt_token):
     '''
     Gets an indivdual bureau position by id
     '''
-    from talentmap_api.fsbid.services.common import get_individual
+    from talentmap_api.fsbid.services.common import send_get_request
 
-    return get_individual(
+    bureau_pos = send_get_request(
         "",
-        id,
+        {"id": id},
         partial(convert_bp_query, use_post=True),
         jwt_token,
         fsbid_bureau_positions_to_talentmap,
+        None,
+        "/api/v1/fsbid/bureau/",
+        None,
         CP_API_V2_ROOT,
         True,
     )
+
+    return pydash.get(bureau_pos, 'results[0]') or None
 
 
 def get_bureau_positions(query, jwt_token, host=None):
@@ -177,11 +181,11 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
             active_handshake_perdet = True
         else:
             active_handshake_perdet = False
-    
+
     fullname = bid.get("full_name", None)
     if fullname:
         fullname = fullname.rstrip(' Nmn')
-    
+
     hasAcceptedOffer = False
     cycles = get_cycles(jwt)
     cycles = pydash.map_(cycles, 'id')
@@ -189,6 +193,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     handshakesAccepted = list(handshakesAccepted)
     if handshakesAccepted:
         hasAcceptedOffer = True
+    
 
     return {
         "emp_id": emp_id,

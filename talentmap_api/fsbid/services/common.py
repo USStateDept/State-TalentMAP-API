@@ -28,11 +28,13 @@ from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
+API_ROOT = settings.WS_ROOT_API_URL
 CP_API_V2_ROOT = settings.CP_API_V2_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
+PV_API_V2_URL = settings.PV_API_V2_URL
+CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
 
 urls_expire_after = {
@@ -163,6 +165,11 @@ sort_dict = {
     "bidder_ted": "TED",
     "bidder_name": "full_name",
     "bidder_bid_submitted_date": "bid_submit_date",
+    # Agenda Employees Search
+    "agenda_employee_fullname": "tmperperfullname",
+    "agenda_employee_id": "tmperpertexternalid",
+    "agenda_employee_ted": "tmpercurrentted",
+    "agenda_employee_panel_date": "tmperpanelmeetingdate",
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
@@ -219,8 +226,8 @@ def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping
         return response.get("Data", {})
 
 
-def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False):
-    url = f"{API_ROOT}/{uri}"
+def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=False, api_root=API_ROOT):
+    url = f"{api_root}/{uri}"
     # TODO - fix SSL issue with use_cache
     # method = session if use_cache else requests
     method = requests
@@ -238,12 +245,12 @@ def get_fsbid_results(uri, jwt_token, mapping_function, email=None, use_cache=Fa
     return map(mapping_function, response.get("Data", {}))
 
 
-def get_individual(uri, id, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False, use_id = True):
+def get_individual(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT, use_post=False):
     '''
     Gets an individual record by the provided ID
     '''
     fetch_method = get_results_with_post if use_post else get_results
-    response = fetch_method(uri if use_id else f"{uri}{id}", {"id": id} if use_id else {}, query_mapping_function, jwt_token, mapping_function, api_root)
+    response = fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
 
 
@@ -259,18 +266,20 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
     }
 
 
-def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False):
+def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False, is_template=False):
     '''
     Gets the total number of items for a filterset
     '''
     args = {}
 
     newQuery = query.copy()
-    if uri in ('CDOClients', 'positions/futureVacancies/tandem', 'positions/available/tandem', 'cyclePositions'):
+    if api_root == CLIENTS_ROOT_V2 and not uri:
         newQuery['getCount'] = 'true'
-    if api_root == CP_API_V2_ROOT and not uri:
+    if api_root == CP_API_V2_ROOT and (not uri or uri in ('availableTandem')):
         newQuery['getCount'] = 'true'
-    if uri in ('availableTandem', 'tandem'):
+    if api_root == PV_API_V2_URL:
+        newQuery['getCount'] = 'true'
+    if is_template:
         newQuery['getCount'] = 'true'
 
     if use_post:
@@ -280,7 +289,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     else:
         url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
         method = requests.get
-
+    
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
     countObj = pydash.get(response, "Data[0]")
     if len(pydash.keys(countObj)):
@@ -713,10 +722,23 @@ def sort_bids(bidlist, ordering_query):
 # known comparators:
 # eq: equals
 # in: in
-def convert_to_fsbid_ql(column = '', value = '', comparator = 'eq'):
-    if not column and not value and not comparator:
-        return None
-    return f"{column}|{comparator}|{value}|"
+def convert_to_fsbid_ql(filters):
+    formattedFilters = []
+
+    for fil in filters:
+        if pydash.get(fil, 'col') and pydash.get(fil, 'val'):
+            comp = pydash.get(fil, 'com') or 'EQ'
+            value = f"{fil['col']}|{comp}|{fil['val']}|"
+            if pydash.get(fil, 'isDate'):
+                dateFormat = pydash.get(fil, 'dateFormat') if pydash.get(fil, 'dateFormat') else 'YYYY-MM-DD'
+                formattedFilters.append(f"{value}{dateFormat}")
+            else:
+                formattedFilters.append(f"{value}")
+
+    if not formattedFilters:
+        return []
+
+    return formattedFilters
 
 
 def categorize_remark(remark = ''):
@@ -786,15 +808,22 @@ def get_aih_csv(data, filename):
         row = []
         # need to update
         row.append(smart_str(pydash.get(record, "assignment.pos_title")))
-        row.append(smart_str(pydash.get(record, "assignment.pos_num")))
+        row.append(smart_str("=\"%s\"" % pydash.get(record, "assignment.pos_num")))
         row.append(smart_str(pydash.get(record, "assignment.org")))
         row.append(eta)
         row.append(ted)
         row.append(smart_str(pydash.get(record, "assignment.tod")))
-        row.append(smart_str(pydash.get(record, "assignment.grade")))
+        row.append(smart_str("=\"%s\"" % pydash.get(record, "assignment.grade")))
         row.append(panelDate)
-        row.append(smart_str(pydash.get(record, "status")))
+        row.append(smart_str(pydash.get(record, "status_full")))
         row.append(smart_str(remarks))
 
         writer.writerow(row)
     return response
+
+def map_return_template_cols(cols, cols_mapping, data):
+    # cols: an array of strs of the TM data names to map and return
+    # cols_mapping: dict to map from TM names(key) to WS names(value)
+    props_to_map = pydash.pick(cols_mapping, *cols)
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), props_to_map.items())
+    return dict(mapped_tuples)

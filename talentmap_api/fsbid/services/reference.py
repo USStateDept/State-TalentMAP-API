@@ -8,8 +8,6 @@ from django.conf import settings
 import talentmap_api.fsbid.services.common as common
 from talentmap_api.fsbid.views import reference as views
 
-API_ROOT = settings.FSBID_API_URL
-
 logger = logging.getLogger(__name__)
 
 

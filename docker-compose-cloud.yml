@@ -1,12 +1,9 @@
 version: '2'
 services:
   app:
+    platform: linux/x86_64
     build:
       context: .
-    links:
-      - oracle
-    depends_on:
-      - oracle
     deploy:
       replicas: ${REPLICAS-1}
     # use this to run in https server locally
@@ -14,17 +11,15 @@ services:
     command: >
       bash -c "python show_logo.py
       && echo 'Starting...'
-      && ./wait-for-oracle.sh oracle:1521/oraclesid sys oraclepwd 'as sysdba'
-      && ./create-oracle-user.sh oracle:1521/oraclesid sys oraclepwd 'as sysdba'
-      && ./wait-for-oracle.sh oracle:1521/oraclepdb talentmap1 talentmap1 '' true
       && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app:delegated
     environment:
+      - TNS_ADMIN=./
       - DJANGO_SECRET_KEY=development_secret_key
-      - DATABASE_URL=oracle:1521/oraclepdb
-      - DATABASE_USER=talentmap1
-      - DATABASE_PW=talentmap1
+      - DATABASE_URL=${ORACLE_URL}
+      - DATABASE_USER=${ORACLE_USER}
+      - DATABASE_PW=${ORACLE_PW}
       - DJANGO_DEBUG=true
       - WS_ROOT_API_URL=http://host.docker.internal:3333
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/v1/Employees
@@ -36,8 +31,8 @@ services:
       - CLIENTS_API_URL=http://host.docker.internal:3333/v1/Clients
       - CLIENTS_API_V2_URL=http://host.docker.internal:3333/v2/clients
       - TP_API_URL=http://host.docker.internal:3333/v1/TrackingPrograms
-      - AGENDA_API_URL=http://host.docker.internal:3333/v1/Agendas
       - PANEL_API_URL=http://host.docker.internal:3333/v1/panels
+      - AGENDA_API_URL=http://host.docker.internal:3333/v1/Agendas
       - PERSON_API_URL=http://host.docker.internal:3333/v3/persons
       - BIDS_API_V2_URL=http://host.docker.internal:3333/v2/bids
       - EMAIL_ENABLED=true
@@ -63,12 +58,6 @@ services:
       BACKENDS_PORT: "8000"
       DNS_ENABLED: "true"
       LOG_LEVEL: "info"
-  oracle:
-    ports:
-        - 1521:1521
-    image: mjoyce91/oracle193db:fast
-    volumes:
-      - oracle:/var/lib/oracle/data/:delegated
   maildev:
     image: maildev/maildev
     ports:
@@ -76,4 +65,3 @@ services:
       - "1025:25"
 volumes:
   pgdata:
-  oracle:

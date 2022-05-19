@@ -14,7 +14,6 @@ import talentmap_api.fsbid.services.available_positions as services_ap
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.requests import requests
 
-API_ROOT = settings.FSBID_API_URL
 HRDATA_URL = settings.HRDATA_URL
 HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 SECREF_ROOT = settings.SECREF_URL
@@ -67,7 +66,7 @@ def get_clients_count(query, jwt_token, host=None):
     Gets the total number of available positions for a filterset
     '''
     from talentmap_api.fsbid.services.common import send_count_request
-    return send_count_request("CDOClients", query, convert_client_count_query, jwt_token, host)
+    return send_count_request("", query, convert_client_count_query, jwt_token, host, CLIENTS_ROOT_V2)
 
 
 def client_suggestions(jwt_token, perdet_seq_num):
@@ -172,12 +171,12 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
     from talentmap_api.fsbid.services.common import send_get_csv_request
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     data = send_get_csv_request(
-        "CDOClients",
+        "",
         query,
         convert_client_query,
         jwt_token,
         fsbid_clients_to_talentmap_clients_for_csv,
-        API_ROOT,
+        CLIENTS_ROOT_V2,
         host,
         ad_id
     )
@@ -272,11 +271,12 @@ def fsbid_clients_to_talentmap_clients(data):
         initials = None
 
     middle_name = get_middle_name(employee)
+    suffix_name = f" {employee['per_suffix_name']}" if pydash.get(employee, 'per_suffix_name') else ''
 
     return {
         "id": str(employee.get("pert_external_id", None)),
-        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
-        "shortened_name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}{suffix_name}",
+        "shortened_name": f"{employee.get('per_last_name', None)}{suffix_name}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "initials": initials,
         "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),
@@ -305,10 +305,12 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         position = current_assignment.get('currentPosition', None)
         if position is not None:
             pos_location = map_location(position.get("currentLocation", None))
+    
+    suffix_name = f" {employee['per_suffix_name']}" if pydash.get(employee, 'per_suffix_name') else ''
 
     return {
         "id": employee.get("perdet_seq_num", None),
-        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}{suffix_name}",
         "grade": employee.get("per_grade_code", None),
         "skills": ' , '.join(map_skill_codes_for_csv(employee)),
         "employee_id": employee.get("pert_external_id", None),
@@ -322,8 +324,8 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
     }
 
 
-def get_middle_name(employee):
-    middle_name = employee.get('per_middle_name', None) or ''
+def get_middle_name(employee, prop='per_middle_name'):
+    middle_name = employee.get(prop, None) or ''
     middle_initial = ''
     if middle_name == 'NMN':
         middle_name = ''
@@ -638,6 +640,7 @@ def fsbid_available_bidder_to_talentmap(data):
         initials = None
 
     middle_name = get_middle_name(employee)
+    suffix_name = f" {employee['per_suffix_name']}" if pydash.get(employee, 'per_suffix_name') else ''
 
     res = {
         "id": str(employee.get("pert_external_id", None)),
@@ -648,8 +651,8 @@ def fsbid_available_bidder_to_talentmap(data):
             "email": data.get('cdo_email', None),
             "hru_id": data.get("hru_id", None),
         },
-        "name": f"{employee.get('per_last_name', None)}, {employee.get('per_first_name', None)} {middle_name['initial']}",
-        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}",
+        "name": f"{employee.get('per_last_name', None)}{suffix_name}, {employee.get('per_first_name', None)} {middle_name['initial']}",
+        "shortened_name": f"{employee.get('per_first_name', None)} {middle_name['initial']}{employee.get('per_last_name', None)}{suffix_name}",
         "initials": initials,
         "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
         "grade": employee.get("per_grade_code", None),

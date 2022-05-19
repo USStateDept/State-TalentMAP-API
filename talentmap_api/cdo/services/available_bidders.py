@@ -19,82 +19,87 @@ from talentmap_api.fsbid.services.common import mapBool
 
 logger = logging.getLogger(__name__)
 
-API_ROOT = settings.FSBID_API_URL
-
 
 def get_available_bidders_stats(data):
     '''
     Returns all Available Bidders statistics
     '''
     stats = {
-        'Bureau': {},  # comes through, but only with the short name/acronym
+        'Bureau': {},
+        'CDO': {},
         'Grade': {},
+        'OC Bureau': {},
         'Post': {},
         'Skill': {},
         'Status': {},
-        'TED': {},
     }
+
     stats_sum = {
         'Bureau': 0,
+        'CDO': 0,
         'Grade': 0,
+        'OC Bureau': 0,
         'Post': 0,
         'Skill': 0,
         'Status': 0,
-        'TED': 0,
     }
+
+    config = [
+        { 'key': 'current_assignment.position.bureau_code', 'statsKey': 'Bureau' },
+        { 'key': 'cdo.full_name', 'statsKey': 'CDO' },
+        { 'key': 'grade', 'statsKey': 'Grade' },
+        { 'key': 'available_bidder_details.oc_bureau', 'statsKey': 'OC Bureau' },
+        { 'key': 'pos_location', 'statsKey': 'Post' },
+        { 'key': 'skills', 'statsKey': 'Skill' },
+        { 'key': 'available_bidder_details.status', 'statsKey': 'Status' },
+    ]
+
+    none_listed = {'name': 'None listed', 'value': 0}
 
     if data:
         # get stats for various fields
         for bidder in pydash.get(data, 'results'):
-            if bidder['current_assignment']['position']['bureau_code'] not in stats['Bureau']:
-                stats['Bureau'][bidder['current_assignment']['position']['bureau_code']] = {'name': f"{bidder['current_assignment']['position']['bureau_code']}", 'value': 0}
-            stats['Bureau'][bidder['current_assignment']['position']['bureau_code']]['value'] += 1
-            stats_sum['Bureau'] += 1
+            def map_object(stat):
+                key = pydash.get(bidder, stat['key'])
+                stats_key = stats[stat['statsKey']]
+                if stat['key'] == 'skills':
+                    skill = list(deepcopy(filter(None, bidder[stat['key']])))
+                    key = skill[0]['code']
+                    if key not in stats['Skill']:
+                        stats_key[key] = deepcopy(none_listed) if key == None else {'name': f"{skill[0]['description']}", 'value': 0}
+                else:
+                    if key not in stats[stat['statsKey']]:
+                        stats_key[key] = deepcopy(none_listed) if key == None else {'name': f"{key}", 'value': 0}
 
-            if bidder['grade'] not in stats['Grade']:
-                stats['Grade'][bidder['grade']] = {'name': f"Grade {bidder['grade']}", 'value': 0}
-            stats['Grade'][bidder['grade']]['value'] += 1
-            stats_sum['Grade'] += 1
+                stats_key[key]['value'] += 1
+                stats_sum[stat['statsKey']] += 1
 
-            if bidder['pos_location'] not in stats['Post']:
-                stats['Post'][bidder['pos_location']] = {'name': f"{bidder['pos_location']}", 'value': 0}
-            stats['Post'][bidder['pos_location']]['value'] += 1
-            stats_sum['Post'] += 1
-
-            skill = list(deepcopy(filter(None, bidder['skills'])))
-            skill_key = skill[0]['code']
-            if skill_key not in stats['Skill']:
-                stats['Skill'][skill_key] = {'name': f"{skill[0]['description']}", 'value': 0}
-            stats['Skill'][skill_key]['value'] += 1
-            stats_sum['Skill'] += 1
-
-            ab_status_key = pydash.get(bidder, 'available_bidder_details.status')
-            if ab_status_key:
-                if ab_status_key not in stats['Status']:
-                    stats['Status'][ab_status_key] = {'name': f"{ab_status_key}", 'value': 0}
-                stats['Status'][ab_status_key]['value'] += 1
-                stats_sum['Status'] += 1
-
-            ted_key = ensure_date(pydash.get(bidder, "current_assignment.end_date"), utc_offset=-5) or 'None listed'
-            ted_key = "None listed" if ted_key is "None listed" else smart_str(maya.parse(ted_key).datetime().strftime('%m/%d/%Y'))
-            if ted_key not in stats['TED']:
-                stats['TED'][ted_key] = {'name': f"{ted_key}", 'value': 0}
-            stats['TED'][ted_key]['value'] += 1
-            stats_sum['TED'] += 1
+            pydash.for_each(config, map_object)
 
     # adding percentage & creating final data structure to pass to FE
-    biddersStats = {}
+    bidders_stats = {}
     for stat in stats:
         stat_sum = stats_sum[stat]
-        biddersStats[stat] = []
+        bidders_stats[stat] = []
         for s in stats[stat]:
             stat_value = stats[stat][s]['value']
-            biddersStats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
+            bidders_stats[stat].append({**stats[stat][s], 'percent': "{:.0%}".format(stat_value / stat_sum)})
 
-    biddersStats['Sum'] = stats_sum
+    # partition is used to handle the edge case when
+    # len(bidders_stats['Post']) > 18 and all the post only have a value of 1
+    # 18 was chosen due to UI Columns
+    if len(bidders_stats['Post']) > 18:
+        post_partition = pydash.partition(bidders_stats['Post'], lambda post: post['value'] > 1)
+        take_from_pp = 18 - len(post_partition[0])
+        post_partition[0].extend(post_partition[1][:take_from_pp])
+        bidders_stats['Post'] = post_partition[0]
+    
+    bidders_stats['Grade'] = sorted(bidders_stats['Grade'], key = lambda grade: grade['name'])
+    bidders_stats['Skill'] = sorted(bidders_stats['Skill'], key = lambda skill: skill['name'])
+    bidders_stats['Sum'] = stats_sum
 
     return {
-        "stats": biddersStats,
+        "stats": bidders_stats,
     }
 
 
@@ -115,6 +120,8 @@ def get_available_bidders_csv(request):
         smart_str(u"Status"),
         smart_str(u"OC Bureau"),
         smart_str(u"OC Reason"),
+        smart_str(u"Step Letter One"),
+        smart_str(u"Step Letter Two"),
         smart_str(u"Skills"),
         smart_str(u"Grade"),
         smart_str(u"Languages"),
@@ -131,6 +138,8 @@ def get_available_bidders_csv(request):
     fields_info = {
         "name": None,
         "status": {"path": 'available_bidder_details.status', },
+        "step_letter_one": {"path": 'available_bidder_details.step_letter_one', },
+        "step_letter_two": {"path": 'available_bidder_details.step_letter_two', },
         "skills": {"default": "No Skills listed", "description_and_code": True},
         "grade": None,
         "ted": {"path": 'current_assignment.end_date', },
@@ -160,11 +169,21 @@ def get_available_bidders_csv(request):
             ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
         except:
             ted = 'None listed'
+        try:
+            step_letter_one = maya.parse(fields["step_letter_one"]).datetime().strftime('%m/%d/%Y')
+        except:
+            step_letter_one = 'None listed'
+        try:
+            step_letter_two = maya.parse(fields["step_letter_two"]).datetime().strftime('%m/%d/%Y')
+        except:
+            step_letter_two = 'None listed'
         writer.writerow([
             fields["name"],
             fields["status"],
             fields["oc_bureau"],
             fields["oc_reason"],
+            step_letter_one,
+            step_letter_two,
             fields["skills"],
             smart_str("=\"%s\"" % fields["grade"]),
             languages,
