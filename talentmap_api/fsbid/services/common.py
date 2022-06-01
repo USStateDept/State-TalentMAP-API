@@ -463,9 +463,7 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
             row.append(mapBool[pydash.get(record, "isHardToFill")])
-        #row.append(smart_str(record["position"]["post"]["differential_rate"]))
         row.append(formattedDifferential)
-        #row.append(smart_str(record["position"]["post"]["danger_pay"]))
         row.append(formattedDanger)
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
