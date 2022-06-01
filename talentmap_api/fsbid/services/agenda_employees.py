@@ -51,6 +51,35 @@ def get_agenda_employees(query, jwt_token=None, host=None):
     return agenda_employees
 
 
+def get_agenda_employee(query, perdet, jwt_token=None, host=None):
+    '''
+    Gets one employee
+    '''
+    from talentmap_api.fsbid.services.cdo import cdo
+    try:
+        cdos = list(cdo(jwt_token))
+    except:
+        cdos = []
+
+    args = {
+        "uri": "v1/tm-persons",
+        "query": query, 
+        "query_mapping_function": partial(convert_agenda_employee_query, perdet),
+        "jwt_token": jwt_token,
+        "mapping_function": partial(fsbid_agenda_employee_to_talentmap_agenda_employee, cdos=cdos),
+        "count_function": "",
+        "base_url": '',
+        "host": host,
+        "use_post": False,
+    }
+
+    agenda_employees = services.send_get_request(
+        **args
+    )
+
+    return agenda_employees
+
+
 def get_agenda_employees_count(query, jwt_token, host=None, use_post=False):
     '''
     Get total number of employees for agenda search
@@ -205,6 +234,27 @@ def convert_agenda_employees_query(query):
         values["rp.pageNum"] = 0
         values["rp.pageRows"] = 0
         values["rp.columns"] = "ROWCOUNT"
+    
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def convert_agenda_employee_query(perdet, query):
+    '''
+    Convert TalentMAP filter into FSBid filter for one employee
+    '''
+    filters = [
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": perdet},
+    ]
+
+    filters = pydash.filter_(filters, lambda o: o["val"] != None)
+
+    filters = services.convert_to_fsbid_ql(filters)
+
+    values = {
+        "rp.pageRows": query.get('limit', 1), 
+        "rp.filter": filters,
+    }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)

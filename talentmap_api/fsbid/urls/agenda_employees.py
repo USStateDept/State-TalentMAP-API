@@ -7,6 +7,7 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     url(r'^$', views.FSBidAgendaEmployeesListView.as_view(), name="agenda-employees-FSBid-agenda-employees-list"),
+    url(r'^employee/(?P<pk>[0-9]+)/$', views.FSBidAgendaEmployeesEmployeeListView.as_view(), name="agenda-employees-FSBid-agenda-employees-employee"),
     url(r'^export/$', views.FSBidAgendaEmployeesCSVView.as_view(), name="agenda-employees-FSBid-agenda-employees-export"),
     url(r'^reference/current-organizations/$', views.FSBidPersonCurrentOrganizationsView.as_view(), name='agenda-employees-fsbid-reference-current-organizations'),
     url(r'^reference/handshake-organizations/$', views.FSBidPersonHandshakeOrganizationsView.as_view(), name='agenda-employees-fsbid-reference-hs-organizations'),
