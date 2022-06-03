@@ -436,6 +436,17 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             posteddate = "None listed"
 
+
+        if record["position"]["post"]["differential_rate"] is not None:
+            formattedDifferential = record["position"]["post"]["differential_rate"]
+        else:
+            formattedDifferential = 0
+
+        if record["position"]["post"]["danger_pay"] is not None:
+            formattedDanger = record["position"]["post"]["danger_pay"]
+        else:
+            formattedDanger = 0
+
         row = []
         row.append(smart_str(record["position"]["title"]))
         if tandem:
@@ -452,8 +463,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
             row.append(mapBool[pydash.get(record, "isHardToFill")])
-        row.append(smart_str(record["position"]["post"]["differential_rate"]))
-        row.append(smart_str(record["position"]["post"]["danger_pay"]))
+        row.append(formattedDifferential)
+        row.append(formattedDanger)
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
         if not ap:
