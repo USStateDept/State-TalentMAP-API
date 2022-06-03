@@ -40,6 +40,7 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
     '''
     Get agenda items
     '''
+    from talentmap_api.fsbid.services.agenda_employees import get_agenda_employee
     args = {
         "uri": "",
         "query": query,
@@ -57,7 +58,14 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         **args
     )
 
-    return agenda_items
+    perdet = query['perdet']
+    employeeQuery = { "limit": 1 }
+    employee = get_agenda_employee(employeeQuery, perdet, jwt_token, host)
+
+    return {
+        "employee": employee,
+        "results": agenda_items,
+    }
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
