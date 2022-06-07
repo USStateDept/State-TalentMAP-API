@@ -45,24 +45,6 @@ class FSBidAgendaEmployeesListView(BaseView):
         return Response(services.get_agenda_employees(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
 
-class FSBidAgendaEmployeesEmployeeListView(BaseView):
-    
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
-
-    @swagger_auto_schema(
-        manual_parameters=pydash.concat([
-            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
-        ],
-        base_parameters)
-    )
-
-    def get(self, request, pk):
-        '''
-        Gets one agenda employee
-        '''
-        return Response(services.get_agenda_employee(request.query_params, pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
-
-
 class FSBidAgendaEmployeesCSVView(BaseView):
     
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]

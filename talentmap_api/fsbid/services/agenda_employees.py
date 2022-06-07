@@ -247,8 +247,6 @@ def convert_agenda_employee_query(perdet, query):
         {"col": "tmperperdetseqnum", "com": "EQ", "val": perdet},
     ]
 
-    filters = pydash.filter_(filters, lambda o: o["val"] != None)
-
     filters = services.convert_to_fsbid_ql(filters)
 
     values = {
