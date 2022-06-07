@@ -8,7 +8,6 @@ from django.conf import settings
 from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
-AGENDA_ITEM_API_ROOT = settings.AGENDA_ITEM_API_URL
 AGENDA_API_ROOT = settings.AGENDA_API_URL
 
 logger = logging.getLogger(__name__)
