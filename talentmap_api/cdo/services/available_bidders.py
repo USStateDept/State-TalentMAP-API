@@ -133,7 +133,7 @@ def get_available_bidders_csv(request):
         smart_str(u"CDO Name"),
         smart_str(u"CDO Email"),
         smart_str(u"Updated"),
-        smart_str(u"Comments"),
+        smart_str(u"Notes"),
         smart_str(u"Shared with Bureau"),
     ])
     fields_info = {
@@ -151,7 +151,7 @@ def get_available_bidders_csv(request):
         "state": {"path": 'current_assignment.position.post.location.state', },
         "country": {"path": 'current_assignment.position.post.location.country', },
         "updated_on": {"path": 'available_bidder_details.update_date', },
-        "comments": {"path": 'available_bidder_details.comments', },
+        "notes": {"path": 'available_bidder_details.comments', },
         "is_shared": {"path": 'available_bidder_details.is_shared', },
         "cdo_email": {"path": 'cdo.email', },
     }
@@ -201,7 +201,7 @@ def get_available_bidders_csv(request):
             cdo_name,
             fields["cdo_email"],
             update_date,
-            fields["comments"],
+            fields["notes"],
             mapBool[fields["is_shared"]],
         ])
 
