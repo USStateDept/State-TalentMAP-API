@@ -51,35 +51,6 @@ def get_agenda_employees(query, jwt_token=None, host=None):
     return agenda_employees
 
 
-def get_agenda_employee(query, jwt_token=None, host=None):
-    '''
-    Gets one employee
-    '''
-    from talentmap_api.fsbid.services.cdo import cdo
-    try:
-        cdos = list(cdo(jwt_token))
-    except:
-        cdos = []
-
-    args = {
-        "uri": "v1/tm-persons",
-        "query": query, 
-        "query_mapping_function": partial(convert_agenda_employee_query, query['perdet']),
-        "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_agenda_employee_to_talentmap_agenda_employee, cdos=cdos),
-        "count_function": "",
-        "base_url": '',
-        "host": host,
-        "use_post": False,
-    }
-
-    agenda_employees = services.send_get_request(
-        **args
-    )
-
-    return agenda_employees
-
-
 def get_agenda_employees_count(query, jwt_token, host=None, use_post=False):
     '''
     Get total number of employees for agenda search
@@ -193,6 +164,7 @@ def convert_agenda_employees_query(query):
         {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
         {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
         {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U"},
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
     ]
 
     if query.get("handshake", None):
@@ -238,24 +210,6 @@ def convert_agenda_employees_query(query):
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-
-def convert_agenda_employee_query(perdet, query):
-    '''
-    Convert TalentMAP filter into FSBid filter for one employee
-    '''
-    filters = [
-        {"col": "tmperperdetseqnum", "com": "EQ", "val": perdet},
-    ]
-
-    filters = services.convert_to_fsbid_ql(filters)
-
-    values = {
-        "rp.pageRows": query.get('limit', 1), 
-        "rp.filter": filters,
-    }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
     '''
