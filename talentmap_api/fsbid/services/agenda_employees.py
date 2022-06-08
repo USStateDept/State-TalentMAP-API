@@ -51,7 +51,7 @@ def get_agenda_employees(query, jwt_token=None, host=None):
     return agenda_employees
 
 
-def get_agenda_employee(query, perdet, jwt_token=None, host=None):
+def get_agenda_employee(query, jwt_token=None, host=None):
     '''
     Gets one employee
     '''
@@ -64,7 +64,7 @@ def get_agenda_employee(query, perdet, jwt_token=None, host=None):
     args = {
         "uri": "v1/tm-persons",
         "query": query, 
-        "query_mapping_function": partial(convert_agenda_employee_query, perdet),
+        "query_mapping_function": partial(convert_agenda_employee_query, query['perdet']),
         "jwt_token": jwt_token,
         "mapping_function": partial(fsbid_agenda_employee_to_talentmap_agenda_employee, cdos=cdos),
         "count_function": "",

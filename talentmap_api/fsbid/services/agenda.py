@@ -57,9 +57,8 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         **args
     )
 
-    perdet = query['perdet']
-    employeeQuery = { "limit": 1 }
-    employee = get_agenda_employee(employeeQuery, perdet, jwt_token, host)
+    employeeQuery = { "limit": 1, "perdet": query['perdet'] }
+    employee = get_agenda_employee(employeeQuery, jwt_token, host)
 
     return {
         "employee": employee,
