@@ -164,6 +164,7 @@ def convert_agenda_employees_query(query):
         {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
         {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
         {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U"},
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
     ]
 
     if query.get("handshake", None):
