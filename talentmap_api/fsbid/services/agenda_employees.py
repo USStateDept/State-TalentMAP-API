@@ -206,10 +206,9 @@ def convert_agenda_employees_query(query):
         values["rp.pageNum"] = 0
         values["rp.pageRows"] = 0
         values["rp.columns"] = "ROWCOUNT"
-    
+
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
 
 def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
     '''
