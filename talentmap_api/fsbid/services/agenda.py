@@ -4,6 +4,7 @@ from functools import partial
 from urllib.parse import urlencode, quote
 
 from django.conf import settings
+from django.http import QueryDict
 
 from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
@@ -39,6 +40,7 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
     '''
     Get agenda items
     '''
+    from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
     args = {
         "uri": "",
         "query": query,
@@ -56,7 +58,12 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         **args
     )
 
-    return agenda_items
+    employeeQuery = QueryDict(f"limit=1&page=1&perdet={query.get('perdet', None)}")
+    employee = get_agenda_employees(employeeQuery, jwt_token, host)
+    return {
+        "employee": employee,
+        "results": agenda_items,
+    }
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
