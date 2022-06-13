@@ -526,8 +526,10 @@ def get_bids_csv(data, filename, jwt_token):
         "handshake_accepted": "Handshake Accepted",
         "handshake_declined": "Handshake Declined",
         "handshake_needs_registered": "Handshake Needs Registered",
+        "handshake_offered": "Handshake Offered",
         "handshake_with_another_bidder": "Handshake Registered With Another Bidder",
         "in_panel": "In Panel",
+        "pre_panel": "Pre Panel",
         "submitted": "Submitted",
         "N/A": "N/A",
     }
@@ -536,6 +538,7 @@ def get_bids_csv(data, filename, jwt_token):
         "declined",
         "handshake_declined",
         "handshake_needs_registered",
+        "handshake_offered"
         "submitted",
     ]
 
