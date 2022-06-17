@@ -553,8 +553,6 @@ def get_bids_csv(data, filename, jwt_token):
             status = pydash.get(record, "status") or 'N/A'
             hs_offered_bid_status = status
 
-            if hs_offered == "Yes" and status == "draft":
-                hs_offered_bid_status = status
             if hs_offered == "Yes" and status in bid_status_list:
                 hs_offered_bid_status = "handshake_with_another_bidder"
             
