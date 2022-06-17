@@ -550,7 +550,7 @@ def get_bids_csv(data, filename, jwt_token):
             
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
-            row.append(bid_status[hs_offered_bid_status])
+            row.append(pydash.get(bid_status, hs_offered_bid_status) or 'N/A')
             row.append(smart_str(pydash.get(record, 'position_info.position.title')))
             row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.position_number')))
             row.append(smart_str(pydash.get(record, 'position_info.position.skill')))
