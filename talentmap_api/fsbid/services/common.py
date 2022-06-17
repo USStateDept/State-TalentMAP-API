@@ -493,6 +493,7 @@ def get_bids_csv(data, filename, jwt_token):
 
     # write the headers
     headers = []
+    headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Position"))
     headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Skill"))
@@ -504,14 +505,12 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Languages"))
     headers.append(smart_str(u"Service Need Differential"))
     headers.append(smart_str(u"Hard to Fill"))
-    headers.append(smart_str(u"Handshake Offered"))
     headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle"))
-    headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
     headers.append(smart_str(u"Bid Updated by CDO"))
     headers.append(smart_str(u"Bid Count"))
@@ -519,14 +518,39 @@ def get_bids_csv(data, filename, jwt_token):
 
     writer.writerow(headers)
 
+    bid_status = {
+        "approved": "Approved",
+        "closed": "Closed",
+        "draft": "Draft",
+        "handshake_accepted": "Handshake Accepted",
+        "handshake_needs_registered": "Handshake Needs Registered",
+        "handshake_with_another_bidder": "Handshake Registered With Another Bidder",
+        "in_panel": "In Panel",
+        "submitted": "Submitted",
+    }
+
+    bid_status_list = [ 
+        "handshake_needs_registered",
+        "submitted",
+    ]
+
     for record in data:
         if pydash.get(record, 'position_info') is not None:
             try:
                 ted = smart_str(maya.parse(pydash.get(record, 'position_info.ted')).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
+
+            hs_offered = mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')]
+            status = pydash.get(record, "status") or 'N/A'
+            hs_offered_bid_status = status
+
+            if hs_offered == "Yes" and status in bid_status_list:
+                hs_offered_bid_status = "handshake_with_another_bidder"
+            
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
+            row.append(pydash.get(bid_status, hs_offered_bid_status) or 'N/A')
             row.append(smart_str(pydash.get(record, 'position_info.position.title')))
             row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.position_number')))
             row.append(smart_str(pydash.get(record, 'position_info.position.skill')))
@@ -538,17 +562,12 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
             row.append(mapBool[pydash.get(record, 'position_info.isServiceNeedDifferential')])
             row.append(mapBool[pydash.get(record, 'position_info.isHardToFill')])
-            row.append(mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')])
             row.append(mapBool[pydash.get(record, 'position_info.isDifficultToStaff')])
             row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
             row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
             row.append(smart_str(pydash.get(record, 'position_info.position.current_assignment.user')))
             row.append(smart_str(pydash.get(record, 'position_info.bidcycle.name')))
-            if pydash.get(record, "status") == "handshake_accepted":
-                row.append(smart_str("handshake_registered"))
-            else:
-                row.append(smart_str(pydash.get(record, "status") or 'N/A'))
             row.append(hs_status)
             row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
             row.append(get_bid_stats_for_csv(pydash.get(record, 'position_info')))
