@@ -523,10 +523,16 @@ def get_bids_csv(data, filename, jwt_token):
         "closed": "Closed",
         "draft": "Draft",
         "handshake_accepted": "Handshake Accepted",
+        "handshake_needs_registered": "Handshake Needs Registered",
         "handshake_with_another_bidder": "Handshake Registered With Another Bidder",
         "in_panel": "In Panel",
         "submitted": "Submitted",
     }
+
+    bid_status_list = [ 
+        "handshake_needs_registered",
+        "submitted",
+    ]
 
     for record in data:
         if pydash.get(record, 'position_info') is not None:
@@ -539,7 +545,7 @@ def get_bids_csv(data, filename, jwt_token):
             status = pydash.get(record, "status") or 'N/A'
             hs_offered_bid_status = status
 
-            if hs_offered == "Yes" and status == "submitted":
+            if hs_offered == "Yes" and status in bid_status_list:
                 hs_offered_bid_status = "handshake_with_another_bidder"
             
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
