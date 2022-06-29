@@ -79,7 +79,7 @@ def fsbid_to_talentmap_panel(data):
         'pmi_create_date': 'pmicreatedate',
         'pmi_update_id': 'pmiupdateid',
         'pmi_update_date': 'pmiupdatedate',
-        'pmt_code': 'pmtcode',
+        'pmt_code': 'pmpmtcode',
         'pmt_desc_text': 'pmtdesctext',
         'pmt_create_id': 'pmtcreateid',
         'pmt_create_date': 'pmtcreatedate',
