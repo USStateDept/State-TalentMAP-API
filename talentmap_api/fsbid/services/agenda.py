@@ -389,13 +389,6 @@ def fsbid_to_talentmap_agenda_remark_categories(data):
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
-
-
-
-
-
-
-
 def get_agenda_leg_action_types(query, jwt_token):
     '''
     Get agenda leg-action-types
