@@ -127,3 +127,11 @@ class FSBidUnaccompaniedStatusView(BaseView):
 class FSBidCommuterPostsView(BaseView):
     uri = "v1/fsbid/posts/attributes?codeTableName=CommuterPostTable"
     mapping_function = services.fsbid_commuter_posts_to_talentmap_commuter_posts
+
+class FSBidTravelFunctionsView(BaseView):
+
+    def get(self, request):
+        """
+        Return a list of reference data for all travel-functions
+        """
+        return Response(services.get_travel_functions(request.query_params, request.META['HTTP_JWT']))
