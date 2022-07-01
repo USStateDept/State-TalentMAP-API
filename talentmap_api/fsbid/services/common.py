@@ -81,7 +81,7 @@ def convert_multi_value(val):
 
 
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
-LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
+LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d\+*)/(\d\+*)")
 
 
 def parseLanguage(lang):
