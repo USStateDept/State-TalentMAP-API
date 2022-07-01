@@ -93,10 +93,10 @@ def parseLanguage(lang):
         match = LANG_PATTERN.search(lang)
         if match:
             language = {}
-            language["language"] = match.group(1)
-            language["reading_proficiency"] = match.group(3)
-            language["spoken_proficiency"] = match.group(4)
-            language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
+            language["language"] = match.group(1).strip()
+            language["reading_proficiency"] = match.group(3).strip()
+            language["spoken_proficiency"] = match.group(4).strip()
+            language["representation"] = f"{match.group(1).strip()} {match.group(2).strip()} {match.group(3).strip()}/{match.group(4).strip()}"
             return language
 
 
