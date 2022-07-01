@@ -211,14 +211,14 @@ def fsbid_to_talentmap_travel_functions(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['code', 'desc_text', 'short_name']
+    hard_coded = ['code', 'desc_text', 'abbr_desc_text']
 
     add_these = []
 
     cols_mapping = {
         'code': 'tfcd',
         'desc_text': 'tfdescr',
-        'short_name': 'tfshortnm'
+        'abbr_desc_text': 'tfshortnm'
     }
 
     add_these.extend(hard_coded)
