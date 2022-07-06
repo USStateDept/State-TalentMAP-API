@@ -855,5 +855,5 @@ def map_return_template_cols(cols, cols_mapping, data):
     # cols: an array of strs of the TM data names to map and return
     # cols_mapping: dict to map from TM names(key) to WS names(value)
     props_to_map = pydash.pick(cols_mapping, *cols)
-    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), props_to_map.items())
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None).strip()), props_to_map.items())
     return dict(mapped_tuples)
