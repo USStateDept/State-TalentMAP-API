@@ -19,7 +19,7 @@ CP_API_V2_URL = settings.CP_API_V2_URL
 
 def get_available_position(id, jwt_token):
     '''
-    Gets an indivdual available position by id
+    Gets an individual available position by id
     '''
 
     args = {
@@ -43,7 +43,7 @@ def get_available_position(id, jwt_token):
 
 def get_unavailable_position(id, jwt_token):
     '''
-    Gets an indivdual unavailable position by id
+    Gets an individual unavailable position by id
     '''
     ua_pos = services.send_get_request(
         "availablePositions",
@@ -60,7 +60,7 @@ def get_unavailable_position(id, jwt_token):
 
 def get_all_position(id, jwt_token):
     '''
-    Gets an indivdual cycle position by id
+    Gets an individual cycle position by id
     '''
 
     args = {
@@ -82,7 +82,7 @@ def get_all_position(id, jwt_token):
     return pydash.get(position, 'results[0]') or None
 
 
-def get_available_positions(query, jwt_token, host=None):
+def get_available_positions(query, jwt_token, host=None, count=True):
     '''
     Gets available positions
     '''
@@ -99,6 +99,9 @@ def get_available_positions(query, jwt_token, host=None):
         "use_post": True,
         "api_root": CP_API_V2_URL,
     }
+
+    if not count:
+        args['count_function'] = None
 
     return services.send_get_request(
         **args
@@ -441,6 +444,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
         values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
     
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    print('🍎🍎🍎🍎🍎', valuesToReturn)
     return valuesToReturn
 
 
