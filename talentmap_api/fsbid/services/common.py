@@ -164,7 +164,7 @@ sort_dict = {
     "bidder_language": "language_txt",
     "bidder_ted": "TED",
     "bidder_name": "full_name",
-    "bidder_bid_submitted_date": "bid_submit_date",
+    "bidder_bid_submitted_date": "ubw_submit_dt",
     # Agenda Employees Search
     "agenda_employee_fullname": "tmperperfullname",
     "agenda_employee_id": "tmperpertexternalid",
