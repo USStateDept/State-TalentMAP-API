@@ -141,7 +141,7 @@ sort_dict = {
     "position__grade": "pos_grade_code",
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
-    "position__position_number": "pos_num_text",
+    "position__position_number": "position",
     "posted_date": "cp_post_dt",
     "skill": "skill",
     "grade": "grade",
@@ -164,7 +164,7 @@ sort_dict = {
     "bidder_language": "language_txt",
     "bidder_ted": "TED",
     "bidder_name": "full_name",
-    "bidder_bid_submitted_date": "bid_submit_date",
+    "bidder_bid_submitted_date": "ubw_submit_dt",
     # Agenda Employees Search
     "agenda_employee_fullname": "tmperperfullname",
     "agenda_employee_id": "tmperpertexternalid",
