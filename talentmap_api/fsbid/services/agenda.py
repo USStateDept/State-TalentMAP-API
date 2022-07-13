@@ -277,7 +277,6 @@ def get_agenda_statuses(query, jwt_token):
 
     return agenda_statuses
 
-
 def convert_agenda_statuses_query(query):
     '''
     Converts TalentMap query into FSBid query
@@ -353,7 +352,6 @@ def fsbid_to_talentmap_agenda_remarks(data):
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
-
 def get_agenda_remark_categories(query, jwt_token):
     '''
     Get agenda remark categories
@@ -413,3 +411,42 @@ def put_agenda_item_leg(jwt_token, query, ai_seq):
     # )
     print('🤨🤨🤨🤨🤨🤨', pos)
     return ':)' or None
+
+def get_agenda_leg_action_types(query, jwt_token):
+    '''
+    Get agenda leg-action-types
+    '''
+    args = {
+        "uri": "references/leg-action-types",
+        "query": query,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_agenda_leg_action_types,
+        "count_function": None,
+        "base_url": "/api/v1/agendas/",
+        "api_root": AGENDA_API_ROOT,
+    }
+
+    agenda_leg_action_types = services.send_get_request(
+        **args
+    )
+
+    return agenda_leg_action_types
+
+def fsbid_to_talentmap_agenda_leg_action_types(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['code', 'abbr_desc_text', 'desc_text']
+
+    add_these = []
+
+    cols_mapping = {
+        'code': 'latcode',
+        'abbr_desc_text': 'latabbredesctext',
+        'desc_text': 'latdesctext'
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
