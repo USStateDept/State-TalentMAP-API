@@ -41,7 +41,6 @@ class AgendaItemListView(BaseView):
         '''
         return Response(services.get_agenda_items(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
 
-
 class AgendaItemCSVView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
@@ -89,3 +88,12 @@ class AgendaStatusesView(BaseView):
         Return a list of reference data for all agenda statuses
         """
         return Response(services.get_agenda_statuses(request.query_params, request.META['HTTP_JWT']))
+
+class AgendaLegActionTypesView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    def get(self, request):
+        """
+        Return a list of reference data for all agenda leg-action-types
+        """
+        return Response(services.get_agenda_leg_action_types(request.query_params, request.META['HTTP_JWT']))

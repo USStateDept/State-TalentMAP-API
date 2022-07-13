@@ -8,6 +8,8 @@ from django.conf import settings
 import talentmap_api.fsbid.services.common as common
 from talentmap_api.fsbid.views import reference as views
 
+API_ROOT = settings.WS_ROOT_API_URL
+
 logger = logging.getLogger(__name__)
 
 
@@ -183,3 +185,42 @@ def fsbid_commuter_posts_to_talentmap_commuter_posts(data):
         "description": data.get("cpn_desc", None),
         "cpn_freq_desc": data.get("cpn_freq_desc", None),
     }
+
+def get_travel_functions(query, jwt_token):
+    '''
+    Get agenda travel-functions
+    '''
+    args = {
+        "uri": "v1/references/travel-functions",
+        "query": query,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_travel_functions,
+        "count_function": None,
+        "base_url": "/api/v1/",
+        "api_root": API_ROOT,
+    }
+
+    travel_functions = common.send_get_request(
+        **args
+    )
+
+    return travel_functions
+
+def fsbid_to_talentmap_travel_functions(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['code', 'desc_text', 'abbr_desc_text']
+
+    add_these = []
+
+    cols_mapping = {
+        'code': 'tfcd',
+        'desc_text': 'tfdescr',
+        'abbr_desc_text': 'tfshortnm'
+    }
+
+    add_these.extend(hard_coded)
+
+    return common.map_return_template_cols(add_these, cols_mapping, data)
