@@ -420,7 +420,7 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
     cols_mapping = {
         'code': 'latcode',
-        'abbr_desc_text': 'latabbredesctext',
+        'abbr_desc_text': 'latabbrdesctext',
         'desc_text': 'latdesctext'
     }
 
