@@ -7,7 +7,6 @@ from django.conf import settings
 from django.http import QueryDict
 
 from talentmap_api.fsbid.services import common as services
-import talentmap_api.fsbid.services.available_positions as apservices
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
@@ -389,28 +388,6 @@ def fsbid_to_talentmap_agenda_remark_categories(data):
     add_these.extend(hard_coded)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
-
-def put_agenda_item_leg(jwt_token, query, ai_seq):
-    '''
-    Adds a cycle position, as a leg, to the Agenda Item
-    '''
-    args = {
-        "uri": "",
-        "query": {'aiseqnum': ai_seq},
-        "query_mapping_function": convert_agenda_item_query,
-        "jwt_token": jwt_token,
-        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
-        "count_function": None,
-        "base_url": "/api/v1/fsbid/agenda/",
-        "api_root": AGENDA_API_ROOT,
-    }
-
-    pos = apservices.get_available_positions(query, jwt_token, host=None, count=False)
-    # agenda_item = services.send_get_request(
-    #     **args
-    # )
-    print('🤨🤨🤨🤨🤨🤨', pos)
-    return ':)' or None
 
 def get_agenda_leg_action_types(query, jwt_token):
     '''

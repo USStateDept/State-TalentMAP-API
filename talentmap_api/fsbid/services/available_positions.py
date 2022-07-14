@@ -444,7 +444,6 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
         values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
     
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    print('🍎🍎🍎🍎🍎', valuesToReturn)
     return valuesToReturn
 
 

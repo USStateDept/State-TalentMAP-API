@@ -24,15 +24,6 @@ class AgendaItemView(BaseView):
         '''
         return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], pk))
 
-class AgendaItemAddLegActionView(BaseView):
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
-
-    def put(self, request, ai_seq):
-        '''
-        Adds a cycle position, as a leg, to the Agenda Item
-        '''
-        return Response(services.put_agenda_item_leg(request.META['HTTP_JWT'], request.query_params, ai_seq))
-
 class AgendaItemListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
