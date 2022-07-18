@@ -82,7 +82,7 @@ def get_all_position(id, jwt_token):
     return pydash.get(position, 'results[0]') or None
 
 
-def get_available_positions(query, jwt_token, host=None, count=True):
+def get_available_positions(query, jwt_token, host=None):
     '''
     Gets available positions
     '''
@@ -99,9 +99,6 @@ def get_available_positions(query, jwt_token, host=None, count=True):
         "use_post": True,
         "api_root": CP_API_V2_URL,
     }
-
-    if not count:
-        args['count_function'] = None
 
     return services.send_get_request(
         **args
