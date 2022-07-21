@@ -25,6 +25,22 @@ def get_position(id, jwt_token):
 
     return pydash.get(position, 'results[0]') or None
 
+def get_positions(query, jwt_token):
+    '''
+    Gets unavailable positions
+    '''
+    positions = services.send_get_request(
+        "Positions",
+        query,
+        convert_pos_query,
+        jwt_token,
+        fsbid_pos_to_talentmap_pos,
+        None,
+        "/api/v1/fsbid/positions/",
+    )
+
+    return positions
+
 def fsbid_pos_to_talentmap_pos(pos):
     '''
     Converts the response generic position from FSBid to a format more in line with the Talentmap position
@@ -175,6 +191,11 @@ def convert_pos_query(query):
 
     values = {
         f"request_params.pos_seq_num": query.get("id", None),
+        f"request_params.ad_id": query.get("ad_id", None),
+        f"request_params.page_index": query.get("page", 1),
+        f"request_params.page_size": query.get("limit", None),
+        f"request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        f"request_params.pos_num_text": query.get("position_num", None),
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
