@@ -165,7 +165,8 @@ def fsbid_pv_to_talentmap_pv(pv):
     # fv_override_ted_date = "0001-01-01T00:00:00"
     fv_override_ted_date = pv.get("fv_override_ted_date", None)
     if fv_override_ted_date == "0001-01-01T00:00:00":
-        ted = ensure_date("0001-01-01T00:00:00.000Z", utc_offset=-5)
+        fv_override_ted_date = fv_override_ted_date + '.000Z'
+        ted = ensure_date(fv_override_ted_date, utc_offset=-5)
 
     ted = ensure_date(fv_override_ted_date, utc_offset=-5)
     if ted is None:
