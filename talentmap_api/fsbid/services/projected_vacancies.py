@@ -161,7 +161,13 @@ def fsbid_pv_to_talentmap_pv(pv):
     '''
     Converts the response projected vacancy from FSBid to a format more in line with the Talentmap position
     '''
-    ted = ensure_date(pv.get("fv_override_ted_date", None), utc_offset=-5)
+    # error handling for bad date returned from WS
+    # fv_override_ted_date = "0001-01-01T00:00:00"
+    fv_override_ted_date = pv.get("fv_override_ted_date", None)
+    if fv_override_ted_date == "0001-01-01T00:00:00":
+        ted = ensure_date("0001-01-01T00:00:00.000Z", utc_offset=-5)
+
+    ted = ensure_date(fv_override_ted_date, utc_offset=-5)
     if ted is None:
         ted = ensure_date(pv.get("ted", None), utc_offset=-5)
     skill2 = services.get_secondary_skill(pv)
