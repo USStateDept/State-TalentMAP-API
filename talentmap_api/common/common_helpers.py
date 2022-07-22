@@ -177,15 +177,21 @@ def ensure_date(date, utc_offset=0):
     Returns:
         - date (Object) - Datetime
     '''
-    if not date:
-        return None
-    elif isinstance(date, str):
-        return parser.parse(date).astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
-    elif isinstance(date, datetime.date):
-        return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
-    else:
-        logger.warn(f"Parameter {date} must be a date object or string")
-        return None
+    try:
+        if not date:
+            return None
+        elif isinstance(date, str):
+            return parser.parse(date).astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
+        elif isinstance(date, datetime.date):
+            return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
+        else:
+            logger.warn(f"Parameter {date} must be a date object or string")
+            return None
+    except ValueError:
+        try:
+            return parser.parse(date + '.000Z').astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
+        except:
+            return "Invalid date"
 
 
 def validate_filters_exist(filter_list, filter_class):
