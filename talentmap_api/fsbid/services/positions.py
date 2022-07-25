@@ -2,9 +2,11 @@ import logging
 from urllib.parse import urlencode, quote
 
 import pydash
+from django.conf import settings
 
 from talentmap_api.fsbid.services import common as services
 
+POSITIONS_ROOT = settings.POSITIONS_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +32,15 @@ def get_positions(query, jwt_token):
     Gets unavailable positions
     '''
     positions = services.send_get_request(
-        "Positions",
+        "",
         query,
         convert_pos_query,
         jwt_token,
         fsbid_pos_to_talentmap_pos,
         None,
         "/api/v1/fsbid/positions/",
+        None,
+        POSITIONS_ROOT,
     )
 
     return positions
