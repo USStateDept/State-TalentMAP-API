@@ -42,8 +42,7 @@ def get_positions(query, jwt_token):
         None,
         POSITIONS_ROOT,
     )
-
-    return positions
+    return pydash.get(positions, 'results[0]') or None
 
 def fsbid_pos_to_talentmap_pos(pos):
     '''
