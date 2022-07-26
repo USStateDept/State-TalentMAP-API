@@ -179,18 +179,26 @@ def ensure_date(date, utc_offset=0):
     '''
     try:
         if not date:
+            logger.warn(f"Falsey date: Date parameter must be a date object or string.")
+            logger.warn(f"date: {date}")
+            logger.warn(f"type(date): {type(date)}")
             return None
         elif isinstance(date, str):
             return parser.parse(date).astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
         elif isinstance(date, datetime.date):
             return date.astimezone(datetime.timezone(datetime.timedelta(hours=utc_offset)))
         else:
-            logger.warn(f"Parameter {date} must be a date object or string")
-            return None
+            logger.warn(f"Date parameter must be a date object or string.")
+            logger.warn(f"date: {date}")
+            logger.warn(f"type(date): {type(date)}")
+            return "Invalid date"
     except ValueError:
         try:
             return parser.parse(date + '.000Z').astimezone(datetime.timezone.utc) - datetime.timedelta(hours=utc_offset)
         except:
+            logger.warn(f"Invalid date: Date parameter must be a date object or string.")
+            logger.warn(f"date: {date}")
+            logger.warn(f"type(date): {type(date)}")
             return "Invalid date"
 
 
