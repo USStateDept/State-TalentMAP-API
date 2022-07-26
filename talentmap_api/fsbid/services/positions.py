@@ -29,7 +29,7 @@ def get_position(id, jwt_token):
 
 def get_positions(query, jwt_token):
     '''
-    Gets unavailable positions
+    Gets generic positions
     '''
     positions = services.send_get_request(
         "",
