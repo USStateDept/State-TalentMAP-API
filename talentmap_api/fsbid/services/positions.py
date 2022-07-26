@@ -6,7 +6,7 @@ from django.conf import settings
 
 from talentmap_api.fsbid.services import common as services
 
-POSITIONS_ROOT = settings.POSITIONS_API_URL
+POSITIONS_V2_ROOT = settings.POSITIONS_API_V2_URL
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +34,17 @@ def get_positions(query, jwt_token):
     positions = services.send_get_request(
         "",
         query,
-        convert_pos_query,
+        convert_position_query,
         jwt_token,
-        fsbid_pos_to_talentmap_pos,
+        fsbid_to_talentmap_pos,
         None,
-        "/api/v1/fsbid/positions/",
+        "/api/v2/positions/",
         None,
-        POSITIONS_ROOT,
+        POSITIONS_V2_ROOT,
     )
+    print('🍎🍎🍎🍎🍎')
+    print(pydash.get(positions, 'results[0]') or None)
+    print('🍎🍎🍎🍎🍎')
     return pydash.get(positions, 'results[0]') or None
 
 def fsbid_pos_to_talentmap_pos(pos):
@@ -202,3 +205,40 @@ def convert_pos_query(query):
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
+
+def convert_position_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 15)),
+        "rp.filter": services.convert_to_fsbid_ql([
+            {'col': 'posnumtext', 'val': query.get("position_num", None)}
+        ]),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+def fsbid_to_talentmap_pos(data):
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+
+    hard_coded = ['id', 'organization', 'position_number', 'grade', 'title']
+
+    add_these = []
+
+    cols_mapping = {
+        'id': 'posseqnum',
+        'organization': 'posorgshortdesc',
+        'position_number': 'posnumtext',
+        'grade': 'posgradecode',
+        'title': 'postitledesc',
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, data)
