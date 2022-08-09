@@ -51,11 +51,10 @@ def assignment_history_to_client_format(data):
                             "position_id": x['position_id'],
                             "start_date": ensure_date(x['start_date']),
                             "end_date": ensure_date(x['end_date']),
-                            "status": x['asgs_code'],
+                            "status": x['asgd_asgs_code'],
                             "asgd_tod_desc_text": x['asgd_tod_desc_text'],
                             # need to update once fully integrated
                             "position": {
-                                # "grade": pos["pos_grade_code"],
                                 "grade": pos.get("pos_grade_code", None),
                                 "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
                                 "skill_code": pos.get("pos_skill_code", None),
@@ -80,6 +79,7 @@ def assignment_history_to_client_format(data):
                                 },
                                 "language": pos.get("pos_position_lang_prof_desc", None)
                             },
+                            "pos": pos,
                         }
                     )
     
@@ -115,8 +115,9 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "start_date",
         "end_date",
         "asgd_tod_desc_text",
-        "asgs_code",
-        ]
+        "asgd_asgs_code",
+        "position",
+    ]
 
     add_these = []
 
@@ -160,6 +161,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_create_date": "asgscreatedate",
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
+        "position": "position"
     }
 
     add_these.extend(hard_coded)
