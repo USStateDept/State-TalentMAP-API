@@ -6,6 +6,7 @@ from datetime import datetime
 from copy import deepcopy
 
 from django.conf import settings
+from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.http import QueryDict
