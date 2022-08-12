@@ -6,7 +6,6 @@ from datetime import datetime
 from copy import deepcopy
 
 from django.conf import settings
-from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.http import QueryDict
@@ -772,7 +771,7 @@ def convert_to_fsbid_ql(filters):
 
 
 def categorize_remark(remark = ''):
-    obj = { 'title': remark, 'type': None }
+    obj = { 'text': remark, 'type': None }
     if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
         obj['type'] = 'person'
     return obj
