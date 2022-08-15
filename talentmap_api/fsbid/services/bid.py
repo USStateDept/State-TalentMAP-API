@@ -291,7 +291,7 @@ def fsbid_to_talentmap_bids(data):
         'pos_org_short_desc': 'posorgshortdesc',
         'pos_title': 'postitledesc',
         'perdet': 'perdet_seq_num',
-        'pos': 'position',
+        'pos': 'position[0]',
     }
 
     add_these.extend(hard_coded)
