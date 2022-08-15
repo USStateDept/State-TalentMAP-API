@@ -793,14 +793,12 @@ def parse_agenda_remarks(remarks_string = '', remarks_data={}):
 
     remarks_values = []
     for value in values:
-        for remark in ai_remarks:
-            if remark['text'] == value['text']:
-                remarks_values.append(remark)
+        if pydash.find(ai_remarks, {'text': value['text']}):
+            remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
         if value['type'] == 'person':
             remarks_values.append(value)
     
-    final_remarks = remarks_values if len(remarks_values) else values
-    return final_remarks
+    return remarks_values
 
 
 def get_aih_csv(data, filename):
