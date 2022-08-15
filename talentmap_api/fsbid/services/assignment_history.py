@@ -43,7 +43,7 @@ def assignment_history_to_client_format(data):
         assignmentsCopy = data['results']
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
-            pos = x.get('position', {})[0]
+            pos = x.get('position', {})
             loc = pos.get('location', {})
             tmap_assignments.append(
                         {
@@ -55,15 +55,15 @@ def assignment_history_to_client_format(data):
                             "asgd_tod_desc_text": x['asgd_tod_desc_text'],
                             # need to update once fully integrated
                             "position": {
-                                "grade": pos.get("posgradecode", None),
+                                "grade": pos.get("pos_grade_code", None),
                                 "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
                                 "skill_code": pos.get("pos_skill_code", None),
                                 "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
                                 "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
-                                "organization": pos.get('posorgshortdesc', None),
-                                "position_number": pos.get('posnumtext', None),
+                                "organization": pos.get('pos_org_short_desc', None),
+                                "position_number": pos.get('pos_num_text', None),
                                 "position_id": x['position_id'],
-                                "title": pos.get("postitledesc", None),
+                                "title": pos.get("pos_title_desc", None),
                                 "post": {
                                     # "code": loc["gvt_geoloc_cd"],
                                     "code": loc.get("gvt_geoloc_cd", None),
