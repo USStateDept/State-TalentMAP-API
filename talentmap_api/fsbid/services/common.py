@@ -772,14 +772,15 @@ def convert_to_fsbid_ql(filters):
 
 
 def categorize_remark(remark = ''):
-    obj = { 'title': remark, 'type': None }
+    obj = { 'text': remark, 'type': None }
     if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
         obj['type'] = 'person'
     return obj
 
 
-def parse_agenda_remarks(remarks_string = ''):
+def parse_agenda_remarks(remarks_string = '', remarks_data={}):
     remarks = remarks_string
+    ai_remarks = pydash.get(remarks_data, 'results')
     if pydash.starts_with(remarks, 'Remarks:'):
         remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
     # split by semi colon
@@ -789,7 +790,15 @@ def parse_agenda_remarks(remarks_string = ''):
     # remove nulls or empty spaces
     values = pydash.filter_(values, lambda o: o and o != ' ')
     values = pydash.map_(values, categorize_remark)
-    return values
+
+    remarks_values = []
+    for value in values:
+        if pydash.find(ai_remarks, {'text': value['text']}):
+            remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
+        if value['type'] == 'person':
+            remarks_values.append(value)
+    
+    return remarks_values
 
 
 def get_aih_csv(data, filename):
