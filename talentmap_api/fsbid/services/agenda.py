@@ -41,12 +41,13 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
     Get agenda items
     '''
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
+    remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": "",
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "count_function": None,
         "base_url": "/api/v1/agendas/",
         "host": host,
@@ -126,7 +127,7 @@ def convert_agenda_item_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
+def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -154,7 +155,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
   
     return {
         "id": data.get("aiseqnum", None),
-        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", '')),
+        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", ''), remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
