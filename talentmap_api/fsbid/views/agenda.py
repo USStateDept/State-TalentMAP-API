@@ -23,6 +23,12 @@ class AgendaItemView(BaseView):
         Get single agenda by ai_seq_num
         '''
         return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], pk))
+    
+    def post(self, request, pk):
+        '''
+        Create single agenda
+        '''
+        return Response(services.create_agenda())
 
 class AgendaItemListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]

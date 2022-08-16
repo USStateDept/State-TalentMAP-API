@@ -66,6 +66,74 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         "results": agenda_items,
     }
 
+def create_agenda(jwt_token=None, query = {}, host=None):
+    '''
+    Create agenda
+    '''
+    hru_id = jwt.decode(jwt_token, verify=False).get('sub')
+    query["hru_id"] = hru_id
+
+    panel_meeting_item = create_panel_meeting_item(query, jwt_token)
+    # set pmi seq num from response
+    query["pmiseqnum"] = kajd;fkja
+    agenda_item = create_agenda_item(query, jwt_token)
+    for x in data.legs: create_agenda_item_leg(x)
+    
+
+def create_panel_meeting_item(query, jwt_token):
+    '''
+    Create PMI
+    '''
+    args = {
+        "uri": "v1/panels/meetingItem",
+        "query": query,
+        "query_mapping_function": convert_panel_meeting_item_query,
+        "jwt_token": jwt_token,
+        "mapping_function": "",#fsbid_pmi_to_tmap_pmi,
+        "api_root": API_ROOT,
+    }
+
+    return services.get_results_with_post(
+        **args
+    ) 
+
+
+def create_agenda_item(query, jwt_token):
+    '''
+    Create AI
+    '''
+    args = {
+        "uri": "v1/agendas",
+        "query": query,
+        "query_mapping_function": convert_create_agenda_item_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ai_to_tmap_ai,
+        "api_root": API_ROOT,
+    }
+
+    return services.get_results_with_post(
+        **args
+    ) 
+
+
+def create_agenda_item_leg(query, jwt_token):
+    '''
+    Create AIL
+    '''
+    aiseqnum = pydash.get(query, "aiseqnum") # Add to query from success AI create
+    args = {
+        "uri": f"v1/agendas/{aiseqnum}/legs",
+        "query": query,
+        "query_mapping_function": convert_agenda_item_leg_query,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_ail_to_tmap_ail,
+        "api_root": API_ROOT,
+    }
+
+    return services.get_results_with_post(
+        **args
+    )
+
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
 
@@ -290,6 +358,93 @@ def convert_agenda_statuses_query(query):
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def convert_panel_meeting_item_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    creator_id = pydash.get(query, "user_id")
+    values = {
+        "pmimiccode": pydash.get(query, "selectedPanelCat", ""),
+        "pmipmseqnum": pydash.get(query, "selectedPanelIDDate", ""),
+        "pmicreateid": creator_id,
+        "pmiupdateid": creator_id, # Check with Pat/Bob
+    }        
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
+def convert_create_agenda_item_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    user_id = pydash.get(query, "user_id")
+    values = { 
+        "aipmiseqnum": "", #Insert from response from PMI create
+        "aiempseqnbr": 605876,
+        "aiperdetseqnum": 533289,
+        "aiaiscode": pydash.get(query, "selectedStatus", ""),
+        "aitoddesctext": "2 YRS (3 R & R)",
+        "aitodcode": "R",
+        "aiasgseqnum": 289268,
+        "aiasgdrevisionnum": 2,
+        "aicombinedtodmonthsnum": 28,
+        "aicombinedtodothertext": "14M/HL/14M",
+        "aicombinedremarktext": "",
+        "aicorrectiontext": "",
+        "ailabeltext": "",
+        "aisorttext": "49039ALEJO",
+        "aicreateid": 84841,
+        "aicreatedate": "03/18/2022 08:05:24",
+        "aiupdateid": 84841,
+        "aiseqnumref": null,
+        "aiitemcreatorid": user_id, 
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+def convert_agenda_item_leg_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    user_id = pydash.get(query, "user_id")
+    values = { 
+        "ailaiseqnum": 226711,
+            "aillatcode": "S",
+            "ailtfcd": null,
+            "ailcpid": null,
+            "ailempseqnbr": 605876,
+            "ailperdetseqnum": 533289,
+            "ailposseqnum": 146680,
+            "ailtodcode": "X",
+            "ailtodmonthsnum": 20,
+            "ailtodothertext": "20MM",
+            "ailetadate": "08/01/2020 00:00:00",
+        "ailetdtedsepdate": "04/01/2022 00:00:00",
+        "aildsccd": null,
+        "ailcitytext": null,
+        "ailcountrystatetext": null,
+        "ailusind": null,
+        "ailemprequestedsepind": null,
+        "ailcreateid": 84841,
+        "ailcreatedate": "2022-03-18T08:05:25",
+        "ailupdateid": 84841,
+        "ailupdatedate": "03/18/2022 08:05:25",
+            "ailasgseqnum": 289268,
+            "ailasgdrevisionnum": 2,
+        "ailsepseqnum": null,
+        "ailsepdrevisionnum": null
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
 
 def fsbid_to_talentmap_agenda_statuses(data):
     # hard_coded are the default data points (opinionated EP)
