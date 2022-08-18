@@ -66,18 +66,22 @@ def get_agenda_items(jwt_token=None, query = {}, host=None):
         "results": agenda_items,
     }
 
-def create_agenda(jwt_token=None, query = {}, host=None):
+def create_agenda(query = {}, jwt_token=None, host=None):
     '''
     Create agenda
     '''
+    print('-----------query', query)
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
-    query["hru_id"] = hru_id
+    query['hru_id'] = hru_id
 
     panel_meeting_item = create_panel_meeting_item(query, jwt_token)
     # set pmi seq num from response
-    query["pmiseqnum"] = kajd;fkja
-    agenda_item = create_agenda_item(query, jwt_token)
-    for x in data.legs: create_agenda_item_leg(x)
+    if panel_meeting_item:
+        query['pmiseqnum'] = pydash.get(panel_meeting_item, 'pmiseqnum') 
+        agenda_item = create_agenda_item(query, jwt_token)
+    if agenda_item:
+        query['aiseqnum'] = pydash.get(agenda_item, 'aiseqnum')
+        for x in data.legs: create_agenda_item_leg(x)
     
 
 def create_panel_meeting_item(query, jwt_token):
@@ -90,7 +94,6 @@ def create_panel_meeting_item(query, jwt_token):
         "query_mapping_function": convert_panel_meeting_item_query,
         "jwt_token": jwt_token,
         "mapping_function": "",#fsbid_pmi_to_tmap_pmi,
-        "api_root": API_ROOT,
     }
 
     return services.get_results_with_post(
@@ -369,11 +372,9 @@ def convert_panel_meeting_item_query(query):
         "pmimiccode": pydash.get(query, "selectedPanelCat", ""),
         "pmipmseqnum": pydash.get(query, "selectedPanelIDDate", ""),
         "pmicreateid": creator_id,
-        "pmiupdateid": creator_id, # Check with Pat/Bob
+        "pmiupdateid": creator_id,
     }        
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
+    valuesToReturn = [pydash.omit_by(values, lambda o: o is None or o == [])]
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
@@ -414,29 +415,26 @@ def convert_agenda_item_leg_query(query):
     '''
     user_id = pydash.get(query, "user_id")
     values = { 
-        "ailaiseqnum": 226711,
-            "aillatcode": "S",
-            "ailtfcd": null,
-            "ailcpid": null,
-            "ailempseqnbr": 605876,
-            "ailperdetseqnum": 533289,
-            "ailposseqnum": 146680,
-            "ailtodcode": "X",
-            "ailtodmonthsnum": 20,
-            "ailtodothertext": "20MM",
-            "ailetadate": "08/01/2020 00:00:00",
-        "ailetdtedsepdate": "04/01/2022 00:00:00",
+        "aillatcode": pydash.get(query, "action", ""),
+        "ailtfcd": pydash.get(query, "travel", null),
+        "ailcpid": null,
+        "ailempseqnbr": 605876,
+        "ailperdetseqnum": 533289,
+        "ailposseqnum": 146680,
+        "ailtodcode": "X",
+        "ailtodmonthsnum": 20,
+        "ailtodothertext": "20MM",
+        "ailetadate": pydash.get(query, "eta", null),
+        "ailetdtedsepdate": pydash.get(query, "ted", null),
         "aildsccd": null,
         "ailcitytext": null,
         "ailcountrystatetext": null,
         "ailusind": null,
         "ailemprequestedsepind": null,
-        "ailcreateid": 84841,
-        "ailcreatedate": "2022-03-18T08:05:25",
-        "ailupdateid": 84841,
-        "ailupdatedate": "03/18/2022 08:05:25",
-            "ailasgseqnum": 289268,
-            "ailasgdrevisionnum": 2,
+        "ailcreateid": user_id,
+        "ailupdateid": user_id,
+        "ailasgseqnum": 289268,
+        "ailasgdrevisionnum": 2,
         "ailsepseqnum": null,
         "ailsepdrevisionnum": null
     }
