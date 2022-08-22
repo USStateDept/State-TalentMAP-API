@@ -70,7 +70,6 @@ def create_agenda(query = {}, jwt_token=None, host=None):
     '''
     Create agenda
     '''
-    print('-----------query', query)
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
     query['hru_id'] = hru_id
 
@@ -79,9 +78,10 @@ def create_agenda(query = {}, jwt_token=None, host=None):
     if panel_meeting_item:
         query['pmiseqnum'] = pydash.get(panel_meeting_item, 'pmiseqnum') 
         agenda_item = create_agenda_item(query, jwt_token)
-    if agenda_item:
-        query['aiseqnum'] = pydash.get(agenda_item, 'aiseqnum')
-        for x in data.legs: create_agenda_item_leg(x)
+        if agenda_item:
+            query['aiseqnum'] = pydash.get(agenda_item, 'aiseqnum')
+            # Single call with all the legs or individual call (WS BLOCKER QUESTION)
+            for x in data.legs: create_agenda_item_leg(x, query, jwt_token)
     
 
 def create_panel_meeting_item(query, jwt_token):
@@ -119,14 +119,14 @@ def create_agenda_item(query, jwt_token):
     ) 
 
 
-def create_agenda_item_leg(query, jwt_token):
+def create_agenda_item_leg(data, query, jwt_token):
     '''
     Create AIL
     '''
     args = {
         "uri": f"v1/agendas/{aiseqnum}/legs",
         "query": query,
-        "query_mapping_function": convert_agenda_item_leg_query,
+        "query_mapping_function": partial(convert_agenda_item_leg_query, leg=data),
         "jwt_token": jwt_token,
         "mapping_function": fsbid_ail_to_tmap_ail,
         "api_root": API_ROOT,
@@ -366,7 +366,7 @@ def convert_panel_meeting_item_query(query):
     '''
     Converts TalentMap query into FSBid query
     '''
-    creator_id = pydash.get(query, "user_id")
+    creator_id = pydash.get(query, "hru_id")
     values = {
         "pmimiccode": pydash.get(query, "panelMeetingCategory", ""),
         "pmipmseqnum": pydash.get(query, "panelMeetingId", ""),
@@ -381,7 +381,7 @@ def convert_create_agenda_item_query(query):
     '''
     Converts TalentMap query into FSBid query
     '''
-    user_id = pydash.get(query, "user_id")
+    user_id = pydash.get(query, "hru_id")
     values = { 
         "aipmiseqnum": pydah.get(query, "pmiseqnum", ""), #Insert from response from PMI create
         "aiempseqnbr": pydash.get(query, "personId", ""),
@@ -408,23 +408,23 @@ def convert_create_agenda_item_query(query):
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
-def convert_agenda_item_leg_query(query):
+def convert_agenda_item_leg_query(query, leg={}):
     '''
     Converts TalentMap query into FSBid query
     '''
-    user_id = pydash.get(query, "user_id")
+    user_id = pydash.get(query, "hru_id")
     values = { 
-        "aillatcode": pydash.get(query, "legActionType", ""),
-        "ailtfcd": pydash.get(query, "travelFunctionCode", ""),
-        "ailcpid": pydash.get(query, "cyclePositionID", ""),
+        "aillatcode": pydash.get(leg, "legActionType", ""),
+        "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
+        "ailcpid": pydash.get(leg, "cyclePositionID", ""),
         "ailempseqnbr": pydash.get(query, "employeeId", ""),
         "ailperdetseqnum": pydash.get(query, "employeeDetailId", ""),
-        "ailposseqnum": pydash.get(query, "positionId", ""),
-        "ailtodcode": pydash.get(query, "tourOfDutyCode", ""),
-        "ailtodmonthsnum": pydash.get(query, "tourOfDutyMonthsNum", ""),
-        "ailtodothertext": pydash.get(query, "tourOfDutyOtherText", ""), 
-        "ailetadate": pydash.get(query, "legStartDate", null),
-        "ailetdtedsepdate": pydash.get(query, "legEndDate", null),
+        "ailposseqnum": pydash.get(leg, "positionId", ""),
+        "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
+        "ailtodmonthsnum": pydash.get(leg, "tourOfDutyMonthsNum", ""),
+        "ailtodothertext": pydash.get(leg, "tourOfDutyOtherText", ""), 
+        "ailetadate": pydash.get(leg, "legStartDate", null),
+        "ailetdtedsepdate": pydash.get(leg, "legEndDate", null),
         "aildsccd": None,
         "ailcitytext": None,
         "ailcountrystatetext": None,
@@ -432,8 +432,8 @@ def convert_agenda_item_leg_query(query):
         "ailemprequestedsepind": None,
         "ailcreateid": user_id,
         "ailupdateid": user_id,
-        "ailasgseqnum": pydash.get(query, "legAssignmentId", ""),
-        "ailasgdrevisionnum": pydash.get(query, "legAssignmentVersion", ""),
+        "ailasgseqnum": pydash.get(leg, "legAssignmentId", ""),
+        "ailasgdrevisionnum": pydash.get(leg, "legAssignmentVersion", ""),
         "ailsepseqnum": None,
         "ailsepdrevisionnum": None,
     }
