@@ -49,39 +49,29 @@ class AgendaItemActionView(BaseView):
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'agendaIncludeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Agenda Include Indicator'),
             'assignmentId': openapi.Schema(type=openapi.TYPE_STRING, description='Assignment ID'),
             'assignmentVersion': openapi.Schema(type=openapi.TYPE_STRING, description='Assignment Version'),
-            'personId': openapi.Schema(type=openapi.TYPE_STRING, description='Person ID'),
+            'personId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Person ID'),
+            'personDetailId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Person Detail ID'),
             'agendaStatusCode': openapi.Schema(type=openapi.TYPE_STRING, description='Agenda Status Code'),
-            'panelIncludeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Panel Include Indicator'),
-            'panelMeetingId': openapi.Schema(type=openapi.TYPE_STRING, description='Panel Meeting ID'),
+            'panelMeetingId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Panel Meeting ID'),
             'panelMeetingCategory': openapi.Schema(type=openapi.TYPE_STRING, description='Panel Meeting Category'),
-            'agendaLegAssignment': openapi.Schema(
+            'agendaLegs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    'legIncludeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Include Indicator'),
-                    'legActionType': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Action Type'),
-                    'tourOfDutyCode': openapi.Schema(type=openapi.TYPE_STRING, description='Tour Of Duty Code'),
                     'legAssignmentId': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Assignment ID'),
                     'legAssignmentVersion': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Assignment Version'),
+                    'legActionType': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Action Type'),
+                    'tourOfDutyCode': openapi.Schema(type=openapi.TYPE_STRING, description='Tour Of Duty Code'),
                     'legStartDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Start Date'),
                     'legEndDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg End Date'),
-                    }, description='Agenda Leg Assignment'),
-                'agendaLegCyclePosition': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
-                    type=openapi.TYPE_OBJECT,
-                    properties={
-                        'legIncludeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Include Indicator'),
-                        'legActionType': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Action Type'),
-                        'tourOfDutyCode': openapi.Schema(type=openapi.TYPE_STRING, description='Tour Of Duty Code'),
-                        'legStartDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Start Date'),
-                        'legEndDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg End Date'),
-                        'travelFunctionCode': openapi.Schema(type=openapi.TYPE_STRING, description='Travel Function Code'),
-                        'cyclePositionID': openapi.Schema(type=openapi.TYPE_STRING, description='Cycle Position ID'),
-                        'tourOfDutyMonthsNum': openapi.Schema(type=openapi.TYPE_STRING, description='Tour of Tudy Months Num'),
-                        'tourOfDutyOtherText': openapi.Schema(type=openapi.TYPE_STRING, description='Tour of Duty Other Text'),
-                        }), description='Legs'),
-                    }))
+                    'travelFunctionCode': openapi.Schema(type=openapi.TYPE_STRING, description='Travel Function Code'),
+                    'positionId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Position ID'),
+                    'cyclePositionID': openapi.Schema(type=openapi.TYPE_STRING, description='Cycle Position ID'),
+                    'tourOfDutyMonthsNum': openapi.Schema(type=openapi.TYPE_STRING, description='Tour of Tudy Months Num'),
+                    'tourOfDutyOtherText': openapi.Schema(type=openapi.TYPE_STRING, description='Tour of Duty Other Text'),
+                 }), description='Legs'),
+    }))
 
     def post(self, request, pk):
         '''

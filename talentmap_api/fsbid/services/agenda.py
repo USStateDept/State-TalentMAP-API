@@ -123,7 +123,6 @@ def create_agenda_item_leg(query, jwt_token):
     '''
     Create AIL
     '''
-    aiseqnum = pydash.get(query, "aiseqnum") # Add to query from success AI create
     args = {
         "uri": f"v1/agendas/{aiseqnum}/legs",
         "query": query,
@@ -369,8 +368,8 @@ def convert_panel_meeting_item_query(query):
     '''
     creator_id = pydash.get(query, "user_id")
     values = {
-        "pmimiccode": pydash.get(query, "selectedPanelCat", ""),
-        "pmipmseqnum": pydash.get(query, "selectedPanelIDDate", ""),
+        "pmimiccode": pydash.get(query, "panelMeetingCategory", ""),
+        "pmipmseqnum": pydash.get(query, "panelMeetingId", ""),
         "pmicreateid": creator_id,
         "pmiupdateid": creator_id,
     }        
@@ -384,24 +383,24 @@ def convert_create_agenda_item_query(query):
     '''
     user_id = pydash.get(query, "user_id")
     values = { 
-        "aipmiseqnum": "", #Insert from response from PMI create
-        "aiempseqnbr": 605876,
-        "aiperdetseqnum": 533289,
+        "aipmiseqnum": pydah.get(query, "pmiseqnum", ""), #Insert from response from PMI create
+        "aiempseqnbr": pydash.get(query, "personId", ""),
+        "aiperdetseqnum": pydash.get(query, "personDetailId", ""),
         "aiaiscode": pydash.get(query, "selectedStatus", ""),
-        "aitoddesctext": "2 YRS (3 R & R)",
-        "aitodcode": "R",
-        "aiasgseqnum": 289268,
-        "aiasgdrevisionnum": 2,
-        "aicombinedtodmonthsnum": 28,
+        "aitoddesctext": None,
+        "aitodcode": None,
+        "aiasgseqnum": pydash.get(query, "assignmentId", ""),
+        "aiasgdrevisionnum": pydash.get(query, "assignmentVersion", ""),
+        "aicombinedtodmonthsnum": None,
         "aicombinedtodothertext": "14M/HL/14M",
-        "aicombinedremarktext": "",
-        "aicorrectiontext": "",
-        "ailabeltext": "",
-        "aisorttext": "49039ALEJO",
-        "aicreateid": 84841,
+        "aicombinedremarktext": None,
+        "aicorrectiontext": None,
+        "ailabeltext": None,
+        "aisorttext": None, 
+        "aicreateid": user_id,
         "aicreatedate": "03/18/2022 08:05:24",
-        "aiupdateid": 84841,
-        "aiseqnumref": null,
+        "aiupdateid": user_id,
+        "aiseqnumref": None,
         "aiitemcreatorid": user_id, 
     }
 
@@ -415,28 +414,28 @@ def convert_agenda_item_leg_query(query):
     '''
     user_id = pydash.get(query, "user_id")
     values = { 
-        "aillatcode": pydash.get(query, "action", ""),
-        "ailtfcd": pydash.get(query, "travel", null),
-        "ailcpid": null,
-        "ailempseqnbr": 605876,
-        "ailperdetseqnum": 533289,
-        "ailposseqnum": 146680,
-        "ailtodcode": "X",
-        "ailtodmonthsnum": 20,
-        "ailtodothertext": "20MM",
-        "ailetadate": pydash.get(query, "eta", null),
-        "ailetdtedsepdate": pydash.get(query, "ted", null),
-        "aildsccd": null,
-        "ailcitytext": null,
-        "ailcountrystatetext": null,
-        "ailusind": null,
-        "ailemprequestedsepind": null,
+        "aillatcode": pydash.get(query, "legActionType", ""),
+        "ailtfcd": pydash.get(query, "travelFunctionCode", ""),
+        "ailcpid": pydash.get(query, "cyclePositionID", ""),
+        "ailempseqnbr": pydash.get(query, "employeeId", ""),
+        "ailperdetseqnum": pydash.get(query, "employeeDetailId", ""),
+        "ailposseqnum": pydash.get(query, "positionId", ""),
+        "ailtodcode": pydash.get(query, "tourOfDutyCode", ""),
+        "ailtodmonthsnum": pydash.get(query, "tourOfDutyMonthsNum", ""),
+        "ailtodothertext": pydash.get(query, "tourOfDutyOtherText", ""), 
+        "ailetadate": pydash.get(query, "legStartDate", null),
+        "ailetdtedsepdate": pydash.get(query, "legEndDate", null),
+        "aildsccd": None,
+        "ailcitytext": None,
+        "ailcountrystatetext": None,
+        "ailusind": None,
+        "ailemprequestedsepind": None,
         "ailcreateid": user_id,
         "ailupdateid": user_id,
-        "ailasgseqnum": 289268,
-        "ailasgdrevisionnum": 2,
-        "ailsepseqnum": null,
-        "ailsepdrevisionnum": null
+        "ailasgseqnum": pydash.get(query, "legAssignmentId", ""),
+        "ailasgdrevisionnum": pydash.get(query, "legAssignmentVersion", ""),
+        "ailsepseqnum": None,
+        "ailsepdrevisionnum": None,
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
