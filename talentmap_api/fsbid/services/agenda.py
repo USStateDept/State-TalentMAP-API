@@ -72,17 +72,21 @@ def create_agenda(query = {}, jwt_token=None, host=None):
     '''
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
     query['hru_id'] = hru_id
-
     panel_meeting_item = create_panel_meeting_item(query, jwt_token)
-    # set pmi seq num from response
-    if panel_meeting_item:
-        query['pmiseqnum'] = pydash.get(panel_meeting_item, 'pmiseqnum') 
+    pmi_seq_num = pydash.get(panel_meeting_item, '[0].pmi_seq_num')
+    if pmi_seq_num:
+        query['pmiseqnum'] = pmi_seq_num 
         agenda_item = create_agenda_item(query, jwt_token)
-        if agenda_item:
-            query['aiseqnum'] = pydash.get(agenda_item, 'aiseqnum')
-            # Single call with all the legs or individual call (WS BLOCKER QUESTION)
-            for x in data.legs: create_agenda_item_leg(x, query, jwt_token)
-    
+        ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
+        if ai_seq_num:
+            query['aiseqnum'] = ai_seq_num 
+            if data.legs:
+                for x in data.legs: create_agenda_item_leg(x, query, jwt_token)
+        else:
+            logger.error("AI create failed")
+    else:
+        logger.error("PMI create failed")
+
 
 def create_panel_meeting_item(query, jwt_token):
     '''
@@ -123,6 +127,7 @@ def create_agenda_item_leg(data, query, jwt_token):
     '''
     Create AIL
     '''
+    aiseqnum = query["aiseqnum"]
     args = {
         "uri": f"v1/agendas/{aiseqnum}/legs",
         "query": query,
