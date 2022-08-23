@@ -73,7 +73,7 @@ class AgendaItemActionView(BaseView):
                  }), description='Legs'),
     }))
 
-    def post(self, request, pk):
+    def post(self, request):
         '''
         Create single agenda
         '''
