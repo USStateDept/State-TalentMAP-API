@@ -1,3 +1,4 @@
+import jwt
 import logging
 import pydash
 from functools import partial
