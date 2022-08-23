@@ -230,7 +230,7 @@ def fsbid_to_talentmap_pos(data):
     add_these = []
 
     cols_mapping = {
-        'id': 'posseqnum',
+        'pos_position_id': 'posseqnum',
         'organization': 'posorgshortdesc',
         'position_number': 'posnumtext',
         'grade': 'posgradecode',

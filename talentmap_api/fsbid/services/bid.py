@@ -280,12 +280,13 @@ def fsbid_to_talentmap_bids(data):
     # add_these are the additional data points we want returned
     from talentmap_api.fsbid.services.common import map_return_template_cols
 
-    hard_coded = ['hs_code', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title', 'pos']
+    hard_coded = ['hs_code', 'cp_id', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title', 'pos']
 
     add_these = []
 
     cols_mapping = {
         'hs_code': 'ubwhscode',
+        'cp_id': 'ubwcpid',
         'pos_seq_num': 'cpposseqnum',
         'pos_num': 'posnumtext',
         'pos_org_short_desc': 'posorgshortdesc',
