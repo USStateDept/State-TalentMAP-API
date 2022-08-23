@@ -265,7 +265,10 @@ def map_assignments_separations_bids(data):
         "org": pydash.get(pos, 'posorgshortdesc'),
         "grade": pydash.get(pos, 'posgradecode'),
         "pos_num": pydash.get(pos, 'posnumtext'),
-        "pos_title": pydash.get(pos, 'postitledesc'), 
-        "position_id": pydash.get(pos, 'posseqnum'),
-
+        "pos_title": pydash.get(pos, 'postitledesc'),
+        "asg_pos_seq_num": pydash.get(data, 'asgposseqnum'),
+        "cp_pos_seq_num": pydash.get(data, 'cpposseqnum'),
+        "cp_id": pydash.get(data, 'cp_id'),
+        "asg_seq_num": pydash.get(data, 'id'),
+        "revision_num": pydash.get(pos, 'asgd_revision_num'),
     }
