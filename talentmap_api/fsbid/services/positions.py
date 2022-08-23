@@ -225,12 +225,12 @@ def fsbid_to_talentmap_pos(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['id', 'organization', 'position_number', 'grade', 'title']
+    hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title']
 
     add_these = []
 
     cols_mapping = {
-        'id': 'posseqnum',
+        'pos_seq_num': 'posseqnum',
         'organization': 'posorgshortdesc',
         'position_number': 'posnumtext',
         'grade': 'posgradecode',

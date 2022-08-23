@@ -53,6 +53,7 @@ def assignment_history_to_client_format(data):
                             "end_date": ensure_date(x['end_date']),
                             "status": x['asgd_asgs_code'],
                             "asgd_tod_desc_text": x['asgd_tod_desc_text'],
+                            "asgd_revision_num": x['asgd_revision_num'],
                             # need to update once fully integrated
                             "position": {
                                 "grade": pos.get("posgradecode", None),
@@ -117,6 +118,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_tod_desc_text",
         "asgd_asgs_code",
         "position",
+        "asgd_revision_num",
     ]
 
     add_these = []

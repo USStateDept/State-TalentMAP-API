@@ -173,7 +173,6 @@ sort_dict = {
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
-    # End Todo
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
 }
