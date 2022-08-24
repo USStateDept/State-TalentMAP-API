@@ -393,7 +393,7 @@ def convert_create_agenda_item_query(query):
     '''
     user_id = pydash.get(query, "hru_id")
     values = { 
-        "aipmiseqnum": pydah.get(query, "pmiseqnum", ""), #Insert from response from PMI create
+        "aipmiseqnum": pydash.get(query, "pmiseqnum", ""),
         "aiempseqnbr": pydash.get(query, "personId", ""),
         "aiperdetseqnum": pydash.get(query, "personDetailId", ""),
         "aiaiscode": pydash.get(query, "agendaStatusCode", ""),
@@ -422,14 +422,14 @@ def convert_agenda_item_leg_query(query, leg={}):
     '''
     Converts TalentMap query into FSBid query
     '''
-    user_id = pydash.get(query, "hru_id")
+    user_id = int(pydash.get(query, "hru_id"))
     values = { 
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
-        "ailcpid": pydash.get(leg, "cpId", ""),
-        "ailempseqnbr": pydash.get(query, "personId", ""),
-        "ailperdetseqnum": pydash.get(query, "persodDetailId", ""),
-        "ailposseqnum": pydash.get(leg, "posSeqNum", ""),
+        "ailcpid": int(pydash.get(leg, "cpId")) or None,
+        "ailempseqnbr": int(pydash.get(query, "personId")) or None,
+        "ailperdetseqnum": pydash.get(query, "persodDetailId") or None, 
+        "ailposseqnum": int(pydash.get(leg, "posSeqNum")) or None,
         "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
         "ailtodmonthsnum": None, 
         "ailtodothertext": None, 
@@ -442,8 +442,8 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailemprequestedsepind": None,
         "ailcreateid": user_id,
         "ailupdateid": user_id,
-        "ailasgseqnum": pydash.get(leg, "legAssignmentId", ""),
-        "ailasgdrevisionnum": pydash.get(leg, "legAssignmentVersion", ""),
+        "ailasgseqnum": int(pydash.get(leg, "legAssignmentId")) or None,
+        "ailasgdrevisionnum": int(pydash.get(leg, "legAssignmentVersion")) or None,
         "ailsepseqnum": None,
         "ailsepdrevisionnum": None,
     }
