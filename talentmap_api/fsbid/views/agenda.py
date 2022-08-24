@@ -2,6 +2,7 @@ import coreapi
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -76,10 +77,10 @@ class AgendaItemActionView(BaseView):
         Create single agenda
         '''
         try:
-            return Response(services.create_agenda(request.data, request.META['HTTP_JWT']))
+            services.create_agenda(request.data, request.META['HTTP_JWT'])
+            return Response(status=status.HTTP_204_NO_CONTENT)    
         except Exception as e:
             logger.info(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
-        finally:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
