@@ -378,7 +378,7 @@ def convert_panel_meeting_item_query(query):
     '''
     creator_id = pydash.get(query, "hru_id")
     values = {
-        "pmimiccode": pydash.get(query, "panelMeetingCategory", ""),
+        "pmimiccode": pydash.get(query, "panelMeetingCategory") or "D",
         "pmipmseqnum": pydash.get(query, "panelMeetingId", ""),
         "pmicreateid": creator_id,
         "pmiupdateid": creator_id,
