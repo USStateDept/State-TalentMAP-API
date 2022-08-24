@@ -101,7 +101,7 @@ def create_panel_meeting_item(query, jwt_token):
         "mapping_function": "",
     }
 
-    return services.get_results_with_post(
+    return services.send_fsbid_post(
         **args
     ) 
 
@@ -379,7 +379,7 @@ def convert_panel_meeting_item_query(query):
         "pmicreateid": creator_id,
         "pmiupdateid": creator_id,
     }        
-    valuesToReturn = [pydash.omit_by(values, lambda o: o is None or o == [])]
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
