@@ -77,7 +77,7 @@ class AgendaItemActionView(BaseView):
         '''
         Create single agenda
         '''
-        return Response(services.create_agenda(request.query_params, request.META['HTTP_JWT']))
+        return Response(services.create_agenda(request.data, request.META['HTTP_JWT']))
 
 
 class AgendaItemCSVView(BaseView):

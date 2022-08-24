@@ -81,7 +81,7 @@ def create_agenda(query = {}, jwt_token=None, host=None):
         ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num 
-            if data.legs:
+            if query.legs:
                 for x in data.legs: create_agenda_item_leg(x, query, jwt_token)
         else:
             logger.error("AI create failed")
@@ -98,7 +98,7 @@ def create_panel_meeting_item(query, jwt_token):
         "query": query,
         "query_mapping_function": convert_panel_meeting_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": "",#fsbid_pmi_to_tmap_pmi,
+        "mapping_function": "",
     }
 
     return services.get_results_with_post(
