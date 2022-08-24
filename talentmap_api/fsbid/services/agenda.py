@@ -124,7 +124,7 @@ def create_agenda_item(query, jwt_token):
         "mapping_function": "",
     }
 
-    return services.get_results_with_post(
+    return services.send_fsbid_post(
         **args
     )
 
@@ -139,7 +139,7 @@ def create_agenda_item_leg(data, query, jwt_token):
         "query": query,
         "query_mapping_function": partial(convert_agenda_item_leg_query, leg=data),
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
+        "mapping_function": "" 
     }
 
     return services.send_fsbid_post(
