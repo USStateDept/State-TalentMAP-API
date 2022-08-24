@@ -392,7 +392,7 @@ def convert_create_agenda_item_query(query):
         "aipmiseqnum": pydah.get(query, "pmiseqnum", ""), #Insert from response from PMI create
         "aiempseqnbr": pydash.get(query, "personId", ""),
         "aiperdetseqnum": pydash.get(query, "personDetailId", ""),
-        "aiaiscode": pydash.get(query, "selectedStatus", ""),
+        "aiaiscode": pydash.get(query, "agendaStatusCode", ""),
         "aitoddesctext": None,
         "aitodcode": None,
         "aiasgseqnum": pydash.get(query, "assignmentId", ""),
