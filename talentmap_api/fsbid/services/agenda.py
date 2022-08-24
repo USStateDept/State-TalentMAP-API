@@ -84,9 +84,9 @@ def create_agenda(query = {}, jwt_token=None, host=None):
         ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num 
-            if query.legs:
+            if (pydash.get(query, 'agendaLegs')): 
                 print('4. calling ail ---------------------------------------------------')
-                for x in query.legs: create_agenda_item_leg(x, query, jwt_token)
+                for x in query['agendaLegs']: create_agenda_item_leg(x, query, jwt_token)
         else:
             logger.error("AI create failed")
     else:
@@ -119,8 +119,7 @@ def create_agenda_item(query, jwt_token):
         "query": query,
         "query_mapping_function": convert_create_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_ai_to_tmap_ai,
-        "api_root": API_ROOT,
+        "mapping_function": "",
     }
 
     return services.get_results_with_post(
@@ -377,6 +376,8 @@ def convert_panel_meeting_item_query(query):
     Converts TalentMap query into FSBid query
     '''
     creator_id = pydash.get(query, "hru_id")
+    print(type(creator_id))
+    print('-----------cat------------')
     values = {
         "pmimiccode": pydash.get(query, "panelMeetingCategory") or "D",
         "pmipmseqnum": int(pydash.get(query, "panelMeetingId")),
