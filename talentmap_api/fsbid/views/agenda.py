@@ -75,7 +75,12 @@ class AgendaItemActionView(BaseView):
         '''
         Create single agenda
         '''
-        return Response(services.create_agenda(request.data, request.META['HTTP_JWT']))
+        try:
+            return Response(services.create_agenda(request.data, request.META['HTTP_JWT']))
+        except Exception as e:
+            logger.info(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+        finally:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class AgendaItemCSVView(BaseView):
