@@ -82,7 +82,7 @@ def create_agenda(query = {}, jwt_token=None, host=None):
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num 
             if query.legs:
-                for x in data.legs: create_agenda_item_leg(x, query, jwt_token)
+                for x in query.legs: create_agenda_item_leg(x, query, jwt_token)
         else:
             logger.error("AI create failed")
     else:
