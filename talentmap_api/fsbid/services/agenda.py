@@ -113,7 +113,7 @@ def create_panel_meeting_item(query, jwt_token):
         "mapping_function": "",
     }
 
-    return services.send_fsbid_post(
+    return services.get_results_with_post(
         **args
     )
 
@@ -131,7 +131,7 @@ def create_agenda_item(query, jwt_token):
         "mapping_function": "",
     }
 
-    return services.send_fsbid_post(
+    return services.get_results_with_post(
         **args
     )
 
@@ -150,7 +150,7 @@ def create_agenda_item_leg(data, query, jwt_token):
         "mapping_function": "" 
     }
 
-    return services.send_fsbid_post(
+    return services.get_results_with_post(
         **args
     )
 
@@ -385,16 +385,12 @@ def convert_panel_meeting_item_query(query):
     Converts TalentMap query into FSBid query
     '''
     creator_id = pydash.get(query, "hru_id")
-    print(type(creator_id))
-    print('-----------cat------------')
-    values = {
+    return {
         "pmimiccode": pydash.get(query, "panelMeetingCategory") or "D",
         "pmipmseqnum": int(pydash.get(query, "panelMeetingId")),
         "pmicreateid": creator_id,
         "pmiupdateid": creator_id,
     }
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
 def convert_create_agenda_item_query(query):
@@ -402,7 +398,7 @@ def convert_create_agenda_item_query(query):
     Converts TalentMap query into FSBid query
     '''
     user_id = pydash.get(query, "hru_id")
-    values = {
+    return {
         "aipmiseqnum": pydash.get(query, "pmiseqnum", ""),
         "aiempseqnbr": pydash.get(query, "personId", ""),
         "aiperdetseqnum": pydash.get(query, "personDetailId", ""),
@@ -424,17 +420,12 @@ def convert_create_agenda_item_query(query):
         "aiitemcreatorid": user_id,
     }
 
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
-
 def convert_agenda_item_leg_query(query, leg={}):
     '''
     Converts TalentMap query into FSBid query
     '''
     user_id = int(pydash.get(query, "hru_id"))
-    values = {
+    return {
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId")) or None,
@@ -458,10 +449,6 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailsepseqnum": None,
         "ailsepdrevisionnum": None,
     }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
 def fsbid_to_talentmap_agenda_statuses(data):
