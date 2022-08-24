@@ -75,18 +75,23 @@ def create_agenda(query={}, jwt_token=None, host=None):
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
     query['hru_id'] = hru_id
     print('1. query ---------------------------------------------------', query)
+    logger.info('1. query ---------------------------------------------------', query)
     print('2. calling pmi ---------------------------------------------------')
+    logger.info('2. calling pmi ---------------------------------------------------')
     panel_meeting_item = create_panel_meeting_item(query, jwt_token)
     pmi_seq_num = pydash.get(panel_meeting_item, '[0].pmi_seq_num')
     if pmi_seq_num:
         query['pmiseqnum'] = pmi_seq_num
         print('3. calling ai ---------------------------------------------------')
+        logger.info('3. calling ai ---------------------------------------------------')
         agenda_item = create_agenda_item(query, jwt_token)
         ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num
+            logger.info('🥹🥹🥹if ai_seq_num: true')
             if pydash.get(query, 'agendaLegs'):
                 print('4. calling ail ---------------------------------------------------')
+                logger.info('4. calling ail ---------------------------------------------------')
                 for x in query['agendaLegs']:
                     create_agenda_item_leg(x, query, jwt_token)
         else:
@@ -99,6 +104,7 @@ def create_panel_meeting_item(query, jwt_token):
     '''
     Create PMI
     '''
+    logger.info('🟣🟣🟣 in create_panel_meeting_item')
     args = {
         "uri": "v1/panels/meetingItem",
         "query": query,
@@ -116,6 +122,7 @@ def create_agenda_item(query, jwt_token):
     '''
     Create AI
     '''
+    logger.info('🐳🐳🐳 in create_agenda_item')
     args = {
         "uri": "v1/agendas",
         "query": query,
@@ -133,6 +140,7 @@ def create_agenda_item_leg(data, query, jwt_token):
     '''
     Create AIL
     '''
+    logger.info('🐸🐸🐸🐸🐸🐸🐸🐸 in create_agenda_item_leg')
     aiseqnum = query["aiseqnum"]
     args = {
         "uri": f"v1/agendas/{aiseqnum}/legs",
