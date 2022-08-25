@@ -77,18 +77,21 @@ def create_agenda(query={}, jwt_token=None, host=None):
     logger.info('1. query ---------------------------------------------------', query)
     logger.info('2. calling pmi ---------------------------------------------------')
     panel_meeting_item = create_panel_meeting_item(query, jwt_token)
+    logger.info('2a. PMI return', panel_meeting_item)
     pmi_seq_num = pydash.get(panel_meeting_item, '[0].pmi_seq_num')
     if pmi_seq_num:
         query['pmiseqnum'] = pmi_seq_num
         logger.info('3. calling ai ---------------------------------------------------')
         agenda_item = create_agenda_item(query, jwt_token)
+        logger.info('3a. AI return', agenda_item)
         ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num
             if pydash.get(query, 'agendaLegs'):
                 logger.info('4. calling ail ---------------------------------------------------')
                 for x in query['agendaLegs']:
-                    create_agenda_item_leg(x, query, jwt_token)
+                    agenda_item_leg = create_agenda_item_leg(x, query, jwt_token)
+                    logger.info('4a. AIL return', agenda_item_leg)
         else:
             logger.error("AI create failed")
     else:
@@ -99,7 +102,6 @@ def create_panel_meeting_item(query, jwt_token):
     '''
     Create PMI
     '''
-    logger.info('🟣🟣🟣 in create_panel_meeting_item')
     args = {
         "uri": "v1/panels/meetingItem",
         "query": query,
@@ -117,7 +119,6 @@ def create_agenda_item(query, jwt_token):
     '''
     Create AI
     '''
-    logger.info('🐳🐳🐳 in create_agenda_item')
     args = {
         "uri": "v1/agendas",
         "query": query,
@@ -135,7 +136,6 @@ def create_agenda_item_leg(data, query, jwt_token):
     '''
     Create AIL
     '''
-    logger.info('in create_agenda_item_leg')
     aiseqnum = query["aiseqnum"]
     args = {
         "uri": f"v1/agendas/{aiseqnum}/legs",
