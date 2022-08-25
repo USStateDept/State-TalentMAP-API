@@ -431,7 +431,7 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
         "ailtodmonthsnum": None,
         "ailtodothertext": None,
-        "ailetadate": pydash.get(leg, "legStartDate", None),
+        "ailetadate": None, 
         "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
         "aildsccd": None,
         "ailcitytext": None,
