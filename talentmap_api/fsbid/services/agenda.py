@@ -421,6 +421,7 @@ def convert_agenda_item_leg_query(query, leg={}):
     '''
     user_id = pydash.get(query, "hru_id")
     return {
+        "ailaiseqnum": pydash.get(query, "aiseqnum"),    
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId") or 0) or None,
