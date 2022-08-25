@@ -426,7 +426,7 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId") or 0) or None,
         "ailempseqnbr": int(pydash.get(query, "personId") or 0) or None,
-        "ailperdetseqnum": int(pydash.get(query, "persodDetailId") or 0) or None,
+        "ailperdetseqnum": int(pydash.get(query, "personDetailId") or 0) or None,
         "ailposseqnum": int(pydash.get(leg, "posSeqNum") or 0) or None,
         "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
         "ailtodmonthsnum": None,
