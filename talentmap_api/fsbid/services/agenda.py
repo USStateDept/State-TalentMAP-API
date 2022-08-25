@@ -237,7 +237,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
 
     return {
         "id": data.get("aiseqnum", None),
-        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", ''), remarks),
+        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
