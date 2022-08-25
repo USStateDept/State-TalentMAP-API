@@ -214,7 +214,6 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
 
 def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
     mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o == None)
-    print('mappedQuery ---------------------------------------------------------', mappedQuery)
     url = f"{api_root}/{uri}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery).json()
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
