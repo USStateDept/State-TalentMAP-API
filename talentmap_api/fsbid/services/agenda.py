@@ -237,7 +237,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
 
     return {
         "id": data.get("aiseqnum", None),
-        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext", ''), remarks),
+        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
@@ -421,16 +421,17 @@ def convert_agenda_item_leg_query(query, leg={}):
     '''
     user_id = pydash.get(query, "hru_id")
     return {
+        "ailaiseqnum": pydash.get(query, "aiseqnum"),    
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId") or 0) or None,
         "ailempseqnbr": int(pydash.get(query, "personId") or 0) or None,
-        "ailperdetseqnum": int(pydash.get(query, "persodDetailId") or 0) or None,
+        "ailperdetseqnum": int(pydash.get(query, "personDetailId") or 0) or None,
         "ailposseqnum": int(pydash.get(leg, "posSeqNum") or 0) or None,
         "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
         "ailtodmonthsnum": None,
         "ailtodothertext": None,
-        "ailetadate": pydash.get(leg, "legStartDate", None),
+        "ailetadate": None,
         "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
         "aildsccd": None,
         "ailcitytext": None,
