@@ -288,8 +288,8 @@ def fsbid_clients_to_talentmap_clients(data):
         # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
         # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
-        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
-        "languages": fsbid_languages_to_tmap(data.get("languages", []) or []),
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications") or []),
+        "languages": fsbid_languages_to_tmap(data.get("languages") or []),
         # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
