@@ -21,8 +21,8 @@ class Command(BaseCommand):
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, ["bidder"]),
         ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder", "helppage_editor"]),
         ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ['cdo']),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ['bureau_user']),
-        ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, True, ['post_user']),
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", False, False, ['bureau_user']),
+        ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, False, ['post_user']),
         ("lincolna", "lincolna@state.gov", "password", "Abigail", "Lincoln", True, False, ['ao_user']),
     ]
 
