@@ -1,5 +1,4 @@
 import logging
-import coreapi
 from rest_condition import Or
 
 from drf_yasg.utils import swagger_auto_schema
@@ -32,7 +31,7 @@ class AvailableBiddersListView(APIView):
 
 
 class AvailableBiddersCSVView(APIView):
-    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user')), ]
 
     def get(self, request, *args, **kwargs):
         """
