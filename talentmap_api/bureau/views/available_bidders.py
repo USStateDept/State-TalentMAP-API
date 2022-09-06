@@ -1,4 +1,5 @@
 import logging
+import coreapi
 from rest_condition import Or
 
 from drf_yasg.utils import swagger_auto_schema
