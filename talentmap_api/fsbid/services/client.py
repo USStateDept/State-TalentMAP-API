@@ -546,18 +546,19 @@ def fsbid_languages_to_tmap(languages):
     for x in languages:
         if not x.get('empl_language', None):
             continue
+        if not str(x.get('empl_language')).strip():
+            continue
         r = str(x.get('empl_high_reading', '')).strip()
         s = str(x.get('empl_high_speaking', '')).strip()
         tmap_languages.append({
-            "code": x.get('empl_language_code', None),
-            "language": x.get('empl_language', None),
+            "code": str(x.get('empl_language_code')).strip(),
+            "language": str(x.get('empl_language')).strip(),
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
             "speaking_score": s or empty_score,
             "reading_score": r or empty_score,
             "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
-
 
 def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
