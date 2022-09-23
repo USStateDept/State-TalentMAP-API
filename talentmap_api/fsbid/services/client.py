@@ -551,12 +551,12 @@ def fsbid_languages_to_tmap(languages):
         r = str(x.get('empl_high_reading', '')).strip()
         s = str(x.get('empl_high_speaking', '')).strip()
         tmap_languages.append({
-            "code": str(x.get('empl_language_code')).strip(),
-            "language": str(x.get('empl_language')).strip(),
+            "code": str(x.get('empl_language_code')).strip() if x.get('empl_language_code') else x.get('empl_language_code') or None,
+            "language": str(x.get('empl_language')).strip() if x.get('empl_language') else x.get('empl_language') or None,
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
             "speaking_score": s or empty_score,
             "reading_score": r or empty_score,
-            "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
+            "custom_description": f"{str(x.get('empl_language')).strip()} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
 
