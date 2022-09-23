@@ -544,9 +544,7 @@ def fsbid_languages_to_tmap(languages):
     tmap_languages = []
     empty_score = '--'
     for x in languages:
-        if not x.get('empl_language', None):
-            continue
-        if not str(x.get('empl_language')).strip():
+        if not x.get('empl_language', None) or not str(x.get('empl_language')).strip():
             continue
         r = str(x.get('empl_high_reading', '')).strip()
         s = str(x.get('empl_high_speaking', '')).strip()
