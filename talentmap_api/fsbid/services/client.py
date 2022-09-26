@@ -544,20 +544,19 @@ def fsbid_languages_to_tmap(languages):
     tmap_languages = []
     empty_score = '--'
     for x in languages:
-        if not x.get('empl_language', None):
+        if not x.get('empl_language', None) or not str(x.get('empl_language')).strip():
             continue
         r = str(x.get('empl_high_reading', '')).strip()
         s = str(x.get('empl_high_speaking', '')).strip()
         tmap_languages.append({
-            "code": x.get('empl_language_code', None),
-            "language": x.get('empl_language', None),
+            "code": str(x.get('empl_language_code')).strip() if x.get('empl_language_code') else x.get('empl_language_code') or None,
+            "language": str(x.get('empl_language')).strip() if x.get('empl_language') else x.get('empl_language') or None,
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
             "speaking_score": s or empty_score,
             "reading_score": r or empty_score,
-            "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
+            "custom_description": f"{str(x.get('empl_language')).strip()} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
-
 
 def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request
