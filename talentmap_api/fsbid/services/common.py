@@ -857,8 +857,6 @@ def get_aih_csv(data, filename):
         row.append(smart_str(pydash.get(record, "status_full")))
         row.append(smart_str(remarks))
 
-        # print(row)
-
         writer.writerow(row)
     return response
 
