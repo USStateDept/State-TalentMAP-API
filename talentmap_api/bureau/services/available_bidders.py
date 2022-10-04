@@ -40,6 +40,7 @@ def get_available_bidders_csv(request):
         smart_str(u"Country"),
         smart_str(u"CDO Name"),
         smart_str(u"CDO Email"),
+        smart_str(u"Updated"),
     ])
 
     fields_info = {
@@ -51,6 +52,7 @@ def get_available_bidders_csv(request):
         "city": {"path": 'current_assignment.position.post.location.city', },
         "state": {"path": 'current_assignment.position.post.location.state', },
         "country": {"path": 'current_assignment.position.post.location.country', },
+        "updated_on": {"path": 'available_bidder_details.update_date', },
         "cdo_email": {"path": 'cdo.email', },
     }
 
@@ -64,6 +66,10 @@ def get_available_bidders_csv(request):
         cdo_name = f'{pydash.get(record, "cdo.last_name")}, {pydash.get(record, "cdo.first_name")}'
 
         fields = formatCSV(record, fields_info)
+
+        # Removing time zone text to allow Maya to parse
+        update_date, x, y = fields["updated_on"].partition('(')
+        update_date = maya.parse(update_date).datetime().strftime('%m/%d/%Y')
 
         try:
             ted = maya.parse(fields["ted"]).datetime().strftime('%m/%d/%Y')
@@ -81,5 +87,6 @@ def get_available_bidders_csv(request):
             fields["country"],
             cdo_name,
             fields["cdo_email"],
+            update_date,
         ])
     return response
