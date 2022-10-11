@@ -62,7 +62,7 @@ class FSBidBureauPositionsListView(BaseView):
 
     def get(self, request, *args, **kwargs):
         '''
-        Gets all bureau positions
+        Gets all External CDA positions
         '''
         hs_query_codes = request.query_params.get('lead_hs_status_code', [])
         # Filter by latest status(update_date) per cp_id
@@ -98,7 +98,7 @@ class FSBidBureauPositionsCSVView(BaseView):
 
     def get(self, request, *args, **kwargs):
         '''
-        Gets all bureau positions for export
+        Gets all External CDA positions for export
         '''
         limit = 9999999
         includeLimit = False
@@ -111,7 +111,7 @@ class FSBidBureauPositionView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets a bureau position
+        Gets a External CDA position
         '''
         hasBureauPermissions = empservices.has_bureau_permissions(pk, self.request.META['HTTP_JWT'])
         hasOrgPermissions = empservices.has_org_permissions(pk, self.request.META['HTTP_JWT'])
@@ -138,7 +138,7 @@ class FSBidBureauPositionBidsView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets a bureau position's bids
+        Gets an External CDA position's bids
         '''
         result = services.get_bureau_position_bids(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         if result is None:
@@ -152,6 +152,6 @@ class FSBidBureauPositionBidsCSVView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets a bureau position's bids for export
+        Gets an External CDA position's bids for export
         '''
         return services.get_bureau_position_bids_csv(self, pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
