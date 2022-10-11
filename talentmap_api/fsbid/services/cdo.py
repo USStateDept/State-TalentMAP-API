@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def cdo(jwt_token):
     '''
-    Get All CDOs
+    Get All Internal CDAs
     '''
     from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
@@ -26,7 +26,7 @@ def cdo(jwt_token):
 
 def single_cdo(jwt_token=None, perdet_seq_num=None):
     '''
-    Get a single CDO
+    Get a single Internal CDA
     '''
     from talentmap_api.fsbid.services.common import get_fsbid_results
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
