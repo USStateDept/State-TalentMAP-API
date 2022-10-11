@@ -30,7 +30,7 @@ CP_API_V2_ROOT = settings.CP_API_V2_URL
 
 def get_bureau_position(id, jwt_token):
     '''
-    Gets an indivdual External CDA position by id
+    Gets an indivdual bureau position by id
     '''
     from talentmap_api.fsbid.services.common import send_get_request
 
@@ -52,7 +52,7 @@ def get_bureau_position(id, jwt_token):
 
 def get_bureau_positions(query, jwt_token, host=None):
     '''
-    Gets all External CDA positions
+    Gets all bureau positions
     '''
     from talentmap_api.fsbid.services.common import send_get_request
 
@@ -72,7 +72,7 @@ def get_bureau_positions(query, jwt_token, host=None):
 
 def get_bureau_positions_count(query, jwt_token, host=None):
     '''
-    Gets the total number of External CDA positions for a filterset
+    Gets the total number of bureau positions for a filterset
     '''
     from talentmap_api.fsbid.services.common import send_count_request
 
@@ -101,7 +101,7 @@ def get_bureau_positions_csv(query, jwt_token, host=None, limit=None, includeLim
 
 def get_bureau_position_bids(id, query, jwt_token, host):
     '''
-    Gets all bids on an indivdual External CDA position by id
+    Gets all bids on an indivdual bureau position by id
     '''
     from talentmap_api.fsbid.services.common import get_results
     from talentmap_api.fsbid.services.employee import has_bureau_permissions, has_org_permissions
@@ -125,7 +125,7 @@ def get_bureau_position_bids(id, query, jwt_token, host):
 
 def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
     '''
-    Gets all bids on an indivdual External CDA position by id for export
+    Gets all bids on an indivdual bureau position by id for export
     '''
     from talentmap_api.fsbid.services.common import get_bidders_csv, send_get_csv_request
     from talentmap_api.fsbid.services.employee import has_bureau_permissions, has_org_permissions
@@ -154,7 +154,7 @@ def get_bureau_position_bids_csv(self, id, query, jwt_token, host):
 
 def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     '''
-    Formats the response External CDA position bids from FSBid
+    Formats the response bureau position bids from FSBid
     '''
     from talentmap_api.fsbid.services.common import has_competing_rank
     from talentmap_api.fsbid.services.reference import get_cycles
@@ -222,7 +222,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
 
 def fsbid_bureau_positions_to_talentmap(bp):
     '''
-    Converts the response External CDA position from FSBid to a format more in line with the Talentmap position
+    Converts the response bureau position from FSBid to a format more in line with the Talentmap position
     '''
 
     from talentmap_api.fsbid.services.common import get_post_overview_url, get_post_bidding_considerations_url, get_obc_id, parseLanguage
