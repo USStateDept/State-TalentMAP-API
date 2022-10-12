@@ -41,7 +41,7 @@ class AvailableBiddersListView(APIView):
 
     def get(self, request):
         '''
-        Gets all available bidders for a CDO from FSBID
+        Gets all available bidders for an Internal CDA from FSBID
         '''
         return Response(client_services.get_available_bidders(request.META['HTTP_JWT'], True, request.query_params, f"{request.scheme}://{request.get_host()}"))
 
