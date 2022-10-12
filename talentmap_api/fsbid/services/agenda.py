@@ -92,8 +92,8 @@ def create_agenda(query={}, jwt_token=None, host=None):
                 for x in query['agendaLegs']:
                     agenda_item_leg = create_agenda_item_leg(x, query, jwt_token)
                     # logger.info('4a. AIL return', agenda_item_leg)
-        # else:
-        #     logger.error("AI create failed")
+        else:
+            logger.error("AI create failed")
     # else:
     #     logger.error("PMI create failed")
 
