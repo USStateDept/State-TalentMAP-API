@@ -288,8 +288,8 @@ def fsbid_clients_to_talentmap_clients(data):
         # "hasHandshake": fsbid_handshake_to_tmap(data.get("hs_cd")),
         # "noPanel": fsbid_no_successful_panel_to_tmap(data.get("no_successful_panel")),
         # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
-        "classifications": fsbid_classifications_to_tmap(employee.get("classifications", [])),
-        "languages": fsbid_languages_to_tmap(data.get("languages", [])),
+        "classifications": fsbid_classifications_to_tmap(employee.get("classifications") or []),
+        "languages": fsbid_languages_to_tmap(data.get("languages") or []),
         # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
@@ -544,20 +544,19 @@ def fsbid_languages_to_tmap(languages):
     tmap_languages = []
     empty_score = '--'
     for x in languages:
-        if not x.get('empl_language', None):
+        if not x.get('empl_language', None) or not str(x.get('empl_language')).strip():
             continue
         r = str(x.get('empl_high_reading', '')).strip()
         s = str(x.get('empl_high_speaking', '')).strip()
         tmap_languages.append({
-            "code": x.get('empl_language_code', None),
-            "language": x.get('empl_language', None),
+            "code": str(x.get('empl_language_code')).strip() if x.get('empl_language_code') else x.get('empl_language_code') or None,
+            "language": str(x.get('empl_language')).strip() if x.get('empl_language') else x.get('empl_language') or None,
             "test_date": ensure_date(x.get('empl_high_test_date', None)),
             "speaking_score": s or empty_score,
             "reading_score": r or empty_score,
-            "custom_description": f"{x.get('empl_language')} {s or empty_score}/{r or empty_score}"
+            "custom_description": f"{str(x.get('empl_language')).strip()} {s or empty_score}/{r or empty_score}"
         })
     return tmap_languages
-
 
 def get_available_bidders(jwt_token, isCDO, query, host=None):
     from talentmap_api.fsbid.services.common import send_get_request

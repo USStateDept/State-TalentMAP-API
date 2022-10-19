@@ -35,7 +35,7 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     bids = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
-    filteredBids['Data'] = [b for b in list(bids['Data']) if smart_str(b["bs_cd"]) != 'D']
+    filteredBids['Data'] = [b for b in list(pydash.get(bids, 'Data') or []) if smart_str(b["bs_cd"]) != 'D']
     mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
     mappedBids = sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
     return map_bids_to_disable_handshake_if_accepted(mappedBids)
@@ -280,12 +280,13 @@ def fsbid_to_talentmap_bids(data):
     # add_these are the additional data points we want returned
     from talentmap_api.fsbid.services.common import map_return_template_cols
 
-    hard_coded = ['hs_code', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title', 'pos']
+    hard_coded = ['hs_code', 'cp_id', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title', 'pos']
 
     add_these = []
 
     cols_mapping = {
         'hs_code': 'ubwhscode',
+        'cp_id': 'ubwcpid',
         'pos_seq_num': 'cpposseqnum',
         'pos_num': 'posnumtext',
         'pos_org_short_desc': 'posorgshortdesc',

@@ -2,6 +2,7 @@ import coreapi
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -23,6 +24,7 @@ class AgendaItemView(BaseView):
         Get single agenda by ai_seq_num
         '''
         return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], pk))
+    
 
 class AgendaItemListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
@@ -40,6 +42,47 @@ class AgendaItemListView(BaseView):
         Gets all Agenda Items
         '''
         return Response(services.get_agenda_items(request.META['HTTP_JWT'], request.query_params, f"{request.scheme}://{request.get_host()}"))
+
+
+class AgendaItemActionView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
+
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'assignmentId': openapi.Schema(type=openapi.TYPE_STRING, description='Assignment ID'),
+            'assignmentVersion': openapi.Schema(type=openapi.TYPE_STRING, description='Assignment Version'),
+            'personId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Person ID'),
+            'personDetailId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Person Detail ID'),
+            'agendaStatusCode': openapi.Schema(type=openapi.TYPE_STRING, description='Agenda Status Code'),
+            'panelMeetingId': openapi.Schema(type=openapi.TYPE_INTEGER, description='Panel Meeting ID'),
+            'panelMeetingCategory': openapi.Schema(type=openapi.TYPE_STRING, description='Panel Meeting Category'),
+            'agendaLegs': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'legAssignmentId': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Assignment ID'),
+                    'legAssignmentVersion': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Assignment Version'),
+                    'legActionType': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Action Type'),
+                    'tourOfDutyCode': openapi.Schema(type=openapi.TYPE_STRING, description='Tour Of Duty Code'),
+                    'legStartDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg Start Date'),
+                    'legEndDate': openapi.Schema(type=openapi.TYPE_STRING, description='Leg End Date'),
+                    'travelFunctionCode': openapi.Schema(type=openapi.TYPE_STRING, description='Travel Function Code'),
+                    'posSeqNum': openapi.Schema(type=openapi.TYPE_INTEGER, description='Position ID'),
+                    'cpId': openapi.Schema(type=openapi.TYPE_STRING, description='Cycle Position ID'),
+                 }), description='Legs'),
+    }))
+
+    def post(self, request):
+        '''
+        Create single agenda
+        '''
+        try:
+            services.create_agenda(request.data, request.META['HTTP_JWT'])
+            return Response(status=status.HTTP_204_NO_CONTENT)    
+        except Exception as e:
+            logger.info(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
 
 class AgendaItemCSVView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]

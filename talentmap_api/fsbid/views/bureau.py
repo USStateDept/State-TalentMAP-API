@@ -138,7 +138,7 @@ class FSBidBureauPositionBidsView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets a bureau position's bids
+        Gets an bureau position's bids
         '''
         result = services.get_bureau_position_bids(pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
         if result is None:
@@ -152,6 +152,6 @@ class FSBidBureauPositionBidsCSVView(BaseView):
 
     def get(self, request, pk):
         '''
-        Gets a bureau position's bids for export
+        Gets an bureau position's bids for export
         '''
         return services.get_bureau_position_bids_csv(self, pk, request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")

@@ -173,7 +173,6 @@ sort_dict = {
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
-    # End Todo
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
 }
@@ -802,6 +801,7 @@ def parse_agenda_remarks(remarks_string = '', remarks_data={}):
 
 
 def get_aih_csv(data, filename):
+    filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
