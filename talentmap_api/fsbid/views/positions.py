@@ -64,3 +64,4 @@ class FSBidFrequentPositionsView(BaseView):
         Return a list of reference data for all frequent positions
         """
         return Response(services.get_frequent_positions(request.query_params, request.META['HTTP_JWT']))
+
