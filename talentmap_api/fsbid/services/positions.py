@@ -7,6 +7,7 @@ from django.conf import settings
 from talentmap_api.fsbid.services import common as services
 
 POSITIONS_V2_ROOT = settings.POSITIONS_API_V2_URL
+POSITIONS_ROOT = settings.POSITIONS_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -240,3 +241,45 @@ def fsbid_to_talentmap_pos(data):
     add_these.extend(hard_coded)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_frequent_positions(query, jwt_token):
+    '''
+    Get all frequent positions
+    '''
+    args = {
+        "uri": "classifications",
+        "query": query,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": fsbid_to_talentmap_frequent_positions,
+        "count_function": None,
+        "base_url": "/api/v1/positions/",
+        "api_root": POSITIONS_ROOT,
+    }
+
+    frequentPositions = services.send_get_request(
+        **args
+    )
+
+    return frequentPositions
+
+def fsbid_to_talentmap_frequent_positions(data):
+    data = data['position']
+    position = data[0]
+
+    # hard_coded are the default data points (opinionated EP)
+    # add_these are the additional data points we want returned
+    hard_coded = ['pos_seq_num', 'pos_org_short_desc', 'pos_num_text', 'pos_grade_code', 'pos_title_desc']
+    add_these = []
+
+    cols_mapping = {
+        'pos_seq_num': 'posseqnum',
+        'pos_org_short_desc': 'posorgshortdesc',
+        'pos_num_text': 'posnumtext',
+        'pos_grade_code': 'posgradecode',
+        'pos_title_desc': 'postitledesc'
+    }
+
+    add_these.extend(hard_coded)
+
+    return services.map_return_template_cols(add_these, cols_mapping, position)
