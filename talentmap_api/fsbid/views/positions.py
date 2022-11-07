@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from talentmap_api.fsbid.views.base import BaseView
+from talentmap_api.common.permissions import isDjangoGroupMember
 
 import talentmap_api.fsbid.services.positions as services
 
@@ -55,3 +56,11 @@ class FSBidPositionListView(BaseView):
         return Response(result)
 
 
+class FSBidFrequentPositionsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    def get(self, request):
+        """
+        Return a list of reference data for all frequent positions
+        """
+        return Response(services.get_frequent_positions(request.query_params, request.META['HTTP_JWT']))
