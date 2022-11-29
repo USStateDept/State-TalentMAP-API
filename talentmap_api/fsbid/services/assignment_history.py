@@ -78,7 +78,8 @@ def assignment_history_to_client_format(data):
                                         "state": loc.get("state", None),
                                     }
                                 },
-                                "language": pos.get("pos_position_lang_prof_desc", None)
+                                "language": pos.get("pos_position_lang_prof_desc", None),
+                                "languages": services.parseLanguagesToArr(x),
                             },
                             "pos": pos,
                         }
@@ -109,7 +110,9 @@ def fsbid_assignments_to_talentmap_assignments(data):
     # double check these match the DEV1 columns
     # need to confirm asgseqnum and asgdasgseqnum are the same value in DEV1
     # will remove one if they are the same
-
+    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
+    print("data", data)
+    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
     hard_coded = [
         "id",
         "position_id", 
@@ -120,6 +123,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "position",
         "asgd_revision_num",
         "languages",
+        "sophie",
     ]
 
     add_these = []
@@ -165,7 +169,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
         "position": "position",
-        'languages': services.parseLanguagesToArr(data),
+        "languages": services.parseLanguagesToArr(data),
     }
 
     add_these.extend(hard_coded)

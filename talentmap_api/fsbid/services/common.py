@@ -148,6 +148,9 @@ def parseLanguagesToArr(data):
         },
     ]
     '''
+    print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
+    print("data", data)
+    print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
     languages = []
     for langNum in range(1, 3):
         if pydash.has(data, f'poslanguage{langNum}desc'):
