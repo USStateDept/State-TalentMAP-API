@@ -41,6 +41,7 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
     '''
     Get agenda items
     '''
+    # 🕵️🕵️🕵️🕵️🕵️‍
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
     remarks = get_agenda_remarks({}, jwt_token)
     args = {
@@ -297,6 +298,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         "tod": pydash.get(data, "ailtodothertext", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
+        "languages": services.parseLanguagesToArr(data),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
     }
