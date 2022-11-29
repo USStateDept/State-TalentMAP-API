@@ -114,7 +114,7 @@ def parseLanguagesString(lang):
 
         return lang_str
 
-def parseLanguageToArr(data):
+def parseLanguagesToArr(data):
     '''
     Transforms flat language data into array.
     Assumptions: 2 languages max

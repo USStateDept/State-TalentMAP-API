@@ -41,7 +41,6 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
     '''
     Get agenda items
     '''
-    # 🕵️🕵️🕵️🕵️🕵️‍
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
     remarks = get_agenda_remarks({}, jwt_token)
     args = {
