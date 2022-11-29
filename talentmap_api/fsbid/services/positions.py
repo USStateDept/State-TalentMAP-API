@@ -226,7 +226,7 @@ def fsbid_to_talentmap_pos(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title']
+    hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title', 'languages']
 
     add_these = []
 
@@ -236,6 +236,7 @@ def fsbid_to_talentmap_pos(data):
         'position_number': 'posnumtext',
         'grade': 'posgradecode',
         'title': 'postitledesc',
+        'languages': services.parseLanguagesToArr(data),
     }
 
     add_these.extend(hard_coded)
