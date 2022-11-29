@@ -119,6 +119,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_asgs_code",
         "position",
         "asgd_revision_num",
+        "languages",
     ]
 
     add_these = []
@@ -163,7 +164,8 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_create_date": "asgscreatedate",
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
-        "position": "position"
+        "position": "position",
+        'languages': services.parseLanguagesToArr(data),
     }
 
     add_these.extend(hard_coded)
