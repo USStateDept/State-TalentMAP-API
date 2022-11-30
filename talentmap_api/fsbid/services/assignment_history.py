@@ -54,7 +54,6 @@ def assignment_history_to_client_format(data):
                     "status": x['asgd_asgs_code'],
                     "asgd_tod_desc_text": x['asgd_tod_desc_text'],
                     "asgd_revision_num": x['asgd_revision_num'],
-                    # need to update once fully integrated
                     "position": {
                         "grade": pos.get("posgradecode", None),
                         "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
@@ -66,7 +65,6 @@ def assignment_history_to_client_format(data):
                         "position_id": x['position_id'],
                         "title": pos.get("postitledesc", None),
                         "post": {
-                            # "code": loc["gvt_geoloc_cd"],
                             "code": loc.get("gvt_geoloc_cd", None),
                             "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
                             "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
@@ -79,12 +77,14 @@ def assignment_history_to_client_format(data):
                             }
                         },
                         "language": pos.get("pos_position_lang_prof_desc", None),
-                        "languages": services.parseLanguagesToArr(x),
+                        "languages": services.parseLanguagesToArr(x.get("languages")),
                     },
-                    "pos": pos,
+                    "pos": {
+                        **pos,
+                        "languages": services.parseLanguagesToArr(x.get("languages")),
+                    },
                 }
             )
-    
     return tmap_assignments
 
 
@@ -116,8 +116,6 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_asgs_code",
         "position",
         "asgd_revision_num",
-        "languages",
-        "sophie",
     ]
 
     add_these = []
@@ -163,10 +161,9 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
         "position": "position",
-        "languages": services.parseLanguagesToArr(data),
     }
 
     add_these.extend(hard_coded)
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
-
+    x = services.map_return_template_cols(add_these, cols_mapping, data)
+    return x
