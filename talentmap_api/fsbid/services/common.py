@@ -149,7 +149,7 @@ def parseLanguagesToArr(data):
     ]
     '''
     print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
-    print("data", data)
+    print("data:", data)
     print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
     languages = []
     for langNum in range(1, 3):
@@ -165,6 +165,10 @@ def parseLanguagesToArr(data):
                 "reading_proficiency": rScore,
                 "representation": f'{language} ({langCode}) {sScore}/{rScore}'
             })
+
+    print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
+    print("languages:", languages)
+    print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
     return languages
 
 def post_values(query):

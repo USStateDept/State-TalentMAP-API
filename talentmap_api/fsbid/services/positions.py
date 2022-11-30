@@ -236,12 +236,15 @@ def fsbid_to_talentmap_pos(data):
         'position_number': 'posnumtext',
         'grade': 'posgradecode',
         'title': 'postitledesc',
-        'languages': services.parseLanguagesToArr(data),
+        'languages': 'languages',
     }
 
     add_these.extend(hard_coded)
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
+    mappedKeys =  services.map_return_template_cols(add_these, cols_mapping, data)
+    mappedKeys["languages"] = services.parseLanguagesToArr(mappedKeys["languages"])
+
+    return mappedKeys
 
 def get_frequent_positions(query, jwt_token):
     '''

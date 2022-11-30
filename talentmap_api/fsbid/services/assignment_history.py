@@ -107,12 +107,6 @@ def fsbid_assignments_to_talentmap_assignments(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    # double check these match the DEV1 columns
-    # need to confirm asgseqnum and asgdasgseqnum are the same value in DEV1
-    # will remove one if they are the same
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
-    print("data", data)
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
     hard_coded = [
         "id",
         "position_id", 
