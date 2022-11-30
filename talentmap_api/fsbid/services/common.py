@@ -163,6 +163,7 @@ def parseLanguagesToArr(data):
                 "language": language,
                 "spoken_proficiency": sScore,
                 "reading_proficiency": rScore,
+                "code": langCode,
                 "representation": f'{language} ({langCode}) {sScore}/{rScore}'
             })
 
