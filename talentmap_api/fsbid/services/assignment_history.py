@@ -83,7 +83,7 @@ def assignment_history_to_client_format(data):
                     },
                     "pos": pos,
                 }
-                    )
+            )
     
     return tmap_assignments
 
