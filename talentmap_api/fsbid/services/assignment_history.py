@@ -165,5 +165,4 @@ def fsbid_assignments_to_talentmap_assignments(data):
 
     add_these.extend(hard_coded)
 
-    x = services.map_return_template_cols(add_these, cols_mapping, data)
-    return x
+    return services.map_return_template_cols(add_these, cols_mapping, data)
