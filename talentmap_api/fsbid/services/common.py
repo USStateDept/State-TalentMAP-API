@@ -148,9 +148,6 @@ def parseLanguagesToArr(data):
         },
     ]
     '''
-    # print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
-    # print("data:", data)
-    # print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
     languages = []
     for langNum in range(1, 3):
         if pydash.has(data, f'poslanguage{langNum}desc'):
@@ -167,9 +164,6 @@ def parseLanguagesToArr(data):
                 "representation": f'{language} ({langCode}) {sScore}/{rScore}'
             })
 
-    # print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
-    # print("languages:", languages)
-    # print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
     return languages
 
 def post_values(query):

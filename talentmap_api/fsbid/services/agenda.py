@@ -225,7 +225,6 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     }
     legsToReturn = []
     assignment = fsbid_aia_to_talentmap_aia(
-        # 💛 needs to go in here
         pydash.get(data, "agendaAssignment[0]", {})
     )
     legs = (list(map(
