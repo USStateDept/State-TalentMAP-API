@@ -226,6 +226,8 @@ def fsbid_to_talentmap_pos(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
+    data['languages'] = services.parseLanguagesToArr(data)
+
     hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title', 'languages']
 
     add_these = []
@@ -241,10 +243,7 @@ def fsbid_to_talentmap_pos(data):
 
     add_these.extend(hard_coded)
 
-    mappedKeys =  services.map_return_template_cols(add_these, cols_mapping, data)
-    mappedKeys["languages"] = services.parseLanguagesToArr(mappedKeys["languages"])
-
-    return mappedKeys
+    return services.map_return_template_cols(add_these, cols_mapping, data)
 
 def get_frequent_positions(query, jwt_token):
     '''
