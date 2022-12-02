@@ -44,6 +44,9 @@ def assignment_history_to_client_format(data):
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
             pos = pydash.get(x, 'position[0]') or {}
+            print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
+            print(pos)
+            print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
             loc = pos.get('location', {})
             tmap_assignments.append(
                 {
@@ -77,11 +80,11 @@ def assignment_history_to_client_format(data):
                             }
                         },
                         "language": pos.get("pos_position_lang_prof_desc", None),
-                        "languages": services.parseLanguagesToArr(x.get("languages")),
+                        "languages": services.parseLanguagesToArr(pos),
                     },
                     "pos": {
                         **pos,
-                        "languages": services.parseLanguagesToArr(x.get("languages")),
+                        "languages": services.parseLanguagesToArr(pos),
                     },
                 }
             )
