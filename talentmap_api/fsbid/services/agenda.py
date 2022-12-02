@@ -292,7 +292,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         "tod": pydash.get(data, "ailtodothertext", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
-        "languages": services.parseLanguagesToArr(data),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
     }
