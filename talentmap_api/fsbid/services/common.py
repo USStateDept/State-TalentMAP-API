@@ -150,7 +150,7 @@ def parseLanguagesToArr(data):
     '''
     languages = []
     for langNum in range(1, 3):
-        if data and data[f'poslanguage{langNum}desc']:
+        if pydash.has(data, f'poslanguage{langNum}desc') and data[f'poslanguage{langNum}desc']:
             language = data[f'poslanguage{langNum}desc']
             sScore = data[f'posspeakproficiency{langNum}code']
             rScore = data[f'posreadproficiency{langNum}code']

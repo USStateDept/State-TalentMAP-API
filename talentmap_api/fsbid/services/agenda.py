@@ -330,7 +330,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "ted": pydash.get(data, "asgdetdteddate", None),
         "tod": pydash.get(data, "asgdtoddesctext", None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
-        "languages": services.parseLanguagesToArr(data),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
     }
 
 
