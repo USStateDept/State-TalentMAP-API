@@ -278,7 +278,7 @@ def convert_bids_query(pk, query):
 def fsbid_to_talentmap_bids(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
-    from talentmap_api.fsbid.services.common import map_return_template_cols
+    from talentmap_api.fsbid.services.common import map_return_template_cols, parseLanguagesToArr
 
     hard_coded = ['hs_code', 'cp_id', 'pos_seq_num', 'pos_num', 'pos_org_short_desc', 'pos_title', 'pos']
 
@@ -297,4 +297,7 @@ def fsbid_to_talentmap_bids(data):
 
     add_these.extend(hard_coded)
 
-    return map_return_template_cols(add_these, cols_mapping, data)
+    mappedKeys = map_return_template_cols(add_these, cols_mapping, data)
+    mappedKeys['pos']['languages'] = parseLanguagesToArr(mappedKeys['pos'])
+
+    return mappedKeys

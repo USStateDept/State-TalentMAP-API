@@ -46,44 +46,45 @@ def assignment_history_to_client_format(data):
             pos = pydash.get(x, 'position[0]') or {}
             loc = pos.get('location', {})
             tmap_assignments.append(
-                        {
-                            "id": x['id'],
-                            "position_id": x['position_id'],
-                            "start_date": ensure_date(x['start_date']),
-                            "end_date": ensure_date(x['end_date']),
-                            "status": x['asgd_asgs_code'],
-                            "asgd_tod_desc_text": x['asgd_tod_desc_text'],
-                            "asgd_revision_num": x['asgd_revision_num'],
-                            # need to update once fully integrated
-                            "position": {
-                                "grade": pos.get("posgradecode", None),
-                                "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
-                                "skill_code": pos.get("pos_skill_code", None),
-                                "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
-                                "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
-                                "organization": pos.get('posorgshortdesc', None),
-                                "position_number": pos.get('posnumtext', None),
-                                "position_id": x['position_id'],
-                                "title": pos.get("postitledesc", None),
-                                "post": {
-                                    # "code": loc["gvt_geoloc_cd"],
-                                    "code": loc.get("gvt_geoloc_cd", None),
-                                    "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
-                                    "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
-                                    "obc_id": get_obc_id(loc.get("gvt_geoloc_cd", None)),
-                                    "location": {
-                                        "country": loc.get("country", None),
-                                        "code": loc.get("gvt_geoloc_cd", None),
-                                        "city": loc.get("city", None),
-                                        "state": loc.get("state", None),
-                                    }
-                                },
-                                "language": pos.get("pos_position_lang_prof_desc", None)
-                            },
-                            "pos": pos,
-                        }
-                    )
-    
+                {
+                    "id": x['id'],
+                    "position_id": x['position_id'],
+                    "start_date": ensure_date(x['start_date']),
+                    "end_date": ensure_date(x['end_date']),
+                    "status": x['asgd_asgs_code'],
+                    "asgd_tod_desc_text": x['asgd_tod_desc_text'],
+                    "asgd_revision_num": x['asgd_revision_num'],
+                    "position": {
+                        "grade": pos.get("posgradecode", None),
+                        "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
+                        "skill_code": pos.get("pos_skill_code", None),
+                        "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
+                        "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
+                        "organization": pos.get('posorgshortdesc', None),
+                        "position_number": pos.get('posnumtext', None),
+                        "position_id": x['position_id'],
+                        "title": pos.get("postitledesc", None),
+                        "post": {
+                            "code": loc.get("gvt_geoloc_cd", None),
+                            "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
+                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
+                            "obc_id": get_obc_id(loc.get("gvt_geoloc_cd", None)),
+                            "location": {
+                                "country": loc.get("country", None),
+                                "code": loc.get("gvt_geoloc_cd", None),
+                                "city": loc.get("city", None),
+                                "state": loc.get("state", None),
+                            }
+                        },
+                        "language": pos.get("pos_position_lang_prof_desc", None),
+                        "languages": services.parseLanguagesToArr(pos),
+                    },
+                    "pos": {
+                        **pos,
+                        "languages": services.parseLanguagesToArr(pos),
+                    },
+                }
+            )
     return tmap_assignments
 
 
@@ -105,10 +106,6 @@ def convert_assignment_history_query(perdet_seq_num, query):
 def fsbid_assignments_to_talentmap_assignments(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
-
-    # double check these match the DEV1 columns
-    # need to confirm asgseqnum and asgdasgseqnum are the same value in DEV1
-    # will remove one if they are the same
 
     hard_coded = [
         "id",
@@ -163,10 +160,9 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_create_date": "asgscreatedate",
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
-        "position": "position"
+        "position": "position",
     }
 
     add_these.extend(hard_coded)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
-
