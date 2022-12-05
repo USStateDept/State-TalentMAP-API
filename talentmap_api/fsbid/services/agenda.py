@@ -247,14 +247,12 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
         "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
         "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
-        "creators": (list(map(
-            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters,
-            pydash.get(data, "creators", [])
-        ))),
+        "creators":
+            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(pydash.get(data, "creators[0]", {})),
         "updaters": (list(map(
             fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters,
             pydash.get(data, "updaters", [])
-        ))),
+        )))[0],
     }
 
 
@@ -343,7 +341,7 @@ def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
                     "perdet_seqnum": emp_user["perdetseqnum"],
                     "per_desc": emp_user["persdesc"],
                 }, pydash.get(data, "empUser")
-            )))
+            )))[0]
         }
 
 # aia = agenda item assignment
