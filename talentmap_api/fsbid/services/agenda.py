@@ -242,13 +242,8 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "perdet": data.get("aiperdetseqnum", None),
-
-        "assignment": fsbid_aia_to_talentmap_aia(
-            pydash.get(data, "agendaAssignment[0]", {})
-        ),
-
+        "assignment": assignment,
         "legs": legsToReturn,
-
         "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
         "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
         "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
@@ -297,6 +292,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         "tod": pydash.get(data, "ailtodothertext", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
     }
@@ -334,6 +330,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "ted": pydash.get(data, "asgdetdteddate", None),
         "tod": pydash.get(data, "asgdtoddesctext", None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
     }
 
 

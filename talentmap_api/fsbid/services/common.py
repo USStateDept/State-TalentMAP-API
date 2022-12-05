@@ -114,6 +114,57 @@ def parseLanguagesString(lang):
 
         return lang_str
 
+def parseLanguagesToArr(data):
+    '''
+    Transforms flat language data into array.
+    Assumptions: 2 languages max
+    In:
+    {
+        ...
+        "poslanguage1code": "HU",
+        "poslanguage1desc": "HUNGARIAN",
+        "posspeakproficiency1code": "2",
+        "posreadproficiency1code": "3",
+
+        "poslanguage2code": "AE",
+        "poslanguage2desc": "ARABIC EGYPTIAN",
+        "posspeakproficiency2code": "1",
+        "posreadproficiency2code": "2"
+        ...
+    }
+    Out:
+    [
+        {
+            "language": "HUNGARIAN",
+            "spoken_proficiency": "2",
+            "reading_proficiency": "3",
+            "representation": "HUNGARIAN (HU) 2/3"
+        },
+        {
+            "language": "ARABIC EGYPTIAN",
+            "spoken_proficiency": "1",
+            "reading_proficiency": "2",
+            "representation": "ARABIC EGYPTIAN (AE) 1/2"
+        },
+    ]
+    '''
+    languages = []
+    for langNum in range(1, 3):
+        if pydash.has(data, f'poslanguage{langNum}desc') and data[f'poslanguage{langNum}desc']:
+            language = data[f'poslanguage{langNum}desc']
+            sScore = data[f'posspeakproficiency{langNum}code']
+            rScore = data[f'posreadproficiency{langNum}code']
+            langCode = data[f'poslanguage{langNum}code']
+
+            languages.append({
+                "language": language,
+                "spoken_proficiency": sScore,
+                "reading_proficiency": rScore,
+                "code": langCode,
+                "representation": f'{language} ({langCode}) {sScore}/{rScore}'
+            })
+
+    return languages
 
 def post_values(query):
     '''
