@@ -42,6 +42,7 @@ services:
       - BIDS_API_V2_URL=http://host.docker.internal:3333/v2/bids
       - POSITIONS_API_URL=http://host.docker.internal:3333/v1/positions
       - POSITIONS_API_V2_URL=http://host.docker.internal:3333/v2/positions
+      - PUBLISHABLE_POSITIONS_API_URL=http://host.docker.internal:3333/v1/publishablePositions
       - EMAIL_ENABLED=true
       - EMAIL_HOST=host.docker.internal
       - EMAIL_PORT=1025
