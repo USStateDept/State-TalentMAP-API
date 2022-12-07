@@ -234,6 +234,16 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
     statusFull = data.get("aisdesctext", None)
+    updaters = pydash.get(data, "updaters") or None
+    if updaters:
+        updaters = (list(map(
+            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters,
+            pydash.get(data, "updaters")
+        )))[0]
+
+    creators = pydash.get(data, "creators") or None
+    if creators:
+        fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
 
     return {
         "id": data.get("aiseqnum", None),
@@ -247,12 +257,8 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
         "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
         "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
-        "creators":
-            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(pydash.get(data, "creators[0]", {})),
-        "updaters": (list(map(
-            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters,
-            pydash.get(data, "updaters", [])
-        )))[0],
+        "creators": creators,
+        "updaters": updaters,
     }
 
 
@@ -325,6 +331,8 @@ def fsbid_legs_to_talentmap_legs(data):
     return res
 
 def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
+    if not data:
+        return {}
     return {
         "emp_seq_num": pydash.get(data, "hruempseqnbr"),
         "neu_id": pydash.get(data, "neuid"),
