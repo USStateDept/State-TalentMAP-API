@@ -333,6 +333,19 @@ def fsbid_legs_to_talentmap_legs(data):
 def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
     if not data:
         return {}
+    empUser = pydash.get(data, "empUser") or None
+    if empUser:
+        empUser = (list(map(lambda emp_user : {
+                "emp_user_first_name": emp_user["perpiifirstname"],
+                "emp_user_last_name": emp_user["perpiilastname"],
+                "emp_user_seq_num": emp_user["perpiiseqnum"],
+                "emp_user_middle_name": emp_user["perpiimiddlename"],
+                "emp_user_suffix_name": emp_user["perpiisuffixname"],
+                "perdet_seqnum": emp_user["perdetseqnum"],
+                "per_desc": emp_user["persdesc"],
+            }, pydash.get(data, "empUser")
+        )))[0]
+
     return {
         "emp_seq_num": pydash.get(data, "hruempseqnbr"),
         "neu_id": pydash.get(data, "neuid"),
@@ -340,16 +353,7 @@ def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
         "last_name": pydash.get(data, "neulastnm"),
         "first_name": pydash.get(data, "neufirstnm"),
         "middle_name": pydash.get(data, "neumiddlenm"),
-        "emp_user": (list(map(lambda emp_user : {
-                    "emp_user_first_name": emp_user["perpiifirstname"],
-                    "emp_user_last_name": emp_user["perpiilastname"],
-                    "emp_user_seq_num": emp_user["perpiiseqnum"],
-                    "emp_user_middle_name": emp_user["perpiimiddlename"],
-                    "emp_user_suffix_name": emp_user["perpiisuffixname"],
-                    "perdet_seqnum": emp_user["perdetseqnum"],
-                    "per_desc": emp_user["persdesc"],
-                }, pydash.get(data, "empUser")
-            )))[0]
+        "emp_user": empUser
         }
 
 # aia = agenda item assignment
