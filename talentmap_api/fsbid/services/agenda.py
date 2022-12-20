@@ -11,6 +11,7 @@ from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
+PANEL_API_ROOT = settings.PANEL_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -480,6 +481,7 @@ def get_agenda_remarks(query, jwt_token):
         "base_url": "/api/v1/agendas/",
         "api_root": AGENDA_API_ROOT,
     }
+    print(f'jwt get_agenda_remarks %s', jwt_token)
 
     agenda_remarks = services.send_get_request(
         **args
@@ -591,3 +593,31 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
     add_these.extend(hard_coded)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_agendas_by_panel(pk, jwt_token):
+    '''
+    Get agendas by panel meeting date
+    '''
+    print(jwt_token)
+    args = {
+        "uri": f"{pk}/agendas",
+        "query": None,
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": get_agenda_items,
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+    }
+
+    # go arg by arg fixing errors
+    # this is technically never going to work, error should eventually
+    # get to 'this endpoint doesn't exit'
+    # make sure these are the args that we want
+    # end goal is to get the get request to look like what scott sent
+    # print(args)
+    agendas_by_panel = services.send_get_request( # this will cause many errors
+        **args
+    )
+    # print(agendas_by_panel)
+    return agendas_by_panel # beautiful get request

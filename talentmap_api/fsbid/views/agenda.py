@@ -140,3 +140,16 @@ class AgendaLegActionTypesView(BaseView):
         Return a list of reference data for all agenda leg-action-types
         """
         return Response(services.get_agenda_leg_action_types(request.query_params, request.META['HTTP_JWT']))
+
+class PanelAgendaListView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
+    # define new service and build out
+    # can possibly reuse agenda mapping function
+
+    def get(self, request, pk):
+        '''
+        Get single agenda by ai_seq_num
+        '''
+        return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))
+        # print(pk)
+        # return Response(pk)
