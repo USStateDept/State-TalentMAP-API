@@ -11,6 +11,7 @@ from talentmap_api.fsbid.services import common as services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
+PANEL_API_ROOT = settings.PANEL_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -625,3 +626,42 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
     add_these.extend(hard_coded)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
+
+def get_agendas_by_panel(pk, jwt_token):
+    '''
+    Get agendas by panel meeting date
+    '''
+    remarks = get_agenda_remarks({}, jwt_token)
+    args = {
+        "uri": f"{pk}/agendas",
+        "query": {
+            "page": 0,
+            "limit": 0
+        },
+        "query_mapping_function": convert_agendas_by_panel_query,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+    }
+
+    agendas_by_panel = services.send_get_request(
+        **args
+    )
+
+    return agendas_by_panel
+
+def convert_agendas_by_panel_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
