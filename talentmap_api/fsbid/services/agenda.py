@@ -481,7 +481,6 @@ def get_agenda_remarks(query, jwt_token):
         "base_url": "/api/v1/agendas/",
         "api_root": AGENDA_API_ROOT,
     }
-    print(f'jwt get_agenda_remarks %s', jwt_token)
 
     agenda_remarks = services.send_get_request(
         **args
@@ -598,26 +597,37 @@ def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas by panel meeting date
     '''
-    print(jwt_token)
+    remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
-        "query": None,
-        "query_mapping_function": None,
+        "query": {
+            "page": 0,
+            "limit": 0
+        },
+        "query_mapping_function": convert_agendas_by_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": get_agenda_items,
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
     }
 
-    # go arg by arg fixing errors
-    # this is technically never going to work, error should eventually
-    # get to 'this endpoint doesn't exit'
-    # make sure these are the args that we want
-    # end goal is to get the get request to look like what scott sent
-    # print(args)
-    agendas_by_panel = services.send_get_request( # this will cause many errors
+    agendas_by_panel = services.send_get_request(
         **args
     )
-    # print(agendas_by_panel)
-    return agendas_by_panel # beautiful get request
+
+    return agendas_by_panel
+
+def convert_agendas_by_panel_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
