@@ -235,6 +235,16 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
     statusFull = data.get("aisdesctext", None)
+    updaters = pydash.get(data, "updaters") or None
+    if updaters:
+        updaters = (list(map(
+            fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters,
+            pydash.get(data, "updaters")
+        )))[0]
+
+    creators = pydash.get(data, "creators") or None
+    if creators:
+        fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
 
     return {
         "id": data.get("aiseqnum", None),
@@ -243,16 +253,13 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "perdet": data.get("aiperdetseqnum", None),
-
-        "assignment": fsbid_aia_to_talentmap_aia(
-            pydash.get(data, "agendaAssignment[0]", {})
-        ),
-
+        "assignment": assignment,
         "legs": legsToReturn,
-
         "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
         "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
         "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
+        "creators": creators,
+        "updaters": updaters,
     }
 
 
@@ -298,6 +305,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         "tod": pydash.get(data, "ailtodothertext", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
     }
@@ -323,6 +331,31 @@ def fsbid_legs_to_talentmap_legs(data):
 
     return res
 
+def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
+    if not data:
+        return {}
+    empUser = pydash.get(data, "empUser") or None
+    if empUser:
+        empUser = (list(map(lambda emp_user : {
+                "emp_user_first_name": emp_user["perpiifirstname"],
+                "emp_user_last_name": emp_user["perpiilastname"],
+                "emp_user_seq_num": emp_user["perpiiseqnum"],
+                "emp_user_middle_name": emp_user["perpiimiddlename"],
+                "emp_user_suffix_name": emp_user["perpiisuffixname"],
+                "perdet_seqnum": emp_user["perdetseqnum"],
+                "per_desc": emp_user["persdesc"],
+            }, pydash.get(data, "empUser")
+        )))[0]
+
+    return {
+        "emp_seq_num": pydash.get(data, "hruempseqnbr"),
+        "neu_id": pydash.get(data, "neuid"),
+        "hru_id": pydash.get(data, "hruid"),
+        "last_name": pydash.get(data, "neulastnm"),
+        "first_name": pydash.get(data, "neufirstnm"),
+        "middle_name": pydash.get(data, "neumiddlenm"),
+        "emp_user": empUser
+        }
 
 # aia = agenda item assignment
 def fsbid_aia_to_talentmap_aia(data):
@@ -335,6 +368,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "ted": pydash.get(data, "asgdetdteddate", None),
         "tod": pydash.get(data, "asgdtoddesctext", None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
+        "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
     }
 
 
