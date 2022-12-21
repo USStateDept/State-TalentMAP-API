@@ -143,13 +143,9 @@ class AgendaLegActionTypesView(BaseView):
 
 class PanelAgendaListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
-    # define new service and build out
-    # can possibly reuse agenda mapping function
 
     def get(self, request, pk):
         '''
         Get single agenda by ai_seq_num
         '''
         return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))
-        # print(pk)
-        # return Response(pk)
