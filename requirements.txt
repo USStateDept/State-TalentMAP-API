@@ -40,7 +40,7 @@ itsdangerous==0.24
 itypes==1.1.0
 Jinja2==2.10
 locustio==0.8.1
-lxml==4.2.1
+lxml==4.9.1
 MarkupSafe==1.0
 model-mommy==1.5.1
 more-itertools==4.1.0
