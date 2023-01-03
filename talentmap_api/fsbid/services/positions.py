@@ -267,8 +267,8 @@ def get_frequent_positions(query, jwt_token):
     return frequentPositions
 
 def fsbid_to_talentmap_frequent_positions(data):
-    data = data['position']
-    position = data[0]
+    data = pydash.get(data, 'position') or []
+    position = data[0] if data else {}
 
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
