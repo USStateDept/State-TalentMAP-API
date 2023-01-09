@@ -1,25 +1,18 @@
 import logging
-import pydash
-import maya
 from urllib.parse import urlencode, quote
 from functools import partial
-from copy import deepcopy
 import pydash
-
-from django.conf import settings
 
 from django.conf import settings
 from talentmap_api.fsbid.services import common as services
-from django.core.exceptions import PermissionDenied
 
 PANEL_API_ROOT = settings.PANEL_API_URL
 
 logger = logging.getLogger(__name__)
 
-def fsbid_to_talentmap_panel(data, default_data):
-    # add_these are the additional data points we want returned
-
-    add_these = []
+def fsbid_to_talentmap_panel(data, default_data, add_these):
+    # default_data: default data points (opinionated EP)
+    # add_these: additional data points
 
     cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',
