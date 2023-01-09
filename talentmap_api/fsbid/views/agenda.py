@@ -141,7 +141,7 @@ class AgendaLegActionTypesView(BaseView):
         """
         return Response(services.get_agenda_leg_action_types(request.query_params, request.META['HTTP_JWT']))
 
-class PanelAgendaListView(BaseView):
+class PanelAgendasListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
     def get(self, request, pk):
