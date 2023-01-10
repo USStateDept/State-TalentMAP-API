@@ -1,67 +1,19 @@
 import logging
-import pydash
-import maya
 from urllib.parse import urlencode, quote
 from functools import partial
-from copy import deepcopy
 import pydash
 
 from django.conf import settings
 
-from django.conf import settings
 from talentmap_api.fsbid.services import common as services
-from django.core.exceptions import PermissionDenied
 
 PANEL_API_ROOT = settings.PANEL_API_URL
 
 logger = logging.getLogger(__name__)
 
-
-def get_panel_dates(query, jwt_token):
-    '''
-    Get panel dates
-    '''
-    args = {
-        "uri": "references/dates",
-        "query": query,
-        "query_mapping_function": convert_panel_query,
-        "jwt_token": jwt_token,
-        "mapping_function": fsbid_to_talentmap_panel,
-        "count_function": None,
-        "base_url": "/api/v1/panels/",
-        "api_root": PANEL_API_ROOT,
-    }
-
-    panel = services.send_get_request(
-        **args
-    )
-
-    return panel
-
-
-def convert_panel_query(query):
-    '''
-    Converts TalentMap query into FSBid query
-    '''
-
-    values = {
-        "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
-    }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
-
-def fsbid_to_talentmap_panel(data):
-    # hard_coded are the default data points (opinionated EP)
-    # add_these are the additional data points we want returned
-
-    hard_coded = ['pm_seq_num', 'pmd_dttm', 'pmt_code']
-
-    add_these = []
+def fsbid_to_talentmap_panel(data, default_data, add_these):
+    # default_data: default data points (opinionated EP)
+    # add_these: additional data points
 
     cols_mapping = {
         'pm_seq_num': 'pmdpmseqnum',
@@ -112,20 +64,64 @@ def fsbid_to_talentmap_panel(data):
         'mic_update_date': 'micupdatedate',
     }
 
-    add_these.extend(hard_coded)
+    add_these.extend(default_data)
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
+
+
+def get_panel_dates(query, jwt_token):
+    '''
+    Get panel dates
+    '''
+
+    hard_coded = ['pm_seq_num', 'pmd_dttm', 'pmt_code']
+
+    args = {
+        "uri": "references/dates",
+        "query": query,
+        "query_mapping_function": convert_panel_dates_query,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+    }
+
+    panel = services.send_get_request(
+        **args
+    )
+
+    return panel
+
+def convert_panel_dates_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmdmdtcode', 'val': 'MEET'}]),
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
 
 def get_panel_categories(query, jwt_token):
     '''
     Get panel categories
     '''
+
+    hard_coded = ['mic_code', 'mic_desc_text', 'pmt_code']
+
     args = {
         "uri": "references/categories",
         "query": query,
         "query_mapping_function": convert_panel_category_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_to_talentmap_panel_categories,
+        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -135,7 +131,6 @@ def get_panel_categories(query, jwt_token):
         **args
     )
     return panel_cats
-
 
 def convert_panel_category_query(query):
     '''
@@ -150,21 +145,3 @@ def convert_panel_category_query(query):
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
-
-def fsbid_to_talentmap_panel_categories(data):
-    # hard_coded are the default data points (opinionated EP)
-    # add_these are the additional data points we want returned
-
-    hard_coded = ['mic_code', 'mic_desc_text', 'pmt_code']
-
-    add_these = []
-
-    cols_mapping = {
-        'mic_code': 'miccode',
-        'mic_desc_text': 'micdesctext',
-    }
-
-    add_these.extend(hard_coded)
-
-    return services.map_return_template_cols(add_these, cols_mapping, data)
