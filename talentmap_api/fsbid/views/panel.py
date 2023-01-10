@@ -51,3 +51,21 @@ class PanelCategoriesView(BaseView):
         Gets panel categories
         '''
         return Response(services.get_panel_categories(request.query_params, request.META['HTTP_JWT']))
+
+class PanelMeetingsView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("type", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Panel meeting type.'),
+            openapi.Parameter("date", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Date of the Panel meeting.'),
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Panel meeting status.'),
+        ])
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Gets panel meetings
+        '''
+        return Response(services.get_panel_meetings(request.query_params, request.META['HTTP_JWT']))

@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^dates/$', views.PanelDatesView.as_view(), name='panel-FSBid-dates'),
     url(r'^categories/$', views.PanelCategoriesView.as_view(), name='panel-FSBid-categories'),
     url(r'^(?P<pk>[0-9]+)/agendas/', agenda_views.PanelAgendasListView.as_view(), name="panel-agendas-list"),
+    url(r'^meetings/', views.PanelMeetingsView.as_view(), name="panel-agenda-list"),
 ]
 
 urlpatterns += router.urls
