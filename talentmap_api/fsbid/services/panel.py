@@ -4,6 +4,7 @@ from functools import partial
 import pydash
 
 from django.conf import settings
+
 from talentmap_api.fsbid.services import common as services
 
 PANEL_API_ROOT = settings.PANEL_API_URL
