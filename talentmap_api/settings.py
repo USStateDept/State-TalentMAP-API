@@ -244,12 +244,14 @@ if ENABLE_SAML2:
 
     def config_settings_loader(request):
         isPublic = False
+        metadataFile = 'remote_metadata_Intranet.xml'
         acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}"
         if request.GET.get('public') is not None:
             isPublic = True
             acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING')}"
         if isPublic is True:
             acs = f"{get_delineated_environment_variable('FRONT_END_ACS_BINDING_PUBLIC')}"
+            metadataFile = 'remote_metadata_Go.xml'
         conf = SPConfig()
 
         conf.load({
@@ -316,7 +318,7 @@ if ENABLE_SAML2:
 
             # where the remote metadata is stored
             'metadata': {
-                'local': [os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'remote_metadata', 'remote_metadata.xml')],
+                'local': [os.path.join(BASE_DIR, 'talentmap_api', 'saml2', 'remote_metadata', metadataFile)],
             },
 
             # set to 1 to output debugging information
