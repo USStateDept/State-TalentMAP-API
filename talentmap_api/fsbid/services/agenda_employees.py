@@ -141,6 +141,8 @@ def convert_agenda_employees_query(query):
     '''
     Convert TalentMAP filters into FSBid filters
     '''
+    # print('===query===')
+    # print(query)
     
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
@@ -148,6 +150,8 @@ def convert_agenda_employees_query(query):
     firstName = query.get("firstName").upper() if query.get("firstName") else query.get("firstName")
     lastName = query.get("lastName").upper() if query.get("lastName") else query.get("lastName")
     empID = query.get("empID").upper() if query.get("empID") else query.get("empID")
+
+    inactiveIsSelected = query.get("inactiveIsSelected")
     
     filters = [
         {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
@@ -155,7 +159,7 @@ def convert_agenda_employees_query(query):
         {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations", None)},
         {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
         {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
-        {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U"},
+        {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U" if not inactiveIsSelected else None},
         {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
         # TODO: Transition to search on new WS fields first name and last name instead of both on full name
         {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
@@ -186,6 +190,8 @@ def convert_agenda_employees_query(query):
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
 
     filters = services.convert_to_fsbid_ql(filters)
+    print('===filters===')
+    print(filters)
 
     values = {
         # Pagination
