@@ -161,6 +161,7 @@ def convert_agenda_employees_query(query):
         {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
         {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
         {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
     ]
 
     if query.get("handshake", None):
