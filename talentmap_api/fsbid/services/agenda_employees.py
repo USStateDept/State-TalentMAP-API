@@ -141,8 +141,6 @@ def convert_agenda_employees_query(query):
     '''
     Convert TalentMAP filters into FSBid filters
     '''
-    # print('===query===')
-    # print(query)
     
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
@@ -190,8 +188,6 @@ def convert_agenda_employees_query(query):
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
 
     filters = services.convert_to_fsbid_ql(filters)
-    print('===filters===')
-    print(filters)
 
     values = {
         # Pagination
