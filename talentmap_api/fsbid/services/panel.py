@@ -11,7 +11,37 @@ PANEL_API_ROOT = settings.PANEL_API_URL
 
 logger = logging.getLogger(__name__)
 
-def fsbid_to_talentmap_panel(data, default_data, add_these=[]):
+panel_dates_mapping = {
+    'pmdpmseqnum': 'pm_seq_num',
+    'pmdmdtcode': 'mdt_code',
+    'pmddttm': 'pmd_dttm',
+    'mdtcode': 'mdt_code',
+    'mdtdesctext': 'mdt_desc_text',
+    'mdtordernum': 'mdt_order_num',
+}
+
+panel_cols_mapping = {
+    # flipped bc templates return lots of multiple value
+    # so we'd want both pmdseqnum and pmseqnum to map
+    # to pm_seq_num for TM
+    'pmseqnum': 'pm_seq_num',
+    'pmvirtualind': 'pm_virtual',
+    'pmcreateid': 'pm_create_id',
+    'pmcreatedate': 'pm_create_date',
+    'pmupdateid': 'pm_update_id',
+    'pmupdatedate': 'pm_update_date',
+    'pmpmtcode': 'pmt_code',
+    'pmtdesctext': 'pmt_desc_text',
+    'pmpmscode': 'pms_code',
+    'pmsdesctext': 'pms_desc_text',
+    'panelMeetingDates': {
+        'nameMap': 'panelMeetingDates',
+        'listMap': panel_dates_mapping,
+    },
+}
+
+
+def fsbid_to_talentmap_panel(default_data, add_these=[]):
     # default_data: default data points (opinionated EP)
     # add_these: additional data points
 
@@ -69,8 +99,13 @@ def fsbid_to_talentmap_panel(data, default_data, add_these=[]):
     }
 
     add_these.extend(default_data)
+    # print('🥹 🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭 data', data)
 
-    return services.map_return_template_cols(add_these, cols_mapping, data)
+    y = services.map_return_template_cols(add_these, cols_mapping)
+
+    # print('4️⃣ 🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭')
+    # print(y)
+    return y
 
 
 def get_panel_dates(query, jwt_token):
@@ -187,6 +222,7 @@ def convert_panel_types_query(query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
+        "rp.filter": services.convert_to_fsbid_ql([{'col': 'pmpmtcode', 'val': query.get("type")}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
@@ -225,7 +261,7 @@ def convert_panel_category_query(query):
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
+        "rp.pageRows": int(query.get("limit", 25)),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
@@ -237,17 +273,22 @@ def get_panel_meetings(query, jwt_token):
     '''
     Get panel meetings
     '''
+    expected_keys = [
+       'pmseqnum', 'pmvirtualind', 'pmcreateid', 'pmcreatedate',
+       'pmupdateid', 'pmupdatedate', 'pmpmscode', 'pmpmtcode',
+       'pmtdesctext', 'pmsdesctext', 'panelMeetingDates',
+       'pmdpmseqnum', 'pmdmdtcode', 'pmddttm', 'mdtcode',
+       'mdtdesctext', 'mdtordernum' ,
+    ]
 
-    hard_coded = ['pm_seq_num', 'pm_virtual', 'pm_create_id', 'pm_create_date',
-                    'pm_update_id', 'pm_update_date', 'pms_code', 'pmt_code',
-                    'pmt_desc_text', 'pms_desc_text', 'panelMeetingDates' ]
+    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
 
     args = {
     "uri": "",
     "query": query,
-    "query_mapping_function": convert_panel_category_query,
+    "query_mapping_function": convert_panel_query,
     "jwt_token": jwt_token,
-    "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+    "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
     "count_function": None,
     "base_url": "/api/v1/panels/",
     "api_root": PANEL_API_ROOT,
@@ -259,30 +300,20 @@ def get_panel_meetings(query, jwt_token):
     return panel_cats
 
 
-def convert_panel_category_query(query):
+def convert_panel_query(query):
     '''
     Converts TalentMap query into FSBid query
     '''
-
-    #  from the ui it looks like the date will actually be a date range.
 
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([
             {'col': 'pmpmtcode', 'val': query.get("type", None)},
-            {'col': 'pmddttm', 'val': query.get("date", None)},
-            {'col': 'pmscode', 'val': query.get("status", None)}
+            {'col': 'pmscode', 'val': query.get("status", None)},
+            {'col': 'pmseqnum', 'val': query.get("id", None)},
         ]),
     }
-
-
-    #             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
-    #             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
-    #             openapi.Parameter("type", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Panel meeting type.'),
-    #             openapi.Parameter("date", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Date of the Panel meeting.'),
-    #             openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Panel meeting status.'),
-    #         ])
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 

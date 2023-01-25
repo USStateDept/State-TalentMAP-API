@@ -4,6 +4,8 @@ import csv
 from datetime import datetime
 # import requests_cache
 from copy import deepcopy
+from functools import partial
+
 
 from django.conf import settings
 from django.db.models import Q
@@ -13,6 +15,7 @@ from django.http import QueryDict
 
 import maya
 import pydash
+import time
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -253,12 +256,17 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
         url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     else:
         url = f"{api_root}/{uri}"
+    print('🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭 url', url)
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
         return None
     if mapping_function:
-        return list(map(mapping_function, response.get("Data", {})))
+        start = time.time()
+        x = list(map(mapping_function, response.get("Data", {})))
+        end = time.time()
+        print('⏰⏰⏰⏰⏰: ', end - start)
+        return x
     else:
         return response.get("Data", {})
 
@@ -911,9 +919,21 @@ def get_aih_csv(data, filename):
         writer.writerow(row)
     return response
 
-def map_return_template_cols(cols, cols_mapping, data):
+def map_return_template_cols(data, cols=[], cols_mapping={}):
     # cols: an array of strs of the TM data names to map and return
     # cols_mapping: dict to map from TM names(key) to WS names(value)
     props_to_map = pydash.pick(cols_mapping, *cols)
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1]).strip() if type(pydash.get(data, x[1])) == str else pydash.get(data, x[1])), props_to_map.items())
     return dict(mapped_tuples)
+
+# optimized map_return_template_cols
+def map_fsbid_template_to_tm(data, mapping):
+    mapped_items = {}
+
+    for x in mapping.items():
+        if isinstance(x[1], dict):
+            mapped_items[x[1]['nameMap']] = list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))
+        else:
+            mapped_items[x[1]] = pydash.get(data, x[0]).strip() if isinstance(pydash.get(data, x[0]), str) else pydash.get(data, x[0])
+
+    return mapped_items

@@ -160,7 +160,7 @@ def convert_agenda_employees_query(query):
         # TODO: Transition to search on new WS fields first name and last name instead of both on full name
         {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
         {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
-        {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
+        {"col": "tmperpertexternalid", "com": "EQ", "val": empID},
         {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
     ]
 
