@@ -47,73 +47,6 @@ panel_cols_mapping = {
 }
 
 
-def fsbid_to_talentmap_panel(default_data, add_these=[]):
-    # default_data: default data points (opinionated EP)
-    # add_these: additional data points
-
-    cols_mapping = {
-        'pm_seq_num': 'pmdpmseqnum',
-        # these can be multiple values - so we'd want pmdseqnum and pmseqnum to map
-        # to pm_seq_num
-        # pmt_code should go to pmpmtcode and pmtcode
-        # check this assumption
-        'pmd_dttm': 'pmddttm',
-        'pm_virtual': 'pmvirtualind',
-        'pm_create_id': 'pmcreateid',
-        'pm_create_date': 'pmcreatedate',
-        'pm_update_id': 'pmupdateid',
-        'pm_update_date': 'pmupdatedate',
-        'pmi_seq_num': 'pmiseqnum',
-        'pmi_official_num': 'pmiofficialitemnum',
-        'pmi_addendum': 'pmiaddendumind',
-        'pmi_label_text': 'pmilabeltext',
-        'pmi_create_id': 'pmicreateid',
-        'pmi_create_date': 'pmicreatedate',
-        'pmi_update_id': 'pmiupdateid',
-        'pmi_update_date': 'pmiupdatedate',
-        'pmt_code': 'pmtcode',
-        'pmt_desc_text': 'pmtdesctext',
-        'pmt_create_id': 'pmtcreateid',
-        'pmt_create_date': 'pmtcreatedate',
-        'pmt_update_id': 'pmtupdateid',
-        'pmt_update_date': 'pmtupdatedate',
-        'pms_code': 'pmscode',
-        'pms_desc_text': 'pmsdesctext',
-        'pms_create_id': 'pmscreateid',
-        'pms_create_date': 'pmscreatedate',
-        'pms_update_id': 'pmsupdateid',
-        'pms_update_date': 'pmsupdatedate',
-        'pmd_create_id': 'pmdcreateid',
-        'pmd_create_date': 'pmdcreatedate',
-        'pmd_update_id': 'pmdupdateid',
-        'pmd_update_date': 'pmdupdatedate',
-        'mdt_code': 'pmdmdtcode',
-        'mdt_desc_text': 'mdtdesctext',
-        'mdt_include_time': 'mdtincludetimeind',
-        'mdt_user_input': 'mdtuserinputind',
-        'mdt_create_id': 'mdtcreateid',
-        'mdt_create_date': 'mdtcreatedate',
-        'mdt_update_id': 'mdtupdateid',
-        'mdt_update_date': 'mdtupdatedate',
-        'mic_code': 'miccode',
-        'mic_desc_text': 'micdesctext',
-        'mic_virtual_ind': 'micvirtualallowedind',
-        'mic_create_id': 'miccreateid',
-        'mic_create_date': 'miccreatedate',
-        'mic_update_id': 'micupdateid',
-        'mic_update_date': 'micupdatedate',
-    }
-
-    add_these.extend(default_data)
-    # print('🥹 🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭 data', data)
-
-    y = services.map_return_template_cols(add_these, cols_mapping)
-
-    # print('4️⃣ 🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭')
-    # print(y)
-    return y
-
-
 def get_panel_dates(query, jwt_token):
     '''
     Get panel dates
@@ -138,7 +71,6 @@ def get_panel_dates(query, jwt_token):
     )
 
     return panel
-
 
 def convert_panel_dates_query(query):
     '''
@@ -182,7 +114,6 @@ def get_panel_statuses(query, jwt_token):
 
     return statuses
 
-
 def convert_panel_statuses_query(query):
     '''
     Converts TalentMap query into FSBid query
@@ -224,7 +155,6 @@ def get_panel_types(query, jwt_token):
 
     return types
 
-
 def convert_panel_types_query(query):
     '''
     Converts TalentMap query into FSBid query
@@ -265,7 +195,6 @@ def get_panel_categories(query, jwt_token):
         **args
     )
     return panel_cats
-
 
 def convert_panel_category_query(query):
     '''
@@ -311,7 +240,6 @@ def get_panel_meetings(query, jwt_token):
         **args
     )
     return panel_cats
-
 
 def convert_panel_query(query):
     '''
