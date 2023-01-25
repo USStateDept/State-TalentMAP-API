@@ -25,6 +25,8 @@ panel_cols_mapping = {
     # so we'd want both pmdseqnum and pmseqnum to map
     # to pm_seq_num for TM
     'pmseqnum': 'pm_seq_num',
+    'pmdpmseqnum': 'pm_seq_num',
+    'pmddttm': 'pmd_dttm',
     'pmvirtualind': 'pm_virtual',
     'pmcreateid': 'pm_create_id',
     'pmcreatedate': 'pm_create_date',
@@ -112,15 +114,16 @@ def get_panel_dates(query, jwt_token):
     '''
     Get panel dates
     '''
+    expected_keys = ['pmdpmseqnum', 'pmddttm', 'pmpmtcode']
 
-    hard_coded = ['pm_seq_num', 'pmd_dttm', 'pmt_code']
+    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
 
     args = {
         "uri": "references/dates",
         "query": query,
         "query_mapping_function": convert_panel_dates_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -309,8 +312,8 @@ def convert_panel_query(query):
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([
-            {'col': 'pmpmtcode', 'val': query.get("type", None)},
-            {'col': 'pmscode', 'val': query.get("status", None)},
+            {'col': 'pmpmtcode', 'val': query.get("type", None).upper()},
+            {'col': 'pmscode', 'val': query.get("status", None).upper()},
             {'col': 'pmseqnum', 'val': query.get("id", None)},
         ]),
     }
