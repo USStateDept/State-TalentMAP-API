@@ -21,9 +21,6 @@ panel_dates_mapping = {
 }
 
 panel_cols_mapping = {
-    # flipped bc templates return lots of multiple value
-    # so we'd want both pmdseqnum and pmseqnum to map
-    # to pm_seq_num for TM
     'pmseqnum': 'pm_seq_num',
     'pmdpmseqnum': 'pm_seq_num',
     'pmddttm': 'pmd_dttm',
