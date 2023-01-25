@@ -33,9 +33,13 @@ panel_cols_mapping = {
     'pmupdateid': 'pm_update_id',
     'pmupdatedate': 'pm_update_date',
     'pmpmtcode': 'pmt_code',
+    'pmtcode': 'pmt_code',
     'pmtdesctext': 'pmt_desc_text',
     'pmpmscode': 'pms_code',
+    'pmscode': 'pms_code',
     'pmsdesctext': 'pms_desc_text',
+    'miccode': 'mic_code',
+    'micdesctext': 'mic_desc_text',
     'panelMeetingDates': {
         'nameMap': 'panelMeetingDates',
         'listMap': panel_dates_mapping,
@@ -157,14 +161,16 @@ def get_panel_statuses(query, jwt_token):
     Get panel statuses
     '''
 
-    hard_coded = ['pms_code', 'pms_desc_text']
+    expected_keys = ['pmscode', 'pmsdesctext']
+
+    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
 
     args = {
         "uri": "references/statuses",
         "query": query,
         "query_mapping_function": convert_panel_statuses_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -197,14 +203,16 @@ def get_panel_types(query, jwt_token):
     Get panel types
     '''
 
-    hard_coded = ['pmt_desc_text', 'pmt_code']
+    expected_keys = ['pmtcode', 'pmtdesctext']
+
+    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
 
     args = {
         "uri": "references/types",
         "query": query,
         "query_mapping_function": convert_panel_types_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -238,14 +246,16 @@ def get_panel_categories(query, jwt_token):
     Get panel categories
     '''
 
-    hard_coded = ['mic_code', 'mic_desc_text', 'pmt_code']
+    expected_keys = ['miccode', 'micdesctext']
+
+    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
 
     args = {
         "uri": "references/categories",
         "query": query,
         "query_mapping_function": convert_panel_category_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_to_talentmap_panel, default_data=hard_coded),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
