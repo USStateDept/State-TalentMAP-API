@@ -121,8 +121,8 @@ urlpatterns += [
 
 if settings.ENABLE_SAML2:  # pragma: no cover
     urlpatterns += [
-        url(r'^saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
-        url(r'^saml2/', include('djangosaml2.urls')),
+        url(r'^api/v1/saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
+        url(r'^api/v1/saml2/', include('djangosaml2.urls')),
     ]
     if settings.DEBUG:
         urlpatterns += [

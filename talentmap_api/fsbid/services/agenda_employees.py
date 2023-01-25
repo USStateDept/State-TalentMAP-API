@@ -141,21 +141,13 @@ def convert_agenda_employees_query(query):
     '''
     Convert TalentMAP filters into FSBid filters
     '''
-    qFilterValue = query.get("q", None)
-    qFilterKey = ''
-    qComparator = 'eq'
-    if qFilterValue:
-        # employee IDs can contain letters, and names can contain numbers. This does a best guess at the user's intent
-        if len(''.join(re.findall('[0-9]+', qFilterValue))) > 2:
-            qFilterKey = 'tmperpertexternalid'
-            qFilterValue = qFilterValue.upper()
-        else:
-            qFilterKey = 'tmperperfullname'
-            qComparator = 'contains'
-            qFilterValue = qFilterValue.upper()
     
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
+
+    firstName = query.get("firstName").upper() if query.get("firstName") else query.get("firstName")
+    lastName = query.get("lastName").upper() if query.get("lastName") else query.get("lastName")
+    empID = query.get("empID").upper() if query.get("empID") else query.get("empID")
     
     filters = [
         {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
@@ -165,6 +157,10 @@ def convert_agenda_employees_query(query):
         {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
         {"col": "tmperperscode", "com": "IN", "val": "S,L,A,P,U"},
         {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
+        # TODO: Transition to search on new WS fields first name and last name instead of both on full name
+        {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
+        {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
+        {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
     ]
 
     if query.get("handshake", None):
@@ -190,10 +186,6 @@ def convert_agenda_employees_query(query):
     filters = pydash.filter_(filters, lambda o: o["val"] != None)
 
     filters = services.convert_to_fsbid_ql(filters)
-
-    if qFilterKey and qFilterValue:
-        qToAdd = (services.convert_to_fsbid_ql([{'col': qFilterKey, 'val': qFilterValue, 'com': qComparator}]))
-        filters = pydash.concat(qToAdd, filters)
 
     values = {
         # Pagination
