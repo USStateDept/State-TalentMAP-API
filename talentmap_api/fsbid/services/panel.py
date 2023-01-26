@@ -238,7 +238,7 @@ def get_panel_meetings(query, jwt_token):
     )
     return panel_cats
 
-def convert_panel_query(query):
+def convert_panel_query(query={}):
     '''
     Converts TalentMap query into FSBid query
     '''
@@ -247,9 +247,9 @@ def convert_panel_query(query):
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([
-            {'col': 'pmpmtcode', 'val': query.get("type", None).upper()},
-            {'col': 'pmscode', 'val': query.get("status", None).upper()},
-            {'col': 'pmseqnum', 'val': query.get("id", None)},
+            {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get("type"))},
+            {'col': 'pmscode', 'val': services.if_str_upper(query.get("status"))},
+            {'col': 'pmseqnum', 'val': query.get("id")},
         ]),
     }
 

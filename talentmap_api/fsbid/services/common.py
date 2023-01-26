@@ -932,3 +932,10 @@ def map_fsbid_template_to_tm(data, mapping):
             mapped_items[x[1]] = pydash.get(data, x[0]).strip() if isinstance(pydash.get(data, x[0]), str) else pydash.get(data, x[0])
 
     return mapped_items
+
+
+def if_str_upper(x):
+    if isinstance(x, str):
+        return x.upper()
+
+    return x
