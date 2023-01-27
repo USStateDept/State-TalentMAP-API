@@ -215,9 +215,7 @@ def get_panel_meetings(query, jwt_token):
     expected_keys = [
        'pmseqnum', 'pmvirtualind', 'pmcreateid', 'pmcreatedate',
        'pmupdateid', 'pmupdatedate', 'pmpmscode', 'pmpmtcode',
-       'pmtdesctext', 'pmsdesctext', 'panelMeetingDates',
-       'pmdpmseqnum', 'pmdmdtcode', 'pmddttm', 'mdtcode',
-       'mdtdesctext', 'mdtordernum' ,
+       'pmtdesctext', 'pmsdesctext', 'panelMeetingDates'
     ]
 
     mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
@@ -233,10 +231,10 @@ def get_panel_meetings(query, jwt_token):
     "api_root": PANEL_API_ROOT,
     }
 
-    panel_cats = services.send_get_request(
+    panel_meetings = services.send_get_request(
         **args
     )
-    return panel_cats
+    return panel_meetings
 
 def convert_panel_query(query={}):
     '''
