@@ -89,17 +89,17 @@ def get_panel_statuses(query, jwt_token):
     '''
     Get panel statuses
     '''
-
-    expected_keys = ['pmscode', 'pmsdesctext']
-
-    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
+    mapping = {
+        'pmscode': 'code',
+        'pmsdesctext': 'text',
+    }
 
     args = {
         "uri": "references/statuses",
         "query": query,
         "query_mapping_function": convert_panel_statuses_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -130,17 +130,17 @@ def get_panel_types(query, jwt_token):
     '''
     Get panel types
     '''
-
-    expected_keys = ['pmtcode', 'pmtdesctext']
-
-    mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
+    mapping = {
+        'pmtcode': 'code',
+        'pmtdesctext': 'text',
+    }
 
     args = {
         "uri": "references/types",
         "query": query,
         "query_mapping_function": convert_panel_types_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
+        "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
