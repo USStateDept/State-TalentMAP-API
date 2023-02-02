@@ -19,9 +19,7 @@ def test_user_permission_endpoint(authorized_client, authorized_user):
     assert response.data["permissions"] == list(authorized_user.get_all_permissions())
 
     response = authorized_client.get(f'/api/v1/permission/user/{authorized_user.profile.id}/')
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data["groups"] == [group.name]
-    assert response.data["permissions"] == list(authorized_user.get_all_permissions())
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
     response = authorized_client.get(f'/api/v1/permission/user/all/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
