@@ -240,6 +240,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "code": pydash.get(data, "Panel[0].pmimiccode") or None,
         "desc_text": pydash.get(data, "Panel[0].micdesctext") or None,
     }
+    panelMeetingSeqNum = str(int(pydash.get(data, "Panel[0].pmseqnum"))) if pydash.get(data, "Panel[0].pmseqnum") else ""
     if updaters:
         updaters = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(updaters[0])
 
@@ -252,7 +253,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
-        "panel_meeting_seq_num": str(int(pydash.get(data, "Panel[0].pmseqnum"))) or None,
+        "panel_meeting_seq_num": panelMeetingSeqNum,
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "report_category": reportCategory,
