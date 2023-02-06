@@ -4,6 +4,8 @@ import csv
 from datetime import datetime
 # import requests_cache
 from copy import deepcopy
+from functools import partial
+
 
 from django.conf import settings
 from django.db.models import Q
@@ -13,6 +15,7 @@ from django.http import QueryDict
 
 import maya
 import pydash
+import time
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -917,3 +920,22 @@ def map_return_template_cols(cols, cols_mapping, data):
     props_to_map = pydash.pick(cols_mapping, *cols)
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1]).strip() if type(pydash.get(data, x[1])) == str else pydash.get(data, x[1])), props_to_map.items())
     return dict(mapped_tuples)
+
+# optimized map_return_template_cols
+def map_fsbid_template_to_tm(data, mapping):
+    mapped_items = {}
+
+    for x in mapping.items():
+        if isinstance(x[1], dict):
+            mapped_items[x[1]['nameMap']] = list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))
+        else:
+            mapped_items[x[1]] = pydash.get(data, x[0]).strip() if isinstance(pydash.get(data, x[0]), str) else pydash.get(data, x[0])
+
+    return mapped_items
+
+
+def if_str_upper(x):
+    if isinstance(x, str):
+        return x.upper()
+
+    return x
