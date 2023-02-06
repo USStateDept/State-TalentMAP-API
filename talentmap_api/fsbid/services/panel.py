@@ -227,8 +227,8 @@ def convert_panel_query(query={}):
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
         "rp.filter": services.convert_to_fsbid_ql([
-            {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get("type")), "com": "IN"},
-            {'col': 'pmscode', 'val': services.if_str_upper(query.get("status")), "com": "IN"},
+            {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get("type")), 'com': 'IN'},
+            {'col': 'pmscode', 'val': services.if_str_upper(query.get("status")), 'com': 'IN'},
             {'col': 'pmseqnum', 'val': query.get("id")},
         ]),
     }
