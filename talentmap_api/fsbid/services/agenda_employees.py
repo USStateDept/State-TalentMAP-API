@@ -152,22 +152,23 @@ def convert_agenda_employees_query(query):
     activeCodes = "S,L,A,P,U" if not query.get("isInactiveSelected") else None
     
     filters = [
-        {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
-        {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus", None)},
-        {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations", None)},
-        {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
-        {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
+        {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus") or None},
+        {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus") or None},
+        {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations") or None},
+        {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations") or None},
+        {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos") or None},
         {"col": "tmperperscode", "com": "IN", "val": activeCodes},
-        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet") or None},
         # TODO: Transition to search on new WS fields first name and last name instead of both on full name
         {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
         {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
-        {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
+        {"col": "tmperpertexternalid", "com": "EQ", "val": empID},
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet") or None},
     ]
 
-    if query.get("handshake", None):
+    if query.get("handshake"):
         hsObj = {"col": "tmperhsind", "com": "IN"}
-        hs = query.get("handshake", None)
+        hs = query.get("handshake") or None
         if hs == 'Y':
             hsObj['val'] = 'HS'
             filters.append(hsObj)
