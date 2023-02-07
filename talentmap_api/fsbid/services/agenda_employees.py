@@ -144,6 +144,12 @@ def convert_agenda_employees_query(query):
     
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
+
+    firstName = query.get("firstName").upper() if query.get("firstName") else query.get("firstName")
+    lastName = query.get("lastName").upper() if query.get("lastName") else query.get("lastName")
+    empID = query.get("empID").upper() if query.get("empID") else query.get("empID")
+
+    activeCodes = "S,L,A,P,U" if not query.get("isInactiveSelected") else None
     
     filters = [
         {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
@@ -158,9 +164,9 @@ def convert_agenda_employees_query(query):
         {"col": "tmperpertexternalid", "com": "EQ", "val": query.get("empID", None)}
     ]
 
-    if query.get("handshake", None):
+    if query.get("handshake"):
         hsObj = {"col": "tmperhsind", "com": "IN"}
-        hs = query.get("handshake", None)
+        hs = query.get("handshake") or None
         if hs == 'Y':
             hsObj['val'] = 'HS'
             filters.append(hsObj)

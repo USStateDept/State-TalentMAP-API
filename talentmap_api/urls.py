@@ -35,46 +35,49 @@ urlpatterns = [
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
 
-    # FSBId
-    url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
-    url(r'^api/v1/fsbid/projected_vacancies/', include('talentmap_api.fsbid.urls.projected_vacancies')),
-    url(r'^api/v1/fsbid/available_positions/', include('talentmap_api.fsbid.urls.available_positions')),
+    # Reference
     url(r'^api/v1/fsbid/bid_seasons/', include('talentmap_api.fsbid.urls.bid_seasons')),
-    url(r'^api/v1/fsbid/employee/', include('talentmap_api.fsbid.urls.employee')),
     url(r'^api/v1/fsbid/reference/', include('talentmap_api.fsbid.urls.reference')),
+
+    # Bureau
+    url(r'^api/v1/fsbid/bureau/positions/', include('talentmap_api.fsbid.urls.bureau')),
+    url(r'^api/v1/bureau/', include('talentmap_api.bureau.urls.bureau')),
+
+    # Available Positions
+    url(r'^api/v1/fsbid/available_positions/', include('talentmap_api.fsbid.urls.available_positions')),
+    url(r'^api/v1/fsbid/positions/', include('talentmap_api.fsbid.urls.positions')),
+    url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
+    url(r'^api/v1/available_position/tandem/', include('talentmap_api.available_tandem.urls.available_tandem')),
+
+    # Projected Vacancies
+    url(r'^api/v1/fsbid/projected_vacancies/', include('talentmap_api.fsbid.urls.projected_vacancies')),
+    url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
+    url(r'^api/v1/projected_vacancy/tandem/', include('talentmap_api.projected_tandem.urls.projected_tandem')),
+
+    # Position Management
+    url(r'^api/v1/fsbid/capsule_descriptions/', include('talentmap_api.fsbid.urls.capsule_descriptions')),
+
+    # CDO
     url(r'^api/v1/fsbid/cdo/', include('talentmap_api.fsbid.urls.cdo')),
     url(r'^api/v1/fsbid/client/', include('talentmap_api.fsbid.urls.client')),
-    url(r'^api/v1/fsbid/bureau/positions/', include('talentmap_api.fsbid.urls.bureau')),
+    url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
+
+    # Employee Info
+    url(r'^api/v1/fsbid/assignment_history/', include('talentmap_api.fsbid.urls.assignment_history')),
     url(r'^api/v1/fsbid/classifications/', include('talentmap_api.fsbid.urls.classifications')),
-    url(r'^api/v1/fsbid/positions/', include('talentmap_api.fsbid.urls.positions')),
-    url(r'^api/v1/fsbid/capsule_descriptions/', include('talentmap_api.fsbid.urls.capsule_descriptions')),
+    url(r'^api/v1/fsbid/employee/', include('talentmap_api.fsbid.urls.employee')),
+    url(r'^api/v1/fsbid/bidlist/', include('talentmap_api.fsbid.urls.bidlist')),
 
     # Agenda
     url(r'^api/v1/fsbid/agenda/', include('talentmap_api.fsbid.urls.agenda')),
     url(r'^api/v1/fsbid/agenda_employees/', include('talentmap_api.fsbid.urls.agenda_employees')),
-    url(r'^api/v1/fsbid/assignment_history/', include('talentmap_api.fsbid.urls.assignment_history')),
-    url(r'^api/v1/fsbid/panel/', include('talentmap_api.fsbid.urls.panel')),
 
     # Panel
-    url(r'^api/v1/panel/', include('talentmap_api.fsbid.urls.panel')),
-
-    # Projected Vacancies
-    url(r'^api/v1/projected_vacancy/', include('talentmap_api.projected_vacancies.urls.projected_vacancies')),
-    url(r'^api/v1/projected_vacancy/tandem/', include('talentmap_api.projected_tandem.urls.projected_tandem')),
-
-    # Available Positions
-    url(r'^api/v1/available_position/', include('talentmap_api.available_positions.urls.available_positions')),
-    url(r'^api/v1/available_position/tandem/', include('talentmap_api.available_tandem.urls.available_tandem')),
+    url(r'^api/v1/fsbid/panel/', include('talentmap_api.fsbid.urls.panel')),
 
     # Bidding
     url(r'^api/v1/bidding/', include('talentmap_api.bidding.urls.bidding')),
     url(r'^api/v1/bidhandshakecycle/', include('talentmap_api.bidding.urls.bidhandshakecycle')),
-
-    #CDO
-    url(r'^api/v1/cdo/', include('talentmap_api.cdo.urls.cdo')),
-
-    # Bureau
-    url(r'^api/v1/bureau/', include('talentmap_api.bureau.urls.bureau')),
 
     # Permission resources
     url(r'^api/v1/permission/user/', include('talentmap_api.permission.urls.user')),
@@ -118,8 +121,8 @@ urlpatterns += [
 
 if settings.ENABLE_SAML2:  # pragma: no cover
     urlpatterns += [
-        url(r'^saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
-        url(r'^saml2/', include('djangosaml2.urls')),
+        url(r'^api/v1/saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
+        url(r'^api/v1/saml2/', include('djangosaml2.urls')),
     ]
     if settings.DEBUG:
         urlpatterns += [
