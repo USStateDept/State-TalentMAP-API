@@ -623,7 +623,7 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
-def get_agendas_by_panel(pk, jwt_token, categorize = False):
+def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas for panel meeting
     '''
@@ -645,37 +645,5 @@ def get_agendas_by_panel(pk, jwt_token, categorize = False):
     agendas_by_panel = services.send_get_request(
         **args
     )
-
-    if categorize:
-        meeting_category_map = {
-            'R': 'Review',
-            'O': 'Off Panel',
-            'D': 'Discuss',
-            'S': 'Separations',
-            'X': 'Express',
-            'V': 'Volunteer Cable',
-            'A': 'Addendum',
-            'C': 'Addendum(Volunteer Cable)',
-            'P': 'Position Challenge',
-            'E': 'Employee Challenge',
-        }
-        # keep order of keys
-        categorized_agendas_by_panel = {
-            'Review': [],
-            'Off Panel': [],
-            'Discuss': [],
-            'Separations': [],
-            'Express': [],
-            'Volunteer Cable': [],
-            'Addendum': [],
-            'Addendum(Volunteer Cable)': [],
-            'Position Challenge': [],
-            'Employee Challenge': [],
-        }
-
-        for ai in agendas_by_panel.get('results'):
-            categorized_agendas_by_panel[meeting_category_map[ai.get('meeting_category')]].append(ai)
-
-        return categorized_agendas_by_panel
 
     return agendas_by_panel

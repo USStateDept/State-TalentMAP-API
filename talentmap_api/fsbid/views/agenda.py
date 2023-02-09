@@ -148,4 +148,4 @@ class PanelAgendasListView(BaseView):
         '''
         Get agendas for a panel meeting
         '''
-        return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT'], True))
+        return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))
