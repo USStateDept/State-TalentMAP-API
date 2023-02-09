@@ -247,6 +247,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "id": data.get("aiseqnum", None),
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
+        "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "perdet": data.get("aiperdetseqnum", None),
@@ -622,18 +623,18 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
-def get_agendas_by_panel(pk, jwt_token):
+def get_agendas_by_panel(pk, jwt_token, categorize = False):
     '''
-    Get agendas by panel meeting date
+    Get agendas for panel meeting
     '''
     remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {
-            "page": 0,
-            "limit": 0
+            "rp.pageNum": int(0),
+            "rp.pageRows": int(0),
         },
-        "query_mapping_function": convert_agendas_by_panel_query,
+        "query_mapping_function": None,
         "jwt_token": jwt_token,
         "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "count_function": None,
@@ -645,18 +646,36 @@ def get_agendas_by_panel(pk, jwt_token):
         **args
     )
 
+    if categorize:
+        meeting_category_map = {
+            'R': 'Review',
+            'O': 'Off Panel',
+            'D': 'Discuss',
+            'S': 'Separations',
+            'X': 'Express',
+            'V': 'Volunteer Cable',
+            'A': 'Addendum',
+            'C': 'Addendum(Volunteer Cable)',
+            'P': 'Position Challenge',
+            'E': 'Employee Challenge',
+        }
+        # keep order of keys
+        categorized_agendas_by_panel = {
+            'Review': [],
+            'Off Panel': [],
+            'Discuss': [],
+            'Separations': [],
+            'Express': [],
+            'Volunteer Cable': [],
+            'Addendum': [],
+            'Addendum(Volunteer Cable)': [],
+            'Position Challenge': [],
+            'Employee Challenge': [],
+        }
+
+        for ai in agendas_by_panel.get('results'):
+            categorized_agendas_by_panel[meeting_category_map[ai.get('meeting_category')]].append(ai)
+
+        return categorized_agendas_by_panel
+
     return agendas_by_panel
-
-def convert_agendas_by_panel_query(query):
-    '''
-    Converts TalentMap query into FSBid query
-    '''
-
-    values = {
-        "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
-    }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
