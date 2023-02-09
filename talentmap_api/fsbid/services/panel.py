@@ -226,6 +226,7 @@ def convert_panel_query(query={}):
     values = {
         'rp.pageNum': int(query.get('page', 1)),
         'rp.pageRows': int(query.get('limit', 1000)),
+        'rp.orderBy': services.sorting_values(query.get('ordering', 'meeting_status')),
         'rp.filter': services.convert_to_fsbid_ql([
             {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get('type')), 'com': 'IN'},
             {'col': 'pmscode', 'val': services.if_str_upper(query.get('status')), 'com': 'IN'},
