@@ -146,6 +146,6 @@ class PanelAgendasListView(BaseView):
 
     def get(self, request, pk):
         '''
-        Get single agenda by ai_seq_num
+        Get agendas for a panel meeting
         '''
         return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))

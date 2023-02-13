@@ -252,6 +252,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "id": data.get("aiseqnum", None),
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
+        "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
         "panel_meeting_seq_num": panelMeetingSeqNum,
         "status_full": statusFull,
@@ -632,16 +633,16 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
 def get_agendas_by_panel(pk, jwt_token):
     '''
-    Get agendas by panel meeting date
+    Get agendas for panel meeting
     '''
     remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {
-            "page": 0,
-            "limit": 0
+            "rp.pageNum": int(0),
+            "rp.pageRows": int(0),
         },
-        "query_mapping_function": convert_agendas_by_panel_query,
+        "query_mapping_function": None,
         "jwt_token": jwt_token,
         "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "count_function": None,
@@ -654,17 +655,3 @@ def get_agendas_by_panel(pk, jwt_token):
     )
 
     return agendas_by_panel
-
-def convert_agendas_by_panel_query(query):
-    '''
-    Converts TalentMap query into FSBid query
-    '''
-
-    values = {
-        "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
-    }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
