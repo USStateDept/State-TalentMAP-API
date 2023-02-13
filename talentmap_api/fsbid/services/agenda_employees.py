@@ -145,9 +145,9 @@ def convert_agenda_employees_query(query):
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
 
-    firstName = query.get("firstName").upper() if query.get("firstName") else query.get("firstName")
-    lastName = query.get("lastName").upper() if query.get("lastName") else query.get("lastName")
-    empID = query.get("empID").upper() if query.get("empID") else query.get("empID")
+    firstName = query.get("firstName").upper() if query.get("firstName") else None
+    lastName = query.get("lastName").upper() if query.get("lastName") else None
+    empID = query.get("empID").upper() if query.get("empID") else None
 
     activeCodes = "S,L,A,P,U" if not query.get("isInactiveSelected") else None
     
@@ -159,11 +159,9 @@ def convert_agenda_employees_query(query):
         {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos") or None},
         {"col": "tmperperscode", "com": "IN", "val": activeCodes},
         {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet") or None},
-        # TODO: Transition to search on new WS fields first name and last name instead of both on full name
-        {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
-        {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
-        {"col": "tmperpertexternalid", "com": "EQ", "val": empID},
-        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet") or None},
+        {"col": "tmperperfirstname", "com": "CONTAINS", "val": firstName},
+        {"col": "tmperperlastname", "com": "CONTAINS", "val": lastName},
+        {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
     ]
 
     if query.get("handshake"):
