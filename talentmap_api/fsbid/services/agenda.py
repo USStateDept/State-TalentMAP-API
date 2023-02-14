@@ -304,6 +304,7 @@ def fsbid_legs_to_talentmap_legs(data):
 
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
+        "ail_seq_num": pydash.get(data, "ailseqnum", None),
         "pos_title": pydash.get(data, "agendaLegPosition[0].postitledesc", None),
         "pos_num": pydash.get(data, "agendaLegPosition[0].posnumtext", None),
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
