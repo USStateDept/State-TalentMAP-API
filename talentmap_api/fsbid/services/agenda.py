@@ -234,7 +234,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     sortedLegs = sort_legs(legs)
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
-    statusFull = data.get("aisdesctext", None)
+    statusFull = data.get("aisdesctext") or None
     updaters = pydash.get(data, "updaters") or None
     reportCategory = {
         "code": pydash.get(data, "Panel[0].pmimiccode") or None,
@@ -249,21 +249,22 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
 
     return {
-        "id": data.get("aiseqnum", None),
+        "id": data.get("aiseqnum") or None,
+        "pmi_official_item_num": data.get("pmiofficialitemnum") or None,
         "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
-        "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
+        "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm"), utc_offset=-5),
         "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
         "panel_meeting_seq_num": panelMeetingSeqNum,
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "report_category": reportCategory,
-        "perdet": data.get("aiperdetseqnum", None),
+        "perdet": data.get("aiperdetseqnum") or None,
         "assignment": assignment,
         "legs": legsToReturn,
-        "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
-        "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
-        "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
+        "update_date": ensure_date(data.get("update_date"), utc_offset=-5),  # TODO - find this date
+        "modifier_name": data.get("aiupdateid") or None,  # TODO - this is only the id
+        "creator_name": data.get("aiitemcreatorid") or None,  # TODO - this is only the id
         "creators": creators,
         "updaters": updaters,
     }
@@ -642,6 +643,7 @@ def get_agendas_by_panel(pk, jwt_token):
         "query": {
             "rp.pageNum": int(0),
             "rp.pageRows": int(0),
+            "rp.orderBy": 'pmiofficialitemnum',
         },
         "query_mapping_function": None,
         "jwt_token": jwt_token,
