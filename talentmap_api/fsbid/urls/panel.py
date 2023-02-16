@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^reference/types/$', views.PanelTypesView.as_view(), name='panel-FSBid-reference-types'),
     url(r'^meetings/', views.PanelMeetingsView.as_view(), name="panel-meetings-list"),
     url(r'^(?P<pk>[0-9]+)/agendas/', agenda_views.PanelAgendasListView.as_view(), name="panel-agendas-list"),
+    url(r'^export/$', views.PanelMeetingsCSVView.as_view(), name="panel-meetings-export"),
 ]
 
 urlpatterns += router.urls
