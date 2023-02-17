@@ -257,12 +257,15 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
         "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
-        "base_url": PANEL_API_ROOT,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
         "host": host,
         "use_post": False,
     }
 
     data = send_get_csv_request(**args)
+    print('===data===')
+    print(data)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename=panel_meetings{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
