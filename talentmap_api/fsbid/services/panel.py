@@ -2,6 +2,11 @@ import logging
 from urllib.parse import urlencode, quote
 from functools import partial
 import pydash
+import csv
+from django.utils.encoding import smart_str
+from django.http import HttpResponse
+from datetime import datetime
+
 
 from django.conf import settings
 
@@ -217,6 +222,54 @@ def get_panel_meetings(query, jwt_token):
     }
 
     return services.send_get_request(**args)
+
+def get_panel_meetings_csv(query, jwt_token):
+    '''
+    Get panel meetings
+    '''
+    # tell me the WS keys you want
+    # tell me the transform function for each of those values
+
+    keys_and_transforms = {
+        'default': 'wow',
+        'wskeys' : {
+            'pmtdesctext': {},
+            'pmsdesctext': {
+                'default': 'MEOW',
+                'transformFn': services.if_str_upper
+            },
+        }
+    }
+
+    filename = 'elsa_meow'
+    response = HttpResponse(content_type='text/csv')
+    response[
+        'Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    writer.writerow([
+        smart_str(u"Meeting Type"),
+        smart_str(u"Meeting Status"),
+    ])
+
+    args = {
+        "uri": "",
+        "query": query,
+        "query_mapping_function": convert_panel_query,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(services.csv_fsbid_template_to_tm, mapping=keys_and_transforms),
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+    }
+
+    data = services.send_get_request(**args)
+
+    writer.writerows(data['results'])
+    return response
 
 def convert_panel_query(query={}):
     '''

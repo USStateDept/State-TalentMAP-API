@@ -15,7 +15,6 @@ from django.http import QueryDict
 
 import maya
 import pydash
-import time
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -940,3 +939,32 @@ def if_str_upper(x):
         return x.upper()
 
     return x
+
+# *keywords
+# mapping = {
+#   'default'*: 'None', <-default value for all values (required)
+#   'wskeys'* : {
+#             'pmsdesctext': { <- the ws key you want to pull a value from
+#                 'default'*: 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
+#                 'transformFn'*: fn <- a function you want to run on the value (optional)
+#             },
+#             'micdesctext': {},
+#         }
+# }
+def csv_fsbid_template_to_tm(data, mapping):
+    row = []
+    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
+    print(data)
+    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
+    for x in mapping['wskeys'].keys():
+        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+        # if isinstance(x[1], dict):
+        #     row.append(smart_str('meow'))
+            # row.append(smart_str(list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))))
+            # mapped_items[x[1]['nameMap']] = list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))
+        if 'transformFn' in mapping['wskeys'][x]:
+            row.append(smart_str(mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default))
+        else:
+            row.append(smart_str(pydash.get(data, x) or default))
+
+    return row

@@ -93,4 +93,5 @@ class PanelMeetingsView(BaseView):
         '''
         Gets panel meetings
         '''
-        return Response(services.get_panel_meetings(request.query_params, request.META['HTTP_JWT']))
+        return services.get_panel_meetings_csv(request.query_params, request.META['HTTP_JWT'])
+        # return Response(services.get_panel_meetings(request.query_params, request.META['HTTP_JWT']))
