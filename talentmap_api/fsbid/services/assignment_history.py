@@ -44,7 +44,7 @@ def assignment_history_to_client_format(data):
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
             pos = pydash.get(x, 'position[0]') or {}
-            loc = pos.get('location', {})
+            loc = pydash.get(pos, 'location[0]') or []
             tmap_assignments.append(
                 {
                     "id": x['id'],
@@ -56,8 +56,8 @@ def assignment_history_to_client_format(data):
                     "asgd_revision_num": x['asgd_revision_num'],
                     "position": {
                         "grade": pos.get("posgradecode", None),
-                        "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
-                        "skill_code": pos.get("pos_skill_code", None),
+                        "skill": f"{pos.get('posskilldesc', None)} ({pos.get('posskillcode')})",
+                        "skill_code": pos.get("posskillcode", None),
                         "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
                         "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
                         "organization": pos.get('posorgshortdesc', None),
@@ -65,15 +65,15 @@ def assignment_history_to_client_format(data):
                         "position_id": x['position_id'],
                         "title": pos.get("postitledesc", None),
                         "post": {
-                            "code": loc.get("gvt_geoloc_cd", None),
-                            "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
-                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
-                            "obc_id": get_obc_id(loc.get("gvt_geoloc_cd", None)),
+                            "code": loc.get("locgvtgeoloccd", None),
+                            "post_overview_url": get_post_overview_url(loc.get("locgvtgeoloccd", None)),
+                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("locgvtgeoloccd", None)),
+                            "obc_id": get_obc_id(loc.get("locgvtgeoloccd", None)),
                             "location": {
-                                "country": loc.get("country", None),
-                                "code": loc.get("gvt_geoloc_cd", None),
-                                "city": loc.get("city", None),
-                                "state": loc.get("state", None),
+                                "country": loc.get("loccountry", None),
+                                "code": loc.get("locgvtgeoloccd", None),
+                                "city": loc.get("loccity", None),
+                                "state": loc.get("locstate", None),
                             }
                         },
                         "language": pos.get("pos_position_lang_prof_desc", None),
