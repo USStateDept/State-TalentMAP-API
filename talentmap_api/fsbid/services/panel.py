@@ -3,6 +3,8 @@ from urllib.parse import urlencode, quote
 from functools import partial
 import pydash
 import csv
+import maya
+
 from django.utils.encoding import smart_str
 from django.http import HttpResponse
 from datetime import datetime
@@ -227,8 +229,22 @@ def get_panel_meetings_csv(query, jwt_token):
     '''
     Get panel meetings
     '''
-    # tell me the WS keys you want
-    # tell me the transform function for each of those values
+
+    def grab_panel_dates(dates):
+        date_strings = {
+            "Panel Meeting Date": "None Listed",
+            "Official Preliminary Cutoff": "None Listed",
+            "Addendum Cutoff": "None Listed",
+            "Official Preliminary Run Time": "None Listed",
+            "Official Addendum Run Time": "None Listed",
+            "Post Panel Started": "None Listed",
+            "Post Panel Run Time": "None Listed",
+            "Agenda Completed Time": "None Listed",
+        }
+        for date in dates:
+            date_strings[pydash.get(date, 'mdtdesctext').strip()] = maya.parse(pydash.get(date, 'pmddttm')).datetime().strftime('%m/%d/%Y')
+
+        return list(date_strings.values())
 
     keys_and_transforms = {
         'default': 'wow',
@@ -237,6 +253,9 @@ def get_panel_meetings_csv(query, jwt_token):
             'pmsdesctext': {
                 'default': 'MEOW',
                 'transformFn': services.if_str_upper
+            },
+            'panelMeetingDates': {
+                'transformFn': grab_panel_dates
             },
         }
     }
@@ -253,6 +272,14 @@ def get_panel_meetings_csv(query, jwt_token):
     writer.writerow([
         smart_str(u"Meeting Type"),
         smart_str(u"Meeting Status"),
+        smart_str(u"Panel Meeting Date"),
+        smart_str(u"Preliminary Cutoff"),
+        smart_str(u"Addendum Cutoff"),
+        smart_str(u"Preliminary Run Time"),
+        smart_str(u"Addendum Run Time"),
+        smart_str(u"Post Panel Started"),
+        smart_str(u"Post Panel Run Time"),
+        smart_str(u"Agenda Completed Time"),
     ])
 
     args = {

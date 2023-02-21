@@ -953,17 +953,16 @@ def if_str_upper(x):
 # }
 def csv_fsbid_template_to_tm(data, mapping):
     row = []
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
-    print(data)
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
+
     for x in mapping['wskeys'].keys():
         default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
-        # if isinstance(x[1], dict):
-        #     row.append(smart_str('meow'))
-            # row.append(smart_str(list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))))
-            # mapped_items[x[1]['nameMap']] = list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))
+
         if 'transformFn' in mapping['wskeys'][x]:
-            row.append(smart_str(mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default))
+            mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
+            if type(mapped) is list:
+                row = row + mapped
+            else:
+                row.append(smart_str(mapped))
         else:
             row.append(smart_str(pydash.get(data, x) or default))
 
