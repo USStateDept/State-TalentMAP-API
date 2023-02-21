@@ -2,13 +2,6 @@ import logging
 from urllib.parse import urlencode, quote
 from functools import partial
 import pydash
-import csv
-import maya
-
-from django.utils.encoding import smart_str
-from django.http import HttpResponse
-from datetime import datetime
-
 
 from django.conf import settings
 
