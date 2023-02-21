@@ -952,6 +952,12 @@ def if_str_upper(x):
 #         }
 # }
 def csv_fsbid_template_to_tm(data, mapping):
+    '''
+    Get rows for csv ready for write.
+    You'll still need to set up the csv headers outside this function.
+    The return from this mapping can be written to csv with
+        writer.writerows(data)
+    '''
     row = []
 
     for x in mapping['wskeys'].keys():
