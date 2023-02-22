@@ -246,7 +246,6 @@ def convert_panel_query(query={}):
 
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     from talentmap_api.fsbid.services.cdo import cdo
-    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     try:
         cdos = list(cdo(jwt_token))
     except:
