@@ -925,8 +925,6 @@ def map_return_template_cols(cols, cols_mapping, data):
 # optimized map_return_template_cols
 def map_fsbid_template_to_tm(data, mapping):
     mapped_items = {}
-    # if (data['pmdpmseqnum'] == 1):
-    print(data)
 
     for x in mapping.items():
         if isinstance(x[1], dict):
