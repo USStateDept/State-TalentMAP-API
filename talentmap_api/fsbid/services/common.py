@@ -925,6 +925,8 @@ def map_return_template_cols(cols, cols_mapping, data):
 # optimized map_return_template_cols
 def map_fsbid_template_to_tm(data, mapping):
     mapped_items = {}
+    # if (data['pmdpmseqnum'] == 1):
+    print(data)
 
     for x in mapping.items():
         if isinstance(x[1], dict):
@@ -940,3 +942,56 @@ def if_str_upper(x):
         return x.upper()
 
     return x
+
+# mapping = {
+#   'default': 'None', <-default value for all values (required)
+#   'wskeys': {
+#             'pmsdesctext': { <- the ws key you want to pull a value from
+#                 'default': 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
+#                 'transformFn': fn <- a function you want to run on the value (optional)
+#             },
+#             'micdesctext': {},
+#         }
+# }
+def csv_fsbid_template_to_tm(data, mapping):
+    '''
+    Get row for csv ready for write.
+    You'll still need to set up the csv headers outside this function.
+    The return from this mapping can be written to csv with
+        writer.writerows(data)
+    '''
+    row = []
+
+    for x in mapping['wskeys'].keys():
+        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+
+        if 'transformFn' in mapping['wskeys'][x]:
+            mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
+            if type(mapped) is list:
+                row = row + mapped
+            else:
+                row.append(smart_str(mapped))
+        else:
+            row.append(smart_str(pydash.get(data, x) or default))
+
+    return row
+
+# Panel Helper Functions
+
+def panel_process_dates_csv(dates):
+    columnOrdering = {
+        'MEET': 'None Listed',
+        'CUT': 'None Listed',
+        'ADD': 'None Listed',
+        'OFF': 'None Listed',
+        'OFFA': 'None Listed',
+        'POSS': 'None Listed',
+        'POST': 'None Listed',
+        'COMP': 'None Listed'
+    }
+
+    for date in dates:
+        if date['mdtcode'] in columnOrdering.keys():
+            columnOrdering.update({date['mdtcode']: smart_str(maya.parse(date['pmddttm']).datetime(to_timezone='US/Eastern', naive=True).strftime('%m/%d/%Y %H:%M'))})
+
+    return list(columnOrdering.values())
