@@ -246,6 +246,7 @@ def convert_panel_query(query={}):
 
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     from talentmap_api.fsbid.services.cdo import cdo
+    
     try:
         cdos = list(cdo(jwt_token))
     except:
@@ -253,11 +254,7 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     csvQuery = deepcopy(query)
     csvQuery['page'] = 1
     csvQuery['limit'] = 500
-    expected_keys = [
-        'pmseqnum', 'pmvirtualind', 'pmcreateid', 'pmcreatedate',
-        'pmupdateid', 'pmupdatedate', 'pmpmscode', 'pmpmtcode',
-        'pmtdesctext', 'pmsdesctext', 'panelMeetingDates'
-    ]
+
     mapping_subset = {
         'default': 'None',
         'wskeys': {
