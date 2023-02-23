@@ -849,8 +849,6 @@ def parse_agenda_remarks(remarks_string = '', remarks_data={}):
     for value in values:
         if pydash.find(ai_remarks, {'text': value['text']}):
             remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
-        if value['type'] == 'person':
-            remarks_values.append(value)
     
     return remarks_values
 
