@@ -245,6 +245,7 @@ def convert_panel_query(query={}):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
+    print('hit services')
     from talentmap_api.fsbid.services.cdo import cdo
     
     try:

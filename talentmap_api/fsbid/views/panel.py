@@ -109,7 +109,8 @@ class PanelMeetingsView(BaseView):
         '''
         return Response(services.get_panel_meetings(request.query_params, request.META['HTTP_JWT']))
 
-class PanelMeetingsCSVView(BaseView):    
+class PanelMeetingsCSVView(BaseView):
+    print('hit view')    
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
 
     @swagger_auto_schema(manual_parameters=base_parameters)
