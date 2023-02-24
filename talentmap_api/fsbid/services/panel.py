@@ -253,10 +253,10 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
         cdos = []
     csvQuery = deepcopy(query)
     csvQuery['page'] = 1
-    csvQuery['limit'] = 500
+    csvQuery['limit'] = 2000
 
     mapping_subset = {
-        'default': 'None',
+        'default': 'None Listed',
         'wskeys': {
             'pmtdesctext': {
             },
@@ -304,5 +304,4 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
 
     writer.writerows(data['results'])
 
-    # return response
     return response
