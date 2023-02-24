@@ -44,7 +44,7 @@ def assignment_history_to_client_format(data):
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
             pos = pydash.get(x, 'position[0]') or {}
-            loc = pydash.get(pos, 'location[0]') or []
+            loc = pydash.get(pos, 'location[0]') or {}
             tmap_assignments.append(
                 {
                     "id": x['id'],
