@@ -47,11 +47,13 @@ urlpatterns = [
     url(r'^api/v1/fsbid/bureau/positions/', include('talentmap_api.fsbid.urls.bureau')),
     url(r'^api/v1/fsbid/classifications/', include('talentmap_api.fsbid.urls.classifications')),
     url(r'^api/v1/fsbid/positions/', include('talentmap_api.fsbid.urls.positions')),
+    url(r'^api/v1/fsbid/capsule_descriptions/', include('talentmap_api.fsbid.urls.capsule_descriptions')),
 
     # Agenda
     url(r'^api/v1/fsbid/agenda/', include('talentmap_api.fsbid.urls.agenda')),
     url(r'^api/v1/fsbid/agenda_employees/', include('talentmap_api.fsbid.urls.agenda_employees')),
     url(r'^api/v1/fsbid/assignment_history/', include('talentmap_api.fsbid.urls.assignment_history')),
+    url(r'^api/v1/fsbid/panel/', include('talentmap_api.fsbid.urls.panel')),
 
     # Panel
     url(r'^api/v1/panel/', include('talentmap_api.fsbid.urls.panel')),
@@ -116,8 +118,8 @@ urlpatterns += [
 
 if settings.ENABLE_SAML2:  # pragma: no cover
     urlpatterns += [
-        url(r'^saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
-        url(r'^saml2/', include('djangosaml2.urls')),
+        url(r'^api/v1/saml2/acs/$', assertion_consumer_service, name='saml2_acs'),
+        url(r'^api/v1/saml2/', include('djangosaml2.urls')),
     ]
     if settings.DEBUG:
         urlpatterns += [

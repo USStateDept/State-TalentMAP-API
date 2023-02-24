@@ -249,19 +249,26 @@ def map_org_permissions(data):
 
 def get_assignments_separations_bids(query, jwt_token, pk):
     asg = asg_services.assignment_history(query, jwt_token, pk)
-    sep = get_separations(query, jwt_token, pk)
-    sep = pydash.get(sep, 'results') if pydash.get(sep, 'results') else []
+    # TO-DO: Add Separations 
+    # sep = get_separations(query, jwt_token, pk)
+    # sep = pydash.get(sep, 'results') or []
     bids = bid_services.get_bids(query, jwt_token, pk)
-    bids = pydash.get(bids, 'results') if pydash.get(bids, 'results') else []
+    bids = pydash.get(bids, 'results') or []
 
-    return map(map_assignments_separations_bids, pydash.interleave(asg, sep, bids))
+    return map(map_assignments_separations_bids, pydash.interleave(asg, bids))
 
 
 def map_assignments_separations_bids(data):
+    pos = pydash.get(data, 'pos', {})
     return {
-        "name": 'Coming Soon',
         "status": pydash.get(data, 'status') or pydash.get(data, 'asgs_code') or pydash.get(data, 'hs_code'),
-        "org": pydash.get(data, 'organization') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_org_short_desc'),
-        "pos_num": pydash.get(data, 'position_number') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_num'),
-        "pos_title": pydash.get(data, 'title') or pydash.get(data, 'TBD') or pydash.get(data, 'pos_title'),
+        "org": pydash.get(pos, 'posorgshortdesc'),
+        "grade": pydash.get(pos, 'posgradecode'),
+        "pos_num": pydash.get(pos, 'posnumtext'),
+        "pos_title": pydash.get(pos, 'postitledesc'),
+        "pos_seq_num": pydash.get(pos, 'posseqnum'),
+        "cp_id": pydash.get(data, 'cp_id'),
+        "asg_seq_num": pydash.get(data, 'id'),
+        "revision_num": pydash.get(pos, 'asgd_revision_num'),
+        "languages": pydash.get(pos, 'languages'),
     }

@@ -15,15 +15,16 @@ class Command(BaseCommand):
     # username, email, password, firstname, lastname, is_ao, is_cdo, extra_permission_groups
     USERS = [
         ("guest", "guest@state.gov", "guestpassword", "Guest", "McGuestson", False, False, ["bidder"]),
-        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["superuser"]),
+        ("admin", "admin@talentmap.us", "admin", "Administrator", "TalentMAP", False, False, ["superuser", "bidder",
+            "glossary_editors", "helppage_editor", "cdo", "bureau_user", "post_user", "ao_user"]),
         ("doej", "doej@talentmap.us", "password", "John", "Doe", False, False, ["bidder"]),
         ("townpostj", "townpostj@state.gov", "password", "Jenny", "Townpost", False, False, ["glossary_editors"]),
         ("batisak", "batisak@state.gov", "password", "Kara", "Batisak", False, False, ["bidder"]),
         ("rehmant", "rehmant@state.gov", "password", "Tarek", "Rehman", False, False, ["bidder", "helppage_editor"]),
-        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["bidder", "cdo"]),
-        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", True, False, ["bidder", "cdo"]),
-        ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, True, ["bidder"]),
-        ("lincolna", "lincolna@state.gov", "password", "Abigail", "Lincoln", True, True, ["bidder", "cdo"]),
+        ("shadtrachl", "shadtrachl@state.gov", "password", "Leah", "Shadtrach", False, True, ["cdo"]),
+        ("woodwardw", "woodwardw@state.gov", "password", "Wendy", "Woodward", False, False, ["bureau_user"]),
+        ("velezp", "velezp@state.gov", "password", "Preston", "Velez", False, False, ["post_user"]),
+        ("lincolna", "lincolna@state.gov", "password", "Abigail", "Lincoln", True, False, ["ao_user"]),
     ]
 
     def handle(self, *args, **options):

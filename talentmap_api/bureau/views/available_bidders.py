@@ -26,16 +26,16 @@ class AvailableBiddersListView(APIView):
 
     def get(self, request):
         """
-        Return users in Available Bidders list for Bureau
+        Return users in Available Bidders list for External CDA
         """
         return Response(client_services.get_available_bidders(request.META['HTTP_JWT'], False, request.query_params, f"{request.scheme}://{request.get_host()}"))
 
 
 class AvailableBiddersCSVView(APIView):
-    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user')), ]
+    permission_classes = [Or(isDjangoGroupMember('post_user'), isDjangoGroupMember('bureau_user'), isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user')), ]
 
     def get(self, request, *args, **kwargs):
         """
-        Return a list of all of the users in Available Bidders for CSV export for Bureau
+        Return a list of all of the users in Available Bidders for CSV export for External CDA
         """
         return services.get_available_bidders_csv(request)

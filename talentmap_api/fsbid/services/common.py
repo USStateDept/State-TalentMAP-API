@@ -81,7 +81,7 @@ def convert_multi_value(val):
 
 
 # Pattern for extracting language parts from a string. Ex. "Spanish(SP) (3/3)"
-LANG_PATTERN = re.compile("(.*?)(\(.*\))\s(\d)/(\d)")
+LANG_PATTERN = re.compile("(.*?)(\(.*\))\s*(\d[\s\+\-]*)/(\s*\d[\s\+\-]*)")
 
 
 def parseLanguage(lang):
@@ -93,10 +93,10 @@ def parseLanguage(lang):
         match = LANG_PATTERN.search(lang)
         if match:
             language = {}
-            language["language"] = match.group(1)
-            language["reading_proficiency"] = match.group(3)
-            language["spoken_proficiency"] = match.group(4)
-            language["representation"] = f"{match.group(1)} {match.group(2)} {match.group(3)}/{match.group(4)}"
+            language["language"] = match.group(1).strip()
+            language["reading_proficiency"] = match.group(3).replace(' ', '')
+            language["spoken_proficiency"] = match.group(4).replace(' ', '')
+            language["representation"] = f"{match.group(1).strip()} {match.group(2).replace(' ', '')} {match.group(3).replace(' ', '')}/{match.group(4).replace(' ', '')}"
             return language
 
 
@@ -114,6 +114,57 @@ def parseLanguagesString(lang):
 
         return lang_str
 
+def parseLanguagesToArr(data):
+    '''
+    Transforms flat language data into array.
+    Assumptions: 2 languages max
+    In:
+    {
+        ...
+        "poslanguage1code": "HU",
+        "poslanguage1desc": "HUNGARIAN",
+        "posspeakproficiency1code": "2",
+        "posreadproficiency1code": "3",
+
+        "poslanguage2code": "AE",
+        "poslanguage2desc": "ARABIC EGYPTIAN",
+        "posspeakproficiency2code": "1",
+        "posreadproficiency2code": "2"
+        ...
+    }
+    Out:
+    [
+        {
+            "language": "HUNGARIAN",
+            "spoken_proficiency": "2",
+            "reading_proficiency": "3",
+            "representation": "HUNGARIAN (HU) 2/3"
+        },
+        {
+            "language": "ARABIC EGYPTIAN",
+            "spoken_proficiency": "1",
+            "reading_proficiency": "2",
+            "representation": "ARABIC EGYPTIAN (AE) 1/2"
+        },
+    ]
+    '''
+    languages = []
+    for langNum in range(1, 3):
+        if pydash.has(data, f'poslanguage{langNum}desc') and data[f'poslanguage{langNum}desc']:
+            language = data[f'poslanguage{langNum}desc']
+            sScore = data[f'posspeakproficiency{langNum}code']
+            rScore = data[f'posreadproficiency{langNum}code']
+            langCode = data[f'poslanguage{langNum}code']
+
+            languages.append({
+                "language": language,
+                "spoken_proficiency": sScore,
+                "reading_proficiency": rScore,
+                "code": langCode,
+                "representation": f'{language} ({langCode}) {sScore}/{rScore}'
+            })
+
+    return languages
 
 def post_values(query):
     '''
@@ -141,7 +192,7 @@ sort_dict = {
     "position__grade": "pos_grade_code",
     "position__bureau": "pos_bureau_short_desc",
     "ted": "ted",
-    "position__position_number": "pos_num_text",
+    "position__position_number": "position",
     "posted_date": "cp_post_dt",
     "skill": "skill",
     "grade": "grade",
@@ -164,7 +215,7 @@ sort_dict = {
     "bidder_language": "language_txt",
     "bidder_ted": "TED",
     "bidder_name": "full_name",
-    "bidder_bid_submitted_date": "bid_submit_date",
+    "bidder_bid_submitted_date": "ubw_submit_dt",
     # Agenda Employees Search
     "agenda_employee_fullname": "tmperperfullname",
     "agenda_employee_id": "tmperpertexternalid",
@@ -173,7 +224,6 @@ sort_dict = {
     # Agenda Item History
     "agenda_id": "aiseqnum",
     "agenda_status": "aisdesctext",
-    # End Todo
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
 }
@@ -436,6 +486,17 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             posteddate = "None listed"
 
+
+        if record["position"]["post"]["differential_rate"] is not None:
+            formattedDifferential = record["position"]["post"]["differential_rate"]
+        else:
+            formattedDifferential = 0
+
+        if record["position"]["post"]["danger_pay"] is not None:
+            formattedDanger = record["position"]["post"]["danger_pay"]
+        else:
+            formattedDanger = 0
+
         row = []
         row.append(smart_str(record["position"]["title"]))
         if tandem:
@@ -452,8 +513,8 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         row.append(mapBool[pydash.get(record, "isDifficultToStaff")])
         if ap:
             row.append(mapBool[pydash.get(record, "isHardToFill")])
-        row.append(smart_str(record["position"]["post"]["differential_rate"]))
-        row.append(smart_str(record["position"]["post"]["danger_pay"]))
+        row.append(formattedDifferential)
+        row.append(formattedDanger)
         row.append(ted)
         row.append(smart_str(record["position"]["current_assignment"]["user"]))
         if not ap:
@@ -482,6 +543,7 @@ def get_bids_csv(data, filename, jwt_token):
 
     # write the headers
     headers = []
+    headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Position"))
     headers.append(smart_str(u"Position Number"))
     headers.append(smart_str(u"Skill"))
@@ -493,14 +555,12 @@ def get_bids_csv(data, filename, jwt_token):
     headers.append(smart_str(u"Languages"))
     headers.append(smart_str(u"Service Need Differential"))
     headers.append(smart_str(u"Hard to Fill"))
-    headers.append(smart_str(u"Handshake Offered"))
     headers.append(smart_str(u"Difficult to Staff"))
     headers.append(smart_str(u"Post Differential"))
     headers.append(smart_str(u"Danger Pay"))
     headers.append(smart_str(u"TED"))
     headers.append(smart_str(u"Incumbent"))
     headers.append(smart_str(u"Bid Cycle"))
-    headers.append(smart_str(u"Bid Status"))
     headers.append(smart_str(u"Handshake Status"))
     headers.append(smart_str(u"Bid Updated by CDO"))
     headers.append(smart_str(u"Bid Count"))
@@ -508,14 +568,39 @@ def get_bids_csv(data, filename, jwt_token):
 
     writer.writerow(headers)
 
+    bid_status = {
+        "approved": "Approved",
+        "closed": "Closed",
+        "draft": "Draft",
+        "handshake_accepted": "Handshake Accepted",
+        "handshake_needs_registered": "Handshake Needs Registered",
+        "handshake_with_another_bidder": "Handshake Registered With Another Bidder",
+        "in_panel": "In Panel",
+        "submitted": "Submitted",
+    }
+
+    bid_status_list = [ 
+        "handshake_needs_registered",
+        "submitted",
+    ]
+
     for record in data:
         if pydash.get(record, 'position_info') is not None:
             try:
                 ted = smart_str(maya.parse(pydash.get(record, 'position_info.ted')).datetime().strftime('%m/%d/%Y'))
             except:
                 ted = "None listed"
+
+            hs_offered = mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')]
+            status = pydash.get(record, "status") or 'N/A'
+            hs_offered_bid_status = status
+
+            if hs_offered == "Yes" and status in bid_status_list:
+                hs_offered_bid_status = "handshake_with_another_bidder"
+            
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
+            row.append(pydash.get(bid_status, hs_offered_bid_status) or 'N/A')
             row.append(smart_str(pydash.get(record, 'position_info.position.title')))
             row.append(smart_str("=\"%s\"" % pydash.get(record, 'position_info.position.position_number')))
             row.append(smart_str(pydash.get(record, 'position_info.position.skill')))
@@ -527,17 +612,12 @@ def get_bids_csv(data, filename, jwt_token):
             row.append(smart_str(parseLanguagesString(pydash.get(record, 'position_info.position.languages'))))
             row.append(mapBool[pydash.get(record, 'position_info.isServiceNeedDifferential')])
             row.append(mapBool[pydash.get(record, 'position_info.isHardToFill')])
-            row.append(mapBool[pydash.get(record, 'position_info.bid_statistics[0].has_handshake_offered')])
             row.append(mapBool[pydash.get(record, 'position_info.isDifficultToStaff')])
             row.append(smart_str(pydash.get(record, 'position_info.position.post.differential_rate')))
             row.append(smart_str(pydash.get(record, 'position_info.position.post.danger_pay')))
             row.append(ted)
             row.append(smart_str(pydash.get(record, 'position_info.position.current_assignment.user')))
             row.append(smart_str(pydash.get(record, 'position_info.bidcycle.name')))
-            if pydash.get(record, "status") == "handshake_accepted":
-                row.append(smart_str("handshake_registered"))
-            else:
-                row.append(smart_str(pydash.get(record, "status") or 'N/A'))
             row.append(hs_status)
             row.append(mapBool[pydash.get(record, "handshake.hs_cdo_indicator", 'default')])
             row.append(get_bid_stats_for_csv(pydash.get(record, 'position_info')))
@@ -742,14 +822,15 @@ def convert_to_fsbid_ql(filters):
 
 
 def categorize_remark(remark = ''):
-    obj = { 'title': remark, 'type': None }
+    obj = { 'text': remark, 'type': None }
     if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
         obj['type'] = 'person'
     return obj
 
 
-def parse_agenda_remarks(remarks_string = ''):
+def parse_agenda_remarks(remarks_string = '', remarks_data={}):
     remarks = remarks_string
+    ai_remarks = pydash.get(remarks_data, 'results')
     if pydash.starts_with(remarks, 'Remarks:'):
         remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
     # split by semi colon
@@ -759,10 +840,19 @@ def parse_agenda_remarks(remarks_string = ''):
     # remove nulls or empty spaces
     values = pydash.filter_(values, lambda o: o and o != ' ')
     values = pydash.map_(values, categorize_remark)
-    return values
+
+    remarks_values = []
+    for value in values:
+        if pydash.find(ai_remarks, {'text': value['text']}):
+            remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
+        if value['type'] == 'person':
+            remarks_values.append(value)
+    
+    return remarks_values
 
 
 def get_aih_csv(data, filename):
+    filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -825,5 +915,5 @@ def map_return_template_cols(cols, cols_mapping, data):
     # cols: an array of strs of the TM data names to map and return
     # cols_mapping: dict to map from TM names(key) to WS names(value)
     props_to_map = pydash.pick(cols_mapping, *cols)
-    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1], None)), props_to_map.items())
+    mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1]).strip() if type(pydash.get(data, x[1])) == str else pydash.get(data, x[1])), props_to_map.items())
     return dict(mapped_tuples)

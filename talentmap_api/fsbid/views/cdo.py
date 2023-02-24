@@ -17,6 +17,8 @@ import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
 import talentmap_api.fsbid.services.classifications as classifications_services
 
+from rest_condition import Or
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,7 +42,7 @@ class FSBidCDOView(BaseView):
 
 class FSBidListView(BaseView):
 
-    permission_classes = (IsAuthenticated, isDjangoGroupMember('cdo'),)
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
 
     def get(self, request, client_id):
         '''

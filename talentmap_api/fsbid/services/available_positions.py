@@ -19,7 +19,7 @@ CP_API_V2_URL = settings.CP_API_V2_URL
 
 def get_available_position(id, jwt_token):
     '''
-    Gets an indivdual available position by id
+    Gets an individual available position by id
     '''
 
     args = {
@@ -43,7 +43,7 @@ def get_available_position(id, jwt_token):
 
 def get_unavailable_position(id, jwt_token):
     '''
-    Gets an indivdual unavailable position by id
+    Gets an individual unavailable position by id
     '''
     ua_pos = services.send_get_request(
         "availablePositions",
@@ -60,7 +60,7 @@ def get_unavailable_position(id, jwt_token):
 
 def get_all_position(id, jwt_token):
     '''
-    Gets an indivdual cycle position by id
+    Gets an individual cycle position by id
     '''
 
     args = {
