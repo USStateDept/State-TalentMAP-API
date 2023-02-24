@@ -65,10 +65,10 @@ def assignment_history_to_client_format(data):
                         "position_id": x['position_id'],
                         "title": pos.get("postitledesc", None),
                         "post": {
-                            "code": loc.get("locgvtgeoloccd", None),
-                            "post_overview_url": get_post_overview_url(loc.get("locgvtgeoloccd", None)),
-                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("locgvtgeoloccd", None)),
-                            "obc_id": get_obc_id(loc.get("locgvtgeoloccd", None)),
+                            "code": loc.get("locgvtgeoloccd") or None,
+                            "post_overview_url": get_post_overview_url(loc.get("locgvtgeoloccd") or None),
+                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("locgvtgeoloccd") or None),
+                            "obc_id": get_obc_id(loc.get("locgvtgeoloccd") or None),
                             "location": {
                                 "country": loc.get("loccountry", None),
                                 "code": loc.get("locgvtgeoloccd", None),
