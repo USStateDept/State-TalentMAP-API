@@ -44,7 +44,7 @@ def assignment_history_to_client_format(data):
     if type(assignmentsCopy) is type([]):
         for x in assignmentsCopy:
             pos = pydash.get(x, 'position[0]') or {}
-            loc = pos.get('location', {})
+            loc = pydash.get(pos, 'location[0]') or {}
             tmap_assignments.append(
                 {
                     "id": x['id'],
@@ -55,25 +55,25 @@ def assignment_history_to_client_format(data):
                     "asgd_tod_desc_text": x['asgd_tod_desc_text'],
                     "asgd_revision_num": x['asgd_revision_num'],
                     "position": {
-                        "grade": pos.get("posgradecode", None),
-                        "skill": f"{pos.get('pos_skill_desc', None)} ({pos.get('pos_skill_code')})",
-                        "skill_code": pos.get("pos_skill_code", None),
-                        "bureau": f"({pos.get('pos_bureau_short_desc', None)}) {pos.get('pos_bureau_long_desc', None)}",
+                        "grade": pos.get("posgradecode") or None,
+                        "skill": f"{pos.get('posskilldesc') or None} ({pos.get('posskillcode')})",
+                        "skill_code": pos.get("posskillcode") or None,
+                        "bureau": f"({pos.get('pos_bureau_short_desc') or None}) {pos.get('pos_bureau_long_desc') or None}",
                         "bureau_code": pydash.get(pos, 'bureau.bureau_short_desc'), # only comes through for available bidders
-                        "organization": pos.get('posorgshortdesc', None),
-                        "position_number": pos.get('posnumtext', None),
+                        "organization": pos.get('posorgshortdesc') or None,
+                        "position_number": pos.get('posnumtext') or None,
                         "position_id": x['position_id'],
-                        "title": pos.get("postitledesc", None),
+                        "title": pos.get("postitledesc") or None,
                         "post": {
-                            "code": loc.get("gvt_geoloc_cd", None),
-                            "post_overview_url": get_post_overview_url(loc.get("gvt_geoloc_cd", None)),
-                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("gvt_geoloc_cd", None)),
-                            "obc_id": get_obc_id(loc.get("gvt_geoloc_cd", None)),
+                            "code": loc.get("locgvtgeoloccd") or None,
+                            "post_overview_url": get_post_overview_url(loc.get("locgvtgeoloccd")),
+                            "post_bidding_considerations_url": get_post_bidding_considerations_url(loc.get("locgvtgeoloccd")),
+                            "obc_id": get_obc_id(loc.get("locgvtgeoloccd")),
                             "location": {
-                                "country": loc.get("country", None),
-                                "code": loc.get("gvt_geoloc_cd", None),
-                                "city": loc.get("city", None),
-                                "state": loc.get("state", None),
+                                "country": loc.get("loccountry") or None,
+                                "code": loc.get("locgvtgeoloccd") or None,
+                                "city": loc.get("loccity") or None,
+                                "state": loc.get("locstate") or None,
                             }
                         },
                         "language": pos.get("pos_position_lang_prof_desc", None),
