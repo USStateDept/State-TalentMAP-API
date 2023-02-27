@@ -116,6 +116,6 @@ class PanelMeetingsCSVView(BaseView):
 
     def get(self, request):
         '''
-        Exports a list of all of a CDO's Panel Meetings to CSV format
+        Exports all Panel Meetings to CSV format
         '''
         return services.get_panel_meetings_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
