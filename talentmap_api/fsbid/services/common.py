@@ -15,7 +15,6 @@ from django.http import QueryDict
 
 import maya
 import pydash
-import time
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -940,3 +939,37 @@ def if_str_upper(x):
         return x.upper()
 
     return x
+
+# *keywords
+# mapping = {
+#   'default'*: 'None', <-default value for all values (required)
+#   'wskeys'* : {
+#             'pmsdesctext': { <- the ws key you want to pull a value from
+#                 'default'*: 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
+#                 'transformFn'*: fn <- a function you want to run on the value (optional)
+#             },
+#             'micdesctext': {},
+#         }
+# }
+def csv_fsbid_template_to_tm(data, mapping):
+    '''
+    Get row for csv ready for write.
+    You'll still need to set up the csv headers outside this function.
+    The return from this mapping can be written to csv with
+        writer.writerows(data)
+    '''
+    row = []
+
+    for x in mapping['wskeys'].keys():
+        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+
+        if 'transformFn' in mapping['wskeys'][x]:
+            mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
+            if type(mapped) is list:
+                row.extend(mapped)
+            else:
+                row.append(smart_str(mapped))
+        else:
+            row.append(smart_str(pydash.get(data, x) or default))
+
+    return row
