@@ -211,12 +211,30 @@ def get_panel_meetings(query, jwt_token):
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
         "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
-        "count_function": None,
+        "count_function": get_panel_meetings_count,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
     }
 
-    return services.send_get_request(**args)
+    response = services.send_get_request(**args)
+    return response
+
+
+def get_panel_meetings_count(query, jwt_token, host=None, use_post=False):
+    '''
+    Get total number of panel meetings for panel meeting search
+    '''
+    args = {
+        "uri": "",
+        "query": query,
+        "query_mapping_function": convert_panel_query,
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+        "is_template": True,
+        "api_root": PANEL_API_ROOT,
+    }
+    return services.send_count_request(**args)
 
 def convert_panel_query(query={}):
     '''
@@ -233,6 +251,10 @@ def convert_panel_query(query={}):
             {'col': 'pmseqnum', 'val': query.get('id')},
         ]),
     }
+    if query.get("getCount") == 'true':
+        values["rp.pageNum"] = 0
+        values["rp.pageRows"] = 0
+        values["rp.columns"] = "ROWCOUNT"
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
