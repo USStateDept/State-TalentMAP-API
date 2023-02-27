@@ -248,9 +248,19 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
 
+    # print('===data===')
+    # print(pydash.get(data, "remarks[0].airremarktext")) or None
+    remarksStringToParse = ""
+    for remark in pydash.get(data, "remarks"):
+        remarksStringToParse += "{0};".format(remark['airremarktext'])
+
+    print('===remarksStringToParse===')
+    print(remarksStringToParse)
+
     return {
         "id": data.get("aiseqnum", None),
-        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
+        # "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
+        "remarks": services.parse_agenda_remarks(remarksStringToParse, remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
         "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,

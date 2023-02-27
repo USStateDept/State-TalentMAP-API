@@ -834,6 +834,8 @@ def categorize_remark(remark = ''):
 
 def parse_agenda_remarks(remarks_string = '', remarks_data={}):
     remarks = remarks_string
+    print('===remarks_string===')
+    print(remarks)
     ai_remarks = pydash.get(remarks_data, 'results')
     if pydash.starts_with(remarks, 'Remarks:'):
         remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
@@ -849,6 +851,9 @@ def parse_agenda_remarks(remarks_string = '', remarks_data={}):
     for value in values:
         if pydash.find(ai_remarks, {'text': value['text']}):
             remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
+
+    print('===remarks_values===')
+    print(remarks_values)
     
     return remarks_values
 
