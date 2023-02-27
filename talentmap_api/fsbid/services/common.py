@@ -966,7 +966,7 @@ def csv_fsbid_template_to_tm(data, mapping):
         if 'transformFn' in mapping['wskeys'][x]:
             mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
             if type(mapped) is list:
-                row = row + mapped
+                row.extend(mapped)
             else:
                 row.append(smart_str(mapped))
         else:
