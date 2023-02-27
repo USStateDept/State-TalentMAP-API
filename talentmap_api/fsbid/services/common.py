@@ -990,6 +990,6 @@ def panel_process_dates_csv(dates):
 
     for date in dates:
         if date['mdtcode'] in columnOrdering.keys():
-            columnOrdering.update({date['mdtcode']: smart_str(maya.parse(date['pmddttm']).datetime(to_timezone='US/Eastern', naive=True).strftime('%m/%d/%Y %H:%M'))})
+            columnOrdering.update({date['mdtcode']: smart_str(maya.parse(pydash.get(date, 'pmddttm') or None).datetime(to_timezone='US/Eastern', naive=True).strftime('%m/%d/%Y %H:%M'))})
 
     return list(columnOrdering.values())
