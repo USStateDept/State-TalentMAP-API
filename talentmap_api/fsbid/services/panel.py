@@ -245,12 +245,6 @@ def convert_panel_query(query={}):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
-    from talentmap_api.fsbid.services.cdo import cdo
-    
-    try:
-        cdos = list(cdo(jwt_token))
-    except:
-        cdos = []
     csvQuery = deepcopy(query)
     csvQuery['page'] = 1
     csvQuery['limit'] = 2000
