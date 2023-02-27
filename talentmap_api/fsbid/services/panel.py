@@ -216,8 +216,7 @@ def get_panel_meetings(query, jwt_token):
         "api_root": PANEL_API_ROOT,
     }
 
-    response = services.send_get_request(**args)
-    return response
+    return services.send_get_request(**args)
 
 
 def get_panel_meetings_count(query, jwt_token, host=None, use_post=False):
