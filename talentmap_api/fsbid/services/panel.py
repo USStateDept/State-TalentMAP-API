@@ -268,7 +268,7 @@ def convert_panel_query(query={}):
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     csvQuery = deepcopy(query)
     csvQuery['page'] = 1
-    csvQuery['limit'] = 2000
+    csvQuery['limit'] = 1000
 
     mapping_subset = {
         'default': 'None Listed',
