@@ -252,10 +252,8 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     mapping_subset = {
         'default': 'None Listed',
         'wskeys': {
-            'pmtdesctext': {
-            },
-            'pmsdesctext': {
-            },
+            'pmtdesctext': {},
+            'pmsdesctext': {},
             'panelMeetingDates': {
                 'transformFn': services.panel_process_dates_csv,
             },
@@ -277,7 +275,7 @@ def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
     data = services.send_get_request(**args)
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f"attachment; filename=panel_meetings{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+    response['Content-Disposition'] = f"attachment; filename=panel_meetings_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
     writer = csv.writer(response, csv.excel)
     response.write(u'\ufeff'.encode('utf8'))
