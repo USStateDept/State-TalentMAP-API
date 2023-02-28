@@ -15,7 +15,6 @@ from django.http import QueryDict
 
 import maya
 import pydash
-import time
 
 from talentmap_api.organization.models import Obc
 from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
@@ -966,7 +965,7 @@ def csv_fsbid_template_to_tm(data, mapping):
         if 'transformFn' in mapping['wskeys'][x]:
             mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
             if type(mapped) is list:
-                row = row + mapped
+                row.extend(mapped)
             else:
                 row.append(smart_str(mapped))
         else:
@@ -996,3 +995,4 @@ def panel_process_dates_csv(dates):
                 columnOrdering.update({date['mdtcode']: 'None Listed'})
 
     return list(columnOrdering.values())
+
