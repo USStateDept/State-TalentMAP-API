@@ -940,13 +940,12 @@ def if_str_upper(x):
 
     return x
 
-# *keywords
 # mapping = {
-#   'default'*: 'None', <-default value for all values (required)
-#   'wskeys'* : {
+#   'default': 'None', <-default value for all values (required)
+#   'wskeys': {
 #             'pmsdesctext': { <- the ws key you want to pull a value from
-#                 'default'*: 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
-#                 'transformFn'*: fn <- a function you want to run on the value (optional)
+#                 'default': 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
+#                 'transformFn': fn <- a function you want to run on the value (optional)
 #             },
 #             'micdesctext': {},
 #         }
@@ -973,3 +972,27 @@ def csv_fsbid_template_to_tm(data, mapping):
             row.append(smart_str(pydash.get(data, x) or default))
 
     return row
+
+# Panel Helper Functions
+
+def panel_process_dates_csv(dates):
+    columnOrdering = {
+        'MEET': 'None Listed',
+        'CUT': 'None Listed',
+        'ADD': 'None Listed',
+        'OFF': 'None Listed',
+        'OFFA': 'None Listed',
+        'POSS': 'None Listed',
+        'POST': 'None Listed',
+        'COMP': 'None Listed'
+    }
+
+    for date in dates:
+        if date['mdtcode'] in columnOrdering.keys():
+            try:
+                columnOrdering.update({date['mdtcode']: smart_str(maya.parse(pydash.get(date, 'pmddttm') or None).datetime(to_timezone='US/Eastern', naive=True).strftime('%m/%d/%Y %H:%M'))})
+            except:
+                columnOrdering.update({date['mdtcode']: 'None Listed'})
+
+    return list(columnOrdering.values())
+
