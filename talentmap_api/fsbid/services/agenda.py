@@ -260,7 +260,8 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     return {
         "id": pydash.get(data, "aiseqnum") or None,
         "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
-        "remarks": services.parse_agenda_remarks(pydash.get(data, "aicombinedremarktext") or "", remarks),
+        # "remarks": services.parse_agenda_remarks(pydash.get(data, "aicombinedremarktext") or "", remarks),
+        "remarks": services.parse_agenda_remarks(pydash.get(data, "remarks") or "", remarks),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm"), utc_offset=-5),
         "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
