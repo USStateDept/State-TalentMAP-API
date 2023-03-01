@@ -211,7 +211,7 @@ def convert_agenda_item_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt, remarks={}):
+def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None, remarks={}):
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -250,7 +250,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt, remarks=
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
         
     perdet = pydash.get(data,"aiperdetseqnum") or None
-    user = client_services.single_client(jwt, perdet)
+    user = client_services.single_client(jwt, perdet) if jwt else {}
 
     return {
         "id": pydash.get(data, "aiseqnum") or None,
