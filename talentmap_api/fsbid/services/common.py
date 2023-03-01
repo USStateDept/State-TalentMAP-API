@@ -832,120 +832,28 @@ def categorize_remark(remark = ''):
     return obj
 
 
-def parse_agenda_remarks(remarks = []):
+def parse_agenda_remarks(remarksRefData, remarks = []):
+    ai_remarks = pydash.get(remarksRefData, 'results')
+    remarks_values = []
+    for remark in remarks:
+        remarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
 
-    # new remarks!!
-    # remarks: [
-    #       {
-    #               "airaiseqnum": 651,
-    #               "airrmrkseqnum": 48,
-    #               "remarkInserts": [
-    #        {
-    #                   "airiinsertiontext": " 09/29/04",
-    #                   "airiaiseqnum": 651,
-    #                   "airirmrkseqnum": 48,
-    #                   "aiririseqnum": 12,
-    #                   "airicreateid": 5749,
-    #                   "airicreatedate": "2004-09-30T14:15:14",
-    #                   "airiupdateid": 5749,
-    #                   "airiupdatedate": "2004-10-12T13:09:25"
-    #                 }
-    #               ],
-    #               "remarkRefData": [
-    #                 {
-    #                   "rmrkseqnum": 48,
-    #                   "rmrkrccode": "P",
-    #                   "rmrkordernum": 11,
-    #                   "rmrkshortdesctext": "Senior cede",
-    #                   "rmrkmutuallyexclusiveind": "N",
-    #                   "rmrktext": "Senior Cede Granted on {date}",
-    #                   "rmrkactiveind": "Y"
-    #                 }
-    #               ]
-    #             }
-    #     ],
+        if pydash.find(ai_remarks, {'text': remarkText}):
+            remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
+        else:
+            continue
 
-    # remarks = remarks_string
-    # print('===remarks_string===')
-    # print(remarks)
-    # ai_remarks = pydash.get(remarks_data, 'results')
-    # # if pydash.starts_with(remarks, 'Remarks:'):
-    # #     remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
-    # # split by semi colon
-    # # values = remarks.split(';')
-    # # # remove Nmn (no middle name) from Creator and CDO
-    # # values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
-    # # remove nulls or empty spaces
-    # values = ""
-    # for remark in remarks:
-    #     values += remark['airremarktext']
-    # values = pydash.filter_(values, lambda o: o and o != ' ')
-    # values = pydash.map_(values, categorize_remark)
+        remarkSplit = remarkText.split()
+        regNum = 0
+        i = 0
 
-    # remarks_values = []
-    # for value in values:
-    #     if pydash.find(ai_remarks, {'text': value['text']}):
-    #         remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
+        for text in remarkSplit:
+            if re.match("{.*}", text):
+                remarkSplit[i] = remark['remarkInserts'][regNum]['airiinsertiontext']
+                regNum += 1
+            i += 1
+        remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
 
-    # print('===remarks_values===')
-    # print(remarks_values)
-
-
-#   old return from this function
-#     [
-#    {
-#       "text":"Reassignment at post",
-#       "type":"None",
-#       "seq_num":291,
-#       "rc_code":"M",
-#       "order_num":17,
-#       "short_desc_text":"reassign at post",
-#       "mutually_exclusive_ind":"N",
-#       "active_ind":"Y",
-#       "remark_inserts":[
-         
-#       ]
-#    },
-#    {
-#       "text":"SND Post",
-#       "type":"None",
-#       "seq_num":294,
-#       "rc_code":"N",
-#       "order_num":1,
-#       "short_desc_text":"SND Post",
-#       "mutually_exclusive_ind":"N",
-#       "active_ind":"Y",
-#       "remark_inserts":[
-         
-#       ]
-#    },
-#    {
-#       "text":"Continues SND eligibility",
-#       "type":"None",
-#       "seq_num":160,
-#       "rc_code":"N",
-#       "order_num":4,
-#       "short_desc_text":"snd continues",
-#       "mutually_exclusive_ind":"N",
-#       "active_ind":"Y",
-#       "remark_inserts":[
-         
-#       ]
-#    },
-#    {
-#       "text":"Creator(s):Townpost, Jenny",
-#       "type":"person"
-#    },
-#    {
-#       "text":"Modifier(s):WoodwardWA",
-#       "type":"person"
-#    },
-#    {
-#       "text":"CDO: Rehman, Tarek S",
-#       "type":"person"
-#    }
-# ]
-    
     return remarks_values
 
 
