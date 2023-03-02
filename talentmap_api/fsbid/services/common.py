@@ -835,24 +835,25 @@ def categorize_remark(remark = ''):
 def parse_agenda_remarks(remarksRefData, remarks = []):
     ai_remarks = pydash.get(remarksRefData, 'results')
     remarks_values = []
-    for remark in remarks:
-        remarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
+    if (remarks):
+        for remark in remarks:
+            remarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
 
-        if pydash.find(ai_remarks, {'text': remarkText}):
-            remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
-        else:
-            continue
+            if pydash.find(ai_remarks, {'text': remarkText}):
+                remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
+            else:
+                continue
 
-        remarkSplit = remarkText.split()
-        regNum = 0
-        i = 0
+            remarkSplit = remarkText.split()
+            regNum = 0
+            i = 0
 
-        for text in remarkSplit:
-            if re.match("{.*}", text):
-                remarkSplit[i] = remark['remarkInserts'][regNum]['airiinsertiontext']
-                regNum += 1
-            i += 1
-        remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
+            for text in remarkSplit:
+                if re.match("{.*}", text):
+                    remarkSplit[i] = remark['remarkInserts'][regNum]['airiinsertiontext']
+                    regNum += 1
+                i += 1
+            remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
 
     return remarks_values
 
