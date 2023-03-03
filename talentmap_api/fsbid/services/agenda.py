@@ -21,12 +21,14 @@ def get_single_agenda_item(jwt_token=None, pk=None):
     '''
     Get single agenda item
     '''
+    remarks = get_agenda_ref_remarks({}, jwt_token)
+
     args = {
         "uri": "",
         "query": {'aiseqnum': pk},
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "count_function": None,
         "base_url": "/api/v1/fsbid/agenda/",
         "api_root": AGENDA_API_ROOT,
@@ -44,7 +46,8 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
     Get agenda items
     '''
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
-    remarks = get_agenda_remarks({}, jwt_token)
+    remarks = get_agenda_ref_remarks({}, jwt_token)
+
     args = {
         "uri": "",
         "query": query,
@@ -153,12 +156,14 @@ def create_agenda_item_leg(data, query, jwt_token):
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
+    remarks = get_agenda_ref_remarks({}, jwt_token)
+
     args = {
         "uri": "",
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
         "host": host,
         "use_post": False,
         "base_url": AGENDA_API_ROOT,
@@ -512,9 +517,9 @@ def fsbid_to_talentmap_agenda_statuses(data):
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
 
-def get_agenda_remarks(query, jwt_token):
+def get_agenda_ref_remarks(query, jwt_token):
     '''
-    Get agenda remarks
+    Get agenda reference remarks
     '''
     args = {
         "uri": "references/remarks",
@@ -642,7 +647,7 @@ def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas for panel meeting
     '''
-    remarks = get_agenda_remarks({}, jwt_token)
+    remarks = get_agenda_ref_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {

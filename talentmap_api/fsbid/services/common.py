@@ -853,6 +853,9 @@ def parse_agenda_remarks(remarksRefData, remarks = []):
                     regNum += 1
                 i += 1
             remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
+    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
+    print(remarks_values)
+    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
 
     return remarks_values
 
