@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import QueryDict
 
 from talentmap_api.fsbid.services import common as services
+from talentmap_api.fsbid.services import client as client_services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
@@ -210,7 +211,7 @@ def convert_agenda_item_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
+def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None, remarks={}):
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -247,6 +248,9 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     creators = pydash.get(data, "creators") or None
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
+        
+    perdet = pydash.get(data,"aiperdetseqnum") or None
+    user = client_services.single_client(jwt, perdet) if jwt else {}
 
     return {
         "id": pydash.get(data, "aiseqnum") or None,
@@ -267,6 +271,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
         "creator_name": pydash.get(data,"aiitemcreatorid") or None,  # TODO - this is only the id
         "creators": creators,
         "updaters": updaters,
+        "user": user,
     }
 
 
@@ -647,7 +652,7 @@ def get_agendas_by_panel(pk, jwt_token):
         },
         "query_mapping_function": None,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
+        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, jwt=jwt_token, remarks=remarks),
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,

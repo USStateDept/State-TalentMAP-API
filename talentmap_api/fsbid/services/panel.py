@@ -2,6 +2,12 @@ import logging
 from urllib.parse import urlencode, quote
 from functools import partial
 import pydash
+import csv
+import jwt
+from copy import deepcopy
+from django.http import HttpResponse
+from datetime import datetime
+from django.utils.encoding import smart_str
 
 from django.conf import settings
 
@@ -211,12 +217,29 @@ def get_panel_meetings(query, jwt_token):
         "query_mapping_function": convert_panel_query,
         "jwt_token": jwt_token,
         "mapping_function": partial(services.map_fsbid_template_to_tm, mapping=mapping_subset),
-        "count_function": None,
+        "count_function": get_panel_meetings_count,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
     }
 
     return services.send_get_request(**args)
+
+
+def get_panel_meetings_count(query, jwt_token, host=None, use_post=False):
+    '''
+    Get total number of panel meetings for panel meeting search
+    '''
+    args = {
+        "uri": "",
+        "query": query,
+        "query_mapping_function": convert_panel_query,
+        "jwt_token": jwt_token,
+        "host": host,
+        "use_post": use_post,
+        "is_template": True,
+        "api_root": PANEL_API_ROOT,
+    }
+    return services.send_count_request(**args)
 
 def convert_panel_query(query={}):
     '''
@@ -233,7 +256,65 @@ def convert_panel_query(query={}):
             {'col': 'pmseqnum', 'val': query.get('id')},
         ]),
     }
+    if query.get("getCount") == 'true':
+        values["rp.pageNum"] = 0
+        values["rp.pageRows"] = 0
+        values["rp.columns"] = "ROWCOUNT"
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
+    csvQuery = deepcopy(query)
+    csvQuery['page'] = 1
+    csvQuery['limit'] = 1000
+
+    mapping_subset = {
+        'default': 'None Listed',
+        'wskeys': {
+            'pmtdesctext': {},
+            'pmsdesctext': {},
+            'panelMeetingDates': {
+                'transformFn': services.panel_process_dates_csv,
+            },
+        }
+    }
+    args = {
+        "uri": "",
+        "query": csvQuery,
+        "query_mapping_function": convert_panel_query,
+        "count_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(services.csv_fsbid_template_to_tm, mapping=mapping_subset),
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+        "host": host,
+        "use_post": False,
+    }
+
+    data = services.send_get_request(**args)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename=panel_meetings_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    # write the headers
+    writer.writerow([
+        smart_str(u"Meeting Type"),
+        smart_str(u"Meeting Status"),
+        smart_str(u"Panel Meeting Date"),
+        smart_str(u"Preliminary Cutoff"),
+        smart_str(u"Addendum Cutoff"),
+        smart_str(u"Preliminary Run Time"),
+        smart_str(u"Addendum Run Time"),
+        smart_str(u"Post Panel Started"),
+        smart_str(u"Post Panel Run Time"),
+        smart_str(u"Agenda Completed Time"),
+    ])
+
+    writer.writerows(data['results'])
+
+    return response

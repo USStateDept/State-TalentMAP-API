@@ -16,6 +16,20 @@ import talentmap_api.fsbid.services.panel as services
 
 logger = logging.getLogger(__name__)
 
+base_parameters = [
+    # Pagination
+    openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Ordering'),
+    openapi.Parameter("q", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Free Text'),
+    openapi.Parameter("current-bureaus", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Current bureaus, comma separated'),
+    openapi.Parameter("handshake-bureaus", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake bureaus, comma separated'),
+    openapi.Parameter("current-organizations", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Current organizations, comma separated'),
+    openapi.Parameter("handshake-organizations", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake organizations, comma separated'),
+    openapi.Parameter("ted-start", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TED start date'),
+    openapi.Parameter("ted-end", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='TED end date'),
+    openapi.Parameter("cdo", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='CDO codes, comma separated'),
+    openapi.Parameter("handshake", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Handshake codes, comma separated (Y, N)'),
+]
+
 class PanelCategoriesView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
 
@@ -94,3 +108,14 @@ class PanelMeetingsView(BaseView):
         Gets panel meetings
         '''
         return Response(services.get_panel_meetings(request.query_params, request.META['HTTP_JWT']))
+
+class PanelMeetingsCSVView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
+
+    @swagger_auto_schema(manual_parameters=base_parameters)
+
+    def get(self, request):
+        '''
+        Exports all Panel Meetings to CSV format
+        '''
+        return services.get_panel_meetings_csv(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
