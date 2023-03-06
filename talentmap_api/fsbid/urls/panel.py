@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^meetings/export/$', views.PanelMeetingsCSVView.as_view(), name="panel-meetings-export"),
     url(r'^meetings/', views.PanelMeetingsView.as_view(), name="panel-meetings-list"),
     url(r'^(?P<pk>[0-9]+)/agendas/', agenda_views.PanelAgendasListView.as_view(), name="panel-agendas-list"),
+    url(r'^(?P<pk>[0-9]+)/export/', agenda_views.PanelAgendasCSVView.as_view(), name="panel-agendas-export"),
+
 ]
 
 urlpatterns += router.urls

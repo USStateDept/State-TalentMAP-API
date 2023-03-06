@@ -149,3 +149,12 @@ class PanelAgendasListView(BaseView):
         Get agendas for a panel meeting
         '''
         return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))
+
+class PanelAgendasCSVView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
+
+    def get(self, request, pk):
+        '''
+        Get agendas for a panel meeting
+        '''
+        return services.get_agendas_by_panel_export(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
