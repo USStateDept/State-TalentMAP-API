@@ -166,7 +166,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
         CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
         CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'))
         return CLIENT
-    except:
+    except IndexError:
         pass
 
 
