@@ -159,12 +159,15 @@ def single_client(jwt_token, perdet_seq_num, host=None):
     # TO-DO: Use v2/clients here to fill out this payload
     # WS Request: Add current and historical assignments to one endpoint
     user_info = get_user_information(jwt_token, perdet_seq_num)
-    CLIENT = list(responseAllAssignments['results'])[0]
-    CLIENT['cdo'] = cdo
-    CLIENT['user_info'] = user_info
-    CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
-    CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'))
-    return CLIENT
+    try:
+        CLIENT = list(responseAllAssignments['results'])[0]
+        CLIENT['cdo'] = cdo
+        CLIENT['user_info'] = user_info
+        CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
+        CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'))
+        return CLIENT
+    except:
+        pass
 
 
 def get_client_csv(query, jwt_token, rl_cd, host=None):
