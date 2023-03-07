@@ -3,6 +3,7 @@ from urllib.parse import urlencode, quote
 from functools import partial
 import pydash
 import csv
+import maya
 import jwt
 from copy import deepcopy
 from django.http import HttpResponse
@@ -210,6 +211,9 @@ def get_panel_meetings(query, jwt_token):
     ]
 
     mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
+    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
+    print(query)
+    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
 
     args = {
         "uri": "",
@@ -246,22 +250,43 @@ def convert_panel_query(query={}):
     Converts TalentMap query into FSBid query
     '''
 
-    values = {
-        'rp.pageNum': int(query.get('page', 1)),
-        'rp.pageRows': int(query.get('limit', 1000)),
-        'rp.orderBy': services.sorting_values(query.get('ordering', 'meeting_status')),
-        'rp.filter': services.convert_to_fsbid_ql([
+    panelDateStart = query.get("panel-date-start")
+    panelDateEnd = query.get("panel-date-end")
+
+    filters = [
             {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get('type')), 'com': 'IN'},
             {'col': 'pmscode', 'val': services.if_str_upper(query.get('status')), 'com': 'IN'},
             {'col': 'pmseqnum', 'val': query.get('id')},
-        ]),
+        ]
+
+    try:
+        if panelDateStart and panelDateEnd:
+            startVal = maya.parse(panelDateStart).datetime().strftime("%Y-%m-%d")
+            endVal = maya.parse(panelDateEnd).datetime().strftime("%Y-%m-%d")
+            filters.append({"col": "ELSA", "com": "GTEQ", "val": startVal, "isDate": True})
+            filters.append({"col": "ELSA", "com": "LTEQ", "val": endVal, "isDate": True})
+    except:
+        logger.info(f"Invalid date {panelDateStart} or {panelDateEnd} could not be parsed.")
+
+
+
+    values = {
+        'rp.pageNum': int(query.get('page', 1)),
+        'rp.pageRows': int(query.get('limit', 1000)),
+        'rp.orderBy': services.sorting_values(query.get('ordering', 'panel_date')),
+        'rp.filter': services.convert_to_fsbid_ql(filters),
     }
+
     if query.get("getCount") == 'true':
         values["rp.pageNum"] = 0
         values["rp.pageRows"] = 0
         values["rp.columns"] = "ROWCOUNT"
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
+    print(valuesToReturn)
+    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 

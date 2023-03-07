@@ -229,6 +229,7 @@ sort_dict = {
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
     "meeting_status": "pmpmscode",
+    "panel_date": "ELSA",
 }
 
 
