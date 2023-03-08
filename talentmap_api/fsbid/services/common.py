@@ -26,6 +26,7 @@ from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
 from talentmap_api.fsbid.services import employee as empservices
+from talentmap_api.fsbid.services import agenda as agendaservices
 from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
@@ -832,29 +833,61 @@ def categorize_remark(remark = ''):
 
 
 def parse_agenda_remarks(remarksRefData, remarks = []):
+    # can remove remarksRefData
     ai_remarks = pydash.get(remarksRefData, 'results')
     remarks_values = []
     if (remarks):
         for remark in remarks:
-            remarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
+            # print('remark: ', remark)
+            remarkInsertions = pydash.get(remark, 'remarkInserts')
+            refDataRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
+            print('refDataRemarkText before: ', refDataRemarkText)
+            # print('remarkInserts: ', remarkInsertions)
+            for insertion in remarkInsertions:
+                # print('insertion: ', insertion)
+                test = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
+                # print('===test find===')
+                # print('RemarkInserts: ', test)
+                # print('insertion aiririseqnum: ', insertion['aiririseqnum'])
+                matchText = pydash.find(test, {'riseqnum': insertion['aiririseqnum']})
+                # print('riinsertiontext: ', match['riinsertiontext'])
+                refDataRemarkText = refDataRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+            print('refDataRemarkText after: ', refDataRemarkText)
+            # print('rmrktext: ', remark['remarkRefData'][0]['rmrktext'])
+            remark['remarkRefData'][0]['rmrktext'] = refDataRemarkText
+            remarks_values.append(remark['remarkRefData'][0])
+            # print('remark after: ', remark)
+                # take insert.airiinsertiontext, find matching riseqnum in RemarkInserts, 
+                # match {} text found in previous match to full text of remarkRefData.rmrktext, replace
 
-            if pydash.find(ai_remarks, {'text': remarkText}):
-                remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
-            else:
-                continue
+            # remarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
 
-            remarkSplit = remarkText.split()
-            regNum = 0
-            i = 0
+            # if pydash.find(ai_remarks, {'text': remarkText}) and not remark['remarkInserts']:
+            #     remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
+            #     continue
+            # if pydash.find(ai_remarks, {'text': remarkText}):
+            #     remarks_values.append({**pydash.find(ai_remarks, {'text': remarkText})})
+            # else:
+            #     continue
 
-            for text in remarkSplit:
-                if re.match("{.*}", text):
-                    remarkSplit[i] = remark['remarkInserts'][regNum]['airiinsertiontext']
-                    regNum += 1
-                i += 1
-            remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
+            # remarkSplit = remarkText.split()
+            # # remarkSplit = re.findall('\{(.*?)\}', remarkText)
+            # regNum = 0
+            # i = 0
 
-    return remarks_values
+            # for text in remarkSplit:
+            #     if re.match("{.*}", text):
+            #         remarkSplit[i] = remark['remarkInserts'][i]['airiinsertiontext']
+            #         regNum += 1
+            #     i += 1
+            # remarks_values[len(remarks_values) - 1]['text'] = " ".join(remarkSplit)
+    # print(remarks_values)
+    tmRemarks = []
+    for fsbidRemark in remarks_values:
+        tmRemarks.append(agendaservices.fsbid_to_talentmap_agenda_remarks(fsbidRemark))
+    print(tmRemarks)
+
+    return tmRemarks
 
 
 def get_aih_csv(data, filename):

@@ -540,6 +540,8 @@ def get_agenda_ref_remarks(query, jwt_token):
 
 
 def fsbid_to_talentmap_agenda_remarks(data):
+    print('===data incoming to mapping func===')
+    print(data)
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
