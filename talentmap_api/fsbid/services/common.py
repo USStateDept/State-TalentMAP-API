@@ -847,11 +847,11 @@ def parse_agenda_remarks(remarks = []):
             remark['remarkRefData'][0]['rmrktext'] = refDataRemarkText
             remarks_values.append(remark['remarkRefData'][0])
 
-    tmRemarks = []
-    for fsbidRemark in remarks_values:
-        tmRemarks.append(agendaservices.fsbid_to_talentmap_agenda_remarks(fsbidRemark))
-
-    return tmRemarks
+        tmRemarks = []
+        for fsbidRemark in remarks_values:
+            tmRemarks.append(agendaservices.fsbid_to_talentmap_agenda_remarks(fsbidRemark))
+        return tmRemarks
+    return []
 
 
 def get_aih_csv(data, filename):
