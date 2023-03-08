@@ -670,15 +670,16 @@ def get_agendas_by_panel(pk, jwt_token):
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
-    print('agenda services pk: ', pk)
     '''
-    Get agendas for panel meeting
+    Get agendas for panel meeting export
     '''
     mapping_subset = {
         'default': 'None Listed',
         'wskeys': {
             'agendaAssignment[0].position[0].postitledesc': {},
-            'agendaAssignment[0].position[0].posnumtext': {},
+            'agendaAssignment[0].position[0].posnumtext': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
             'agendaAssignment[0].position[0].posorgshortdesc': {},
             'agendaAssignment[0].asgdetadate': {
                 'transformFn': services.process_dates_csv,
@@ -687,7 +688,9 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
                 'transformFn': services.process_dates_csv,
             },
             'agendaAssignment[0].asgdtoddesctext': {},
-            'agendaAssignment[0].position[0].posgradecode': {},
+            'agendaAssignment[0].position[0].posgradecode': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
             'Panel[0].pmddttm': {
                 'transformFn': services.process_dates_csv,
             },
