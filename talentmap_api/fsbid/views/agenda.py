@@ -155,6 +155,6 @@ class PanelAgendasCSVView(BaseView):
 
     def get(self, request, pk):
         '''
-        Get agendas for a panel meeting
+        Get agendas for a panel meeting for export
         '''
         return services.get_agendas_by_panel_export(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
