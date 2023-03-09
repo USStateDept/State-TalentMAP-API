@@ -974,7 +974,10 @@ def csv_fsbid_template_to_tm(data, mapping):
     return row
 
 def process_dates_csv(date):
-    return maya.parse(date).datetime().strftime('%m/%d/%Y')
+    if (date):
+        return maya.parse(date).datetime().strftime('%m/%d/%Y')
+    else:
+        return "None Listed"
 
 # Panel Helper Functions
 
