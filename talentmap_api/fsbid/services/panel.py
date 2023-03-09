@@ -262,14 +262,8 @@ def convert_panel_query(query={}):
             endVal = maya.parse(panelDateEnd).datetime().strftime("%Y-%m-%d")
             filters.append({"col": "pmddttm", "com": "GTEQ", "val": startVal, "isDate": True})
             filters.append({"col": "pmddttm", "com": "LTEQ", "val": endVal, "isDate": True})
-
-            # pmddttm | GTEQ | 2006 - 02 - 13 | YYYY - MM - DD
-            # pmddttm | LTEQ | 2010 - 02 - 24 | YYYY - MM - DD
-
     except:
         logger.info(f"Invalid date {panelDateStart} or {panelDateEnd} could not be parsed.")
-
-
 
     values = {
         'rp.pageNum': int(query.get('page', 1)),
@@ -284,10 +278,6 @@ def convert_panel_query(query={}):
         values["rp.columns"] = "ROWCOUNT"
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    # print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
-    # print(valuesToReturn)
-    # print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
