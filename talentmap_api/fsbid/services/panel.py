@@ -211,9 +211,6 @@ def get_panel_meetings(query, jwt_token):
     ]
 
     mapping_subset = pydash.pick(panel_cols_mapping, *expected_keys)
-    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
-    print(query)
-    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
 
     args = {
         "uri": "",
@@ -263,8 +260,12 @@ def convert_panel_query(query={}):
         if panelDateStart and panelDateEnd:
             startVal = maya.parse(panelDateStart).datetime().strftime("%Y-%m-%d")
             endVal = maya.parse(panelDateEnd).datetime().strftime("%Y-%m-%d")
-            filters.append({"col": "ELSA", "com": "GTEQ", "val": startVal, "isDate": True})
-            filters.append({"col": "ELSA", "com": "LTEQ", "val": endVal, "isDate": True})
+            filters.append({"col": "pmddttm", "com": "GTEQ", "val": startVal, "isDate": True})
+            filters.append({"col": "pmddttm", "com": "LTEQ", "val": endVal, "isDate": True})
+
+            # pmddttm | GTEQ | 2006 - 02 - 13 | YYYY - MM - DD
+            # pmddttm | LTEQ | 2010 - 02 - 24 | YYYY - MM - DD
+
     except:
         logger.info(f"Invalid date {panelDateStart} or {panelDateEnd} could not be parsed.")
 
@@ -284,9 +285,9 @@ def convert_panel_query(query={}):
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
-    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
-    print(valuesToReturn)
-    print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
+    # print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
+    # print(valuesToReturn)
+    # print('🥳🥳🥳🥳🥳🥳🥳🥳🥳🥳')
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 

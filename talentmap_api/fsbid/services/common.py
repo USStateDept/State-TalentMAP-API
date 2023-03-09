@@ -228,7 +228,7 @@ sort_dict = {
     "agenda_status": "aisdesctext",
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
-    "panel_date": "ELSA",
+    "panel_date": "pmddttm",
 }
 
 
