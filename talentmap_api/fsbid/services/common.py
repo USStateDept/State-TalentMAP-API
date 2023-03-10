@@ -842,7 +842,10 @@ def parse_agenda_remarks(remarks = []):
             for insertion in remarkInsertions:
                 refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
                 matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
-                refDataRemarkText = refDataRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+                if (matchText):
+                    refDataRemarkText = refDataRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+                else:
+                    continue
 
             remark['remarkRefData'][0]['rmrktext'] = refDataRemarkText
             remarks_values.append(remark['remarkRefData'][0])
