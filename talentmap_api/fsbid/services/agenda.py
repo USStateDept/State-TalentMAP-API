@@ -51,7 +51,7 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/agendas/",
         "host": host,
@@ -160,7 +160,7 @@ def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "host": host,
         "use_post": False,
         "base_url": AGENDA_API_ROOT,
@@ -644,7 +644,6 @@ def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas for panel meeting
     '''
-    remarks = get_agenda_ref_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {
@@ -654,7 +653,7 @@ def get_agendas_by_panel(pk, jwt_token):
         },
         "query_mapping_function": None,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, jwt=jwt_token, remarks=remarks),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
