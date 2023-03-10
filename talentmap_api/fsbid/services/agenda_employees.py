@@ -231,9 +231,13 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
         "currentAssignment": {
             "TED": pydash.get(data, "currentAssignment[0].asgdetdteddate", None),
             "orgDescription": pydash.get(data, "currentAssignment[0].position[0].posorgshortdesc", None),
+            "locationCity": pydash.get(data, "currentAssignment[0].position[0].location[0].loccity", None),
+            "locationCountry": pydash.get(data, "currentAssignment[0].position[0].location[0].loccountry", None),
         },
         "hsAssignment": {
             "orgDescription": pydash.get(data, "handshake[0].posorgshortdesc", None),
+            "hsLocationCity": pydash.get(data, "handshake[0].position[0].location[0].loccity", None),
+            "hsLocationCountry": pydash.get(data, "handshake[0].position[0].location[0].loccountry", None),
         },
         "agenda": {
             "panelDate": pydash.get(data, "latestAgendaItem[0].panels[0].pmddttm", None),
