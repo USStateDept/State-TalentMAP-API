@@ -1,11 +1,16 @@
 import jwt
+import csv
 import logging
 import pydash
+import maya
 from functools import partial
 from urllib.parse import urlencode, quote
+from datetime import datetime
 
 from django.conf import settings
 from django.http import QueryDict
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from talentmap_api.fsbid.services import common as services
 from talentmap_api.fsbid.services import client as client_services
@@ -665,3 +670,74 @@ def get_agendas_by_panel(pk, jwt_token):
     )
 
     return agendas_by_panel
+
+def get_agendas_by_panel_export(pk, jwt_token, host=None):
+    '''
+    Get agendas for panel meeting export
+    '''
+    mapping_subset = {
+        'default': 'None Listed',
+        'wskeys': {
+            'agendaAssignment[0].position[0].postitledesc': {},
+            'agendaAssignment[0].position[0].posnumtext': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
+            'agendaAssignment[0].position[0].posorgshortdesc': {},
+            'agendaAssignment[0].asgdetadate': {
+                'transformFn': services.process_dates_csv,
+            },
+            'agendaAssignment[0].asgdetdteddate': {
+                'transformFn': services.process_dates_csv,
+            },
+            'agendaAssignment[0].asgdtoddesctext': {},
+            'agendaAssignment[0].position[0].posgradecode': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
+            'Panel[0].pmddttm': {
+                'transformFn': services.process_dates_csv,
+            },
+            'aisdesctext': {},
+            'aicombinedremarktext': {},
+        }
+    }
+    args = {
+        "uri": f"{pk}/agendas",
+        "query": {
+            "rp.pageNum": int(0),
+            "rp.pageRows": int(0),
+            "rp.orderBy": 'pmiofficialitemnum',
+        },
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(services.csv_fsbid_template_to_tm, mapping=mapping_subset),
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+        "host": host,
+        "use_post": False,
+    }
+
+    data = services.send_get_request(**args)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename=panel_meeting_agendas_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    writer.writerow([
+        smart_str(u"Position Title"),
+        smart_str(u"Position Number"),
+        smart_str(u"Org"),
+        smart_str(u"ETA"),
+        smart_str(u"TED"),
+        smart_str(u"TOD"),
+        smart_str(u"Grade"),
+        smart_str(u"Panel Date"),
+        smart_str(u"Status"),
+        smart_str(u"Remarks"),
+    ])
+
+    writer.writerows(data['results'])
+
+    return response
