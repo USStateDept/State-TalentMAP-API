@@ -26,6 +26,7 @@ def get_single_agenda_item(jwt_token=None, pk=None):
     '''
     Get single agenda item
     '''
+
     args = {
         "uri": "",
         "query": {'aiseqnum': pk},
@@ -49,13 +50,13 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
     Get agenda items
     '''
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
-    remarks = get_agenda_remarks({}, jwt_token)
+
     args = {
         "uri": "",
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/agendas/",
         "host": host,
@@ -158,6 +159,7 @@ def create_agenda_item_leg(data, query, jwt_token):
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
+
     args = {
         "uri": "",
         "query": query,
@@ -216,7 +218,7 @@ def convert_agenda_item_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None, remarks={}):
+def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -260,7 +262,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None, rem
     return {
         "id": pydash.get(data, "aiseqnum") or None,
         "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
-        "remarks": services.parse_agenda_remarks(pydash.get(data, "aicombinedremarktext") or "", remarks),
+        "remarks": services.parse_agenda_remarks(pydash.get(data, "remarks") or []),
         "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm"), utc_offset=-5),
         "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
         "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
@@ -517,9 +519,9 @@ def fsbid_to_talentmap_agenda_statuses(data):
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
 
-def get_agenda_remarks(query, jwt_token):
+def get_agenda_ref_remarks(query, jwt_token):
     '''
-    Get agenda remarks
+    Get agenda reference remarks
     '''
     args = {
         "uri": "references/remarks",
@@ -647,7 +649,6 @@ def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas for panel meeting
     '''
-    remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {
@@ -657,7 +658,7 @@ def get_agendas_by_panel(pk, jwt_token):
         },
         "query_mapping_function": None,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, jwt=jwt_token, remarks=remarks),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
