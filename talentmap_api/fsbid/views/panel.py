@@ -98,8 +98,11 @@ class PanelMeetingsView(BaseView):
         manual_parameters=[
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("ordering", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Sort Panel meetings'),
             openapi.Parameter("type", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Panel meeting type.'),
             openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Panel meeting status.'),
+            openapi.Parameter("panel-date-start", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Panel meeting date start.'),
+            openapi.Parameter("panel-date-end", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Panel meeting date end.'),
             openapi.Parameter("id", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Panel meeting seq num.'),
         ])
 
