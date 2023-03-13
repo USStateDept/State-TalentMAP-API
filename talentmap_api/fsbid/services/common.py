@@ -855,10 +855,8 @@ def parse_agenda_remarks(remarks = []):
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
-
-        return remarks_values
-    return []
-
+    
+    return remarks_values
 
 def get_aih_csv(data, filename):
     filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
