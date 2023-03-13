@@ -840,17 +840,18 @@ def parse_agenda_remarks(remarks = []):
             refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
             refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
 
-            for insertion in remarkInsertions:
-                matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
-                if (matchText):
-                    refRemarkText = refRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
-                else:
-                    continue
+            if (remarkInsertions):
+                for insertion in remarkInsertions:
+                    matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
+                    if (matchText):
+                        refRemarkText = refRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+                    else:
+                        continue
 
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
-            
+
         return remarks_values
     return []
 
