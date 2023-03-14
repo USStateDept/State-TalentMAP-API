@@ -275,7 +275,9 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
         "legs": legsToReturn,
         "update_date": ensure_date(pydash.get(data,"update_date"), utc_offset=-5),  # TODO - find this date
         "modifier_name": pydash.get(data,"aiupdateid") or None,  # TODO - this is only the id
+        "modifier_date": ensure_date(pydash.get(data,"aiupdatedate"), utc_offset=-5) or None,  
         "creator_name": pydash.get(data,"aiitemcreatorid") or None,  # TODO - this is only the id
+        "creator_date": ensure_date(pydash.get(data,"aicreatedate"), utc_offset=-5) or None,  
         "creators": creators,
         "updaters": updaters,
         "user": user,
