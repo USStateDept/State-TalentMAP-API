@@ -238,7 +238,7 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
         "agenda": {
             "panelDate": pydash.get(data, "latestAgendaItem[0].panels[0].pmddttm") or None,
             "status": pydash.get(data, "latestAgendaItem[0].aisdesctext") or None,
-            "pm_seq_num": pydash.get(data, "latestAgendaItem[0].panels[0].pmseqnum") or None,
+            "pmSeqNum": pydash.get(data, "latestAgendaItem[0].panels[0].pmseqnum") or None,
         }
     }
 
