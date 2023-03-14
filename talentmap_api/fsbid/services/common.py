@@ -26,6 +26,7 @@ from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
 from talentmap_api.fsbid.services import employee as empservices
+from talentmap_api.fsbid.services import agenda as agendaservices
 from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
@@ -228,7 +229,7 @@ sort_dict = {
     "agenda_status": "aisdesctext",
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
-    "meeting_status": "pmpmscode",
+    "panel_date": "pmddttm",
 }
 
 
@@ -831,28 +832,31 @@ def categorize_remark(remark = ''):
     return obj
 
 
-def parse_agenda_remarks(remarks_string = '', remarks_data={}):
-    remarks = remarks_string
-    ai_remarks = pydash.get(remarks_data, 'results')
-    if pydash.starts_with(remarks, 'Remarks:'):
-        remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
-    # split by semi colon
-    values = remarks.split(';')
-    # remove Nmn (no middle name) from Creator and CDO
-    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
-    # remove nulls or empty spaces
-    values = pydash.filter_(values, lambda o: o and o != ' ')
-    values = pydash.map_(values, categorize_remark)
-
+def parse_agenda_remarks(remarks = []):
     remarks_values = []
-    for value in values:
-        if pydash.find(ai_remarks, {'text': value['text']}):
-            remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
-        if value['type'] == 'person':
-            remarks_values.append(value)
+    if (remarks):
+        for remark in remarks:
+            # Have to handle {BlankTextBox} remarks without any insertions since they
+            # are loaded on every agenda
+            if (pydash.get(remark, 'remarkRefData[0].rmrktext') == "{BlankTextBox}") and not pydash.get(remark, 'remarkInserts'):
+                continue
+            remarkInsertions = pydash.get(remark, 'remarkInserts')
+            refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
+            refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
+
+            if (remarkInsertions):
+                for insertion in remarkInsertions:
+                    matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
+                    if (matchText):
+                        refRemarkText = refRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+                    else:
+                        continue
+
+            remark['remarkRefData'][0]['rmrktext'] = refRemarkText
+            pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
+            remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
     
     return remarks_values
-
 
 def get_aih_csv(data, filename):
     filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))

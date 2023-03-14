@@ -106,7 +106,7 @@ class AgendaRemarksView(BaseView):
         """
         Return a list of reference data for all remarks
         """
-        return Response(services.get_agenda_remarks(request.query_params, request.META['HTTP_JWT']))
+        return Response(services.get_agenda_ref_remarks(request.query_params, request.META['HTTP_JWT']))
 
 class AgendaRemarkCategoriesView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
