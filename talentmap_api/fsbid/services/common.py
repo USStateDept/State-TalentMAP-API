@@ -897,7 +897,7 @@ def get_aih_csv(data, filename):
             panelDate = "None listed"
         
         try:
-            remarks = pydash.map_(pydash.get(record, "remarks", []), 'title')
+            remarks = pydash.map_(pydash.get(record, "remarks", []), 'text')
             remarks = pydash.join(remarks, '; ')
         except:
             remarks = 'None listed'
@@ -973,7 +973,13 @@ def csv_fsbid_template_to_tm(data, mapping):
             else:
                 row.append(smart_str(mapped))
         else:
-            row.append(smart_str(pydash.get(data, x) or default))
+            if x == 'remarks[0].remarkRefData':
+                remarksRefData = parse_agenda_remarks(pydash.get(data, "remarks") or []),
+                remarks = pydash.map_(remarksRefData[0], 'text')
+                remarks = pydash.join(remarks, '; ')
+                row.append(remarks)
+            else:
+                row.append(smart_str(pydash.get(data, x) or default))
 
     return row
 
