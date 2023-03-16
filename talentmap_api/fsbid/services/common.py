@@ -973,11 +973,6 @@ def csv_fsbid_template_to_tm(data, mapping):
             else:
                 row.append(smart_str(mapped))
         else:
-            if x == 'remarks[0].remarkRefData':
-                remarks = pydash.map_(parse_agenda_remarks(pydash.get(data, "remarks") or []), 'text')
-                remarks = pydash.join(remarks, '; ')
-                row.append(remarks)
-            else:
                 row.append(smart_str(pydash.get(data, x) or default))
 
     return row
@@ -1010,4 +1005,13 @@ def panel_process_dates_csv(dates):
                 columnOrdering.update({date['mdtcode']: 'None Listed'})
 
     return list(columnOrdering.values())
+
+
+def process_panel_remarks(remarks):
+    if remarks:
+        remarksData = pydash.map_(parse_agenda_remarks(remarks), 'text')
+        remarksData = pydash.join(remarksData, '; ')
+        return remarksData
+    else:
+        return 'None listed'
 
