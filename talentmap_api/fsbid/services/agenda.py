@@ -699,7 +699,7 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
             },
             'aisdesctext': {},
             'remarks': {
-                'transformFn': services.process_panel_remarks,
+                'transformFn': services.process_remarks_csv,
             },
         }
     }

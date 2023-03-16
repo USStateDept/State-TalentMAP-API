@@ -983,6 +983,14 @@ def process_dates_csv(date):
     else:
         return "None Listed"
 
+
+def process_remarks_csv(remarks):
+    if remarks:
+        return pydash.chain(parse_agenda_remarks(remarks)).map_('text').join('; ').value()
+    else:
+        return 'None listed'
+
+
 # Panel Helper Functions
 
 def panel_process_dates_csv(dates):
@@ -1005,13 +1013,4 @@ def panel_process_dates_csv(dates):
                 columnOrdering.update({date['mdtcode']: 'None Listed'})
 
     return list(columnOrdering.values())
-
-
-def process_panel_remarks(remarks):
-    if remarks:
-        remarksData = pydash.map_(parse_agenda_remarks(remarks), 'text')
-        remarksData = pydash.join(remarksData, '; ')
-        return remarksData
-    else:
-        return 'None listed'
 
