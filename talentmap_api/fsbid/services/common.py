@@ -973,7 +973,7 @@ def csv_fsbid_template_to_tm(data, mapping):
             else:
                 row.append(smart_str(mapped))
         else:
-                row.append(smart_str(pydash.get(data, x) or default))
+            row.append(smart_str(pydash.get(data, x) or default))
 
     return row
 
