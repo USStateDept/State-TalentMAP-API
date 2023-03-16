@@ -899,8 +899,8 @@ def get_aih_csv(data, filename):
         try:
             remarks = pydash.map_(pydash.get(record, "remarks", []), 'text')
             remarks = pydash.join(remarks, '; ')
-        except:
-            remarks = 'None listed'
+        finally:
+            remarks = remarks or 'None listed'
 
         row = []
         # need to update
