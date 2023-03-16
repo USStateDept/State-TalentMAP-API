@@ -974,8 +974,7 @@ def csv_fsbid_template_to_tm(data, mapping):
                 row.append(smart_str(mapped))
         else:
             if x == 'remarks[0].remarkRefData':
-                remarksRefData = parse_agenda_remarks(pydash.get(data, "remarks") or []),
-                remarks = pydash.map_(remarksRefData[0], 'text')
+                remarks = pydash.map_(parse_agenda_remarks(pydash.get(data, "remarks") or []), 'text')
                 remarks = pydash.join(remarks, '; ')
                 row.append(remarks)
             else:
