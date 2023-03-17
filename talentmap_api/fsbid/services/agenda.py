@@ -700,7 +700,9 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
                 'transformFn': services.process_dates_csv,
             },
             'aisdesctext': {},
-            'aicombinedremarktext': {},
+            'remarks': {
+                'transformFn': services.process_remarks_csv,
+            },
         }
     }
     args = {
