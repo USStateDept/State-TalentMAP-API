@@ -897,10 +897,10 @@ def get_aih_csv(data, filename):
             panelDate = "None listed"
         
         try:
-            remarks = pydash.map_(pydash.get(record, "remarks", []), 'title')
+            remarks = pydash.map_(pydash.get(record, "remarks", []), 'text')
             remarks = pydash.join(remarks, '; ')
-        except:
-            remarks = 'None listed'
+        finally:
+            remarks = remarks or 'None listed'
 
         row = []
         # need to update
@@ -982,6 +982,14 @@ def process_dates_csv(date):
         return maya.parse(date).datetime().strftime('%m/%d/%Y')
     else:
         return "None Listed"
+
+
+def process_remarks_csv(remarks):
+    if remarks:
+        return pydash.chain(parse_agenda_remarks(remarks)).map_('text').join('; ').value()
+    else:
+        return 'None listed'
+
 
 # Panel Helper Functions
 
