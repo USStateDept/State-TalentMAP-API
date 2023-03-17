@@ -260,7 +260,7 @@ def convert_panel_query(query={}):
         if panel_date_start and panel_date_end:
             start_val = maya.parse(panel_date_start).datetime().strftime("%Y-%m-%d")
             end_val = maya.parse(panel_date_end)
-            end_val = end_val + timedelta(days=1)
+            end_val += timedelta(days=1)
             filters.append({"col": "pmddttm", "com": "GTEQ", "val": start_val, "isDate": True})
             filters.append({"col": "pmddttm", "com": "LTEQ", "val": end_val.datetime().strftime("%Y-%m-%d"), "isDate": True})
     except:
@@ -279,9 +279,7 @@ def convert_panel_query(query={}):
         values["rp.columns"] = "ROWCOUNT"
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-    print('👻👻👻👻👻👻👻👻👻👻')
-    print(valuesToReturn)
-    print('👻👻👻👻👻👻👻👻👻👻')
+
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 def get_panel_meetings_csv(query, jwt_token, rl_cd, host=None):
