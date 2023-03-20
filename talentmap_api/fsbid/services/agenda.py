@@ -649,18 +649,30 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
+
+def convert_agendas_by_panel_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    values = {
+        "rp.pageNum": int(0),
+        "rp.pageRows": int(0),
+        "rp.orderBy": 'pmiofficialitemnum',
+    }
+
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+
+
 def get_agendas_by_panel(pk, jwt_token):
     '''
     Get agendas for panel meeting
     '''
     args = {
         "uri": f"{pk}/agendas",
-        "query": {
-            "rp.pageNum": int(0),
-            "rp.pageRows": int(0),
-            "rp.orderBy": 'pmiofficialitemnum',
-        },
-        "query_mapping_function": None,
+        "query": {},
+        "query_mapping_function": convert_agendas_by_panel_query,
         "jwt_token": jwt_token,
         "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
@@ -707,12 +719,8 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
     }
     args = {
         "uri": f"{pk}/agendas",
-        "query": {
-            "rp.pageNum": int(0),
-            "rp.pageRows": int(0),
-            "rp.orderBy": 'pmiofficialitemnum',
-        },
-        "query_mapping_function": None,
+        "query": {},
+        "query_mapping_function": convert_agendas_by_panel_query,
         "jwt_token": jwt_token,
         "mapping_function": partial(services.csv_fsbid_template_to_tm, mapping=mapping_subset),
         "count_function": None,
