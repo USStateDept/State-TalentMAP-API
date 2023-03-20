@@ -145,29 +145,28 @@ def convert_agenda_employees_query(query):
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
 
-    firstName = query.get("firstName").upper() if query.get("firstName") else query.get("firstName")
-    lastName = query.get("lastName").upper() if query.get("lastName") else query.get("lastName")
-    empID = query.get("empID").upper() if query.get("empID") else query.get("empID")
+    firstName = query.get("firstName").upper() if query.get("firstName") else None
+    lastName = query.get("lastName").upper() if query.get("lastName") else None
+    empID = query.get("empID").upper() if query.get("empID") else None
 
     activeCodes = "S,L,A,P,U" if not query.get("isInactiveSelected") else None
     
     filters = [
-        {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus", None)},
-        {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus", None)},
-        {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations", None)},
-        {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations", None)},
-        {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos", None)},
+        {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus") or None},
+        {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus") or None},
+        {"col": "tmpercurrentorgcode", "com": "IN", "val": query.get("current-organizations") or None},
+        {"col": "tmperhsorgcode", "com": "IN", "val": query.get("handshake-organizations") or None},
+        {"col": "tmpercdoid", "com": "IN", "val": query.get("cdos") or None},
         {"col": "tmperperscode", "com": "IN", "val": activeCodes},
-        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet", None)},
-        # TODO: Transition to search on new WS fields first name and last name instead of both on full name
-        {"col": "tmperperfullname", "com": "CONTAINS", "val": firstName},
-        {"col": "tmperperfullname", "com": "CONTAINS", "val": lastName},
+        {"col": "tmperperdetseqnum", "com": "EQ", "val": query.get("perdet") or None},
+        {"col": "tmperperfirstname", "com": "CONTAINS", "val": firstName},
+        {"col": "tmperperlastname", "com": "CONTAINS", "val": lastName},
         {"col": "tmperpertexternalid", "com": "EQ", "val": empID}
     ]
 
-    if query.get("handshake", None):
+    if query.get("handshake"):
         hsObj = {"col": "tmperhsind", "com": "IN"}
-        hs = query.get("handshake", None)
+        hs = query.get("handshake") or None
         if hs == 'Y':
             hsObj['val'] = 'HS'
             filters.append(hsObj)
@@ -230,15 +229,20 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
             "cdo": cdo,
         },
         "currentAssignment": {
-            "TED": pydash.get(data, "currentAssignment[0].asgdetdteddate", None),
-            "orgDescription": pydash.get(data, "currentAssignment[0].position[0].posorgshortdesc", None),
+            "TED": pydash.get(data, "currentAssignment[0].asgdetdteddate") or None,
+            "orgDescription": pydash.get(data, "currentAssignment[0].position[0].posorgshortdesc") or None,
+            "locationCity": pydash.get(data, "currentAssignment[0].position[0].location[0].loccity") or None,
+            "locationCountry": pydash.get(data, "currentAssignment[0].position[0].location[0].loccountry") or None,
         },
         "hsAssignment": {
-            "orgDescription": pydash.get(data, "handshake[0].posorgshortdesc", None),
+            "orgDescription": pydash.get(data, "handshake[0].posorgshortdesc") or None,
+            "hsLocationCity": pydash.get(data, "handshake[0].position[0].location[0].loccity") or None,
+            "hsLocationCountry": pydash.get(data, "handshake[0].position[0].location[0].loccountry") or None,
         },
         "agenda": {
-            "panelDate": pydash.get(data, "latestAgendaItem[0].panels[0].pmddttm", None),
-            "status": pydash.get(data, "latestAgendaItem[0].aisdesctext", None),
+            "panelDate": pydash.get(data, "latestAgendaItem[0].panels[0].pmddttm") or None,
+            "status": pydash.get(data, "latestAgendaItem[0].aisdesctext") or None,
+            "pmSeqNum": pydash.get(data, "latestAgendaItem[0].panels[0].pmseqnum") or None,
         }
     }
 

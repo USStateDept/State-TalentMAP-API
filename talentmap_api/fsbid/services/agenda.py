@@ -1,13 +1,19 @@
 import jwt
+import csv
 import logging
 import pydash
+import maya
 from functools import partial
 from urllib.parse import urlencode, quote
+from datetime import datetime
 
 from django.conf import settings
 from django.http import QueryDict
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from talentmap_api.fsbid.services import common as services
+from talentmap_api.fsbid.services import client as client_services
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
@@ -20,6 +26,7 @@ def get_single_agenda_item(jwt_token=None, pk=None):
     '''
     Get single agenda item
     '''
+
     args = {
         "uri": "",
         "query": {'aiseqnum': pk},
@@ -43,13 +50,13 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
     Get agenda items
     '''
     from talentmap_api.fsbid.services.agenda_employees import get_agenda_employees
-    remarks = get_agenda_remarks({}, jwt_token)
+
     args = {
         "uri": "",
         "query": query,
         "query_mapping_function": convert_agenda_item_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/agendas/",
         "host": host,
@@ -152,6 +159,7 @@ def create_agenda_item_leg(data, query, jwt_token):
 
 
 def get_agenda_item_history_csv(query, jwt_token, host, limit=None):
+
     args = {
         "uri": "",
         "query": query,
@@ -210,7 +218,7 @@ def convert_agenda_item_query(query):
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
 
-def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
+def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -234,29 +242,45 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, remarks={}):
     sortedLegs = sort_legs(legs)
     legsToReturn.extend([assignment])
     legsToReturn.extend(sortedLegs)
-    statusFull = data.get("aisdesctext", None)
+    statusFull = pydash.get(data, "aisdesctext") or None
     updaters = pydash.get(data, "updaters") or None
+    reportCategory = {
+        "code": pydash.get(data, "Panel[0].pmimiccode") or None,
+        "desc_text": pydash.get(data, "Panel[0].micdesctext") or None,
+    }
+    panelMeetingSeqNum = str(int(pydash.get(data, "Panel[0].pmseqnum"))) if pydash.get(data, "Panel[0].pmseqnum") else ""
     if updaters:
         updaters = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(updaters[0])
 
     creators = pydash.get(data, "creators") or None
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
+        
+    perdet = pydash.get(data,"aiperdetseqnum") or None
+    user = client_services.single_client(jwt, perdet) if jwt else {}
 
     return {
-        "id": data.get("aiseqnum", None),
-        "remarks": services.parse_agenda_remarks(data.get("aicombinedremarktext") or "", remarks),
-        "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm", None), utc_offset=-5),
+        "id": pydash.get(data, "aiseqnum") or None,
+        "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
+        "remarks": services.parse_agenda_remarks(pydash.get(data, "remarks") or []),
+        "panel_date": ensure_date(pydash.get(data, "Panel[0].pmddttm"), utc_offset=-5),
+        "meeting_category": pydash.get(data, "Panel[0].pmimiccode") or None,
+        "panel_date_type": pydash.get(data, "Panel[0].pmtcode") or None,
+        "panel_meeting_seq_num": panelMeetingSeqNum,
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
-        "perdet": data.get("aiperdetseqnum", None),
+        "report_category": reportCategory,
+        "perdet": pydash.get(data,"aiperdetseqnum") or None,
         "assignment": assignment,
         "legs": legsToReturn,
-        "update_date": ensure_date(data.get("update_date", None), utc_offset=-5),  # TODO - find this date
-        "modifier_name": data.get("aiupdateid", None),  # TODO - this is only the id
-        "creator_name": data.get("aiitemcreatorid", None),  # TODO - this is only the id
+        "update_date": ensure_date(pydash.get(data,"update_date"), utc_offset=-5),  # TODO - find this date
+        "modifier_name": pydash.get(data,"aiupdateid") or None,  # TODO - this is only the id
+        "modifier_date": ensure_date(pydash.get(data,"aiupdatedate"), utc_offset=-5) or None,  
+        "creator_name": pydash.get(data,"aiitemcreatorid") or None,  # TODO - this is only the id
+        "creator_date": ensure_date(pydash.get(data,"aicreatedate"), utc_offset=-5) or None,  
         "creators": creators,
         "updaters": updaters,
+        "user": user,
     }
 
 
@@ -295,6 +319,7 @@ def fsbid_legs_to_talentmap_legs(data):
 
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
+        "ail_seq_num": pydash.get(data, "ailseqnum", None),
         "pos_title": pydash.get(data, "agendaLegPosition[0].postitledesc", None),
         "pos_num": pydash.get(data, "agendaLegPosition[0].posnumtext", None),
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
@@ -364,6 +389,8 @@ def fsbid_aia_to_talentmap_aia(data):
         "tod": pydash.get(data, "asgdtoddesctext", None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
+        "travel": "-",
+        "action": "-",
     }
 
 
@@ -496,9 +523,9 @@ def fsbid_to_talentmap_agenda_statuses(data):
     return services.map_return_template_cols(add_these, cols_mapping, data)
 
 
-def get_agenda_remarks(query, jwt_token):
+def get_agenda_ref_remarks(query, jwt_token):
     '''
-    Get agenda remarks
+    Get agenda reference remarks
     '''
     args = {
         "uri": "references/remarks",
@@ -624,18 +651,18 @@ def fsbid_to_talentmap_agenda_leg_action_types(data):
 
 def get_agendas_by_panel(pk, jwt_token):
     '''
-    Get agendas by panel meeting date
+    Get agendas for panel meeting
     '''
-    remarks = get_agenda_remarks({}, jwt_token)
     args = {
         "uri": f"{pk}/agendas",
         "query": {
-            "page": 0,
-            "limit": 0
+            "rp.pageNum": int(0),
+            "rp.pageRows": int(0),
+            "rp.orderBy": 'pmiofficialitemnum',
         },
-        "query_mapping_function": convert_agendas_by_panel_query,
+        "query_mapping_function": None,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, remarks=remarks),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
@@ -647,16 +674,75 @@ def get_agendas_by_panel(pk, jwt_token):
 
     return agendas_by_panel
 
-def convert_agendas_by_panel_query(query):
+def get_agendas_by_panel_export(pk, jwt_token, host=None):
     '''
-    Converts TalentMap query into FSBid query
+    Get agendas for panel meeting export
     '''
-
-    values = {
-        "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
+    mapping_subset = {
+        'default': 'None Listed',
+        'wskeys': {
+            'agendaAssignment[0].position[0].postitledesc': {},
+            'agendaAssignment[0].position[0].posnumtext': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
+            'agendaAssignment[0].position[0].posorgshortdesc': {},
+            'agendaAssignment[0].asgdetadate': {
+                'transformFn': services.process_dates_csv,
+            },
+            'agendaAssignment[0].asgdetdteddate': {
+                'transformFn': services.process_dates_csv,
+            },
+            'agendaAssignment[0].asgdtoddesctext': {},
+            'agendaAssignment[0].position[0].posgradecode': {
+                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+            },
+            'Panel[0].pmddttm': {
+                'transformFn': services.process_dates_csv,
+            },
+            'aisdesctext': {},
+            'remarks': {
+                'transformFn': services.process_remarks_csv,
+            },
+        }
+    }
+    args = {
+        "uri": f"{pk}/agendas",
+        "query": {
+            "rp.pageNum": int(0),
+            "rp.pageRows": int(0),
+            "rp.orderBy": 'pmiofficialitemnum',
+        },
+        "query_mapping_function": None,
+        "jwt_token": jwt_token,
+        "mapping_function": partial(services.csv_fsbid_template_to_tm, mapping=mapping_subset),
+        "count_function": None,
+        "base_url": "/api/v1/panels/",
+        "api_root": PANEL_API_ROOT,
+        "host": host,
+        "use_post": False,
     }
 
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    data = services.send_get_request(**args)
 
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f"attachment; filename=panel_meeting_agendas_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
+
+    writer = csv.writer(response, csv.excel)
+    response.write(u'\ufeff'.encode('utf8'))
+
+    writer.writerow([
+        smart_str(u"Position Title"),
+        smart_str(u"Position Number"),
+        smart_str(u"Org"),
+        smart_str(u"ETA"),
+        smart_str(u"TED"),
+        smart_str(u"TOD"),
+        smart_str(u"Grade"),
+        smart_str(u"Panel Date"),
+        smart_str(u"Status"),
+        smart_str(u"Remarks"),
+    ])
+
+    writer.writerows(data['results'])
+
+    return response

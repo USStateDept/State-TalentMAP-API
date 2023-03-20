@@ -4,6 +4,8 @@ import csv
 from datetime import datetime
 # import requests_cache
 from copy import deepcopy
+from functools import partial
+
 
 from django.conf import settings
 from django.db.models import Q
@@ -24,6 +26,7 @@ from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 from talentmap_api.fsbid.services import available_positions as apservices
 from talentmap_api.fsbid.services import projected_vacancies as pvservices
 from talentmap_api.fsbid.services import employee as empservices
+from talentmap_api.fsbid.services import agenda as agendaservices
 from talentmap_api.fsbid.requests import requests
 
 logger = logging.getLogger(__name__)
@@ -226,6 +229,7 @@ sort_dict = {
     "agenda_status": "aisdesctext",
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
+    "panel_date": "pmddttm",
 }
 
 
@@ -828,28 +832,31 @@ def categorize_remark(remark = ''):
     return obj
 
 
-def parse_agenda_remarks(remarks_string = '', remarks_data={}):
-    remarks = remarks_string
-    ai_remarks = pydash.get(remarks_data, 'results')
-    if pydash.starts_with(remarks, 'Remarks:'):
-        remarks = pydash.reg_exp_replace(remarks_string, 'Remarks:', '', count=1)
-    # split by semi colon
-    values = remarks.split(';')
-    # remove Nmn (no middle name) from Creator and CDO
-    values = pydash.map_(values, lambda o: pydash.reg_exp_replace(o, ' Nmn', '', ignore_case=True) if pydash.starts_with(o, 'Creator') or pydash.starts_with(o, 'CDO:') else o)
-    # remove nulls or empty spaces
-    values = pydash.filter_(values, lambda o: o and o != ' ')
-    values = pydash.map_(values, categorize_remark)
-
+def parse_agenda_remarks(remarks = []):
     remarks_values = []
-    for value in values:
-        if pydash.find(ai_remarks, {'text': value['text']}):
-            remarks_values.append({**value, **pydash.find(ai_remarks, {'text': value['text']})})
-        if value['type'] == 'person':
-            remarks_values.append(value)
+    if (remarks):
+        for remark in remarks:
+            # Have to handle {BlankTextBox} remarks without any insertions since they
+            # are loaded on every agenda
+            if (pydash.get(remark, 'remarkRefData[0].rmrktext') == "{BlankTextBox}") and not pydash.get(remark, 'remarkInserts'):
+                continue
+            remarkInsertions = pydash.get(remark, 'remarkInserts')
+            refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
+            refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
+
+            if (remarkInsertions):
+                for insertion in remarkInsertions:
+                    matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
+                    if (matchText):
+                        refRemarkText = refRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
+                    else:
+                        continue
+
+            remark['remarkRefData'][0]['rmrktext'] = refRemarkText
+            pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
+            remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
     
     return remarks_values
-
 
 def get_aih_csv(data, filename):
     filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
@@ -890,10 +897,10 @@ def get_aih_csv(data, filename):
             panelDate = "None listed"
         
         try:
-            remarks = pydash.map_(pydash.get(record, "remarks", []), 'title')
+            remarks = pydash.map_(pydash.get(record, "remarks", []), 'text')
             remarks = pydash.join(remarks, '; ')
-        except:
-            remarks = 'None listed'
+        finally:
+            remarks = remarks or 'None listed'
 
         row = []
         # need to update
@@ -917,3 +924,93 @@ def map_return_template_cols(cols, cols_mapping, data):
     props_to_map = pydash.pick(cols_mapping, *cols)
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1]).strip() if type(pydash.get(data, x[1])) == str else pydash.get(data, x[1])), props_to_map.items())
     return dict(mapped_tuples)
+
+# optimized map_return_template_cols
+def map_fsbid_template_to_tm(data, mapping):
+    mapped_items = {}
+
+    for x in mapping.items():
+        if isinstance(x[1], dict):
+            mapped_items[x[1]['nameMap']] = list(map(partial(map_fsbid_template_to_tm, mapping=x[1]['listMap']), data[x[0]]))
+        else:
+            mapped_items[x[1]] = pydash.get(data, x[0]).strip() if isinstance(pydash.get(data, x[0]), str) else pydash.get(data, x[0])
+
+    return mapped_items
+
+
+def if_str_upper(x):
+    if isinstance(x, str):
+        return x.upper()
+
+    return x
+
+# mapping = {
+#   'default': 'None', <-default value for all values (required)
+#   'wskeys': {
+#             'pmsdesctext': { <- the ws key you want to pull a value from
+#                 'default': 'None Listed' <- default value for value if key not found or value falsey (overrides default for all)(optional, if upper default defined)
+#                 'transformFn': fn <- a function you want to run on the value (optional)
+#             },
+#             'micdesctext': {},
+#         }
+# }
+def csv_fsbid_template_to_tm(data, mapping):
+    '''
+    Get row for csv ready for write.
+    You'll still need to set up the csv headers outside this function.
+    The return from this mapping can be written to csv with
+        writer.writerows(data)
+    '''
+    row = []
+
+    for x in mapping['wskeys'].keys():
+        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+
+        if 'transformFn' in mapping['wskeys'][x]:
+            mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
+            if type(mapped) is list:
+                row.extend(mapped)
+            else:
+                row.append(smart_str(mapped))
+        else:
+            row.append(smart_str(pydash.get(data, x) or default))
+
+    return row
+
+def process_dates_csv(date):
+    if (date):
+        return maya.parse(date).datetime().strftime('%m/%d/%Y')
+    else:
+        return "None Listed"
+
+
+def process_remarks_csv(remarks):
+    if remarks:
+        return pydash.chain(parse_agenda_remarks(remarks)).map_('text').join('; ').value()
+    else:
+        return 'None listed'
+
+
+# Panel Helper Functions
+
+def panel_process_dates_csv(dates):
+    columnOrdering = {
+        'MEET': 'None Listed',
+        'CUT': 'None Listed',
+        'ADD': 'None Listed',
+        'OFF': 'None Listed',
+        'OFFA': 'None Listed',
+        'POSS': 'None Listed',
+        'POST': 'None Listed',
+        'COMP': 'None Listed'
+    }
+
+    for date in dates:
+        if date['mdtcode'] in columnOrdering.keys():
+            try:
+                columnOrdering.update({date['mdtcode']: smart_str(maya.parse(pydash.get(date, 'pmddttm') or None).datetime(to_timezone='US/Eastern', naive=True).strftime('%m/%d/%Y %H:%M'))})
+            except:
+                columnOrdering.update({date['mdtcode']: 'None Listed'})
+
+    return list(columnOrdering.values())
+

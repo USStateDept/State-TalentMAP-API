@@ -106,7 +106,7 @@ class AgendaRemarksView(BaseView):
         """
         Return a list of reference data for all remarks
         """
-        return Response(services.get_agenda_remarks(request.query_params, request.META['HTTP_JWT']))
+        return Response(services.get_agenda_ref_remarks(request.query_params, request.META['HTTP_JWT']))
 
 class AgendaRemarkCategoriesView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'))]
@@ -141,11 +141,20 @@ class AgendaLegActionTypesView(BaseView):
         """
         return Response(services.get_agenda_leg_action_types(request.query_params, request.META['HTTP_JWT']))
 
-class PanelAgendaListView(BaseView):
+class PanelAgendasListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
     def get(self, request, pk):
         '''
-        Get single agenda by ai_seq_num
+        Get agendas for a panel meeting
         '''
         return Response(services.get_agendas_by_panel(pk, request.META['HTTP_JWT']))
+
+class PanelAgendasCSVView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
+
+    def get(self, request, pk):
+        '''
+        Get agendas for a panel meeting for export
+        '''
+        return services.get_agendas_by_panel_export(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
