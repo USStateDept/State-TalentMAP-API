@@ -36,17 +36,3 @@ class UserProfileView(FieldLimitableSerializerMixin,
     def get_object(self):
         return get_prefetched_filtered_queryset(UserProfile, self.serializer_class, user=self.request.user).first()
 
-
-class UserPublicProfileView(FieldLimitableSerializerMixin,
-                            mixins.RetrieveModelMixin,
-                            GenericViewSet):
-    """
-    retrieve:
-    Return a specific user profile
-    """
-
-    serializer_class = UserProfilePublicSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_object(self):
-        return get_object_or_404(UserProfile, pk=self.request.parser_context.get("kwargs").get("pk"))
