@@ -838,7 +838,6 @@ def parse_agenda_remarks(remarks = []):
         for remark in remarks:
             # Have to handle {BlankTextBox} remarks without any insertions since they
             # are loaded on every agenda
-            # 'Bird' in animals
             if (pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']):
                 continue
             if (pydash.get(remark, 'remarkRefData[0].rmrktext') == "{BlankTextBox}") and not pydash.get(remark, 'remarkInserts'):
