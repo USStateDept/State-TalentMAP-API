@@ -7,7 +7,7 @@ import maya
 import jwt
 from copy import deepcopy
 from django.http import HttpResponse
-from datetime import datetime
+from datetime import timedelta, date, datetime
 from django.utils.encoding import smart_str
 
 from django.conf import settings
@@ -247,8 +247,8 @@ def convert_panel_query(query={}):
     Converts TalentMap query into FSBid query
     '''
 
-    panelDateStart = query.get("panel-date-start")
-    panelDateEnd = query.get("panel-date-end")
+    panel_date_start = query.get("panel-date-start")
+    panel_date_end = query.get("panel-date-end")
 
     filters = [
             {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get('type')), 'com': 'IN'},
@@ -257,13 +257,14 @@ def convert_panel_query(query={}):
         ]
 
     try:
-        if panelDateStart and panelDateEnd:
-            startVal = maya.parse(panelDateStart).datetime().strftime("%Y-%m-%d")
-            endVal = maya.parse(panelDateEnd).datetime().strftime("%Y-%m-%d")
-            filters.append({"col": "pmddttm", "com": "GTEQ", "val": startVal, "isDate": True})
-            filters.append({"col": "pmddttm", "com": "LTEQ", "val": endVal, "isDate": True})
+        if panel_date_start and panel_date_end:
+            start_val = maya.parse(panel_date_start).datetime().strftime("%Y-%m-%d")
+            end_val = maya.parse(panel_date_end)
+            end_val += timedelta(days=1)
+            filters.append({"col": "pmddttm", "com": "GTEQ", "val": start_val, "isDate": True})
+            filters.append({"col": "pmddttm", "com": "LTEQ", "val": end_val.datetime().strftime("%Y-%m-%d"), "isDate": True})
     except:
-        logger.info(f"Invalid date {panelDateStart} or {panelDateEnd} could not be parsed.")
+        logger.info(f"Invalid date {panel_date_start} or {panel_date_end} could not be parsed.")
 
     values = {
         'rp.pageNum': int(query.get('page', 1)),
