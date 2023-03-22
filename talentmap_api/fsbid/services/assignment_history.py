@@ -52,7 +52,7 @@ def assignment_history_to_client_format(data):
                     "start_date": ensure_date(x['start_date']),
                     "end_date": ensure_date(x['end_date']),
                     "status": x['asgd_asgs_code'],
-                    "asgd_tod_desc_text": x['asgd_tod_desc_text'],
+                    "tod_short_desc": x['tod_short_desc'],
                     "asgd_revision_num": x['asgd_revision_num'],
                     "position": {
                         "grade": pos.get("posgradecode") or None,
@@ -134,13 +134,10 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_asgs_code": "asgdasgscode",
         "asgd_lat_code": "asgdlatcode",
         "asgd_tfcd": "asgdtfcd",
-        "asgd_tod_desc_text": "asgdtoddesctext",
         "asgd_tod_code": "asgdtodcode",
         "asgd_ail_seq_num": "asgdailseqnum",
         "asgd_org_code": "asgdorgcode",
         "asgd_wrt_code_rrrepay": "asgdwrtcoderrrepay",
-        "asgd_tod_other_text": "asgdtodothertext",
-        "asgd_tod_months_num": "asgdtodmonthsnum",
         "start_date": "asgdetadate",
         "asgd_adjust_months_num": "asgdadjustmonthsnum",
         "end_date": "asgdetdteddate",
@@ -161,6 +158,14 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
         "position": "position",
+        "asgd_tod_code": "asgdtodcode",
+        "asgd_tod_other_text": "asgdtodothertext",
+        "asgd_tod_months_num": "asgdtodmonthsnum",
+        "tod_code": "todcode",
+        "tod_desc_text": "toddesctext",
+        "tod_months_num": "todmonthsnum",
+        "tod_short_desc": "todshortdesc",
+        "tod_status_code": "todstatuscode",
     }
 
     add_these.extend(hard_coded)
