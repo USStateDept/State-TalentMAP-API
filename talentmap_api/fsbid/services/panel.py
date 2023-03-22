@@ -259,10 +259,9 @@ def convert_panel_query(query={}):
     try:
         if panel_date_start and panel_date_end:
             start_val = maya.parse(panel_date_start).datetime().strftime("%Y-%m-%d")
-            end_val = maya.parse(panel_date_end)
-            end_val += timedelta(days=1)
+            end_val = (maya.parse(panel_date_end) + timedelta(days=1)).datetime().strftime("%Y-%m-%d")
             filters.append({"col": "pmddttm", "com": "GTEQ", "val": start_val, "isDate": True})
-            filters.append({"col": "pmddttm", "com": "LTEQ", "val": end_val.datetime().strftime("%Y-%m-%d"), "isDate": True})
+            filters.append({"col": "pmddttm", "com": "LTEQ", "val": end_val, "isDate": True})
     except:
         logger.info(f"Invalid date {panel_date_start} or {panel_date_end} could not be parsed.")
 
