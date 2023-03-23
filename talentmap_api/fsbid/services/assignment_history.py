@@ -28,7 +28,6 @@ def assignment_history(query, jwt_token, perdet_seq_num):
         None,
         API_ROOT,
     )
-
     return assignment_history_to_client_format(response)
 
 
@@ -52,7 +51,7 @@ def assignment_history_to_client_format(data):
                     "start_date": ensure_date(x['start_date']),
                     "end_date": ensure_date(x['end_date']),
                     "status": x['asgd_asgs_code'],
-                    "tod_short_desc": x['tod_short_desc'],
+                    "tod_short_desc": x['todshortdesc'],
                     "asgd_revision_num": x['asgd_revision_num'],
                     "position": {
                         "grade": pos.get("posgradecode") or None,
@@ -116,6 +115,14 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgd_asgs_code",
         "position",
         "asgd_revision_num",
+        "asgd_tod_code",
+        "asgd_tod_other_text",
+        "asgd_tod_months_num",
+        "tod_code",
+        "tod_desc_text",
+        "tod_months_num",
+        "tod_short_desc",
+        "tod_status_code",
     ]
 
     add_these = []
