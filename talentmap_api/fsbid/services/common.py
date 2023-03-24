@@ -836,6 +836,14 @@ def parse_agenda_remarks(remarks = []):
     remarks_values = []
     if (remarks):
         for remark in remarks:
+            if (pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']):
+                if not pydash.get(remark, 'remarkInserts'):
+                    continue
+                remark['remarkRefData'][0]['rmrktext'] = pydash.get(remark, 'remarkInserts')[0]['airiinsertiontext']
+                pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
+                remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
+                continue
+
             # Have to handle {BlankTextBox} remarks without any insertions since they
             # are loaded on every agenda
             if (pydash.get(remark, 'remarkRefData[0].rmrktext') == "{BlankTextBox}") and not pydash.get(remark, 'remarkInserts'):
