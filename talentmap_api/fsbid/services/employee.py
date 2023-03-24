@@ -248,7 +248,10 @@ def map_org_permissions(data):
     }
 
 def get_assignments_separations_bids(query, jwt_token, pk):
-    asg = asg_services.assignment_history(query, jwt_token, pk)
+    query_copy = query.copy()
+    query_copy["is_effective"] = True 
+    query_copy._mutable = False
+    asg = asg_services.assignment_history(query_copy, jwt_token, pk)
     # TO-DO: Add Separations 
     # sep = get_separations(query, jwt_token, pk)
     # sep = pydash.get(sep, 'results') or []
