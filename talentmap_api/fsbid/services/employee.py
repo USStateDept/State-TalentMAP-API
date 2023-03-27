@@ -8,8 +8,8 @@ from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
+from talentmap_api.fsbid.services.assignment_history import assignment_history_to_client_format, get_assignments
 import talentmap_api.fsbid.services.bid as bid_services
-import talentmap_api.fsbid.services.assignment_history as asg_services
 
 from drf_yasg import openapi
 from urllib.parse import urlencode, quote
@@ -250,8 +250,9 @@ def map_org_permissions(data):
 def get_assignments_separations_bids(query, jwt_token, pk):
     query_copy = query.copy()
     query_copy["is_effective"] = True 
+    query_copy["perdet_seq_num"] = pk
     query_copy._mutable = False
-    asg = asg_services.assignment_history(query_copy, jwt_token, pk)
+    asg = assignment_history_to_client_format(get_assignments(query_copy, jwt_token))
     # TO-DO: Add Separations 
     # sep = get_separations(query, jwt_token, pk)
     # sep = pydash.get(sep, 'results') or []
