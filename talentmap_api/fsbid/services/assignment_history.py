@@ -51,7 +51,7 @@ def assignment_history_to_client_format(data):
                     "start_date": ensure_date(x['start_date']),
                     "end_date": ensure_date(x['end_date']),
                     "status": x['asgd_asgs_code'],
-                    "tod_short_desc": x['todshortdesc'],
+                    "tod_short_desc": x.get('todshortdesc') or None,
                     "asgd_revision_num": x['asgd_revision_num'],
                     "position": {
                         "grade": pos.get("posgradecode") or None,
