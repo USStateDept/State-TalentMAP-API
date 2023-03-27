@@ -220,9 +220,7 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
         hru_id = pydash.get(data, 'cdo[0].echruid')
         cdoObj = pydash.find(cdos, lambda x: pydash.get(x, 'id') == hru_id)
         cdo = cdoObj
-        print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
-        print('hellloooooo')
-        print('🍀🍀🍀🍀🍀🍀🍀🍀🍀')
+
     return {
         "person": {
             "fullName": fullName,
@@ -247,7 +245,6 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
             "status": pydash.get(data, "latestAgendaItem[0].aisdesctext") or None,
             "pmSeqNum": pydash.get(data, "latestAgendaItem[0].panels[0].pmseqnum") or None,
             "agendaID": pydash.get(data, "latestAgendaItem[0].aiseqnum") or None,
-            "status": pydash.get(data, "latestAgendaItem[0].aiscode") or None,
         }
     }
 
