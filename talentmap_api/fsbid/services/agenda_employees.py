@@ -220,7 +220,6 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
         hru_id = pydash.get(data, 'cdo[0].echruid')
         cdoObj = pydash.find(cdos, lambda x: pydash.get(x, 'id') == hru_id)
         cdo = cdoObj
-
     return {
         "person": {
             "fullName": fullName,
