@@ -8,7 +8,7 @@ from drf_yasg import openapi
 from rest_condition import Or
 
 from talentmap_api.fsbid.views.base import BaseView
-import talentmap_api.fsbid.services.assignment_history as services
+from talentmap_api.fsbid.services.assignment_history import get_assignments, assignment_history_to_client_format
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
@@ -28,4 +28,8 @@ class FSBidAssignmentHistoryListView(BaseView):
         '''
         Gets a single client's assignment history
         '''
-        return Response(services.assignment_history(request.query_params, request.META['HTTP_JWT'], pk))
+        query_copy = request.query_params.copy()
+        query_copy["perdet_seq_num"] = pk 
+        query_copy._mutable = False
+        data = assignment_history_to_client_format(get_assignments(query_copy, request.META['HTTP_JWT']))
+        return Response(data)
