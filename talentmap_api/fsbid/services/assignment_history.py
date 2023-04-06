@@ -29,7 +29,6 @@ def get_assignments(query, jwt_token):
         API_ROOT,
     )
     return response
-    return assignment_history_to_client_format(response)
 
 
 def assignment_history_to_client_format(data):
