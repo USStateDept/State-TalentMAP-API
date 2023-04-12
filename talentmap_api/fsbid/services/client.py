@@ -281,7 +281,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}{suffix_name}",
         "shortened_name": f"{employee.get('per_last_name', None)}{suffix_name}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "initials": initials,
-        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
+        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
         "employee_id": str(employee.get("pert_external_id", None)),
