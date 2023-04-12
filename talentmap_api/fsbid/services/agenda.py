@@ -18,6 +18,7 @@ from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
 PANEL_API_ROOT = settings.PANEL_API_URL
+CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
 logger = logging.getLogger(__name__)
 
@@ -256,9 +257,6 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
         
-    perdet = pydash.get(data,"aiperdetseqnum") or None
-    user = client_services.single_client(jwt, perdet) if jwt else {}
-
     return {
         "id": pydash.get(data, "aiseqnum") or None,
         "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
@@ -270,7 +268,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "report_category": reportCategory,
-        "perdet": pydash.get(data,"aiperdetseqnum") or None,
+        "perdet": str(pydash.get(data,"aiperdetseqnum")) or None,
         "assignment": assignment,
         "legs": legsToReturn,
         "update_date": ensure_date(pydash.get(data,"update_date"), utc_offset=-5),  # TODO - find this date
@@ -280,7 +278,6 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
         "creator_date": ensure_date(pydash.get(data,"aicreatedate"), utc_offset=-5) or None,  
         "creators": creators,
         "updaters": updaters,
-        "user": user,
     }
 
 
@@ -679,11 +676,30 @@ def get_agendas_by_panel(pk, jwt_token):
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
     }
-
     agendas_by_panel = services.send_get_request(
         **args
     )
-
+    perdets = list(map(lambda x: x["perdet"], agendas_by_panel["results"]))
+    ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
+    query = {
+        "ad_id": ad_id,
+        "perdet_seq_num": perdets,
+        "currentAssignmentOnly": "true",
+    }
+    clients = services.send_get_request(
+        "",
+        query,
+        client_services.convert_client_query,
+        jwt_token,
+        client_services.fsbid_clients_to_talentmap_clients,
+        client_services.get_clients_count,
+        "/api/v2/clients/",
+        None,
+        CLIENTS_ROOT_V2,
+    )
+    for x in agendas_by_panel["results"]: 
+        client = list(filter(lambda c: c["perdet_seq_number"] == x["perdet"], clients["results"]))
+        x["user"] = client[0] if client else {}
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
