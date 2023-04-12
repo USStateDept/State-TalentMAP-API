@@ -686,6 +686,8 @@ def get_agendas_by_panel(pk, jwt_token):
         "ad_id": ad_id,
         "perdet_seq_num": perdets,
         "currentAssignmentOnly": "true",
+        "page": 1,
+        "limit": 1000,
     }
     clients = services.send_get_request(
         "",
