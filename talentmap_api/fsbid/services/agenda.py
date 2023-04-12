@@ -268,7 +268,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "report_category": reportCategory,
-        "perdet": str(pydash.get(data,"aiperdetseqnum")) or None,
+        "perdet": str(int(pydash.get(data,"aiperdetseqnum"))) or None,
         "assignment": assignment,
         "legs": legsToReturn,
         "update_date": ensure_date(pydash.get(data,"update_date"), utc_offset=-5),  # TODO - find this date
