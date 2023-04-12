@@ -278,6 +278,7 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data, jwt=None):
         "creator_date": ensure_date(pydash.get(data,"aicreatedate"), utc_offset=-5) or None,  
         "creators": creators,
         "updaters": updaters,
+        "user": {},
     }
 
 
