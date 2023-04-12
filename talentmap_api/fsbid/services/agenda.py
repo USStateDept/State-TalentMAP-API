@@ -672,7 +672,7 @@ def get_agendas_by_panel(pk, jwt_token):
         "query": {},
         "query_mapping_function": convert_agendas_by_panel_query,
         "jwt_token": jwt_token,
-        "mapping_function": partial(fsbid_single_agenda_item_to_talentmap_single_agenda_item, jwt=jwt_token),
+        "mapping_function": fsbid_single_agenda_item_to_talentmap_single_agenda_item,
         "count_function": None,
         "base_url": "/api/v1/panels/",
         "api_root": PANEL_API_ROOT,
