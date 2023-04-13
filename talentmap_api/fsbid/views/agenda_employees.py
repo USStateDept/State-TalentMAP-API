@@ -51,10 +51,9 @@ class FSBidAgendaEmployeeView(BaseView):
 
     def get(self, request, pk):
         '''
-        Get single employee data from tm-persons by perdetseqnum
+        Get a single employee data from v3/persons by perdetseqnum
         '''
-        employeeQuery = QueryDict(f"limit=1&page=1&perdet={pk}")
-        return Response(services.get_agenda_employees(employeeQuery, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
+        return Response(services.get_v3_persons(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
 
 class FSBidAgendaEmployeesCSVView(BaseView):
     
