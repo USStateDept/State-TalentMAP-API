@@ -700,9 +700,14 @@ def get_agendas_by_panel(pk, jwt_token):
         None,
         CLIENTS_ROOT_V2,
     )
-    for x in agendas_by_panel["results"]: 
-        client = list(filter(lambda c: c["perdet_seq_number"] == x["perdet"], clients["results"]))
-        x["user"] = client[0] if client else {}
+    clients_lookup = {}
+    for client in clients.get("results") or []:
+        perdet = client["perdet_seq_number"]
+        clients_lookup[perdet] = client 
+ 
+    for agenda in agendas_by_panel["results"]: 
+        client = clients_lookup.get(agenda["perdet"]) or {}
+        agenda["user"] = client
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
