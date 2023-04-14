@@ -2,8 +2,9 @@ import coreapi
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
+
 from drf_yasg import openapi
 from rest_condition import Or
 
@@ -47,9 +48,14 @@ class FSBidPrivateAssignmentHistoryListView(BaseView):
         '''
         Gets current users assignment history
         '''
-        user = UserProfile.objects.get(user=self.request.user)
-        query_copy = request.query_params.copy()
-        query_copy["perdet_seq_num"] = user.emp_id
-        query_copy._mutable = False
-        data = assignment_history_to_client_format(get_assignments(query_copy, request.META['HTTP_JWT']))
-        return Response(data)
+        try:
+            user = UserProfile.objects.get(user=self.request.user)
+            query_copy = request.query_params.copy()
+            query_copy["perdet_seq_num"] = user.emp_id
+            query_copy._mutable = False
+            data = assignment_history_to_client_format(get_assignments(query_copy, request.META['HTTP_JWT']))
+            return Response(data)
+        except Exception as e:
+            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
