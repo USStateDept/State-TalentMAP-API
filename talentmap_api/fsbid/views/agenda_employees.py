@@ -1,7 +1,6 @@
 import logging
 import pydash
 from rest_framework.response import Response
-from django.http import QueryDict
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -44,7 +43,8 @@ class FSBidAgendaEmployeesListView(BaseView):
         Gets all agenda employees
         '''
         return Response(services.get_agenda_employees(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
-    
+
+
 class FSBidAgendaEmployeesCSVView(BaseView):
     
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
