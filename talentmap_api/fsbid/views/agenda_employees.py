@@ -45,16 +45,6 @@ class FSBidAgendaEmployeesListView(BaseView):
         '''
         return Response(services.get_agenda_employees(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
     
-class FSBidAgendaEmployeeView(BaseView):
-    
-    permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
-
-    def get(self, request, pk):
-        '''
-        Get a single employee data from v3/persons by perdetseqnum
-        '''
-        return Response(services.get_v3_persons(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}"))
-
 class FSBidAgendaEmployeesCSVView(BaseView):
     
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
