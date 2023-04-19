@@ -52,4 +52,5 @@ def persons_to_tm(data):
     return {
       'name': name,
       'perdet_seq_number': str(data.get('perdetseqnum', '')),
+      'perpii_seq_num': str(data.get('perpiiseqnum', '')),
     }
