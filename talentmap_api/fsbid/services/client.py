@@ -281,7 +281,7 @@ def fsbid_clients_to_talentmap_clients(data):
         "name": f"{employee.get('per_first_name', None)} {middle_name['full']}{employee.get('per_last_name', None)}{suffix_name}",
         "shortened_name": f"{employee.get('per_last_name', None)}{suffix_name}, {employee.get('per_first_name', None)} {middle_name['initial']}",
         "initials": initials,
-        "perdet_seq_number": str(employee.get("perdet_seq_num", None)),
+        "perdet_seq_number": str(int(employee.get("perdet_seq_num", None))),
         "grade": employee.get("per_grade_code", None),
         "skills": map_skill_codes(employee),
         "employee_id": str(employee.get("pert_external_id", None)),
@@ -293,7 +293,7 @@ def fsbid_clients_to_talentmap_clients(data):
         # "noBids": fsbid_no_bids_to_tmap(data.get("no_bids")),
         "classifications": fsbid_classifications_to_tmap(employee.get("classifications") or []),
         "languages": fsbid_languages_to_tmap(data.get("languages") or []),
-        # "cdos": data.get("cdos"), - Can be used with v2/clients if we want to remove the previous call for CDO lookup 
+        "cdos": data.get("cdos") or [],
         "current_assignment": current_assignment,
         "assignments": fsbid_assignments_to_tmap(assignments),
     }
