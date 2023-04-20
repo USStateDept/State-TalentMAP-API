@@ -3,10 +3,9 @@ import coreapi
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from drf_yasg.utils import swagger_auto_schema
-
-from drf_yasg import openapi
 from rest_condition import Or
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.user_profile.models import UserProfile
