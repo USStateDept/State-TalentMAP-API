@@ -836,7 +836,7 @@ def categorize_remark(remark=''):
     return obj
 
 
-def parse_agenda_remarks(remarks = []):
+def parse_agenda_remarks(remarks=[]):
     remarks_values = []
     if remarks:
         for remark in remarks:
