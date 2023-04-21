@@ -835,9 +835,9 @@ def categorize_remark(remark = ''):
 
 def parse_agenda_remarks(remarks=[]):
     remarks_values = []
-    if (remarks):
+    if remarks:
         for remark in remarks:
-            if (pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']):
+            if pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']:
                 if not pydash.get(remark, 'remarkInserts'):
                     continue
                 remark['remarkRefData'][0]['rmrktext'] = pydash.get(remark, 'remarkInserts')[0]['airiinsertiontext']
@@ -853,7 +853,7 @@ def parse_agenda_remarks(remarks=[]):
             refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
             refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
 
-            if (remarkInsertions):
+            if remarkInsertions:
                 for insertion in remarkInsertions:
                     matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
                     if (matchText):
@@ -862,6 +862,9 @@ def parse_agenda_remarks(remarks=[]):
                         continue
 
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
+            if remark['remarkRefData'][0]['rmrkactiveind'] == 'N':
+                remark['remarkRefData'][0]['rmrktext'] += ' (legacy)'
+
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
 
