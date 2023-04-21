@@ -836,7 +836,7 @@ def categorize_remark(remark=''):
     return obj
 
 
-def parse_agenda_remarks(remarks=[]):
+def parse_agenda_remarks(remarks = []):
     remarks_values = []
     if remarks:
         for remark in remarks:
@@ -865,14 +865,14 @@ def parse_agenda_remarks(remarks=[]):
                         continue
 
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
-
             if remark['remarkRefData'][0]['rmrkactiveind'] == 'N':
                 remark['remarkRefData'][0]['rmrktext'] += ' (legacy)'
 
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
-    
+
     return remarks_values
+
 
 def get_aih_csv(data, filename):
     filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
