@@ -6,6 +6,7 @@ from datetime import datetime
 from copy import deepcopy
 from functools import partial
 
+
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
@@ -38,12 +39,11 @@ FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 PV_API_V2_URL = settings.PV_API_V2_URL
 CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 
+
 urls_expire_after = {
     '*/cycles': 30,
     '*': 0,  # Every other non-matching URL: do not cache
 }
-
-
 # session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
 
 
@@ -117,7 +117,6 @@ def parseLanguagesString(lang):
 
         return lang_str
 
-
 def parseLanguagesToArr(data):
     '''
     Transforms flat language data into array.
@@ -169,7 +168,6 @@ def parseLanguagesToArr(data):
             })
 
     return languages
-
 
 def post_values(query):
     '''
@@ -233,6 +231,7 @@ sort_dict = {
     "bidlist_location": "position_info.position.post.location.city",
     "panel_date": "pmddttm",
 }
+
 
 mapBool = {True: 'Yes', False: 'No', 'default': '', None: 'N/A'}
 
@@ -349,7 +348,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     countObj = pydash.get(response, "Data[0]")
     if len(pydash.keys(countObj)):
         count = pydash.get(countObj, pydash.keys(countObj)[0])
-        return {"count": count}
+        return { "count": count }
     else:
         logger.error(f"No count property could be found. {response}")
         raise KeyError('No count property could be found')
@@ -358,13 +357,11 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
 # pre-load since this data rarely changes
 obc_vals = list([])
 
-
 def get_obc_vals():
     global obc_vals
     if not obc_vals:
         obc_vals = list(Obc.objects.values())
     return obc_vals
-
 
 def get_obc_id(post_id):
     obc = pydash.find(get_obc_vals(), lambda x: x['code'] == post_id)
@@ -404,7 +401,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
     formattedQuery = query
     try:
         formattedQuery._mutable = True
-    except:  # nosec
+    except:#nosec
         pass
 
     if ad_id is not None:
@@ -666,7 +663,7 @@ def has_competing_rank(jwt, perdet, pk):
     aps = []
     if rankOneBids:
         ids = ','.join(rankOneBids)
-        ap = apservices.get_available_positions({'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1}, jwt)
+        ap = apservices.get_available_positions({ 'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1 }, jwt)
         aps = pydash.map_(ap['results'], 'id')
 
     for y in aps:
@@ -737,7 +734,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     return response
 
 
-def get_secondary_skill(pos={}):
+def get_secondary_skill(pos = {}):
     skillSecondary = f"{pos.get('pos_staff_ptrn_skill_desc', None)} ({pos.get('pos_staff_ptrn_skill_code')})"
     skillSecondaryCode = pos.get("pos_staff_ptrn_skill_code", None)
     if pos.get("pos_skill_code", None) == pos.get("pos_staff_ptrn_skill_code", None):
@@ -797,7 +794,7 @@ def sort_bids(bidlist, ordering_query):
             is_asc = pydash.get(ordering, '[1]') == 'asc'
             bids = sorted(bids, key=lambda x: pydash.get(x, order, '') or '', reverse=not is_asc)
         elif ordering_query in ('status', '-status'):
-            bids = pydash.map_(bids, lambda x: {**x, "ordering": bid_status_order[x['status']]})
+            bids = pydash.map_(bids, lambda x: { **x, "ordering": bid_status_order[x['status']] })
             bids = pydash.sort_by(bids, "ordering", reverse=ordering_query[0] == '-')
             bids = pydash.map_(bids, lambda x: pydash.omit(x, 'ordering'))
             bids.reverse()
@@ -829,8 +826,8 @@ def convert_to_fsbid_ql(filters):
     return formattedFilters
 
 
-def categorize_remark(remark=''):
-    obj = {'text': remark, 'type': None}
+def categorize_remark(remark = ''):
+    obj = { 'text': remark, 'type': None }
     if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
         obj['type'] = 'person'
     return obj
@@ -838,9 +835,9 @@ def categorize_remark(remark=''):
 
 def parse_agenda_remarks(remarks=[]):
     remarks_values = []
-    if remarks:
+    if (remarks):
         for remark in remarks:
-            if pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']:
+            if (pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']):
                 if not pydash.get(remark, 'remarkInserts'):
                     continue
                 remark['remarkRefData'][0]['rmrktext'] = pydash.get(remark, 'remarkInserts')[0]['airiinsertiontext']
@@ -856,7 +853,7 @@ def parse_agenda_remarks(remarks=[]):
             refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
             refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
 
-            if remarkInsertions:
+            if (remarkInsertions):
                 for insertion in remarkInsertions:
                     matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
                     if (matchText):
@@ -865,9 +862,6 @@ def parse_agenda_remarks(remarks=[]):
                         continue
 
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
-            if remark['remarkRefData'][0]['rmrkactiveind'] == 'N':
-                remark['remarkRefData'][0]['rmrktext'] += ' (legacy)'
-
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
 
@@ -983,7 +977,7 @@ def csv_fsbid_template_to_tm(data, mapping):
     row = []
 
     for x in mapping['wskeys'].keys():
-        default = mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
 
         if 'transformFn' in mapping['wskeys'][x]:
             mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
