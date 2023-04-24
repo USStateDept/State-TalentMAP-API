@@ -12,7 +12,7 @@ def get_persons(pk, jwt_token=None, host=None):
     args = {
         "uri": "",
         "query": {'perdetseqnum': pk},
-        "query_mapping_function": convert_v3_persons_query,
+        "query_mapping_function": convert_persons_query,
         "jwt_token": jwt_token,
         'mapping_function': persons_to_tm,
         "count_function": None,
@@ -28,7 +28,7 @@ def get_persons(pk, jwt_token=None, host=None):
 
     return agenda_employees
 
-def convert_v3_persons_query(query):
+def convert_persons_query(query):
     '''
     Converts TalentMap filters into FSBid filters
     '''
@@ -47,7 +47,9 @@ def convert_v3_persons_query(query):
 def persons_to_tm(data):
     firstN = data.get('perpiifirstname', '')
     lastN = data.get('perpiilastname', '')
-    name = firstN +' '+ lastN
+    suffix = data.get('perpiisuffixname', '')
+    hasSuffix = len(suffix.strip()) > 0
+    name = firstN +' '+ lastN + f"{', '+suffix if hasSuffix else ''}"
 
     return {
       'name': name,

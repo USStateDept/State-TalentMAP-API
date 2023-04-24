@@ -9,11 +9,6 @@ from drf_yasg import openapi
 class FSBidPersonsView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
 
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter("per_det_deq_num", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='perdetseqnum of the person'),
-        ])
-
     def get(self, request, pk):
         '''
         Get a single employee data from v3/persons by perdetseqnum

@@ -6,7 +6,7 @@ from talentmap_api.fsbid.views import persons as views
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    url(r'^(?P<pk>[0-9]+)$', views.FSBidPersonsView.as_view(), name="agenda-employees-FSBid-agenda-employee"),
+    url(r'^(?P<pk>[0-9]+)$', views.FSBidPersonsView.as_view(), name="FSBid-persons"),
 ]
 
 urlpatterns += router.urls
