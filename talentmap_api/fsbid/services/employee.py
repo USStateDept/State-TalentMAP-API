@@ -257,7 +257,7 @@ def get_assignments_separations_bids(query, jwt_token, pk):
     # sep = get_separations(query, jwt_token, pk)
     # sep = pydash.get(sep, 'results') or []
     bid_query_copy = query.copy()
-    bid_query_copy["filters"] = [{'col': 'ubwbscd', 'val': 'A'}]
+    bid_query_copy["filters"] = [{'col': 'ubwbscd', 'val': 'A'}, {'col': 'ubwhscode', 'val': 'HS'}]
     bid_query_copy._mutable = False
     bids = bid_services.get_bids(bid_query_copy, jwt_token, pk)
     bids = pydash.get(bids, 'results') or []
