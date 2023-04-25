@@ -267,7 +267,7 @@ def convert_bids_query(pk, query):
     values = {
         "rp.pageNum": int(query.get("page", 1)),
         "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.filter": convert_to_fsbid_ql([{'col': 'ubwperdetseqnum', 'val': pk}, {'col': 'ubwhscode', 'val': 'HS'}]),
+        "rp.filter": convert_to_fsbid_ql([*(query.get("filters") or []), {'col': 'ubwperdetseqnum', 'val': pk}]),
     }
 
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])

@@ -256,7 +256,10 @@ def get_assignments_separations_bids(query, jwt_token, pk):
     # TO-DO: Add Separations 
     # sep = get_separations(query, jwt_token, pk)
     # sep = pydash.get(sep, 'results') or []
-    bids = bid_services.get_bids(query, jwt_token, pk)
+    bid_query_copy = query.copy()
+    bid_query_copy["filters"] = [{'col': 'ubwbscd', 'val': 'A'}]
+    bid_query_copy._mutable = False
+    bids = bid_services.get_bids(bid_query_copy, jwt_token, pk)
     bids = pydash.get(bids, 'results') or []
 
     return map(map_assignments_separations_bids, pydash.interleave(asg, bids))
