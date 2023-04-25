@@ -94,8 +94,8 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1522/adb.us-ashburn-1.oraclecloud.com elizabeth w0GDB#X4&xd! 'as sysdba'
-            ./create-oracle-user.sh 127.0.0.1:1521/oraclesid elizabeth w0GDB#X4&xd! 'as sysdba'
+            ./wait-for-oracle.sh service_name=g74d330b8e9169e_talentmapapi_high.adb.oraclecloud.com elizabeth w0GDB#X4&xd! 'as sysdba'
+            ./create-oracle-user.sh service_name=g74d330b8e9169e_talentmapapi_high.adb.oraclecloud.com elizabeth w0GDB#X4&xd! 'as sysdba'
       - run:
           name: Wait for Oracle
           command: |
