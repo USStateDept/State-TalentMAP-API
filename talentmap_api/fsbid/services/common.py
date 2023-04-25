@@ -343,7 +343,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     else:
         url = f"{api_root}/{uri}?{query_mapping_function(newQuery)}"
         method = requests.get
-    
+
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
     countObj = pydash.get(response, "Data[0]")
     if len(pydash.keys(countObj)):
@@ -439,7 +439,6 @@ def get_bid_stats_for_csv(record):
 
 
 def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
-
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -490,7 +489,6 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
         except:
             posteddate = "None listed"
 
-
         if record["position"]["post"]["differential_rate"] is not None:
             formattedDifferential = record["position"]["post"]["differential_rate"]
         else:
@@ -538,7 +536,6 @@ def get_ap_and_pv_csv(data, filename, ap=False, tandem=False):
 
 
 def get_bids_csv(data, filename, jwt_token):
-
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f"attachment; filename={filename}_{datetime.now().strftime('%Y_%m_%d_%H%M%S')}.csv"
 
@@ -583,7 +580,7 @@ def get_bids_csv(data, filename, jwt_token):
         "submitted": "Submitted",
     }
 
-    bid_status_list = [ 
+    bid_status_list = [
         "handshake_needs_registered",
         "submitted",
     ]
@@ -601,7 +598,7 @@ def get_bids_csv(data, filename, jwt_token):
 
             if hs_offered == "Yes" and status in bid_status_list:
                 hs_offered_bid_status = "handshake_with_another_bidder"
-            
+
             hs_status = (pydash.get(record, 'handshake.hs_status_code') or '').replace('_', ' ') or 'N/A'
             row = []
             row.append(pydash.get(bid_status, hs_offered_bid_status) or 'N/A')
@@ -657,6 +654,7 @@ def archive_favorites(ids, request, isPV=False, favoritesLimit=FAVORITES_LIMIT):
                     AvailablePositionFavorite.objects.filter(cp_id__in=outdated_ids).update(archived=True)
                     AvailableFavoriteTandem.objects.filter(cp_id__in=outdated_ids).update(archived=True)
 
+
 # Determine if the bidder has a competing #1 ranked bid on a position within the requester's org or bureau permissions
 def has_competing_rank(jwt, perdet, pk):
     rankOneBids = AvailablePositionRanking.objects.filter(bidder_perdet=perdet, rank=0).exclude(cp_id=pk).values_list(
@@ -675,6 +673,7 @@ def has_competing_rank(jwt, perdet, pk):
             # don't bother continuing the loop if we've already found one
             return True
     return False
+
 
 def get_bidders_csv(self, pk, data, filename, jwt_token):
     response = HttpResponse(content_type='text/csv')
@@ -767,22 +766,23 @@ HAND_SHAKE_OFFER_DECLINED_PROP = 'handshake_declined'
 HAND_SHAKE_REVOKED_PROP = 'handshake_offer_revoked'
 
 bid_status_order = {
-  DECLINED_PROP: 10,
-  CLOSED_PROP: 20,
-  HAND_SHAKE_DECLINED_PROP: 30,
-  HAND_SHAKE_OFFER_DECLINED_PROP: 40,
-  HAND_SHAKE_REVOKED_PROP: 50,
-  DRAFT_PROP: 60,
-  SUBMITTED_PROP: 70,
-  HAND_SHAKE_OFFERED_PROP: 80,
-  HAND_SHAKE_OFFER_ACCEPTED_PROP: 90,
-  HAND_SHAKE_NEEDS_REGISTER_PROP: 100,
-  HAND_SHAKE_ACCEPTED_PROP: 110,
-  PRE_PANEL_PROP: 120,
-  PANEL_RESCHEDULED_PROP: 130,
-  IN_PANEL_PROP: 140,
-  APPROVED_PROP: 150,
+    DECLINED_PROP: 10,
+    CLOSED_PROP: 20,
+    HAND_SHAKE_DECLINED_PROP: 30,
+    HAND_SHAKE_OFFER_DECLINED_PROP: 40,
+    HAND_SHAKE_REVOKED_PROP: 50,
+    DRAFT_PROP: 60,
+    SUBMITTED_PROP: 70,
+    HAND_SHAKE_OFFERED_PROP: 80,
+    HAND_SHAKE_OFFER_ACCEPTED_PROP: 90,
+    HAND_SHAKE_NEEDS_REGISTER_PROP: 100,
+    HAND_SHAKE_ACCEPTED_PROP: 110,
+    PRE_PANEL_PROP: 120,
+    PANEL_RESCHEDULED_PROP: 130,
+    IN_PANEL_PROP: 140,
+    APPROVED_PROP: 150,
 }
+
 
 def sort_bids(bidlist, ordering_query):
     ordering = sorting_values(ordering_query)
@@ -802,7 +802,8 @@ def sort_bids(bidlist, ordering_query):
         logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
         return bidlist
     return bids
-    
+
+
 # known comparators:
 # eq: equals
 # in: in
@@ -832,11 +833,11 @@ def categorize_remark(remark = ''):
     return obj
 
 
-def parse_agenda_remarks(remarks = []):
+def parse_agenda_remarks(remarks=[]):
     remarks_values = []
-    if (remarks):
+    if remarks:
         for remark in remarks:
-            if (pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']):
+            if pydash.get(remark, 'remarkRefData[0].rmrktext') in [None, '']:
                 if not pydash.get(remark, 'remarkInserts'):
                     continue
                 remark['remarkRefData'][0]['rmrktext'] = pydash.get(remark, 'remarkInserts')[0]['airiinsertiontext']
@@ -852,7 +853,7 @@ def parse_agenda_remarks(remarks = []):
             refRemarkText = pydash.get(remark, 'remarkRefData[0].rmrktext')
             refInsertionsText = pydash.get(remark, 'remarkRefData[0].RemarkInserts')
 
-            if (remarkInsertions):
+            if remarkInsertions:
                 for insertion in remarkInsertions:
                     matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
                     if (matchText):
@@ -861,10 +862,14 @@ def parse_agenda_remarks(remarks = []):
                         continue
 
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
+            if remark['remarkRefData'][0]['rmrkactiveind'] == 'N':
+                remark['remarkRefData'][0]['rmrktext'] = '(Legacy) ' + remark['remarkRefData'][0]['rmrktext']
+
             pydash.unset(remark, 'remarkRefData[0].RemarkInserts')
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
-    
+
     return remarks_values
+
 
 def get_aih_csv(data, filename):
     filename = re.sub(r'(\_)\1+', r'\1', filename.replace(',', '_').replace(' ', '_').replace("'", '_'))
@@ -903,7 +908,7 @@ def get_aih_csv(data, filename):
             panelDate = smart_str(maya.parse(pydash.get(record, "panel_date")).datetime().strftime('%m/%d/%Y'))
         except:
             panelDate = "None listed"
-        
+
         try:
             remarks = pydash.map_(pydash.get(record, "remarks", []), 'text')
             remarks = pydash.join(remarks, '; ')
@@ -926,12 +931,14 @@ def get_aih_csv(data, filename):
         writer.writerow(row)
     return response
 
+
 def map_return_template_cols(cols, cols_mapping, data):
     # cols: an array of strs of the TM data names to map and return
     # cols_mapping: dict to map from TM names(key) to WS names(value)
     props_to_map = pydash.pick(cols_mapping, *cols)
     mapped_tuples = map(lambda x: (x[0], pydash.get(data, x[1]).strip() if type(pydash.get(data, x[1])) == str else pydash.get(data, x[1])), props_to_map.items())
     return dict(mapped_tuples)
+
 
 # optimized map_return_template_cols
 def map_fsbid_template_to_tm(data, mapping):
@@ -951,6 +958,7 @@ def if_str_upper(x):
         return x.upper()
 
     return x
+
 
 # mapping = {
 #   'default': 'None', <-default value for all values (required)
@@ -984,6 +992,7 @@ def csv_fsbid_template_to_tm(data, mapping):
             row.append(smart_str(pydash.get(data, x) or default))
 
     return row
+
 
 def process_dates_csv(date):
     if (date):
@@ -1021,4 +1030,3 @@ def panel_process_dates_csv(dates):
                 columnOrdering.update({date['mdtcode']: 'None Listed'})
 
     return list(columnOrdering.values())
-

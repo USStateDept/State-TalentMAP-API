@@ -7,6 +7,7 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.FSBidAssignmentHistoryListView.as_view(), name="assignment-history-list"),
+    url(r'^$', views.FSBidPrivateAssignmentHistoryListView.as_view(), name="private-assignment-history-list"),
 ]
 
 urlpatterns += router.urls
