@@ -12,13 +12,15 @@ shift
 
 checkOracle() {
   if $alt; then
+    echo $user
     echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck-alt.sql | grep -q 'USER'
   else
+    echo $user
     echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @healthcheck.sql | grep -q 'READ WRITE'
   fi
 }
-
-retries=360
+#retries=360
+retries=200
 while ((retries > 0)); do
     if checkOracle; then
         >&2 echo "Connected to Oracle!"
