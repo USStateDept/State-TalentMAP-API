@@ -94,8 +94,8 @@ jobs:
       - run:
           name: Create Oracle user
           command: |
-            ./wait-for-oracle.sh 127.0.0.1:1521/oraclesid sys oraclepwd 'as sysdba'
-            ./create-oracle-user.sh 127.0.0.1:1521/oraclesid sys oraclepwd 'as sysdba'
+            ./wait-for-oracle.sh talentmapapi_high elizabeth w0GDB#X4&xd! 'as sysdba'
+            ./create-oracle-user.sh 127.0.0.1:1521/oraclesid elizabeth w0GDB#X4&xd! 'as sysdba'
       - run:
           name: Wait for Oracle
           command: |

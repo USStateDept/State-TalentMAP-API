@@ -13,7 +13,8 @@ createUser() {
   echo exit | /opt/oracle/instantclient_19_8/sqlplus -L "$user"/"$password"@//"$host" "$suffix" @create-oracle-user.sql | grep -q 'Grant succeeded'
 }
 
-retries=300
+#retries=300
+retries=150
 while ((retries > 0)); do
     if createUser; then
         >&2 echo "User created!"
