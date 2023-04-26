@@ -16,7 +16,6 @@ from django.http import HttpResponse
 from talentmap_api.fsbid.services import common as services
 
 
-PERSON_API_ROOT = settings.PERSON_API_URL
 API_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
@@ -49,7 +48,6 @@ def get_agenda_employees(query, jwt_token=None, host=None):
     )
 
     return agenda_employees
-
 
 def get_agenda_employees_count(query, jwt_token, host=None, use_post=False):
     '''
