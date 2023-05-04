@@ -220,8 +220,6 @@ def convert_agenda_item_query(query):
 
 
 def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
-    print("fsbid_single_agenda_item ----------> talentmap_single_agenda_item")
-    print(data)
     agendaStatusAbbrev = {
         "Approved": "APR",
         "Deferred - Proposed Position": "XXX",
@@ -258,8 +256,6 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
     creators = pydash.get(data, "creators") or None
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
-    print("fsbid_single_agenda_item ----------> talentmap_single_agenda_item legsToReturn  legsToReturn")
-    print(legsToReturn)
     return {
         "id": pydash.get(data, "aiseqnum") or None,
         "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
@@ -327,9 +323,11 @@ def fsbid_legs_to_talentmap_legs(data):
         "eta": pydash.get(data, "ailetadate", None),
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         # "tod": pydash.get(data, "ailtodothertext", None),
+        "tod": pydash.get(data, "ailtodcode", None),
         "tod_months": pydash.get(data, "ailtodmonthsnum", None),
         "tod_code": pydash.get(data, "ailtodcode", None),
         "tod_other_text": pydash.get(data, "ailtodothertext", None),
+        # No idea when ^^ that gets hit or what it does
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
@@ -355,7 +353,6 @@ def fsbid_legs_to_talentmap_legs(data):
 
     # TODO - determine all edge cases for actions where there is no positions information
 
-    print("fsbid_legs ===========> talentmap_legs")
     return res
 
 def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
@@ -391,7 +388,6 @@ def fsbid_aia_to_talentmap_aia(data):
         "org": pydash.get(data, "position[0].posorgshortdesc", None),
         "eta": pydash.get(data, "asgdetadate", None),
         "ted": pydash.get(data, "asgdetdteddate", None),
-        # "tod": pydash.get(data, 'todshortdesc', None),
         "tod": pydash.get(data, 'asgdtoddesctext', None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
@@ -479,8 +475,6 @@ def convert_create_agenda_item_query(query):
     }
 
 def convert_agenda_item_leg_query(query, leg={}):
-    print('convert_agenda_item_leg_query')
-    print(query)
     '''
     Converts TalentMap query into FSBid query
     '''
@@ -493,8 +487,7 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailempseqnbr": int(pydash.get(query, "personId") or 0) or None,
         "ailperdetseqnum": int(pydash.get(query, "personDetailId") or 0) or None,
         "ailposseqnum": int(pydash.get(leg, "posSeqNum") or 0) or None,
-        # "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
-        "ailtodcode": pydash.get(leg, "tourOfDutyCode", None),
+        "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
         "ailtodmonthsnum": pydash.get(leg, "tourOfDutyMonths", None),
         "ailtodothertext": pydash.get(leg, "tourOfDutyOtherText", None),
         "ailetadate": None,
