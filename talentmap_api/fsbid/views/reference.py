@@ -42,7 +42,7 @@ class FSBidLanguagesView(BaseView):
 
 
 class FSBidTourOfDutiesView(BaseView):
-    uri = "v1/posts/tourofduties"
+    uri = "v1/references/tourofduties"
     mapping_function = services.fsbid_tour_of_duties_to_talentmap_tour_of_duties
 
 
