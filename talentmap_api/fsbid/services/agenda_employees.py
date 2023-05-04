@@ -208,7 +208,7 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
     firstN = data.get('perpiifirstname', '')
     lastN = data.get('perpiilastname', '')
     initials = f"{firstN[0] if firstN else ''}{lastN[0] if lastN else ''}"
-    suffix = data.get('perpiisuffixname', '')
+    suffix = data.get('perpiisuffixname') or ''
     hasSuffix = len(suffix.strip()) > 0
     fullName = data.get("perpiifullname", "")
     if pydash.ends_with(fullName, "NMN"):
