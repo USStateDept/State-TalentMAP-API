@@ -322,12 +322,10 @@ def fsbid_legs_to_talentmap_legs(data):
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
         "eta": pydash.get(data, "ailetadate", None),
         "ted": pydash.get(data, "ailetdtedsepdate", None),
-        # "tod": pydash.get(data, "ailtodothertext", None),
-        "tod": pydash.get(data, "ailtodcode", None),
+        "tod": pydash.get(data, "ailtodcode", None), # grab correct desc from this code
         "tod_months": pydash.get(data, "ailtodmonthsnum", None),
-        "tod_code": pydash.get(data, "ailtodcode", None),
         "tod_other_text": pydash.get(data, "ailtodothertext", None),
-        # No idea when ^^ that gets hit or what it does
+        # "tod_code": pydash.get(data, "ailtodcode", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
@@ -389,6 +387,11 @@ def fsbid_aia_to_talentmap_aia(data):
         "eta": pydash.get(data, "asgdetadate", None),
         "ted": pydash.get(data, "asgdetdteddate", None),
         "tod": pydash.get(data, 'asgdtoddesctext', None),
+        # "tod": pydash.get(data, 'asgdtodcode', None),
+        # "tod": pydash.get(data, 'toddesctext', None),
+        # "tod": pydash.get(data, 'todshortdesc', None),
+        # "tod": pydash.get(data, 'todcode', None),
+        # confirm what is correct here in DEV (isEF)
         "grade": pydash.get(data, "position[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
         "travel": "-",
