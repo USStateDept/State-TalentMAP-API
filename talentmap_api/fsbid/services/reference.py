@@ -102,12 +102,8 @@ def fsbid_languages_to_talentmap_languages(data):
 @staticmethod
 def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
     return {
-        "id": data.get("code", 0),
         "code": data.get("code", 0),
-        "is_active": True,
-        # "months": None,
         "long_description": data.get("long_desc", None),
-        # "short_description": data.get("long_desc", None)
     }
 
 
@@ -115,7 +111,7 @@ def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
 def fsbid_tours_of_duty_to_talentmap_tours_of_duty(data):
     return {
         "code": data.get("todcode", 0),
-        "is_active": True, # what is this?
+        "is_active": True, # TODs returned from this call are not legacy
         "months": data.get("todmonthsnum", 0),
         "long_description": data.get("toddesctext", None),
         "short_description": data.get("todshortdesc", None)
