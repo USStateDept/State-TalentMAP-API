@@ -16,7 +16,6 @@ from django.http import HttpResponse
 from talentmap_api.fsbid.services import common as services
 
 
-PERSON_API_ROOT = settings.PERSON_API_URL
 API_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
@@ -49,7 +48,6 @@ def get_agenda_employees(query, jwt_token=None, host=None):
     )
 
     return agenda_employees
-
 
 def get_agenda_employees_count(query, jwt_token, host=None, use_post=False):
     '''
@@ -210,7 +208,7 @@ def fsbid_agenda_employee_to_talentmap_agenda_employee(data, cdos=[]):
     firstN = data.get('perpiifirstname', '')
     lastN = data.get('perpiilastname', '')
     initials = f"{firstN[0] if firstN else ''}{lastN[0] if lastN else ''}"
-    suffix = data.get('perpiisuffixname', '')
+    suffix = data.get('perpiisuffixname') or ''
     hasSuffix = len(suffix.strip()) > 0
     fullName = data.get("perpiifullname", "")
     if pydash.ends_with(fullName, "NMN"):
