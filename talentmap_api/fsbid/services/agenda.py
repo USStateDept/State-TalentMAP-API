@@ -338,6 +338,7 @@ def fsbid_legs_to_talentmap_legs(data):
     if res['action'] == 'Retire':
         res['pos_title'] = 'RETIREMENT'
         res['pos_num'] = 'N/A'
+        res['eta'] = '-'
 
     if res['action'] == 'Termination':
         res['pos_title'] = 'TERMINATION'
