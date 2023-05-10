@@ -256,7 +256,6 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
     creators = pydash.get(data, "creators") or None
     if creators:
         creators = fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(creators[0])
-        
     return {
         "id": pydash.get(data, "aiseqnum") or None,
         "pmi_official_item_num": pydash.get(data, "pmiofficialitemnum") or None,
@@ -323,7 +322,9 @@ def fsbid_legs_to_talentmap_legs(data):
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
         "eta": pydash.get(data, "ailetadate", None),
         "ted": pydash.get(data, "ailetdtedsepdate", None),
-        "tod": pydash.get(data, "ailtodothertext", None),
+        "tod": pydash.get(data, "ailtodcode", None),
+        "tod_months": pydash.get(data, "ailtodmonthsnum", None),
+        "tod_other_text": pydash.get(data, "ailtodothertext", None),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
@@ -385,7 +386,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "org": pydash.get(data, "position[0].posorgshortdesc", None),
         "eta": pydash.get(data, "asgdetadate", None),
         "ted": pydash.get(data, "asgdetdteddate", None),
-        "tod": pydash.get(data, 'todshortdesc', None),
+        "tod": pydash.get(data, 'todcode', None),
         "grade": pydash.get(data, "position[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
         "travel": "-",
@@ -484,9 +485,9 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailempseqnbr": int(pydash.get(query, "personId") or 0) or None,
         "ailperdetseqnum": int(pydash.get(query, "personDetailId") or 0) or None,
         "ailposseqnum": int(pydash.get(leg, "posSeqNum") or 0) or None,
-        "ailtodcode": pydash.get(leg, "tourOfDutyCode", ""),
-        "ailtodmonthsnum": None,
-        "ailtodothertext": None,
+        "ailtodcode": pydash.get(leg, "tod", ""),
+        "ailtodmonthsnum": pydash.get(leg, "tourOfDutyMonths", None),
+        "ailtodothertext": pydash.get(leg, "tourOfDutyOtherText", None),
         "ailetadate": None,
         "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
         "aildsccd": None,

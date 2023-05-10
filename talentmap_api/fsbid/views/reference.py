@@ -46,6 +46,11 @@ class FSBidTourOfDutiesView(BaseView):
     mapping_function = services.fsbid_tour_of_duties_to_talentmap_tour_of_duties
 
 
+class FSBidToursOfDutyView(BaseView):
+    uri = "v1/references/tours-of-duty"
+    mapping_function = services.fsbid_tours_of_duty_to_talentmap_tours_of_duty
+
+
 class FSBidCodesView(BaseView):
     uri = "v1/references/skills"
     mapping_function = services.fsbid_codes_to_talentmap_codes

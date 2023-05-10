@@ -112,6 +112,17 @@ def fsbid_tour_of_duties_to_talentmap_tour_of_duties(data):
 
 
 @staticmethod
+def fsbid_tours_of_duty_to_talentmap_tours_of_duty(data):
+    return {
+        "code": data.get("todcode", 0),
+        "is_active": True, # TODs returned from this call are not legacy
+        "months": data.get("todmonthsnum", 0),
+        "long_description": data.get("toddesctext", None),
+        "short_description": data.get("todshortdesc", None)
+    }
+
+
+@staticmethod
 def fsbid_codes_to_talentmap_codes(data):
     return {
         "id": data.get("jc_id", 0),
