@@ -866,6 +866,7 @@ def parse_agenda_remarks(remarks=[]):
             remark['remarkRefData'][0]['rmrktext'] = refRemarkText
             if remark['remarkRefData'][0]['rmrkactiveind'] == 'N':
                 remark['remarkRefData'][0]['rmrktext'] = '(Legacy) ' + remark['remarkRefData'][0]['rmrktext']
+                remark['remarkRefData'][0]['refrmrktext'] = remark['remarkRefData'][0]['rmrktext']
 
             remarks_values.append(agendaservices.fsbid_to_talentmap_agenda_remarks(remark['remarkRefData'][0]))
 
