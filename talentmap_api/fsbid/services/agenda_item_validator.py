@@ -48,7 +48,10 @@ def validate_agenda_item(query):
         },
     }
 
-
+    all_valid = True
+    for v_s_tuple in validation_status.items():
+        all_valid = all_valid and v_s_tuple[1].get('valid')
+    validation_status['allValid'] = all_valid
 
     # AI Remarks - must not contain any inactive ones
 
