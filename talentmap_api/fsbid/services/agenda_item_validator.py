@@ -42,10 +42,7 @@ def validate_agenda_item(query):
             'valid': False,
             'errorMessage': ''
         },
-        'legs': {
-            'valid': False,
-            'errorMessage': ''
-        },
+        'legs': validate_legs(query['agendaLegs']),
     }
 
     all_valid = True
@@ -60,3 +57,15 @@ def validate_agenda_item(query):
     # print('🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭')
     return validation_status
 
+def validate_legs(legs):
+    legs_validation = {
+        'valid': True,
+        'errorMessage': ''
+    }
+
+    # AI Legs - must not be empty
+    if not len(legs):
+        legs_validation['valid'] = False
+        legs_validation['errorMessage'] = 'Agenda Items must have at least one leg.'
+
+    return legs_validation
