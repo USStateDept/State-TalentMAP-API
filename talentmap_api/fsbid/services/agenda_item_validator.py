@@ -22,26 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 def validate_agenda_item(query):
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
-    print(query)
-    print('🌷🌷🌷🌷🌷🌷🌷🌷🌷')
     validation_status = {
-        'status': {
-            'valid': False,
-            'errorMessage': ''
-        },
-        'reportCategory': {
-            'valid': False,
-            'errorMessage': ''
-        },
-        'panelDate': {
-            'valid': False,
-            'errorMessage': ''
-        },
-        'remarks': {
-            'valid': False,
-            'errorMessage': ''
-        },
+        'status': validate_status(query['agendaStatusCode']),
+        'reportCategory': validate_report_category(query['panelMeetingCategory']),
+        'panelDate': validate_panel_date(query['panelMeetingId']),
         'legs': validate_legs(query['agendaLegs']),
     }
 
@@ -50,12 +34,46 @@ def validate_agenda_item(query):
         all_valid = all_valid and v_s_tuple[1].get('valid')
     validation_status['allValid'] = all_valid
 
-    # AI Remarks - must not contain any inactive ones
-
-    # print('🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭')
-    # print(validation_status)
-    # print('🍭🍭🍭🍭🍭🍭🍭🍭🍭🍭')
     return validation_status
+
+def validate_status(status):
+    status_validation = {
+        'valid': True,
+        'errorMessage': ''
+    }
+
+    # AI Status - must make selection
+    if not status:
+        status_validation['valid'] = False
+        status_validation['errorMessage'] = 'No Status Selected'
+
+    return status_validation
+
+def validate_report_category(category):
+    category_validation = {
+        'valid': True,
+        'errorMessage': ''
+    }
+
+    # AI Category - must make selection
+    if not category:
+        category_validation['valid'] = False
+        category_validation['errorMessage'] = 'No Category Selected'
+
+    return category_validation
+
+def validate_panel_date(date):
+    date_validation = {
+        'valid': True,
+        'errorMessage': ''
+    }
+
+    # AI Date - must make selection
+    if not date:
+        date_validation['valid'] = False
+        date_validation['errorMessage'] = 'Agenda Items must have at least one leg.'
+
+    return date_validation
 
 def validate_legs(legs):
     legs_validation = {
