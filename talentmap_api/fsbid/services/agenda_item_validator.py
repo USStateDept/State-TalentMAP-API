@@ -71,7 +71,7 @@ def validate_panel_date(date):
     # AI Date - must make selection
     if not date:
         date_validation['valid'] = False
-        date_validation['errorMessage'] = 'Agenda Items must have at least one leg.'
+        date_validation['errorMessage'] = 'No Panel Date Selected'
 
     return date_validation
 
