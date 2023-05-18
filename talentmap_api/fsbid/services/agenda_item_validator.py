@@ -36,6 +36,7 @@ def validate_agenda_item(query):
 
     return validation_status
 
+
 def validate_status(status):
     status_validation = {
         'valid': True,
@@ -77,13 +78,77 @@ def validate_panel_date(date):
 
 def validate_legs(legs):
     legs_validation = {
-        'valid': True,
-        'errorMessage': ''
+        'allLegs': {
+            'valid': True,
+            'errorMessage': ''
+        },
+        'individualLegs': {}
     }
 
     # AI Legs - must not be empty
     if not len(legs):
-        legs_validation['valid'] = False
-        legs_validation['errorMessage'] = 'Agenda Items must have at least one leg.'
+        legs_validation['allLegs']['valid'] = False
+        legs_validation['allLegs']['errorMessage'] = 'Agenda Items must have at least one leg.'
+        return legs_validation
 
+    for leg in legs:
+        legs_validation['individualLegs'][leg['ail_seq_num']] = validate_individual_leg(leg)
+
+    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
+    print(legs_validation)
+    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
     return legs_validation
+
+def validate_individual_leg(leg):
+    individual_leg_validation = {
+        'legEndDate': {
+            'valid': True,
+            'errorMessage': ''
+        },
+        'tod': validate_tod(leg['tod'], leg['tourOfDutyMonths'], leg['tourOfDutyOtherText']),
+        'legActionType': {
+            'valid': True,
+            'errorMessage': ''
+        },
+        'travelFunctionCode': {
+            'valid': True,
+            'errorMessage': ''
+        }
+    }
+
+    # Leg - must have TED
+    if not leg['legEndDate']:
+        individual_leg_validation['legEndDate']['valid'] = False
+        individual_leg_validation['legEndDate']['errorMessage'] = 'Missing TED'
+
+    # Leg - must have Action
+    if not leg['legActionType']:
+        individual_leg_validation['legActionType']['valid'] = False
+        individual_leg_validation['legActionType']['errorMessage'] = 'Missing Action'
+
+    # Leg - must have Travel
+    if not leg['travelFunctionCode']:
+        individual_leg_validation['travelFunctionCode']['valid'] = False
+        individual_leg_validation['travelFunctionCode']['errorMessage'] = 'Missing Travel'
+
+    return individual_leg_validation
+
+def validate_tod(tod, tod_months, tod_other_text):
+    tod_validation = {
+        'valid': True,
+        'errorMessage': ''
+    }
+
+    # Leg - must have TOD
+    if not tod:
+        tod_validation['valid'] = False
+        tod_validation['errorMessage'] = 'Missing TOD'
+        return tod_validation
+
+    # if TOD code X(other) - must have months and other text
+    if tod == 'X':
+        if (not tod_months) or (not tod_other_text):
+            tod_validation['valid'] = False
+            tod_validation['errorMessage'] = 'Other TOD must have Tour length'
+
+    return tod_validation
