@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^remark-categories/$', views.AgendaRemarkCategoriesView.as_view(), name="agenda-reference-remark-categories"),
     url(r'^statuses/$', views.AgendaStatusesView.as_view(), name="agenda-reference-statuses"),
     url(r'^leg_action_types/$', views.AgendaLegActionTypesView.as_view(), name="agenda-reference-leg-action-types"),
+    url(r'^agenda_item/validate/$', views.AgendaItemValidatorView.as_view(), name="agenda-item-validator"),
 ]
 
 urlpatterns += router.urls

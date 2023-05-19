@@ -14,6 +14,7 @@ from django.utils.encoding import smart_str
 
 from talentmap_api.fsbid.services import common as services
 from talentmap_api.fsbid.services import client as client_services
+import talentmap_api.fsbid.services.agenda_item_validator as ai_validator
 from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
 AGENDA_API_ROOT = settings.AGENDA_API_URL
@@ -84,23 +85,29 @@ def create_agenda(query={}, jwt_token=None, host=None):
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
     query['hru_id'] = hru_id
     logger.info(f"1. query --------------------------------------------------- {query}")
-    logger.info('2. calling pmi ---------------------------------------------------')
+    logger.info('2. validating ai ---------------------------------------------------')
+    ai_validation = ai_validator.validate_agenda_item(query)
+    logger.info(f"2a. ai valid {ai_validation['allValid']}")
+    if not ai_validation['allValid']:
+        return ai_validation
+    logger.info('3. calling pmi ---------------------------------------------------')
     panel_meeting_item = create_panel_meeting_item(query, jwt_token)
-    logger.info(f"2a. PMI return {panel_meeting_item}")
+    logger.info(f"3a. pmi return {panel_meeting_item}")
     pmi_seq_num = pydash.get(panel_meeting_item, '[0].pmi_seq_num')
-    if pmi_seq_num:
+
+    if pmi_seq_num and ai_valid:
         query['pmiseqnum'] = pmi_seq_num
-        logger.info('3. calling ai ---------------------------------------------------')
+        logger.info('4. calling ai ---------------------------------------------------')
         agenda_item = create_agenda_item(query, jwt_token)
-        logger.info(f"3a. AI return {agenda_item}")
+        logger.info(f"4a. ai return {agenda_item}")
         ai_seq_num = pydash.get(agenda_item, '[0].ai_seq_num')
         if ai_seq_num:
             query['aiseqnum'] = ai_seq_num
             if pydash.get(query, 'agendaLegs'):
-                logger.info('4. calling ail ---------------------------------------------------')
+                logger.info('5. calling ail ---------------------------------------------------')
                 for x in query['agendaLegs']:
                     agenda_item_leg = create_agenda_item_leg(x, query, jwt_token)
-                    logger.info(f"4a. AIL return {agenda_item_leg}")
+                    logger.info(f"5a. ail return {agenda_item_leg}")
         else:
             logger.error("AI create failed")
     else:

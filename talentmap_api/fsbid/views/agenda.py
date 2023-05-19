@@ -1,7 +1,4 @@
-import coreapi
-
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from drf_yasg.utils import swagger_auto_schema
@@ -10,6 +7,7 @@ from rest_condition import Or
 
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.agenda as services
+import talentmap_api.fsbid.services.agenda_item_validator as ai_validator
 from talentmap_api.common.permissions import isDjangoGroupMember
 
 import logging
@@ -158,3 +156,12 @@ class PanelAgendasCSVView(BaseView):
         Get agendas for a panel meeting for export
         '''
         return services.get_agendas_by_panel_export(pk, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")
+
+class AgendaItemValidatorView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), )]
+
+    def post(self, request):
+        '''
+        Validate Agenda Item
+        '''
+        return Response(ai_validator.validate_agenda_item(request.data))
