@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 def validate_agenda_item(query):
+    # when adding more validation checks,
+    # remember to make sure the allValid check is still properly tracking all valid states
     validation_status = {
         'status': validate_status(query['agendaStatusCode']),
         'reportCategory': validate_report_category(query['panelMeetingCategory']),
@@ -30,8 +32,11 @@ def validate_agenda_item(query):
     }
 
     all_valid = True
-    for v_s_tuple in validation_status.items():
-        all_valid = all_valid and v_s_tuple[1].get('valid')
+    for k in validation_status.keys():
+        if k is 'legs':
+            all_valid = all_valid and validation_status[k]['allLegs']['valid']
+        else:
+            all_valid = all_valid and validation_status[k]['valid']
     validation_status['allValid'] = all_valid
 
     return validation_status
@@ -92,14 +97,16 @@ def validate_legs(legs):
         return legs_validation
 
     for leg in legs:
-        legs_validation['individualLegs'][leg['ail_seq_num']] = validate_individual_leg(leg)
+        valid_leg_check = validate_individual_leg(leg)
+        legs_validation['individualLegs'][leg['ail_seq_num']] = valid_leg_check[0]
+        if not valid_leg_check[1]:
+            legs_validation['allLegs']['valid'] = False
+            legs_validation['allLegs']['errorMessage'] = 'One of Agenda Items legs failed validation'
 
-    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
-    print(legs_validation)
-    print('🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄')
     return legs_validation
 
 def validate_individual_leg(leg):
+    whole_leg_valid = True
     individual_leg_validation = {
         'legEndDate': {
             'valid': True,
@@ -120,18 +127,21 @@ def validate_individual_leg(leg):
     if not leg['legEndDate']:
         individual_leg_validation['legEndDate']['valid'] = False
         individual_leg_validation['legEndDate']['errorMessage'] = 'Missing TED'
+        whole_leg_valid = False
 
     # Leg - must have Action
     if not leg['legActionType']:
         individual_leg_validation['legActionType']['valid'] = False
         individual_leg_validation['legActionType']['errorMessage'] = 'Missing Action'
+        whole_leg_valid = False
 
     # Leg - must have Travel
     if not leg['travelFunctionCode']:
         individual_leg_validation['travelFunctionCode']['valid'] = False
         individual_leg_validation['travelFunctionCode']['errorMessage'] = 'Missing Travel'
+        whole_leg_valid = False
 
-    return individual_leg_validation
+    return (individual_leg_validation, whole_leg_valid)
 
 def validate_tod(tod, tod_months, tod_other_text):
     tod_validation = {
