@@ -101,7 +101,7 @@ def validate_legs(legs):
         legs_validation['individualLegs'][leg['ail_seq_num']] = valid_leg_check[0]
         if not valid_leg_check[1]:
             legs_validation['allLegs']['valid'] = False
-            legs_validation['allLegs']['errorMessage'] = 'One of Agenda Items legs failed validation'
+            legs_validation['allLegs']['errorMessage'] = 'One of the Agenda Item\'s legs failed validation.'
 
     return legs_validation
 
