@@ -67,8 +67,13 @@ class FSBidGSALocationsView(BaseView):
         manual_parameters=[
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("code", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Code'),
+            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Description'),
+            openapi.Parameter("city", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='City'),
+            openapi.Parameter("state", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='State'),
+            openapi.Parameter("country", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Country'),
         ])
-
+     
     def get(self, request):
         """
         Return a list of filterable reference data for GSA locations

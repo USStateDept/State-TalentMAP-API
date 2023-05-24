@@ -262,6 +262,12 @@ def tmap_to_fsbid_gsa_location_query(query):
             {"col": "locgvtlocalityarea", "val": query.get("locality_area", None)},
         ]),
     }
+
+    if query.get("getCount") == 'true':
+        values["rp.pageNum"] = 0
+        values["rp.pageRows"] = 0
+        values["rp.columns"] = "ROWCOUNT"
+
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
