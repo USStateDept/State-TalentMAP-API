@@ -1,5 +1,7 @@
 import logging
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.conf import settings
 from rest_framework.response import Response
 from talentmap_api.fsbid.views.base import BaseView
@@ -59,6 +61,24 @@ class FSBidCodesView(BaseView):
 class FSBidLocationsView(BaseView):
     uri = "v1/references/Locations"
     mapping_function = services.fsbid_locations_to_talentmap_locations
+
+class FSBidGSALocationsView(BaseView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),
+            openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Number of results to return per page.'),
+            openapi.Parameter("code", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Code'),
+            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Description'),
+            openapi.Parameter("city", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='City'),
+            openapi.Parameter("state", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='State'),
+            openapi.Parameter("country", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Country'),
+        ])
+     
+    def get(self, request):
+        """
+        Return a list of filterable reference data for GSA locations
+        """
+        return Response(services.get_gsa_locations(request.query_params, request.META['HTTP_JWT']))
 
 
 class FSBidConesView(BaseView):
