@@ -321,6 +321,17 @@ def fsbid_legs_to_talentmap_legs(data):
     def map_tf(tf=None):
         return pydash.get(tf_mapping, tf, None)
 
+    def handle_other_tod(code, other_text, description):
+        if (code == 'X') and (other_text):
+            return other_text
+        else: return description
+            
+
+    tod_code = pydash.get(data, "ailtodcode", None)
+    tod_other_text = pydash.get(data, "ailtodothertext", None)
+    tod_short_desc = pydash.get(data, "todshortdesc", None)
+    tod_long_desc = pydash.get(data, "toddesctext", None)
+
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
         "ail_seq_num": pydash.get(data, "ailseqnum", None),
@@ -329,11 +340,11 @@ def fsbid_legs_to_talentmap_legs(data):
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
         "eta": pydash.get(data, "ailetadate", None),
         "ted": pydash.get(data, "ailetdtedsepdate", None),
-        "tod": pydash.get(data, "ailtodcode", None),
+        "tod": tod_code,
         "tod_months": pydash.get(data, "ailtodmonthsnum", None),
-        "tod_other_text": pydash.get(data, "ailtodothertext", None),
-        "tod_short_desc": pydash.get(data, "todshortdesc", None),
-        "tod_long_desc": pydash.get(data, "toddesctext", None),
+        "tod_other_text": tod_other_text,
+        "tod_short_desc": handle_other_tod(tod_code, tod_other_text, tod_short_desc),
+        "tod_long_desc": handle_other_tod(tod_code, tod_other_text, tod_long_desc),
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
@@ -388,6 +399,18 @@ def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
 
 # aia = agenda item assignment
 def fsbid_aia_to_talentmap_aia(data):
+    
+    def handle_other_tod(code, other_text, description):
+      if (code == 'X') and (other_text):
+          return other_text
+      else: return description
+            
+
+    tod_code = pydash.get(data, "asgdtodcode", None)
+    tod_other_text = pydash.get(data, "asgdtodothertext", None)
+    tod_short_desc = pydash.get(data, "todshortdesc", None)
+    tod_long_desc = pydash.get(data, "toddesctext", None)
+
     return {
         "id": pydash.get(data, "asgdasgseqnum", None),
         "pos_title": pydash.get(data, "position[0].postitledesc", None),
@@ -395,11 +418,11 @@ def fsbid_aia_to_talentmap_aia(data):
         "org": pydash.get(data, "position[0].posorgshortdesc", None),
         "eta": pydash.get(data, "asgdetadate", None),
         "ted": pydash.get(data, "asgdetdteddate", None),
-        "tod": pydash.get(data, "asgdtodcode", None),
+        "tod": tod_code,
         "tod_months": pydash.get(data, "asgdtodmonthsnum", None),
-        "tod_other_text": pydash.get(data, "asgdtodothertext", None),
-        "tod_short_desc": pydash.get(data, "todshortdesc", None),
-        "tod_long_desc": pydash.get(data, "toddesctext", None),
+        "tod_other_text": tod_other_text,
+        "tod_short_desc": handle_other_tod(tod_code, tod_other_text, tod_short_desc),
+        "tod_long_desc": handle_other_tod(tod_code, tod_other_text, tod_long_desc),
         "grade": pydash.get(data, "position[0].posgradecode", None),
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
         "travel": "-",
