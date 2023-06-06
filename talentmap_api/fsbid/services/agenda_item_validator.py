@@ -112,7 +112,7 @@ def validate_individual_leg(leg):
             'valid': True,
             'errorMessage': ''
         },
-        'tod': validate_tod(leg['tod'], leg['tourOfDutyMonths'], leg['tourOfDutyOtherText']),
+        'tod': validate_tod(leg['tod'], leg['todMonths'], leg['todOtherText']),
         'legActionType': {
             'valid': True,
             'errorMessage': ''
