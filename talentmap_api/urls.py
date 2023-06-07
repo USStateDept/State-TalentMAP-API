@@ -34,6 +34,7 @@ urlpatterns = [
     # Administration related resources
     url(r'^api/v1/homepage/', include('talentmap_api.administration.urls.homepage')),
     url(r'^api/v1/aboutpage/', include('talentmap_api.administration.urls.aboutpage')),
+    url(r'^api/v1/fsbid/admin/panel/', include('talentmap_api.fsbid.urls.admin_panel')),
 
     # Reference
     url(r'^api/v1/fsbid/bid_seasons/', include('talentmap_api.fsbid.urls.bid_seasons')),
