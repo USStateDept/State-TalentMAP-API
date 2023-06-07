@@ -33,10 +33,9 @@ def convert_panel_admin_remark_query(query):
   '''
   Converts TalentMap query into FSBid query
   '''
-  x = {
+  return {
       "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
       "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
       "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
       "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
   }
-  return x
