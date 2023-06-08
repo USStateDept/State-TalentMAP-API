@@ -321,13 +321,16 @@ def fsbid_legs_to_talentmap_legs(data):
     def map_tf(tf=None):
         return pydash.get(tf_mapping, tf, None)
 
-    # only custom/other TOD should have months and other_text
     tod_code = pydash.get(data, "ailtodcode", None)
-    tod_other_text = pydash.get(data, "ailtodothertext", None)
     tod_short_desc = pydash.get(data, "todshortdesc", None)
     tod_long_desc = pydash.get(data, "toddesctext", None)
+    # only custom/other TOD will have other_text
+    tod_other_text = pydash.get(data, "ailtodothertext", None)
     tod_months = pydash.get(data, "ailtodmonthsnum", None)
     is_other_tod = True if (tod_code == 'X') and (tod_other_text) else False
+    tod_is_active = pydash.get(data, "todstatuscode") == "A"
+    # legacy and custom/other TOD Agenda Item Legs will not render as a dropdown
+    tod_is_dropdown = (tod_code != "X") and (tod_is_active == True)
 
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
@@ -338,8 +341,8 @@ def fsbid_legs_to_talentmap_legs(data):
         "eta": pydash.get(data, "ailetadate", None),
         "ted": pydash.get(data, "ailetdtedsepdate", None),
         "tod": tod_code,
-        "tod_months": tod_months if is_other_tod else None,
-        "tod_other_text": tod_other_text,
+        "tod_is_dropdown": tod_is_dropdown,
+        "tod_months": tod_months if is_other_tod else None, # only a custom/other TOD should have months
         "tod_short_desc": tod_other_text if is_other_tod else tod_short_desc,
         "tod_long_desc": tod_other_text if is_other_tod else tod_long_desc,
         "grade": pydash.get(data, "agendaLegPosition[0].posgradecode", None),
@@ -396,12 +399,11 @@ def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
 
 # aia = agenda item assignment
 def fsbid_aia_to_talentmap_aia(data):
-    # only custom/other TOD should have months and other_text
     tod_code = pydash.get(data, "asgdtodcode", None)
-    tod_other_text = pydash.get(data, "asgdtodothertext", None)
+    tod_months = pydash.get(data, "asgdtodmonthsnum", None)
+    tod_other_text = pydash.get(data, "asgdtodothertext", None) # only custom/other TOD should have months and other_text
     tod_short_desc = pydash.get(data, "todshortdesc", None)
     tod_long_desc = pydash.get(data, "toddesctext", None)
-    tod_months = pydash.get(data, "ailtodmonthsnum", None)
     is_other_tod = True if (tod_code == 'X') and (tod_other_text) else False
 
     return {
@@ -412,8 +414,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "eta": pydash.get(data, "asgdetadate", None),
         "ted": pydash.get(data, "asgdetdteddate", None),
         "tod": tod_code,
-        "tod_months": tod_months if is_other_tod else None,
-        "tod_other_text": tod_other_text,
+        "tod_months": tod_months if is_other_tod else None, # only custom/other TOD should have months and other_text
         "tod_short_desc": tod_other_text if is_other_tod else tod_short_desc,
         "tod_long_desc": tod_other_text if is_other_tod else tod_long_desc,
         "grade": pydash.get(data, "position[0].posgradecode", None),
@@ -505,7 +506,13 @@ def convert_agenda_item_leg_query(query, leg={}):
     '''
     Converts TalentMap query into FSBid query
     '''
+
     user_id = pydash.get(query, "hru_id")
+
+    tod_code = pydash.get(leg, "tod", ""),
+    tod_long_desc = pydash.get(leg, "tod_long_desc", None)
+    is_other_tod = True if (tod_code == 'X') and (tod_long_desc) else False
+    tod_months = pydash.get(leg, "tod_months", None)
     return {
         "ailaiseqnum": pydash.get(query, "aiseqnum"),    
         "aillatcode": pydash.get(leg, "legActionType", ""),
@@ -515,8 +522,8 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailperdetseqnum": int(pydash.get(query, "personDetailId") or 0) or None,
         "ailposseqnum": int(pydash.get(leg, "posSeqNum") or 0) or None,
         "ailtodcode": pydash.get(leg, "tod", ""),
-        "ailtodmonthsnum": pydash.get(leg, "tod_months", None),
-        "ailtodothertext": pydash.get(leg, "tod_other_text", None),
+        "ailtodmonthsnum": tod_months if is_other_tod else None, # only custom/other TOD should pass back months and other_text
+        "ailtodothertext": tod_long_desc if is_other_tod else None, # only custom/other TOD should pass back months and other_text
         "ailetadate": None,
         "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
         "aildsccd": None,

@@ -112,7 +112,7 @@ def validate_individual_leg(leg):
             'valid': True,
             'errorMessage': ''
         },
-        'tod': validate_tod(leg['tod'], leg['tod_months'], leg['tod_other_text']),
+        'tod': validate_tod(leg['tod'], leg['tod_months'], leg['tod_long_desc']),
         'legActionType': {
             'valid': True,
             'errorMessage': ''
@@ -143,7 +143,7 @@ def validate_individual_leg(leg):
 
     return (individual_leg_validation, whole_leg_valid)
 
-def validate_tod(tod, tod_months, tod_other_text):
+def validate_tod(tod, tod_months, tod_long_desc):
     tod_validation = {
         'valid': True,
         'errorMessage': ''
@@ -155,9 +155,9 @@ def validate_tod(tod, tod_months, tod_other_text):
         tod_validation['errorMessage'] = 'Missing TOD'
         return tod_validation
 
-    # if TOD code X(other) - must have months and other text
+    # if TOD code X(other) - must have months and long text
     if tod == 'X':
-        if (not tod_months) or (not tod_other_text):
+        if (not tod_months) or (not tod_long_desc):
             tod_validation['valid'] = False
             tod_validation['errorMessage'] = 'Other TOD must have Tour length'
 
