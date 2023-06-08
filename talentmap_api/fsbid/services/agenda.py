@@ -321,6 +321,7 @@ def fsbid_legs_to_talentmap_legs(data):
     def map_tf(tf=None):
         return pydash.get(tf_mapping, tf, None)
 
+    # only custom/other TOD should have months and other_text
     tod_code = pydash.get(data, "ailtodcode", None)
     tod_other_text = pydash.get(data, "ailtodothertext", None)
     tod_short_desc = pydash.get(data, "todshortdesc", None)
@@ -395,6 +396,7 @@ def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
 
 # aia = agenda item assignment
 def fsbid_aia_to_talentmap_aia(data):
+    # only custom/other TOD should have months and other_text
     tod_code = pydash.get(data, "asgdtodcode", None)
     tod_other_text = pydash.get(data, "asgdtodothertext", None)
     tod_short_desc = pydash.get(data, "todshortdesc", None)
