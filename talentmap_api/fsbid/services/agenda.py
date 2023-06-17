@@ -884,8 +884,8 @@ def get_vice_data(pos_seq_nums, jwt_token):
     args = {
       "uri": "v1/vice-positions/",
       "jwt_token": jwt_token,
-      "query": None,
-      "query_mapping_function": partial(vice_query_mapping, pos_seq_nums=pos_seq_nums),
+      "query": pos_seq_nums,
+      "query_mapping_function": vice_query_mapping,
       "mapping_function": None,
       "count_function": None,
       "base_url": "",
@@ -904,7 +904,7 @@ def get_vice_data(pos_seq_nums, jwt_token):
 
     return vice_lookup
 
-def vice_query_mapping(self, pos_seq_nums):
+def vice_query_mapping(pos_seq_nums):
     pos_seq_nums_string = ','.join(map(str, list(set(pos_seq_nums)))) 
     filters = services.convert_to_fsbid_ql([
         {'col': 'pos_seq_num', 'val': pos_seq_nums_string},
