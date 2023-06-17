@@ -45,7 +45,26 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         **args
     )
 
-    return pydash.get(agenda_item, 'results[0]') or None
+    ai_return = pydash.get(agenda_item, 'results[0]') or None
+
+    if ai_return:
+        # Get Vice/Vacancy data
+        pos_seq_nums = []
+        get_legs = pydash.get(ai_return, "legs"),
+        for legs in get_legs:
+            for leg in legs:
+                if 'ail_pos_seq_num' in leg:
+                  pos_seq_nums.append(leg["ail_pos_seq_num"])
+        vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
+
+        # Add Vice/Vacancy data to AI for AIM page
+        for legs in get_legs:
+            for leg in legs:
+                if 'ail_pos_seq_num' in leg:
+                  vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+                  leg["vice"] = vice
+
+    return ai_return
 
 
 def get_agenda_items(jwt_token=None, query={}, host=None):
@@ -77,7 +96,6 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
         "employee": employee,
         "results": agenda_items,
     }
-
 
 def create_agenda(query={}, jwt_token=None, host=None):
     '''
@@ -747,42 +765,6 @@ def get_agendas_by_panel(pk, jwt_token):
         **args
     )
     perdets = list(map(lambda x: x["perdet"], agendas_by_panel["results"]))
-
-    pos_seq_nums = []
-    for result in agendas_by_panel["results"]:
-        get_legs = pydash.get(result, "legs"),
-        for legs in get_legs:
-            for leg in legs:
-                if 'ail_pos_seq_num' in leg:
-                  pos_seq_nums.append(leg["ail_pos_seq_num"])
-
-    def vice_query_mapping(self):
-        pos_seq_nums_string = ','.join(map(str, list(set(pos_seq_nums)))) 
-        filters = services.convert_to_fsbid_ql([
-            {'col': 'pos_seq_num', 'val': pos_seq_nums_string},
-        ])
-        values = {
-            "rp.filter": filters,
-        }
-        valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-        return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
-    args = {
-      "uri": "v1/vice-positions/",
-      "jwt_token": jwt_token,
-      "query": None,
-      "query_mapping_function": vice_query_mapping,
-      "mapping_function": None,
-      "count_function": None,
-      "base_url": "",
-      "host": None,
-      "api_root": API_ROOT
-    }
-    vice_req = services.send_get_request(
-        **args
-    )
-    vice_data = pydash.get(vice_req, 'results')
-
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
         "ad_id": ad_id,
@@ -807,15 +789,21 @@ def get_agendas_by_panel(pk, jwt_token):
         perdet = client["perdet_seq_number"]
         clients_lookup[perdet] = client 
  
-    vice_lookup = {}
-    for vice in vice_data or []:
-        pos_seq = vice["pos_seq_num"]
-        vice_lookup[pos_seq] = vice
+    # get vice data to add to agendas_by_panel
+    pos_seq_nums = []
+    for result in agendas_by_panel["results"]:
+        get_legs = pydash.get(result, "legs"),
+        for legs in get_legs:
+            for leg in legs:
+                if 'ail_pos_seq_num' in leg:
+                  pos_seq_nums.append(leg["ail_pos_seq_num"])
+    vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
     for agenda in agendas_by_panel["results"]: 
         client = clients_lookup.get(agenda["perdet"]) or {}
         agenda["user"] = client
         get_legs = pydash.get(agenda, "legs"),
+        # append vice data to add to agendas_by_panel
         for legs in get_legs:
             for leg in legs:
                 if 'ail_pos_seq_num' in leg:
@@ -891,3 +879,38 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
     writer.writerows(data['results'])
 
     return response
+
+def get_vice_data(pos_seq_nums, jwt_token):
+    args = {
+      "uri": "v1/vice-positions/",
+      "jwt_token": jwt_token,
+      "query": None,
+      "query_mapping_function": partial(vice_query_mapping, pos_seq_nums=pos_seq_nums),
+      "mapping_function": None,
+      "count_function": None,
+      "base_url": "",
+      "host": None,
+      "api_root": API_ROOT
+    }
+    vice_req = services.send_get_request(
+        **args
+    )
+    vice_data = pydash.get(vice_req, 'results')
+
+    vice_lookup = {}
+    for vice in vice_data or []:
+        pos_seq = vice["pos_seq_num"]
+        vice_lookup[pos_seq] = vice
+
+    return vice_lookup
+
+def vice_query_mapping(self, pos_seq_nums):
+    pos_seq_nums_string = ','.join(map(str, list(set(pos_seq_nums)))) 
+    filters = services.convert_to_fsbid_ql([
+        {'col': 'pos_seq_num', 'val': pos_seq_nums_string},
+    ])
+    values = {
+        "rp.filter": filters,
+    }
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
