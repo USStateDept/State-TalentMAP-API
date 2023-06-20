@@ -897,10 +897,24 @@ def get_vice_data(pos_seq_nums, jwt_token):
     )
     vice_data = pydash.get(vice_req, 'results')
 
+    # check for multiple incumbents in same postion
+    multiple_incumbents = []
+    seq_num_list = []
+    for vice in vice_data or []:
+        if vice["pos_seq_num"] not in seq_num_list:
+            seq_num_list.append(vice["pos_seq_num"])
+        else:
+            multiple_incumbents.append(vice["pos_seq_num"])
+
     vice_lookup = {}
     for vice in vice_data or []:
         pos_seq = vice["pos_seq_num"]
-        vice_lookup[pos_seq] = vice
+        if pos_seq not in multiple_incumbents:
+            vice_lookup[pos_seq] = vice
+        else: vice_lookup[pos_seq] = {
+                "pos_seq_num": pos_seq,
+                "emp_full_name": "Multiple Incumbents"
+            }
 
     return vice_lookup
 
