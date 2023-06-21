@@ -57,11 +57,10 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
         # Add Vice/Vacancy data to AI for AIM page
-        for legs in get_legs:
-            for leg in legs:
-                if 'ail_pos_seq_num' in leg:
-                  vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                  leg["vice"] = vice
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+              vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+              leg["vice"] = vice
 
     return ai_return
 
