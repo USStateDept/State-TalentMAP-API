@@ -910,7 +910,7 @@ def get_vice_data(pos_seq_nums, jwt_token):
 def vice_query_mapping(pos_seq_nums):
     pos_seq_nums_string = ','.join(map(str, list(set(pos_seq_nums)))) 
     filters = services.convert_to_fsbid_ql([
-        {'col': 'pos_seq_num', "com": "IN", 'val': pos_seq_nums_string},
+        {'col': 'pos_seq_num', 'com': 'IN', 'val': pos_seq_nums_string},
     ])
     values = {
         "rp.filter": filters,
