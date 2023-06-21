@@ -50,11 +50,10 @@ def get_single_agenda_item(jwt_token=None, pk=None):
     if ai_return:
         # Get Vice/Vacancy data
         pos_seq_nums = []
-        get_legs = pydash.get(ai_return, "legs"),
-        for legs in get_legs:
-            for leg in legs:
-                if 'ail_pos_seq_num' in leg:
-                  pos_seq_nums.append(leg["ail_pos_seq_num"])
+        legs = pydash.get(ai_return, "legs")
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+              pos_seq_nums.append(leg["ail_pos_seq_num"])
         vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
         # Add Vice/Vacancy data to AI for AIM page
@@ -792,11 +791,10 @@ def get_agendas_by_panel(pk, jwt_token):
     # get vice data to add to agendas_by_panel
     pos_seq_nums = []
     for result in agendas_by_panel["results"]:
-        get_legs = pydash.get(result, "legs"),
-        for legs in get_legs:
-            for leg in legs:
-                if 'ail_pos_seq_num' in leg:
-                  pos_seq_nums.append(leg["ail_pos_seq_num"])
+        legs = pydash.get(result, "legs")
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+              pos_seq_nums.append(leg["ail_pos_seq_num"])
     vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
     for agenda in agendas_by_panel["results"]: 
