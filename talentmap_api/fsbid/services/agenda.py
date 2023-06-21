@@ -789,8 +789,8 @@ def get_agendas_by_panel(pk, jwt_token):
  
     # get vice data to add to agendas_by_panel
     pos_seq_nums = []
-    for result in agendas_by_panel["results"]:
-        legs = pydash.get(result, "legs")
+    for agenda in agendas_by_panel["results"]:
+        legs = pydash.get(agenda, "legs")
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
               pos_seq_nums.append(leg["ail_pos_seq_num"])
@@ -799,13 +799,12 @@ def get_agendas_by_panel(pk, jwt_token):
     for agenda in agendas_by_panel["results"]: 
         client = clients_lookup.get(agenda["perdet"]) or {}
         agenda["user"] = client
-        get_legs = pydash.get(agenda, "legs"),
+        legs = pydash.get(agenda, "legs")
         # append vice data to add to agendas_by_panel
-        for legs in get_legs:
-            for leg in legs:
-                if 'ail_pos_seq_num' in leg:
-                  vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                  leg["vice"] = vice
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+              vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+              leg["vice"] = vice
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
@@ -894,24 +893,17 @@ def get_vice_data(pos_seq_nums, jwt_token):
     )
     vice_data = pydash.get(vice_req, 'results')
 
-    # check for multiple incumbents in same postion
-    multiple_incumbents = []
-    seq_num_list = []
-    for vice in vice_data or []:
-        if vice["pos_seq_num"] not in seq_num_list:
-            seq_num_list.append(vice["pos_seq_num"])
-        else:
-            multiple_incumbents.append(vice["pos_seq_num"])
-
-    vice_lookup = {}
+    vice_lookup = {}    
     for vice in vice_data or []:
         pos_seq = vice["pos_seq_num"]
-        if pos_seq not in multiple_incumbents:
-            vice_lookup[pos_seq] = vice
-        else: vice_lookup[pos_seq] = {
+        # check for multiple incumbents in same postion
+        if pos_seq in vice_lookup:
+            vice_lookup[pos_seq] = {
                 "pos_seq_num": pos_seq,
                 "emp_full_name": "Multiple Incumbents"
             }
+        else:
+            vice_lookup[pos_seq] = vice
 
     return vice_lookup
 
