@@ -901,7 +901,8 @@ def get_vice_data(pos_seq_nums, jwt_token):
           if pos_seq in vice_lookup:
               vice_lookup[pos_seq] = {
                   "pos_seq_num": pos_seq,
-                  "emp_full_name": "Multiple Incumbents"
+                  "emp_first_name": "Multiple",
+                  "emp_last_name": "Incumbents"
               }
           else:
               vice_lookup[pos_seq] = vice
