@@ -895,15 +895,16 @@ def get_vice_data(pos_seq_nums, jwt_token):
 
     vice_lookup = {}    
     for vice in vice_data or []:
-        pos_seq = vice["pos_seq_num"]
-        # check for multiple incumbents in same postion
-        if pos_seq in vice_lookup:
-            vice_lookup[pos_seq] = {
-                "pos_seq_num": pos_seq,
-                "emp_full_name": "Multiple Incumbents"
-            }
-        else:
-            vice_lookup[pos_seq] = vice
+        if "pos_seq_num" in vice:
+          pos_seq = vice["pos_seq_num"]
+          # check for multiple incumbents in same postion
+          if pos_seq in vice_lookup:
+              vice_lookup[pos_seq] = {
+                  "pos_seq_num": pos_seq,
+                  "emp_full_name": "Multiple Incumbents"
+              }
+          else:
+              vice_lookup[pos_seq] = vice
 
     return vice_lookup
 
