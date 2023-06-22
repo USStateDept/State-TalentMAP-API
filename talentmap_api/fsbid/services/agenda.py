@@ -895,22 +895,23 @@ def get_vice_data(pos_seq_nums, jwt_token):
 
     vice_lookup = {}    
     for vice in vice_data or []:
-        pos_seq = vice["pos_seq_num"]
-        # check for multiple incumbents in same postion
-        if pos_seq in vice_lookup:
-            vice_lookup[pos_seq] = {
-                "pos_seq_num": pos_seq,
-                "emp_full_name": "Multiple Incumbents"
-            }
-        else:
-            vice_lookup[pos_seq] = vice
+        if "pos_seq_num" in vice:
+          pos_seq = vice["pos_seq_num"]
+          # check for multiple incumbents in same postion
+          if pos_seq in vice_lookup:
+              vice_lookup[pos_seq] = {
+                  "pos_seq_num": pos_seq,
+                  "emp_full_name": "Multiple Incumbents"
+              }
+          else:
+              vice_lookup[pos_seq] = vice
 
     return vice_lookup
 
 def vice_query_mapping(pos_seq_nums):
-    pos_seq_nums_string = ','.join(map(str, list(set(pos_seq_nums)))) 
+    pos_seq_nums_string = ','.join(map(lambda x: str(x), list(set(pos_seq_nums))))
     filters = services.convert_to_fsbid_ql([
-        {'col': 'pos_seq_num', 'val': pos_seq_nums_string},
+        {'col': 'pos_seq_num', 'com': 'IN', 'val': pos_seq_nums_string},
     ])
     values = {
         "rp.filter": filters,
