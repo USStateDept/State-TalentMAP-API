@@ -916,6 +916,8 @@ def vice_query_mapping(pos_seq_nums):
     ])
     values = {
         "rp.filter": filters,
+        "rp.pageNum": 0,
+        "rp.pageRows": 0,
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
