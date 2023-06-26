@@ -36,11 +36,10 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(pydash.get(bids, 'Data') or []) if smart_str(b["bs_cd"]) != 'D']
-    mappedBids = []
     if position_id:
         mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] 
     else:
-        map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
+        mappedBids = map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
     mappedBids = sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
     return map_bids_to_disable_handshake_if_accepted(mappedBids)
 
