@@ -3,8 +3,6 @@ from rest_framework import routers
 
 from talentmap_api.available_tandem.views import available_tandem as views
 
-from talentmap_api.common.urls import patch_update
-
 router = routers.SimpleRouter()
 
 urlpatterns = [

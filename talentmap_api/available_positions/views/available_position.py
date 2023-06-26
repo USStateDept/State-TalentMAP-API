@@ -428,7 +428,7 @@ class BureauBiddersRankings(APIView):
                         bid["ranking"] = rank
                         filtered_bids.append(bid)
             except Exception as e:
-                  logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+                logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
 
         filtered_bids.sort(key=lambda x: x['ranking'])
         other_sl_bids = num_sl_bids - len(filtered_bids)

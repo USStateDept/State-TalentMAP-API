@@ -1,19 +1,17 @@
-import pytest
 import datetime
+import pytest
 from dateutil import parser, tz
-
-from django.contrib.auth.models import User
 
 from django.core.exceptions import PermissionDenied, ValidationError
 
 from model_mommy import mommy
 
-from talentmap_api.common.common_helpers import get_permission_by_name, get_group_by_name, in_group_or_403, has_permission_or_403, ensure_date, safe_navigation, order_dict, serialize_instance, in_superuser_group, validate_filters_exist
+from talentmap_api.common.common_helpers import get_group_by_name, in_group_or_403, ensure_date, order_dict, in_superuser_group
 
 @pytest.mark.django_db()
 def test_ensure_date():
 
-    ensure_date(201225123) == None
+    ensure_date(201225123) is None
 
     date = parser.parse("1000-01-01T00:00:00-05:00")
 
