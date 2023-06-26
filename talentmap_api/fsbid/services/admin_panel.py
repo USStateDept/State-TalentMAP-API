@@ -1,7 +1,6 @@
 import logging
 
 import pydash
-import jwt
 
 from django.conf import settings
 
@@ -30,12 +29,12 @@ def submit_create_remark(remark, jwt_token={}):
   )
 
 def convert_panel_admin_remark_query(query):
-  '''
-  Converts TalentMap query into FSBid query
-  '''
-  return {
-      "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
-      "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
-      "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
-      "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
-  }
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    return {
+        "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
+        "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
+        "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
+        "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
+    }
