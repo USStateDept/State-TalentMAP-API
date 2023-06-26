@@ -51,7 +51,7 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         pos_seq_nums = []
         legs = pydash.get(ai_return, "legs")
         for leg in legs:
-            if 'ail_pos_seq_num' in leg:
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] != None ):
                 pos_seq_nums.append(leg["ail_pos_seq_num"])
         vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
@@ -790,7 +790,7 @@ def get_agendas_by_panel(pk, jwt_token):
     for agenda in agendas_by_panel["results"]:
         legs = pydash.get(agenda, "legs")
         for leg in legs:
-            if 'ail_pos_seq_num' in leg:
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] != None ):
                 pos_seq_nums.append(leg["ail_pos_seq_num"])
     vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
@@ -914,6 +914,8 @@ def vice_query_mapping(pos_seq_nums):
     ])
     values = {
         "rp.filter": filters,
+        "rp.pageNum": int(0),
+        "rp.pageRows": int(0),
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
