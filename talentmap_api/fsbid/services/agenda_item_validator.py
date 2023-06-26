@@ -1,19 +1,6 @@
 import logging
-import jwt
-import pydash
-import re
-import maya
-import csv
-from datetime import datetime
-from urllib.parse import urlencode, quote
-from functools import partial
-from copy import deepcopy
 
-from django.utils.encoding import smart_str
 from django.conf import settings
-from django.http import HttpResponse
-
-from talentmap_api.fsbid.services import common as services
 
 
 API_ROOT = settings.WS_ROOT_API_URL
@@ -33,7 +20,7 @@ def validate_agenda_item(query):
 
     all_valid = True
     for k in validation_status.keys():
-        if k is 'legs':
+        if k == 'legs':
             all_valid = all_valid and validation_status[k]['allLegs']['valid']
         else:
             all_valid = all_valid and validation_status[k]['valid']
@@ -91,7 +78,7 @@ def validate_legs(legs):
     }
 
     # AI Legs - must not be empty
-    if not len(legs):
+    if legs:
         legs_validation['allLegs']['valid'] = False
         legs_validation['allLegs']['errorMessage'] = 'Agenda Items must have at least one leg.'
         return legs_validation

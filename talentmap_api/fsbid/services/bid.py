@@ -1,20 +1,20 @@
 import logging
-import jwt
-import pydash
 import maya
 from copy import deepcopy
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from functools import partial
 
 from django.utils.encoding import smart_str
 
+import pydash
+import jwt
 from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date
-from urllib.parse import urlencode, quote
 
-from talentmap_api.bidding.models import Bid, BidHandshake
+from talentmap_api.bidding.models import Bid
 from talentmap_api.fsbid.requests import requests
 
 import talentmap_api.bidding.services.bidhandshake as bh_services
@@ -36,7 +36,11 @@ def user_bids(employee_id, jwt_token, position_id=None, query={}):
     filteredBids = {}
     # Filter out any bids with a status of "D" (deleted)
     filteredBids['Data'] = [b for b in list(pydash.get(bids, 'Data') or []) if smart_str(b["bs_cd"]) != 'D']
-    mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] if position_id else map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
+    mappedBids = []
+    if position_id:
+        mappedBids = [fsbid_bid_to_talentmap_bid(bid, jwt_token) for bid in filteredBids.get('Data', []) if bid.get('cp_id') == int(position_id)] 
+    else:
+        map(lambda b: fsbid_bid_to_talentmap_bid(b, jwt_token), filteredBids.get('Data', []))
     mappedBids = sort_bids(bidlist=mappedBids, ordering_query=ordering_query)
     return map_bids_to_disable_handshake_if_accepted(mappedBids)
 
@@ -114,16 +118,16 @@ def map_bids_to_disable_handshake_if_accepted(bids):
     hasAcceptedHandshakeIds = pydash.chain(bidsClone).filter_(
         lambda x: pydash.get(x, 'handshake.bidder_hs_code') == 'handshake_accepted' and pydash.get(x, 'handshake.hs_status_code') != 'handshake_revoked'
     ).map(
-        lambda x: { 'cp_id': pydash.get(x, 'position_info.id'), 'cycle_id': pydash.get(x, 'position_info.bidcycle.id') }
+        lambda x: {'cp_id': pydash.get(x, 'position_info.id'), 'cycle_id': pydash.get(x, 'position_info.bidcycle.id')}
     ).value()
 
     bidsClone = pydash.map_(bidsClone, lambda x: {
-            **x,
-            'accept_handshake_disabled': True if pydash.find(hasAcceptedHandshakeIds, lambda y:
-                y['cycle_id'] == pydash.get(x, 'position_info.bidcycle.id'))
-                and not pydash.find(hasAcceptedHandshakeIds, lambda y: y['cp_id'] == pydash.get(x, 'position_info.id'))
-                else False,
-        })
+        **x,
+        'accept_handshake_disabled': True if pydash.find(hasAcceptedHandshakeIds, lambda y:
+                                                             y['cycle_id'] == pydash.get(x, 'position_info.bidcycle.id'))
+                                       and not pydash.find(hasAcceptedHandshakeIds, lambda y: y['cp_id'] == pydash.get(x, 'position_info.id'))
+                                       else False,
+    })
     return bidsClone
 
 
