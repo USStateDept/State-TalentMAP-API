@@ -85,4 +85,3 @@ class BidHandshakeCycle(models.Model):
 
     class Meta:
         managed = True
-
