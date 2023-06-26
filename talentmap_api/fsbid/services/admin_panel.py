@@ -14,19 +14,19 @@ API_ROOT = settings.WS_ROOT_API_URL
 logger = logging.getLogger(__name__)
 
 def submit_create_remark(remark, jwt_token={}):
-  url = f"{API_ROOT}/v1/admin_panels/"
+    url = f"{API_ROOT}/v1/admin_panels/"
 
-  args = {
-      "uri": url,
-      "query": remark,
-      "query_mapping_function": convert_panel_admin_remark_query,
-      "jwt_token": jwt_token,
-      "mapping_function": "",
-  }
+    args = {
+        "uri": url,
+        "query": remark,
+        "query_mapping_function": convert_panel_admin_remark_query,
+        "jwt_token": jwt_token,
+        "mapping_function": "",
+    }
 
-  return services.get_results_with_post(
-      **args
-  )
+    return services.get_results_with_post(
+        **args
+    )
 
 def convert_panel_admin_remark_query(query):
     '''

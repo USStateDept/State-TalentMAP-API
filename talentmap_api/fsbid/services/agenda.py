@@ -51,7 +51,7 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         pos_seq_nums = []
         legs = pydash.get(ai_return, "legs")
         for leg in legs:
-            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] != None ):
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] is not None):
                 pos_seq_nums.append(leg["ail_pos_seq_num"])
         vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
@@ -294,9 +294,9 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
         "assignment": assignment,
         "legs": legsToReturn,
         "update_date": ensure_date(pydash.get(data, "update_date"), utc_offset=-5),  # TODO - find this date
-        "modifier_name": pydash.get(data,"aiupdateid") or None,  # TODO - this is only the id
+        "modifier_name": pydash.get(data, "aiupdateid") or None,  # TODO - this is only the id
         "modifier_date": ensure_date(pydash.get(data, "aiupdatedate"), utc_offset=-5) or None,
-        "creator_name": pydash.get(data,"aiitemcreatorid") or None,  # TODO - this is only the id
+        "creator_name": pydash.get(data, "aiitemcreatorid") or None,  # TODO - this is only the id
         "creator_date": ensure_date(pydash.get(data, "aicreatedate"), utc_offset=-5) or None,
         "creators": creators,
         "updaters": updaters,
@@ -530,7 +530,7 @@ def convert_agenda_item_leg_query(query, leg={}):
     is_other_tod = True if (tod_code == 'X') and (tod_long_desc) else False
     tod_months = pydash.get(leg, "tod_months")
     return {
-        "ailaiseqnum": pydash.get(query, "aiseqnum"),    
+        "ailaiseqnum": pydash.get(query, "aiseqnum"),
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId") or 0) or None,
@@ -783,14 +783,14 @@ def get_agendas_by_panel(pk, jwt_token):
     clients_lookup = {}
     for client in clients.get("results") or []:
         perdet = client["perdet_seq_number"]
-        clients_lookup[perdet] = client 
+        clients_lookup[perdet] = client
 
     # get vice data to add to agendas_by_panel
     pos_seq_nums = []
     for agenda in agendas_by_panel["results"]:
         legs = pydash.get(agenda, "legs")
         for leg in legs:
-            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] != None ):
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] is not None):
                 pos_seq_nums.append(leg["ail_pos_seq_num"])
     vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
 
@@ -891,7 +891,7 @@ def get_vice_data(pos_seq_nums, jwt_token):
     )
     vice_data = pydash.get(vice_req, 'results')
 
-    vice_lookup = {}    
+    vice_lookup = {}
     for vice in vice_data or []:
         if "pos_seq_num" in vice:
             pos_seq = vice["pos_seq_num"]
