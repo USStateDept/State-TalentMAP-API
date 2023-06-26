@@ -21,7 +21,7 @@ def get_cycles(jwt_token):
     '''
     view = views.FSBidCyclesView
     uri = view.uri
-    mapping_function = view.mapping_function 
+    mapping_function = view.mapping_function
 
     response = common.get_fsbid_results(
         uri,
@@ -284,7 +284,7 @@ def get_gsa_locations(query, jwt_token):
         "loceffstatus",
         "locgvtstcntrydescr",
         "loccity",
-	"locstate",
+	    "locstate",
         "loccounty",
         "loccountry",
         "locgvtleopayarea",
@@ -330,10 +330,9 @@ gsa_locations_cols_mapping = {
     "loceffstatus": "status",
     "locgvtstcntrydescr": "description",
     "loccity": "city",
-    "locstate": "state", 
-    "loccounty": "county", 
-    "loccountry": "country", 
-    "locgvtleopayarea": "pay_area", 
-    "locgvtlocalityarea": "locality_area", 
+    "locstate": "state",
+    "loccounty": "county",
+    "loccountry": "country",
+    "locgvtleopayarea": "pay_area",
+    "locgvtlocalityarea": "locality_area",
 }
-

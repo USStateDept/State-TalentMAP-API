@@ -1,3 +1,4 @@
+import logging
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -10,7 +11,6 @@ import talentmap_api.fsbid.services.agenda as services
 import talentmap_api.fsbid.services.agenda_item_validator as ai_validator
 from talentmap_api.common.permissions import isDjangoGroupMember
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +22,7 @@ class AgendaItemView(BaseView):
         Get single agenda by ai_seq_num
         '''
         return Response(services.get_single_agenda_item(request.META['HTTP_JWT'], pk))
-    
+
 
 class AgendaItemListView(BaseView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
@@ -67,7 +67,8 @@ class AgendaItemActionView(BaseView):
                     'travelFunctionCode': openapi.Schema(type=openapi.TYPE_STRING, description='Travel Function Code'),
                     'posSeqNum': openapi.Schema(type=openapi.TYPE_INTEGER, description='Position ID'),
                     'cpId': openapi.Schema(type=openapi.TYPE_STRING, description='Cycle Position ID'),
-                 }), description='Legs'),
+                 }
+            ), description='Legs'),
     }))
 
     def post(self, request):
@@ -76,7 +77,7 @@ class AgendaItemActionView(BaseView):
         '''
         try:
             services.create_agenda(request.data, request.META['HTTP_JWT'])
-            return Response(status=status.HTTP_204_NO_CONTENT)    
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             logger.info(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}. User {self.request.user}")
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)

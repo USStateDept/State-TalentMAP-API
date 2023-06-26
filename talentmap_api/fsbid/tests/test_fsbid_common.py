@@ -1,4 +1,3 @@
-import pytest
 import datetime
 
 def test_get_bid_stats_for_csv():
