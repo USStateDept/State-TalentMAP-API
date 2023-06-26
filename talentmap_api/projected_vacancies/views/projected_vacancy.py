@@ -24,7 +24,7 @@ FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 class ProjectedVacancyFavoriteListView(APIView):
 
     permission_classes = (IsAuthenticated,)
-    
+
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter('page', openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='A page number within the paginated result set.'),

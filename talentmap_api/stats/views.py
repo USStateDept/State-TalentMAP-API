@@ -1,7 +1,7 @@
 import datetime
 import logging
-import maya
 import os
+import maya
 
 from django.db.models import TextField
 from django.db.models.functions import Concat
@@ -15,7 +15,6 @@ from rest_framework import status
 
 from talentmap_api.common.common_helpers import get_prefetched_filtered_queryset
 from talentmap_api.common.permissions import isDjangoGroupMember
-from talentmap_api.common.common_helpers import in_group_or_403
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.stats.models import LoginInstance, ViewPositionInstance
@@ -149,4 +148,10 @@ class ViewPositionDistinctListView(mixins.ListModelMixin,
     permission_classes = (IsAuthenticated, isDjangoGroupMember('superuser'))
 
     def get_queryset(self):
-        return get_prefetched_filtered_queryset(ViewPositionInstance, self.serializer_class).annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', 'date_of_view_week', output_field=TextField())).order_by('distinct_name').values('distinct_name').distinct()
+        return (
+            get_prefetched_filtered_queryset(ViewPositionInstance, self.serializer_class)
+                .annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', 'date_of_view_week', output_field=TextField()))
+                .order_by('distinct_name')
+                .values('distinct_name')
+                .distinct()
+        )
