@@ -1,6 +1,5 @@
 import logging
-import coreapi
-import maya
+import coreapi 
 import pydash
 
 from django.core.exceptions import PermissionDenied, SuspiciousOperation

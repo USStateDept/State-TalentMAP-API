@@ -1,15 +1,14 @@
 import logging
-import maya
 from copy import deepcopy
 from urllib.parse import urlencode, quote
-
 from django.conf import settings
 from functools import partial
-
 from django.utils.encoding import smart_str
 
+import maya
 import pydash
 import jwt
+
 from talentmap_api.bidding.models import BidHandshakeCycle
 
 from talentmap_api.common.common_helpers import ensure_date
@@ -123,9 +122,9 @@ def map_bids_to_disable_handshake_if_accepted(bids):
     bidsClone = pydash.map_(bidsClone, lambda x: {
         **x,
         'accept_handshake_disabled': True if pydash.find(hasAcceptedHandshakeIds, lambda y:
-                                                             y['cycle_id'] == pydash.get(x, 'position_info.bidcycle.id'))
-                                       and not pydash.find(hasAcceptedHandshakeIds, lambda y: y['cp_id'] == pydash.get(x, 'position_info.id'))
-                                       else False,
+                                                         y['cycle_id'] == pydash.get(x, 'position_info.bidcycle.id'))
+                                     and not pydash.find(hasAcceptedHandshakeIds, lambda y: y['cp_id'] == pydash.get(x, 'position_info.id'))
+                                     else False,
     })
     return bidsClone
 
