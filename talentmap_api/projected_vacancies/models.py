@@ -11,4 +11,3 @@ class ProjectedVacancyFavorite(models.Model):
         managed = True
         ordering = ["fv_seq_num"]
         unique_together = ('fv_seq_num', 'user',)
-
