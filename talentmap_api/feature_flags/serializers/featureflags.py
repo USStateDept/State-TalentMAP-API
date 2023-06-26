@@ -1,5 +1,3 @@
-from rest_framework import serializers
-
 from talentmap_api.common.serializers import PrefetchedSerializer
 from talentmap_api.feature_flags.models import FeatureFlags
 
