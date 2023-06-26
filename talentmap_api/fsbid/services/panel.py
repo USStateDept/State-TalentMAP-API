@@ -1,15 +1,14 @@
 import logging
 from urllib.parse import urlencode, quote
 from functools import partial
-import pydash
-import csv
-import maya
-import jwt
 from copy import deepcopy
-from django.http import HttpResponse
-from datetime import timedelta, date, datetime
-from django.utils.encoding import smart_str
+import csv
 
+import pydash
+import maya
+from django.http import HttpResponse
+from datetime import timedelta, datetime
+from django.utils.encoding import smart_str
 from django.conf import settings
 
 from talentmap_api.fsbid.services import common as services
@@ -251,10 +250,10 @@ def convert_panel_query(query={}):
     panel_date_end = query.get("panel-date-end")
 
     filters = [
-            {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get('type')), 'com': 'IN'},
-            {'col': 'pmscode', 'val': services.if_str_upper(query.get('status')), 'com': 'IN'},
-            {'col': 'pmseqnum', 'val': query.get('id')},
-        ]
+        {'col': 'pmpmtcode', 'val': services.if_str_upper(query.get('type')), 'com': 'IN'},
+        {'col': 'pmscode', 'val': services.if_str_upper(query.get('status')), 'com': 'IN'},
+        {'col': 'pmseqnum', 'val': query.get('id')},
+    ]
 
     try:
         if panel_date_start and panel_date_end:
