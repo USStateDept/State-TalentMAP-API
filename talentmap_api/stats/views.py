@@ -150,8 +150,8 @@ class ViewPositionDistinctListView(mixins.ListModelMixin,
     def get_queryset(self):
         return (
             get_prefetched_filtered_queryset(ViewPositionInstance, self.serializer_class)
-                .annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', 'date_of_view_week', output_field=TextField()))
-                .order_by('distinct_name')
-                .values('distinct_name')
-                .distinct()
+            .annotate(distinct_name=Concat('position_type', 'position_id', 'user_id', 'date_of_view_week', output_field=TextField()))
+            .order_by('distinct_name')
+            .values('distinct_name')
+            .distinct()
         )
