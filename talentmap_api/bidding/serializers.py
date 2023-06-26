@@ -38,4 +38,3 @@ class BidHandshakeCycleSerializer(PrefetchedSerializer):
         model = BidHandshakeCycle
         fields = "__all__"
         writable_fields = ('cycle_id', 'handshake_allowed_date')
-

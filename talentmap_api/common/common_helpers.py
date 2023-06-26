@@ -3,9 +3,9 @@ import logging
 import re
 import json
 import threading
+from pydoc import locate
 import pydash
 
-from pydoc import locate
 
 from dateutil.relativedelta import relativedelta
 from dateutil import parser

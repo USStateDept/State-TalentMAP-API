@@ -1,8 +1,7 @@
 import datetime
 import pytest
-from dateutil import parser, tz
 
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied
 
 from model_mommy import mommy
 
