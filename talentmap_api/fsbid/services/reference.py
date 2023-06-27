@@ -284,7 +284,7 @@ def get_gsa_locations(query, jwt_token):
         "loceffstatus",
         "locgvtstcntrydescr",
         "loccity",
-	    "locstate",
+        "locstate",
         "loccounty",
         "loccountry",
         "locgvtleopayarea",

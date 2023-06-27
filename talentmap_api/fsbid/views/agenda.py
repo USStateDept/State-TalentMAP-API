@@ -69,7 +69,8 @@ class AgendaItemActionView(BaseView):
                     'cpId': openapi.Schema(type=openapi.TYPE_STRING, description='Cycle Position ID'),
                  }
             ), description='Legs'),
-    }))
+        }
+    ))
 
     def post(self, request):
         '''

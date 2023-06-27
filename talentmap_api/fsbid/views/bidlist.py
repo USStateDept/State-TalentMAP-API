@@ -1,20 +1,16 @@
 import logging
 
+from rest_condition import Or
 from rest_framework.permissions import IsAuthenticated
-
 from rest_framework.views import APIView
-from talentmap_api.fsbid.views.base import BaseView
 from rest_framework.response import Response
 from rest_framework import status
-
-from rest_condition import Or
-
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.common.permissions import isDjangoGroupMember
-
+from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.bid as services
 
 logger = logging.getLogger(__name__)

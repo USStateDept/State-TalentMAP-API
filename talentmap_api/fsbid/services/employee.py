@@ -1,5 +1,6 @@
 import logging
 from functools import partial
+from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -12,7 +13,6 @@ from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.services.assignment_history import assignment_history_to_client_format, get_assignments
 import talentmap_api.fsbid.services.bid as bid_services
 
-from urllib.parse import urlencode, quote
 
 API_ROOT = settings.EMPLOYEES_API_URL
 ORG_ROOT = settings.ORG_API_URL

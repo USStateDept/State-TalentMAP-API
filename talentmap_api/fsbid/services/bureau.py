@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 import pydash
-import maya
 
 from talentmap_api.bidding.models import BidHandshakeCycle
 from talentmap_api.common.common_helpers import ensure_date, validate_values

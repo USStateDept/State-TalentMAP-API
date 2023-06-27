@@ -1,4 +1,3 @@
-import datetime
 from unittest.mock import Mock, patch
 
 from model_mommy import mommy

@@ -3,11 +3,11 @@ from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
 import csv
+from datetime import timedelta, datetime
 
 import pydash
 import maya
 from django.http import HttpResponse
-from datetime import timedelta, datetime
 from django.utils.encoding import smart_str
 from django.conf import settings
 
