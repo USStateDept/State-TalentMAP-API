@@ -171,11 +171,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
 
     active_handshake_perdet = None
     if active_perdet:
-        if int(active_perdet) == int(emp_id):
-            active_handshake_perdet = True
-        else:
-            active_handshake_perdet = False
-
+        active_handshake_perdet = int(active_perdet) == int(emp_id)
     fullname = bid.get("full_name", None)
     if fullname:
         fullname = fullname.rstrip(' Nmn')
