@@ -1,12 +1,6 @@
-import json
 import pytest
 
-from unittest.mock import Mock, patch
-
-from model_mommy import mommy
 from rest_framework import status
-
-from rest_framework_expiring_authtoken.models import ExpiringToken
 
 from talentmap_api.user_profile.models import UserProfile
 

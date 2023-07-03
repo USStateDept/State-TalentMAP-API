@@ -1,9 +1,9 @@
 import logging
-import talentmap_api.fsbid.services.admin_panel as services
 
 from rest_framework.response import Response
 from rest_framework import status
 
+import talentmap_api.fsbid.services.admin_panel as services
 from talentmap_api.fsbid.views.base import BaseView
 
 

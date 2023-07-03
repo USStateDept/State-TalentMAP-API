@@ -195,12 +195,12 @@ def convert_pos_query(query):
     '''
 
     values = {
-        f"request_params.pos_seq_num": query.get("id", None),
-        f"request_params.ad_id": query.get("ad_id", None),
-        f"request_params.page_index": query.get("page", 1),
-        f"request_params.page_size": query.get("limit", None),
-        f"request_params.order_by": services.sorting_values(query.get("ordering", None)),
-        f"request_params.pos_num_text": query.get("position_num", None),
+        "request_params.pos_seq_num": query.get("id", None),
+        "request_params.ad_id": query.get("ad_id", None),
+        "request_params.page_index": query.get("page", 1),
+        "request_params.page_size": query.get("limit", None),
+        "request_params.order_by": services.sorting_values(query.get("ordering", None)),
+        "request_params.pos_num_text": query.get("position_num", None),
     }
 
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)

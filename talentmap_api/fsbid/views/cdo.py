@@ -2,6 +2,7 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 
+from rest_condition import Or
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -17,7 +18,6 @@ import talentmap_api.fsbid.services.bid as services
 import talentmap_api.fsbid.services.cdo as cdoServices
 import talentmap_api.fsbid.services.classifications as classifications_services
 
-from rest_condition import Or
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class FSBidCDOView(BaseView):
 
 class FSBidListView(BaseView):
 
-    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), ) ]
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'), )]
 
     def get(self, request, client_id):
         '''
@@ -82,7 +82,7 @@ class FSBidListBidActionView(APIView):
             except ObjectDoesNotExist:
                 logger.info(f"User with emp_id={client_id} did not exist. No notification created for submitting bid on position id={pk}.")
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            
+
             message = f"Bid on a position has been submitted by CDO {user}."
 
             if owner:
@@ -127,7 +127,7 @@ class FSBidListBidRegisterView(APIView):
                 ab = AvailableBidders.objects.filter(bidder_perdet=client_id)
                 if ab.exists():
                     ab.first().delete()
-                
+
                 # Notify other bidders
                 registeredHandshakeNotification(pk, jwt, client_id, True)
 

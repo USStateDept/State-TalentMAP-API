@@ -1,10 +1,8 @@
-import pytest
 import os
+import pytest
 
 from django.conf import settings
 from django.core.management import call_command
-
-from model_mommy import mommy
 
 from talentmap_api.glossary.models import GlossaryEntry
 

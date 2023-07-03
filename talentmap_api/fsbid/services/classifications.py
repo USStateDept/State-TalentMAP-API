@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urlencode, quote
-import pydash
 from django.conf import settings
+
 from talentmap_api.fsbid.requests import requests
 
 TP_ROOT = settings.TP_API_URL
@@ -57,4 +57,3 @@ def delete_client_classification(jwt_token=None, perdet_seq_num=None, data=None)
         return None
 
     return fsbid_classifications_to_tmap(response.get("Data", {}))
-

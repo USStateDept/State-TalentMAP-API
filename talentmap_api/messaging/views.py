@@ -1,23 +1,14 @@
-import pydash
-import json
-import maya
 import logging
+import json
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import get_object_or_404
-from django.apps import apps
+import maya
+import pydash
 
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.views import APIView
 from rest_framework import mixins
-from rest_framework.response import Response
-from rest_framework import status
-
 from rest_framework.permissions import IsAuthenticated
 
 from talentmap_api.common.mixins import FieldLimitableSerializerMixin
-
-from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.messaging.models import Notification
 from talentmap_api.bidding.models import BidHandshakeCycle
 from talentmap_api.messaging.filters import NotificationFilter
@@ -53,7 +44,7 @@ class NotificationView(FieldLimitableSerializerMixin,
     def get_queryset(self):
         # Oracle and Django don't play nice with JSON. This makes filtering by an array of tags difficult.
         # We comma separate the tags provided in the ?tags query parameter (ex: ?tags=a,b,c).
-        tags = [x for x in self.request.GET.get('tags', '').split(',')]
+        tags = list(self.request.GET.get('tags', '').split(','))
         # filter out an empty strings
         tags = pydash.without(tags, '')
 
@@ -75,7 +66,7 @@ class NotificationView(FieldLimitableSerializerMixin,
             matchesClone = pydash.map_(matchesClone, 'id')
             # Only append to params if tags exists, so that we don't inadvertently pass an empty array
             params['id__in'] = matchesClone
-        
+
 
         # Don't show notifications for handshakes that are in an unrevealed bid cycle
         for x in matches:
@@ -92,7 +83,7 @@ class NotificationView(FieldLimitableSerializerMixin,
                             exclude_params['id__in'].append(pydash.get(x, 'id'))
             except Exception as e:
                 logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
-        
+
 
         queryset = Notification.objects.filter(**params).exclude(**exclude_params)
         self.serializer_class.prefetch_model(Notification, queryset)

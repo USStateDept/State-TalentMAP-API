@@ -3,8 +3,8 @@ This set of tests performs tests on all parameterized endpoints generically, any
 more specific tests should be broken out into their own files.
 '''
 
-import pytest
 import random
+import pytest
 
 from model_mommy import mommy
 from rest_framework import status

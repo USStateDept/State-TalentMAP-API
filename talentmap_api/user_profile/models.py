@@ -5,12 +5,10 @@ from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import User
 
-from dateutil.relativedelta import relativedelta
-
 from jsonfield import JSONField
 
 from talentmap_api.common.models import StaticRepresentationModel
-from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, ensure_date, format_filter, get_avatar_url
+from talentmap_api.common.common_helpers import get_filtered_queryset, resolve_path_to_view, format_filter, get_avatar_url
 from talentmap_api.common.permissions import in_group_or_403
 
 from talentmap_api.messaging.models import Notification

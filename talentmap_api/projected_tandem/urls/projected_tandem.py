@@ -3,7 +3,6 @@ from rest_framework import routers
 
 from talentmap_api.projected_tandem.views import projected_tandem as views
 
-from talentmap_api.common.urls import get_list
 
 router = routers.SimpleRouter()
 

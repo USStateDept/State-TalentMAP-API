@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from talentmap_api.available_positions.views import available_position as views
 
-from talentmap_api.common.urls import get_retrieve, get_list, patch_update, post_create
+from talentmap_api.common.urls import get_list, patch_update, post_create
 
 router = routers.SimpleRouter()
 

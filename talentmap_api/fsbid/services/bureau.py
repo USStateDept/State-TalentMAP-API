@@ -1,24 +1,18 @@
 import logging
-import pydash
-import maya
 from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
-import pydash
-
-import requests  # pylint: disable=unused-import
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
+import pydash
+
 from talentmap_api.bidding.models import BidHandshakeCycle
-
 from talentmap_api.common.common_helpers import ensure_date, validate_values
-
 import talentmap_api.fsbid.services.cdo as cdoservices
 import talentmap_api.bidding.services.bidhandshake as bh_services
 import talentmap_api.fsbid.services.classifications as classifications_services
-
 from talentmap_api.available_positions.models import AvailablePositionRanking
 from talentmap_api.bidding.models import BidHandshake
 
@@ -177,11 +171,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
 
     active_handshake_perdet = None
     if active_perdet:
-        if int(active_perdet) == int(emp_id):
-            active_handshake_perdet = True
-        else:
-            active_handshake_perdet = False
-
+        active_handshake_perdet = int(active_perdet) == int(emp_id)
     fullname = bid.get("full_name", None)
     if fullname:
         fullname = fullname.rstrip(' Nmn')
@@ -193,7 +183,7 @@ def fsbid_bureau_position_bids_to_talentmap(bid, jwt, cp_id, active_perdet):
     handshakesAccepted = list(handshakesAccepted)
     if handshakesAccepted:
         hasAcceptedOffer = True
-    
+
 
     return {
         "emp_id": emp_id,

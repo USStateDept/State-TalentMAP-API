@@ -1,8 +1,5 @@
-import logging
-
 from django.db import models
 
-import talentmap_api.position.models
 from talentmap_api.common.models import StaticRepresentationModel
 
 

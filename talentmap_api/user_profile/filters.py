@@ -1,11 +1,9 @@
 from django.contrib.auth.models import User
 import rest_framework_filters as filters
 
-from talentmap_api.bidding.models import Bid
-
 from talentmap_api.user_profile.models import UserProfile, SavedSearch
 
-from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, DATE_LOOKUPS, FOREIGN_KEY_LOOKUPS
+from talentmap_api.common.filters import full_text_search, ALL_TEXT_LOOKUPS, FOREIGN_KEY_LOOKUPS
 
 
 class UserFilter(filters.FilterSet):
