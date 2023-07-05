@@ -120,6 +120,10 @@ def validate_individual_leg(leg):
         'travelFunctionCode': {
             'valid': True,
             'errorMessage': ''
+        },
+        'sepLocation': {
+            'valid': True,
+            'errorMessage': ''
         }
     }
 
@@ -139,6 +143,12 @@ def validate_individual_leg(leg):
     if not leg['travelFunctionCode']:
         individual_leg_validation['travelFunctionCode']['valid'] = False
         individual_leg_validation['travelFunctionCode']['errorMessage'] = 'Missing Travel'
+        whole_leg_valid = False
+
+    # Leg - must have duty station for separation
+    if leg['pos_title'] == 'SEPARATION' and not leg['sepLocation']:
+        individual_leg_validation['sepLocation']['valid'] = False
+        individual_leg_validation['sepLocation']['errorMessage'] = 'Missing Location'
         whole_leg_valid = False
 
     return (individual_leg_validation, whole_leg_valid)

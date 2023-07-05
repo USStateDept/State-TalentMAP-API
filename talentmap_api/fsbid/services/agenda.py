@@ -537,6 +537,7 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailasgdrevisionnum": int(pydash.get(leg, "legAssignmentVersion") or 0) or None,
         "ailsepseqnum": None,
         "ailsepdrevisionnum": None,
+        "aildsccd": pydash.get(leg, "sepLocation.code") or None,
     }
 
 
