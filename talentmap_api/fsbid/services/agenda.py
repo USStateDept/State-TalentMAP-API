@@ -542,9 +542,9 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailtodothertext": tod_long_desc if is_other_tod else None, # only custom/other TOD should pass back months and other_text
         "ailetadate": None,
         "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
-        "aildsccd": None,
-        "ailcitytext": None,
-        "ailcountrystatetext": None,
+        "aildsccd": pydash.get(leg, "sepLocation.code") or None,
+        "ailcitytext": pydash.get(leg, "sepLocation.city") or None,
+        "ailcountrystatetext": pydash.get(leg, "sepLocation.description") or None,
         "ailusind": None,
         "ailemprequestedsepind": None,
         "ailcreateid": user_id,
@@ -553,7 +553,6 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailasgdrevisionnum": int(pydash.get(leg, "legAssignmentVersion") or 0) or None,
         "ailsepseqnum": None,
         "ailsepdrevisionnum": None,
-        "aildsccd": pydash.get(leg, "sepLocation.code") or None,
     }
 
 
