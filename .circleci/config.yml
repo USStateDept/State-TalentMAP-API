@@ -34,7 +34,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps3-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
             python3 -m venv venv
@@ -60,7 +60,7 @@ jobs:
       - run: chmod +x ./wait-for-oracle.sh
       - run: ./cc-test-reporter before-build
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps3-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           name: pip install
           command: |
@@ -121,7 +121,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps3-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
             python3 -m venv venv
@@ -140,7 +140,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps3-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           command: |
             python3 -m venv venv
