@@ -1,5 +1,5 @@
 from model_mommy import mommy
-from model_mommy.recipe import Recipe, seq, foreign_key
+from model_mommy.recipe import Recipe
 
 from talentmap_api.user_profile.models import UserProfile
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite

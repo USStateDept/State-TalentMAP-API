@@ -2,8 +2,6 @@ import itertools
 
 from django.db import models
 
-import talentmap_api.bidding.models
-from talentmap_api.common.common_helpers import safe_navigation
 from talentmap_api.common.models import StaticRepresentationModel
 
 

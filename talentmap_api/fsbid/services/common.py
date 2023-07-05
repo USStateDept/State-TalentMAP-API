@@ -2,13 +2,11 @@ import re
 import logging
 import csv
 from datetime import datetime
-# import requests_cache
 from copy import deepcopy
 from functools import partial
 
 
 from django.conf import settings
-from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.http import QueryDict
@@ -86,7 +84,7 @@ def convert_multi_value(val):
     toReturn = None
     if val is not None:
         toReturn = str(val).split(',')
-    if toReturn is not None and len(toReturn[0]) is 0:
+    if toReturn is not None and len(toReturn[0]) == 0:
         toReturn = None
     return toReturn
 
@@ -276,7 +274,7 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
 
 
 def get_results_with_post(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
-    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o == None)
+    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o is None)
     url = f"{api_root}/{uri}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery).json()
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
@@ -337,7 +335,7 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
     newQuery = query.copy()
     if api_root == CLIENTS_ROOT_V2 and not uri:
         newQuery['getCount'] = 'true'
-    if api_root == CP_API_V2_ROOT and (not uri or uri in ('availableTandem')):
+    if api_root == CP_API_V2_ROOT and (not uri or uri in 'availableTandem'):
         newQuery['getCount'] = 'true'
     if api_root == PV_API_V2_URL:
         newQuery['getCount'] = 'true'
@@ -354,9 +352,9 @@ def send_count_request(uri, query, query_mapping_function, jwt_token, host=None,
 
     response = method(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, **args).json()
     countObj = pydash.get(response, "Data[0]")
-    if len(pydash.keys(countObj)):
+    if pydash.keys(countObj):
         count = pydash.get(countObj, pydash.keys(countObj)[0])
-        return { "count": count }
+        return {"count": count}
     else:
         logger.error(f"No count property could be found. {response}")
         raise KeyError('No count property could be found')
@@ -418,7 +416,7 @@ def send_get_csv_request(uri, query, query_mapping_function, jwt_token, mapping_
         formattedQuery['limit'] = limit
 
     if use_post:
-        mappedQuery = pydash.omit_by(query_mapping_function(formattedQuery), lambda o: o == None)
+        mappedQuery = pydash.omit_by(query_mapping_function(formattedQuery), lambda o: o is None)
         url = f"{base_url}/{uri}"
         response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=mappedQuery).json()
     else:
@@ -671,7 +669,7 @@ def has_competing_rank(jwt, perdet, pk):
     aps = []
     if rankOneBids:
         ids = ','.join(rankOneBids)
-        ap = apservices.get_available_positions({ 'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1 }, jwt)
+        ap = apservices.get_available_positions({'id': ids, 'page': 1, 'limit': len(rankOneBids) or 1}, jwt)
         aps = pydash.map_(ap['results'], 'id')
 
     for y in aps:
@@ -742,7 +740,7 @@ def get_bidders_csv(self, pk, data, filename, jwt_token):
     return response
 
 
-def get_secondary_skill(pos = {}):
+def get_secondary_skill(pos={}):
     skillSecondary = f"{pos.get('pos_staff_ptrn_skill_desc', None)} ({pos.get('pos_staff_ptrn_skill_code')})"
     skillSecondaryCode = pos.get("pos_staff_ptrn_skill_code", None)
     if pos.get("pos_skill_code", None) == pos.get("pos_staff_ptrn_skill_code", None):
@@ -802,7 +800,7 @@ def sort_bids(bidlist, ordering_query):
             is_asc = pydash.get(ordering, '[1]') == 'asc'
             bids = sorted(bids, key=lambda x: pydash.get(x, order, '') or '', reverse=not is_asc)
         elif ordering_query in ('status', '-status'):
-            bids = pydash.map_(bids, lambda x: { **x, "ordering": bid_status_order[x['status']] })
+            bids = pydash.map_(bids, lambda x: {**x, "ordering": bid_status_order[x['status']]})
             bids = pydash.sort_by(bids, "ordering", reverse=ordering_query[0] == '-')
             bids = pydash.map_(bids, lambda x: pydash.omit(x, 'ordering'))
             bids.reverse()
@@ -834,8 +832,8 @@ def convert_to_fsbid_ql(filters):
     return formattedFilters
 
 
-def categorize_remark(remark = ''):
-    obj = { 'text': remark, 'type': None }
+def categorize_remark(remark=''):
+    obj = {'text': remark, 'type': None}
     if pydash.starts_with(remark, 'Creator') or pydash.starts_with(remark, 'CDO:') or pydash.starts_with(remark, 'Modifier'):
         obj['type'] = 'person'
     return obj
@@ -866,7 +864,7 @@ def parse_agenda_remarks(remarks=[]):
             if remarkInsertions:
                 for insertion in remarkInsertions:
                     matchText = pydash.find(refInsertionsText, {'riseqnum': insertion['aiririseqnum']})
-                    if (matchText):
+                    if matchText:
                         refRemarkText = refRemarkText.replace(matchText['riinsertiontext'], insertion['airiinsertiontext'])
                     else:
                         continue
@@ -990,7 +988,7 @@ def csv_fsbid_template_to_tm(data, mapping):
     row = []
 
     for x in mapping['wskeys'].keys():
-        default =  mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
+        default = mapping['wskeys'][x]['default'] if 'default' in mapping['wskeys'][x] else mapping['default']
 
         if 'transformFn' in mapping['wskeys'][x]:
             mapped = mapping['wskeys'][x]['transformFn'](pydash.get(data, x)) or default
@@ -1005,7 +1003,7 @@ def csv_fsbid_template_to_tm(data, mapping):
 
 
 def process_dates_csv(date):
-    if (date):
+    if date:
         return maya.parse(date).datetime().strftime('%m/%d/%Y')
     else:
         return "None Listed"

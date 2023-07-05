@@ -1,12 +1,12 @@
 import logging
 import pydash
-from rest_framework.response import Response
 
+from rest_framework.response import Response
+from rest_condition import Or
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from talentmap_api.common.permissions import isDjangoGroupMember
-from rest_condition import Or
 
+from talentmap_api.common.permissions import isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.agenda_employees as services
 
@@ -28,14 +28,13 @@ base_parameters = [
 ]
 
 class FSBidAgendaEmployeesListView(BaseView):
-    
+
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
 
     @swagger_auto_schema(
         manual_parameters=pydash.concat([
             openapi.Parameter("limit", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Page Limit'),
-        ],
-        base_parameters)
+        ], base_parameters)
     )
 
     def get(self, request):
@@ -46,7 +45,7 @@ class FSBidAgendaEmployeesListView(BaseView):
 
 
 class FSBidAgendaEmployeesCSVView(BaseView):
-    
+
     permission_classes = [Or(isDjangoGroupMember('ao_user'), isDjangoGroupMember('cdo')), ]
 
     @swagger_auto_schema(manual_parameters=base_parameters)

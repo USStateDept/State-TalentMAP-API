@@ -1,17 +1,18 @@
 import logging
-import jwt
-import pydash
-import re
-import maya
 import csv
 from datetime import datetime
 from urllib.parse import urlencode, quote
 from functools import partial
 from copy import deepcopy
 
+
 from django.utils.encoding import smart_str
 from django.conf import settings
 from django.http import HttpResponse
+
+import jwt
+import maya
+import pydash
 
 from talentmap_api.fsbid.services import common as services
 
@@ -118,9 +119,9 @@ def get_agenda_employees_csv(query, jwt_token, rl_cd, host=None):
             panelMeetingDate = smart_str(maya.parse(record["agenda"]["panelDate"]).datetime().strftime('%m/%d/%Y'))
         except:
             panelMeetingDate = fallback
-        
+
         hasHandshake = True if pydash.get(record, 'hsAssignment.orgDescription') else False
-        
+
         writer.writerow([
             smart_str(pydash.get(record, 'person.fullName')),
             smart_str("=\"%s\"" % pydash.get(record, "person.employeeID")),
@@ -139,7 +140,7 @@ def convert_agenda_employees_query(query):
     '''
     Convert TalentMAP filters into FSBid filters
     '''
-    
+
     tedStart = query.get("ted-start")
     tedEnd = query.get("ted-end")
 
@@ -148,7 +149,7 @@ def convert_agenda_employees_query(query):
     empID = query.get("empID").upper() if query.get("empID") else None
 
     activeCodes = "S,L,A,P,U" if not query.get("isInactiveSelected") else None
-    
+
     filters = [
         {"col": "tmpercurrentbureaucode", "com": "IN", "val": query.get("current-bureaus") or None},
         {"col": "tmperhsbureaucode", "com": "IN", "val": query.get("handshake-bureaus") or None},
@@ -182,7 +183,7 @@ def convert_agenda_employees_query(query):
     except:
         logger.info(f"Invalid date {tedStart} or {tedEnd} could not be parsed.")
 
-    filters = pydash.filter_(filters, lambda o: o["val"] != None)
+    filters = pydash.filter_(filters, lambda o: o["val"] is not None)
 
     filters = services.convert_to_fsbid_ql(filters)
 

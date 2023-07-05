@@ -1,7 +1,6 @@
 import logging
 
 import pydash
-import jwt
 
 from django.conf import settings
 
@@ -15,27 +14,27 @@ API_ROOT = settings.WS_ROOT_API_URL
 logger = logging.getLogger(__name__)
 
 def submit_create_remark(remark, jwt_token={}):
-  url = f"{API_ROOT}/v1/admin_panels/"
+    url = f"{API_ROOT}/v1/admin_panels/"
 
-  args = {
-      "uri": url,
-      "query": remark,
-      "query_mapping_function": convert_panel_admin_remark_query,
-      "jwt_token": jwt_token,
-      "mapping_function": "",
-  }
+    args = {
+        "uri": url,
+        "query": remark,
+        "query_mapping_function": convert_panel_admin_remark_query,
+        "jwt_token": jwt_token,
+        "mapping_function": "",
+    }
 
-  return services.get_results_with_post(
-      **args
-  )
+    return services.get_results_with_post(
+        **args
+    )
 
 def convert_panel_admin_remark_query(query):
-  '''
-  Converts TalentMap query into FSBid query
-  '''
-  return {
-      "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
-      "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
-      "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
-      "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
-  }
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    return {
+        "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
+        "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
+        "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
+        "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
+    }

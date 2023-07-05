@@ -1,13 +1,12 @@
 import logging
-import pydash
 from functools import partial
-from urllib.parse import urlencode, quote
 
+import pydash
 from django.conf import settings
 import requests  # pylint: disable=unused-import
 
 from talentmap_api.fsbid.services import common as services
-from talentmap_api.common.common_helpers import ensure_date, safe_navigation, validate_values
+from talentmap_api.common.common_helpers import ensure_date, validate_values
 from talentmap_api.available_positions.models import AvailablePositionDesignation
 
 
@@ -439,7 +438,7 @@ def convert_ap_query(query, allowed_status_codes=["HS", "OP"], isTandem=False):
 
     if isinstance(values[f"{prefix}order_by"], list):
         values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
-    
+
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return valuesToReturn
 

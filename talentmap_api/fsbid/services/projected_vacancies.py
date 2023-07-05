@@ -1,6 +1,5 @@
 import logging
 from functools import partial
-from urllib.parse import urlencode, quote
 
 import requests  # pylint: disable=unused-import
 import pydash
@@ -310,10 +309,10 @@ def convert_pv_query(query, isTandem=False):
         values[f"{prefix}pos_numbers2"] = services.convert_multi_value(query.get("position__position_number__in-tandem", None))
         values[f"{prefix}tod_codes2"] = services.convert_multi_value(query.get("position__post__tour_of_duty__code__in-tandem"))
         values[f"{prefix}skills2"] = services.convert_multi_value(query.get("position__skill__code__in-tandem"))
-    
+
     if isinstance(values[f"{prefix}order_by"], list):
         values[f"{prefix}order_by"] = pydash.compact(values[f"{prefix}order_by"])
-    
+
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return valuesToReturn
 

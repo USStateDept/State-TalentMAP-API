@@ -1,6 +1,4 @@
-import datetime
-from django.shortcuts import get_object_or_404
-
+import logging
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.views import APIView
@@ -14,7 +12,6 @@ from talentmap_api.common.common_helpers import in_group_or_403
 from talentmap_api.feature_flags.models import FeatureFlags
 from talentmap_api.feature_flags.serializers.featureflags import FeatureFlagsSerializer
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +39,7 @@ class FeatureFlagsView(mixins.RetrieveModelMixin,
 
 
     def perform_create(self, request):
-        in_group_or_403(self.request.user, f"superuser")
+        in_group_or_403(self.request.user, "superuser")
         instance = FeatureFlags()
         logger.info(f"User {self.request.user.id}:{self.request.user} creating feature_flags entry {instance}")
         instance.feature_flags = request.data

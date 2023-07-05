@@ -1,17 +1,13 @@
-import coreapi
-import maya
 import logging
+import coreapi
 import pydash
 
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
-from django.db.models.functions import Concat
-from django.db.models import TextField
 from django.conf import settings
 
 from rest_framework.viewsets import GenericViewSet
-from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -419,18 +415,18 @@ class BureauBiddersRankings(APIView):
         filtered_bids = []
 
         for bid in user_bids:
-          try:
-            pos_id = str(int(pydash.get(bid, 'position_info.id')))
-            rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
-            if rank is not None:
-                num_sl_bids += 1
-                hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
-                hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
-                if hasOrgPermissions or hasBureauPermissions:
-                    bid["ranking"] = rank
-                    filtered_bids.append(bid)
-          except Exception as e:
-            logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
+            try:
+                pos_id = str(int(pydash.get(bid, 'position_info.id')))
+                rank = user_rankings.filter(cp_id=pos_id).values_list("rank", flat=True).first()
+                if rank is not None:
+                    num_sl_bids += 1
+                    hasBureauPermissions = empservices.has_bureau_permissions(pos_id, self.request.META['HTTP_JWT'])
+                    hasOrgPermissions = empservices.has_org_permissions(pos_id, self.request.META['HTTP_JWT'])
+                    if hasOrgPermissions or hasBureauPermissions:
+                        bid["ranking"] = rank
+                        filtered_bids.append(bid)
+            except Exception as e:
+                logger.error(f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}")
 
         filtered_bids.sort(key=lambda x: x['ranking'])
         other_sl_bids = num_sl_bids - len(filtered_bids)

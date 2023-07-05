@@ -1,9 +1,6 @@
-from django.utils import timezone
 from django.db import models
 
 from djchoices import DjangoChoices, ChoiceItem
-
-from talentmap_api.common.common_helpers import safe_navigation
 
 
 class Bid(models.Model):
@@ -65,8 +62,8 @@ class BidHandshake(models.Model):
     last_editing_bidder = models.ForeignKey('user_profile.UserProfile', related_name='bidder', null=True, on_delete=models.DO_NOTHING, help_text="The last acceptee/cdo to edit")
 
     # Track dates of actions
-    date_offered  = models.DateTimeField(auto_now_add=True, null=True)
-    date_revoked  = models.DateTimeField(auto_now_add=False, null=True)
+    date_offered = models.DateTimeField(auto_now_add=True, null=True)
+    date_revoked = models.DateTimeField(auto_now_add=False, null=True)
     date_accepted = models.DateTimeField(auto_now_add=False, null=True)
     date_declined = models.DateTimeField(auto_now_add=False, null=True)
 
