@@ -28,7 +28,7 @@ def get_user_information(jwt_token, perdet_seq_num):
     Gets the office_phone and office_address for the employee
     '''
     url = f"{SECREF_ROOT}/user?request_params.perdet_seq_num={perdet_seq_num}"
-    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json() 
+    user = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
     user = next(iter(user.get('Data', [])), {})
     try:
         return {
@@ -120,7 +120,7 @@ def client_suggestions(jwt_token, perdet_seq_num):
     return values
 
 
-def single_client(jwt_token, perdet_seq_num, host=None):
+def single_client(jwt_token, perdet_seq_num, is_bureau_not_superuser=False, host=None):
     '''
     Get a single client for a CDO
     '''
@@ -164,7 +164,7 @@ def single_client(jwt_token, perdet_seq_num, host=None):
         CLIENT['cdo'] = cdo
         CLIENT['user_info'] = user_info
         CLIENT['current_assignment'] = list(responseCurrentAssignment['results'])[0].get('current_assignment', {})
-        CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'))
+        CLIENT['employee_profile_url'] = get_employee_profile_urls(pydash.get(user_info, 'hru_id'), is_bureau_not_superuser)
         return CLIENT
     except IndexError:
         pass
@@ -203,7 +203,7 @@ def get_client_csv(query, jwt_token, rl_cd, host=None):
 
     for record in data:
         email_response = get_user_information(jwt_token, record['id'])
-        email = pydash.get(email_response, 'email') or 'None listed' 
+        email = pydash.get(email_response, 'email') or 'None listed'
         writer.writerow([
             smart_str(record["name"]),
             email,
@@ -308,7 +308,7 @@ def fsbid_clients_to_talentmap_clients_for_csv(data):
         position = current_assignment.get('currentPosition', None)
         if position is not None:
             pos_location = map_location(position.get("currentLocation", None))
-    
+
     suffix_name = f" {employee['per_suffix_name']}" if pydash.get(employee, 'per_suffix_name') else ''
 
     return {

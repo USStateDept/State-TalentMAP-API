@@ -1,11 +1,10 @@
-import jwt
 import csv
 import logging
-import pydash
-import maya
 from functools import partial
 from urllib.parse import urlencode, quote
 from datetime import datetime
+import jwt
+import pydash
 
 from django.conf import settings
 from django.http import QueryDict
@@ -20,6 +19,7 @@ from talentmap_api.common.common_helpers import ensure_date, sort_legs
 AGENDA_API_ROOT = settings.AGENDA_API_URL
 PANEL_API_ROOT = settings.PANEL_API_URL
 CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
+API_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,24 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         **args
     )
 
-    return pydash.get(agenda_item, 'results[0]') or None
+    ai_return = pydash.get(agenda_item, 'results[0]') or None
+
+    if ai_return:
+        # Get Vice/Vacancy data
+        pos_seq_nums = []
+        legs = pydash.get(ai_return, "legs")
+        for leg in legs:
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] is not None):
+                pos_seq_nums.append(leg["ail_pos_seq_num"])
+        vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
+
+        # Add Vice/Vacancy data to AI for AIM page
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+                leg["vice"] = vice
+
+    return ai_return
 
 
 def get_agenda_items(jwt_token=None, query={}, host=None):
@@ -77,7 +94,6 @@ def get_agenda_items(jwt_token=None, query={}, host=None):
         "results": agenda_items,
     }
 
-
 def create_agenda(query={}, jwt_token=None, host=None):
     '''
     Create agenda
@@ -95,7 +111,7 @@ def create_agenda(query={}, jwt_token=None, host=None):
     logger.info(f"3a. pmi return {panel_meeting_item}")
     pmi_seq_num = pydash.get(panel_meeting_item, '[0].pmi_seq_num')
 
-    if pmi_seq_num and ai_valid:
+    if pmi_seq_num:
         query['pmiseqnum'] = pmi_seq_num
         logger.info('4. calling ai ---------------------------------------------------')
         agenda_item = create_agenda_item(query, jwt_token)
@@ -158,7 +174,7 @@ def create_agenda_item_leg(data, query, jwt_token):
         "query": query,
         "query_mapping_function": partial(convert_agenda_item_leg_query, leg=data),
         "jwt_token": jwt_token,
-        "mapping_function": "" 
+        "mapping_function": ""
     }
 
     return services.get_results_with_post(
@@ -274,14 +290,14 @@ def fsbid_single_agenda_item_to_talentmap_single_agenda_item(data):
         "status_full": statusFull,
         "status_short": agendaStatusAbbrev.get(statusFull, None),
         "report_category": reportCategory,
-        "perdet": str(int(pydash.get(data,"aiperdetseqnum"))) or None,
+        "perdet": str(int(pydash.get(data, "aiperdetseqnum"))) or None,
         "assignment": assignment,
         "legs": legsToReturn,
-        "update_date": ensure_date(pydash.get(data,"update_date"), utc_offset=-5),  # TODO - find this date
-        "modifier_name": pydash.get(data,"aiupdateid") or None,  # TODO - this is only the id
-        "modifier_date": ensure_date(pydash.get(data,"aiupdatedate"), utc_offset=-5) or None,  
-        "creator_name": pydash.get(data,"aiitemcreatorid") or None,  # TODO - this is only the id
-        "creator_date": ensure_date(pydash.get(data,"aicreatedate"), utc_offset=-5) or None,  
+        "update_date": ensure_date(pydash.get(data, "update_date"), utc_offset=-5),  # TODO - find this date
+        "modifier_name": pydash.get(data, "aiupdateid") or None,  # TODO - this is only the id
+        "modifier_date": ensure_date(pydash.get(data, "aiupdatedate"), utc_offset=-5) or None,
+        "creator_name": pydash.get(data, "aiitemcreatorid") or None,  # TODO - this is only the id
+        "creator_date": ensure_date(pydash.get(data, "aicreatedate"), utc_offset=-5) or None,
         "creators": creators,
         "updaters": updaters,
         "user": {},
@@ -330,11 +346,12 @@ def fsbid_legs_to_talentmap_legs(data):
     is_other_tod = True if (tod_code == 'X') and (tod_other_text) else False
     tod_is_active = pydash.get(data, "todstatuscode") == "A"
     # legacy and custom/other TOD Agenda Item Legs will not render as a dropdown
-    tod_is_dropdown = (tod_code != "X") and (tod_is_active == True)
+    tod_is_dropdown = (tod_code != "X") and (tod_is_active is True)
 
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
         "ail_seq_num": pydash.get(data, "ailseqnum", None),
+        "ail_pos_seq_num": pydash.get(data, "ailposseqnum", None),
         "pos_title": pydash.get(data, "agendaLegPosition[0].postitledesc", None),
         "pos_num": pydash.get(data, "agendaLegPosition[0].posnumtext", None),
         "org": pydash.get(data, "agendaLegPosition[0].posorgshortdesc", None),
@@ -376,16 +393,15 @@ def fsbid_legs_to_talentmap_legs(data):
 def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
     empUser = pydash.get(data, "empUser") or None
     if empUser:
-        empUser = (list(map(lambda emp_user : {
-                "emp_user_first_name": emp_user["perpiifirstname"],
-                "emp_user_last_name": emp_user["perpiilastname"],
-                "emp_user_seq_num": emp_user["perpiiseqnum"],
-                "emp_user_middle_name": emp_user["perpiimiddlename"],
-                "emp_user_suffix_name": emp_user["perpiisuffixname"],
-                "perdet_seqnum": emp_user["perdetseqnum"],
-                "per_desc": emp_user["persdesc"],
-            }, empUser
-        )))[0]
+        empUser = (list(map(lambda emp_user: {
+            "emp_user_first_name": emp_user["perpiifirstname"],
+            "emp_user_last_name": emp_user["perpiilastname"],
+            "emp_user_seq_num": emp_user["perpiiseqnum"],
+            "emp_user_middle_name": emp_user["perpiimiddlename"],
+            "emp_user_suffix_name": emp_user["perpiisuffixname"],
+            "perdet_seqnum": emp_user["perdetseqnum"],
+            "per_desc": emp_user["persdesc"],
+        }, empUser)))[0]
 
     return {
         "emp_seq_num": pydash.get(data, "hruempseqnbr"),
@@ -514,7 +530,7 @@ def convert_agenda_item_leg_query(query, leg={}):
     is_other_tod = True if (tod_code == 'X') and (tod_long_desc) else False
     tod_months = pydash.get(leg, "tod_months")
     return {
-        "ailaiseqnum": pydash.get(query, "aiseqnum"),    
+        "ailaiseqnum": pydash.get(query, "aiseqnum"),
         "aillatcode": pydash.get(leg, "legActionType", ""),
         "ailtfcd": pydash.get(leg, "travelFunctionCode", ""),
         "ailcpid": int(pydash.get(leg, "cpId") or 0) or None,
@@ -768,11 +784,26 @@ def get_agendas_by_panel(pk, jwt_token):
     clients_lookup = {}
     for client in clients.get("results") or []:
         perdet = client["perdet_seq_number"]
-        clients_lookup[perdet] = client 
- 
-    for agenda in agendas_by_panel["results"]: 
+        clients_lookup[perdet] = client
+
+    # get vice data to add to agendas_by_panel
+    pos_seq_nums = []
+    for agenda in agendas_by_panel["results"]:
+        legs = pydash.get(agenda, "legs")
+        for leg in legs:
+            if ('ail_pos_seq_num' in leg) and (leg["ail_pos_seq_num"] is not None):
+                pos_seq_nums.append(leg["ail_pos_seq_num"])
+    vice_lookup = get_vice_data(pos_seq_nums, jwt_token)
+
+    for agenda in agendas_by_panel["results"]:
         client = clients_lookup.get(agenda["perdet"]) or {}
         agenda["user"] = client
+        legs = pydash.get(agenda, "legs")
+        # append vice data to add to agendas_by_panel
+        for leg in legs:
+            if 'ail_pos_seq_num' in leg:
+                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+                leg["vice"] = vice
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
@@ -784,7 +815,7 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
         'wskeys': {
             'agendaAssignment[0].position[0].postitledesc': {},
             'agendaAssignment[0].position[0].posnumtext': {
-                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+                'transformFn': lambda x: smart_str("=\"%s\"" % x),
             },
             'agendaAssignment[0].position[0].posorgshortdesc': {},
             'agendaAssignment[0].asgdetadate': {
@@ -795,7 +826,7 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
             },
             'agendaAssignment[0].asgdtoddesctext': {},
             'agendaAssignment[0].position[0].posgradecode': {
-                'transformFn': lambda x : smart_str("=\"%s\"" % x),
+                'transformFn': lambda x: smart_str("=\"%s\"" % x),
             },
             'Panel[0].pmddttm': {
                 'transformFn': services.process_dates_csv,
@@ -843,3 +874,49 @@ def get_agendas_by_panel_export(pk, jwt_token, host=None):
     writer.writerows(data['results'])
 
     return response
+
+def get_vice_data(pos_seq_nums, jwt_token):
+    args = {
+        "uri": "v1/vice-positions/",
+        "jwt_token": jwt_token,
+        "query": pos_seq_nums,
+        "query_mapping_function": vice_query_mapping,
+        "mapping_function": None,
+        "count_function": None,
+        "base_url": "",
+        "host": None,
+        "api_root": API_ROOT
+    }
+    vice_req = services.send_get_request(
+        **args
+    )
+    vice_data = pydash.get(vice_req, 'results')
+
+    vice_lookup = {}
+    for vice in vice_data or []:
+        if "pos_seq_num" in vice:
+            pos_seq = vice["pos_seq_num"]
+            # check for multiple incumbents in same postion
+            if pos_seq in vice_lookup:
+                vice_lookup[pos_seq] = {
+                    "pos_seq_num": pos_seq,
+                    "emp_first_name": "Multiple",
+                    "emp_last_name": "Incumbents"
+                }
+            else:
+                vice_lookup[pos_seq] = vice
+
+    return vice_lookup
+
+def vice_query_mapping(pos_seq_nums):
+    pos_seq_nums_string = ','.join(map(lambda x: str(x), list(set(pos_seq_nums))))
+    filters = services.convert_to_fsbid_ql([
+        {'col': 'pos_seq_num', 'com': 'IN', 'val': pos_seq_nums_string},
+    ])
+    values = {
+        "rp.filter": filters,
+        "rp.pageNum": int(0),
+        "rp.pageRows": int(0),
+    }
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)

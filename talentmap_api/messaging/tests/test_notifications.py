@@ -1,11 +1,10 @@
-import pytest
 import json
 
-from talentmap_api.messaging.models import Notification
-
+import pytest
 from model_mommy import mommy
 from rest_framework import status
 
+from talentmap_api.messaging.models import Notification
 
 @pytest.fixture
 def test_notification_fixture(authorized_user):

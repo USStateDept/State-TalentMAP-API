@@ -1,18 +1,18 @@
 import logging
+from functools import partial
+from urllib.parse import urlencode, quote
+
+from django.conf import settings
+from django.contrib.auth.models import Group
 import jwt
 import pydash
 
-from django.conf import settings
-from functools import partial
-from django.contrib.auth.models import Group
 from talentmap_api.fsbid.services.client import map_skill_codes, map_skill_codes_additional
 from talentmap_api.fsbid.requests import requests
 from talentmap_api.fsbid.services.bureau import get_bureau_positions
 from talentmap_api.fsbid.services.assignment_history import assignment_history_to_client_format, get_assignments
 import talentmap_api.fsbid.services.bid as bid_services
 
-from drf_yasg import openapi
-from urllib.parse import urlencode, quote
 
 API_ROOT = settings.EMPLOYEES_API_URL
 ORG_ROOT = settings.ORG_API_URL
@@ -65,7 +65,7 @@ def map_group_to_fsbid_role(jwt_token):
     orgPermissions = list(get_org_permissions(jwt_token))
     if len(orgPermissions) >= 1:
         tm_roles.append('post_user')
-    
+
     # For developer testing
     if 'developer' in roles:
         developerRoles = ['fsofficer', 'CDO', 'Bureau', 'AO']
@@ -249,11 +249,11 @@ def map_org_permissions(data):
 
 def get_assignments_separations_bids(query, jwt_token, pk):
     query_copy = query.copy()
-    query_copy["is_effective"] = True 
+    query_copy["is_effective"] = True
     query_copy["perdet_seq_num"] = pk
     query_copy._mutable = False
     asg = assignment_history_to_client_format(get_assignments(query_copy, jwt_token))
-    # TO-DO: Add Separations 
+    # TO-DO: Add Separations
     # sep = get_separations(query, jwt_token, pk)
     # sep = pydash.get(sep, 'results') or []
     bid_query_copy = query.copy()

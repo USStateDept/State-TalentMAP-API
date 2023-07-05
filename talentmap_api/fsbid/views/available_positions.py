@@ -1,20 +1,17 @@
 import logging
-import coreapi
 import math
 import random
 
+import coreapi
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from talentmap_api.fsbid.filters import AvailablePositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
-
 import talentmap_api.fsbid.services.available_positions as services
-
 from talentmap_api.common.common_helpers import in_superuser_group
 
 logger = logging.getLogger(__name__)
@@ -206,7 +203,7 @@ class FSBidAvailablePositionsFeaturedPositionsView(BaseView):
 
         count = services.get_available_positions_count(request.query_params, request.META['HTTP_JWT'], f"{request.scheme}://{request.get_host()}")["count"]
 
-        if count is 0:
+        if count == 0:
             return Response({})
 
         try:

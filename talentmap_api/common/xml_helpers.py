@@ -5,8 +5,6 @@ This file contains helpers for loading data into the database from XML files
 import logging
 import csv
 
-from talentmap_api.common.common_helpers import ensure_date  # pylint: disable=unused-import
-
 
 class CSVloader():
 

@@ -25,7 +25,7 @@ from django.apps import AppConfig
 
 # For upgrade to django 3.x
 AppConfig.default = False
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # This supports swagger https
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

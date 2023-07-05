@@ -1,9 +1,5 @@
 import json
 
-from rest_framework import serializers
-from rest_framework.reverse import reverse
-from django.apps import apps
-
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.messaging.models import Notification
 

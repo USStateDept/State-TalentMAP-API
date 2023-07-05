@@ -4,8 +4,6 @@ import pytest
 from model_mommy import mommy
 from rest_framework import status
 
-from talentmap_api.user_profile.models import SavedSearch
-from talentmap_api.messaging.models import Notification
 
 fake_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IldBU0hEQ1xcVEVTVFVTRVIifQ.o5o4XZ3Z_vsqqC4a2tGcGEoYu3sSYxej4Y2GcCQVtyE"
 

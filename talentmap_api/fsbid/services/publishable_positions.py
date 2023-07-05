@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_capsule_description(id, jwt_token):
     '''
-    Gets an individual capsule description 
+    Gets an individual capsule description
     '''
     capsule_description = services.send_get_request(
         "capsule",
@@ -42,7 +42,7 @@ def update_capsule_description(jwt_token, id, description, last_updated_date, up
 
 def fsbid_capsule_to_talentmap_capsule(capsule):
     '''
-    Formats FSBid response to Talentmap format 
+    Formats FSBid response to Talentmap format
     '''
     return {
         "id": capsule.get("pos_seq_num", None),
@@ -56,11 +56,10 @@ def convert_capsule_query(query):
     Converts TalentMap query to FSBid
     '''
     values = {
-        f"pos_seq_num": query.get("id", None),
-        f"ad_id": query.get("ad_id", None),
-        f"update_date": query.get("last_updated_date", None),
-        f"update_id": query.get("updater_id", None),
-        f"capsule_descr_txt": query.get("description", None),
+        "pos_seq_num": query.get("id", None),
+        "ad_id": query.get("ad_id", None),
+        "update_date": query.get("last_updated_date", None),
+        "update_id": query.get("updater_id", None),
+        "capsule_descr_txt": query.get("description", None),
     }
     return urlencode({i: j for i, j in values.items() if j is not None}, doseq=True, quote_via=quote)
-

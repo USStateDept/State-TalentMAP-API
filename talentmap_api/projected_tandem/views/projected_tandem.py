@@ -1,12 +1,10 @@
 import logging
 import coreapi
 
-from django.shortcuts import render
 from django.http import QueryDict
 from django.conf import settings
 
-from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +12,6 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from talentmap_api.common.mixins import FieldLimitableSerializerMixin
 from talentmap_api.projected_tandem.models import ProjectedFavoriteTandem
 
 from talentmap_api.user_profile.models import UserProfile

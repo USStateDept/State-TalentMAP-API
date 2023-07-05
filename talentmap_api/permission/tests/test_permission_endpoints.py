@@ -12,7 +12,7 @@ def test_user_permission_endpoint(authorized_client, authorized_user):
     group.permissions.add(permission)
     group.user_set.add(authorized_user)
 
-    response = authorized_client.get(f'/api/v1/permission/user/')
+    response = authorized_client.get('/api/v1/permission/user/')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["groups"] == [group.name]
@@ -21,13 +21,13 @@ def test_user_permission_endpoint(authorized_client, authorized_user):
     response = authorized_client.get(f'/api/v1/permission/user/{authorized_user.profile.id}/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    response = authorized_client.get(f'/api/v1/permission/user/all/')
+    response = authorized_client.get('/api/v1/permission/user/all/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
     ao_group = mommy.make('auth.Group', name="superuser")
     ao_group.user_set.add(authorized_user)
 
-    response = authorized_client.get(f'/api/v1/permission/user/all/')
+    response = authorized_client.get('/api/v1/permission/user/all/')
     assert response.status_code == status.HTTP_200_OK
 
 

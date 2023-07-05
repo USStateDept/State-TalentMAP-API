@@ -1,24 +1,21 @@
 import logging
 import coreapi
 
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from rest_condition import Or
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.common.permissions import isDjangoGroupMember
-
 import talentmap_api.fsbid.services.positions as services
 
 
 logger = logging.getLogger(__name__)
 
-    
+
 class FSBidPositionView(BaseView):
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -64,4 +61,3 @@ class FSBidFrequentPositionsView(BaseView):
         Return a list of reference data for all frequent positions
         """
         return Response(services.get_frequent_positions(request.query_params, request.META['HTTP_JWT']))
-
