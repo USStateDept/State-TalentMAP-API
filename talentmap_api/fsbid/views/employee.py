@@ -1,18 +1,15 @@
 import logging
 
+from rest_condition import Or
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly, isDjangoGroupMember
 from rest_framework.response import Response
 from rest_framework import status
 
 from django.contrib.auth.models import Group
-
-from rest_condition import Or
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-import pydash
-
+from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly, isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.employee as services
 
@@ -107,5 +104,3 @@ class FSBidAssignmentSeparationsBidsView(BaseView):
         Get an employee's assignments,separations, and bids
         '''
         return Response(services.get_assignments_separations_bids(request.query_params, request.META['HTTP_JWT'], pk))
-
-

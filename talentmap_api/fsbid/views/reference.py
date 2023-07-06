@@ -73,7 +73,7 @@ class FSBidGSALocationsView(BaseView):
             openapi.Parameter("state", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='State'),
             openapi.Parameter("country", openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Country'),
         ])
-     
+
     def get(self, request):
         """
         Return a list of filterable reference data for GSA locations

@@ -1,9 +1,12 @@
-import pydash
-from talentmap_api.fsbid.services import common as services
 from urllib.parse import urlencode, quote
+
+import pydash
 from django.conf import settings
 
+from talentmap_api.fsbid.services import common as services
+
 PERSON_API_ROOT = settings.PERSON_API_URL
+
 
 def get_persons(pk, jwt_token=None, host=None):
     '''
@@ -52,7 +55,7 @@ def persons_to_tm(data):
     name = firstN +' '+ lastN + f"{', '+suffix if hasSuffix else ''}"
 
     return {
-      'name': name,
-      'perdet_seq_number': str(data.get('perdetseqnum', '')),
-      'perpii_seq_num': str(data.get('perpiiseqnum', '')),
+        'name': name,
+        'perdet_seq_number': str(data.get('perdetseqnum', '')),
+        'perpii_seq_num': str(data.get('perpiiseqnum', '')),
     }

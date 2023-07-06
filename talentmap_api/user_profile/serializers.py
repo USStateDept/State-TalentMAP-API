@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from rest_framework import serializers
 
-from talentmap_api.common.common_helpers import resolve_path_to_view, validate_filters_exist, serialize_instance
+from talentmap_api.common.common_helpers import resolve_path_to_view
 from talentmap_api.common.serializers import PrefetchedSerializer, StaticRepresentationField
 from talentmap_api.available_positions.models import AvailablePositionFavorite
 from talentmap_api.fsbid.services.cdo import single_cdo
@@ -14,7 +14,7 @@ from talentmap_api.user_profile.models import UserProfile, SavedSearch
 from talentmap_api.fsbid.services.available_positions import get_available_positions
 from talentmap_api.fsbid.services.employee import get_employee_information
 from talentmap_api.fsbid.services.client import get_user_information, fsbid_clients_to_talentmap_clients
-from talentmap_api.fsbid.services.common import get_fsbid_results
+from talentmap_api.fsbid.services.common import get_employee_profile_urls, get_fsbid_results
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +97,7 @@ class UserProfileSerializer(PrefetchedSerializer):
     employee_info = serializers.SerializerMethodField()
     user_info = serializers.SerializerMethodField()
     current_assignment = serializers.SerializerMethodField()
+    employee_profile_url = serializers.SerializerMethodField()
 
     def get_favorite_positions(self, obj):
         request = self.context['request']
@@ -149,6 +150,12 @@ class UserProfileSerializer(PrefetchedSerializer):
             return list(responseCurrentAssignment)[0].get('current_assignment', {})
         except BaseException:
             return {}
+
+    def get_employee_profile_url(self, obj):
+        request = self.context['request']
+        user = UserProfile.objects.get(user=request.user)
+        emp_id = user.emp_id
+        return get_employee_profile_urls(emp_id, False) or {}
 
     class Meta:
         model = UserProfile

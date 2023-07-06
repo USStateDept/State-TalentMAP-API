@@ -23,11 +23,11 @@ from djangosaml2.views import echo_attributes
 from talentmap_api.saml2.acs_patch import assertion_consumer_service
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="TalentMAP API",
-      default_version='v1',
-   ),
-   public=False,
+    openapi.Info(
+        title="TalentMAP API",
+        default_version='v1',
+    ),
+    public=False,
 )
 
 urlpatterns = [

@@ -2,27 +2,21 @@ import logging
 import coreapi
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
+from rest_framework.response import Response
+from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from django.db.models import Max
 from django.db.models import Q
 
-from rest_framework.response import Response
-from rest_framework import status
 
 from talentmap_api.fsbid.filters import BureauPositionsFilter
 from talentmap_api.fsbid.views.base import BaseView
 from talentmap_api.available_positions.models import AvailablePositionRankingLock
 from talentmap_api.bidding.models import BidHandshake
-
 import talentmap_api.fsbid.services.bureau as services
-import talentmap_api.fsbid.services.available_positions as ap_services
 import talentmap_api.fsbid.services.employee as empservices
-import talentmap_api.fsbid.services.common as com_services
-import talentmap_api.fsbid.services.bid as bid_services
-import talentmap_api.fsbid.services.classifications as classifications_services
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +62,7 @@ class FSBidBureauPositionsListView(BaseView):
         # Filter by latest status(update_date) per cp_id
         if len(hs_query_codes) == 0:
             bureau_pos = services.get_bureau_positions(request.query_params, request.META['HTTP_JWT'],
-                                                   f"{request.scheme}://{request.get_host()}")
+                                                       f"{request.scheme}://{request.get_host()}")
             return Response(services.get_bureau_shortlist_indicator(bureau_pos))
 
         o_vals = BidHandshake.objects.values('cp_id').annotate(Max('update_date'))

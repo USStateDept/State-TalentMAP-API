@@ -1,10 +1,7 @@
-import pytest
-import datetime
-from dateutil.relativedelta import relativedelta
-from model_mommy import mommy
 from unittest.mock import Mock, patch
-from rest_framework import status
-from django.utils import timezone
+
+from model_mommy import mommy
+import pytest
 
 
 pv = {

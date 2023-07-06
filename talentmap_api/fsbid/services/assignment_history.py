@@ -1,8 +1,8 @@
 import logging
-import pydash
 from urllib.parse import urlencode, quote
 from django.conf import settings
-from functools import partial
+
+import pydash
 
 from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.services import common as services
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def get_assignments(query, jwt_token):
     '''
-    Get assignments 
+    Get assignments
     '''
     response = services.send_get_request(
         "v2/assignments/",
@@ -89,14 +89,14 @@ def assignment_history_to_client_format(data):
 
 def convert_assignments_query(query):
     filters = services.convert_to_fsbid_ql([
-        { "col": "asgperdetseqnum", "val": query.get('perdet_seq_num') or None },
-        { "col": "asgdrevisionnum", "val": "MAX" },
-        { "col": "asgdasgscode", "val": "EF" if query.get('is_effective') else None },
+        {"col": "asgperdetseqnum", "val": query.get('perdet_seq_num') or None},
+        {"col": "asgdrevisionnum", "val": "MAX"},
+        {"col": "asgdasgscode", "val": "EF" if query.get('is_effective') else None},
     ])
 
     values = {
-        "rp.pageNum": int(query.get('page', 1)), 
-        "rp.pageRows": int(query.get('limit', 1000)), 
+        "rp.pageNum": int(query.get('page', 1)),
+        "rp.pageRows": int(query.get('limit', 1000)),
         "rp.filter": filters,
         "rp.columns": "asgperdetseqnum",
     }
@@ -110,7 +110,7 @@ def fsbid_assignments_to_talentmap_assignments(data):
 
     hard_coded = [
         "id",
-        "position_id", 
+        "position_id",
         "start_date",
         "end_date",
         "asgd_tod_desc_text",
@@ -167,7 +167,6 @@ def fsbid_assignments_to_talentmap_assignments(data):
         "asgs_update_id": "asgsupdateid",
         "asgs_update_date": "asgsupdatedate",
         "position": "position",
-        "asgd_tod_code": "asgdtodcode",
         "asgd_tod_other_text": "asgdtodothertext",
         "asgd_tod_months_num": "asgdtodmonthsnum",
         "tod_code": "todcode",
