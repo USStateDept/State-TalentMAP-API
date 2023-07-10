@@ -192,7 +192,7 @@ def fsbid_to_talentmap_separations(data):
     # add_these are the additional data points we want returned
     from talentmap_api.fsbid.services.common import map_return_template_cols
 
-    hard_coded = ['seq_num', 'asgs_code', 'sepd_city', 'sepd_country_state', 'sepd_separation_date']
+    hard_coded = ['seq_num', 'asgs_code', 'sepd_city', 'sepd_country_state', 'sepd_separation_date', 'sepd_dsccd']
 
     add_these = ['perdet_seq_num']
 
@@ -253,16 +253,15 @@ def get_assignments_separations_bids(query, jwt_token, pk):
     query_copy["perdet_seq_num"] = pk
     query_copy._mutable = False
     asg = assignment_history_to_client_format(get_assignments(query_copy, jwt_token))
-    # TO-DO: Add Separations
-    # sep = get_separations(query, jwt_token, pk)
-    # sep = pydash.get(sep, 'results') or []
+    sep = get_separations(query, jwt_token, pk)
+    sep = pydash.get(sep, 'results') or []
     bid_query_copy = query.copy()
     bid_query_copy["filters"] = [{'col': 'ubwbscd', 'val': 'A'}, {'col': 'ubwhscode', 'val': 'HS'}]
     bid_query_copy._mutable = False
     bids = bid_services.get_bids(bid_query_copy, jwt_token, pk)
     bids = pydash.get(bids, 'results') or []
 
-    return map(map_assignments_separations_bids, pydash.interleave(asg, bids))
+    return map(map_assignments_separations_bids, pydash.interleave(asg, bids, sep))
 
 
 def map_assignments_separations_bids(data):
@@ -271,11 +270,17 @@ def map_assignments_separations_bids(data):
         "status": pydash.get(data, 'status') or pydash.get(data, 'asgs_code') or pydash.get(data, 'hs_code'),
         "org": pydash.get(pos, 'posorgshortdesc'),
         "grade": pydash.get(pos, 'posgradecode'),
-        "pos_num": pydash.get(pos, 'posnumtext'),
-        "pos_title": pydash.get(pos, 'postitledesc'),
+        "pos_num": pydash.get(pos, 'posnumtext') or f"{pydash.get(data, 'seq_num')}" or None,
+        "pos_title": pydash.get(pos, 'postitledesc') or 'SEPARATION',
         "pos_seq_num": pydash.get(pos, 'posseqnum'),
         "cp_id": pydash.get(data, 'cp_id'),
-        "asg_seq_num": pydash.get(data, 'id'),
+        "asg_seq_num": pydash.get(data, 'id') or pydash.get(data, 'seq_num'),
         "revision_num": pydash.get(pos, 'asgd_revision_num'),
         "languages": pydash.get(pos, 'languages'),
+        "start_date": pydash.get(data, 'start_date') or pydash.get(data, 'sepd_separation_date'),
+        "separation_location": {
+            "city": pydash.get(data, 'sepd_city'),
+            "country": pydash.get(data, 'sepd_country_state'),
+            "code": pydash.get(data, 'sepd_dsccd'),
+        }
     }
