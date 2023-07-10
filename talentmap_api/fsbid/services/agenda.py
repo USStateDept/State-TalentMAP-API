@@ -386,6 +386,16 @@ def fsbid_legs_to_talentmap_legs(data):
         res['pos_title'] = 'DEATH IN SERVICE'
         res['pos_num'] = 'N/A'
 
+    if res['action'] == 'Separation':
+        res['pos_title'] = 'Separation TBD'
+        res['pos_num'] = 'N/A'
+
+    if res['action'] == 'Chg Sep Dt':
+        res['pos_title'] = 'Change Separation Date'
+        res['pos_num'] = 'N/A'
+
+
+
     # TODO - determine all edge cases for actions where there is no positions information
 
     return res
