@@ -78,7 +78,7 @@ def validate_legs(legs):
     }
 
     # AI Legs - must not be empty
-    if legs:
+    if not legs:
         legs_validation['allLegs']['valid'] = False
         legs_validation['allLegs']['errorMessage'] = 'Agenda Items must have at least one leg.'
         return legs_validation
