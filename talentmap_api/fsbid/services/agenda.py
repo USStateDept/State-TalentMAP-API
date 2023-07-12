@@ -58,9 +58,9 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         # Add Vice/Vacancy data to AI for AIM page
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                leg["vice"] = vice
-
+                leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
+            if leg["is_separation"]:
+                leg["vice"] = {}
     return ai_return
 
 
@@ -370,6 +370,7 @@ def fsbid_legs_to_talentmap_legs(data):
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
+        "is_separation": False,
     }
 
     # Avoid the need to do this logic on the front-end
@@ -438,6 +439,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
         "travel": "-",
         "action": "-",
+        "is_separation": False,
     }
 
 
@@ -794,8 +796,7 @@ def get_agendas_by_panel(pk, jwt_token):
         # append vice data to add to agendas_by_panel
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                leg["vice"] = vice
+                leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):

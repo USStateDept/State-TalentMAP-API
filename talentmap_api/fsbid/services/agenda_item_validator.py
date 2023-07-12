@@ -16,6 +16,7 @@ def validate_agenda_item(query):
         'reportCategory': validate_report_category(query['panelMeetingCategory']),
         'panelDate': validate_panel_date(query['panelMeetingId']),
         'legs': validate_legs(query['agendaLegs']),
+        'allValid': False,
     }
 
     all_valid = True
