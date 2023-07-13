@@ -253,8 +253,8 @@ def get_assignments_separations_bids(query, jwt_token, pk):
     query_copy["perdet_seq_num"] = pk
     query_copy._mutable = False
     asg = assignment_history_to_client_format(get_assignments(query_copy, jwt_token))
-    sep = get_separations(query, jwt_token, pk)
-    sep = pydash.get(sep, 'results') or []
+    sep_data = get_separations(query, jwt_token, pk)
+    sep = pydash.get(sep_data, 'results') or []
     bid_query_copy = query.copy()
     bid_query_copy["filters"] = [{'col': 'ubwbscd', 'val': 'A'}, {'col': 'ubwhscode', 'val': 'HS'}]
     bid_query_copy._mutable = False
