@@ -265,22 +265,68 @@ def get_assignments_separations_bids(query, jwt_token, pk):
 
 
 def map_assignments_separations_bids(data):
+    is_bid = bool(data.get('hs_code')) 
+    is_assignment = bool(data.get('status')) 
+    is_separation = bool(data.get('seq_num'))
+
     pos = pydash.get(data, 'pos', {})
-    return {
-        "status": pydash.get(data, 'status') or pydash.get(data, 'asgs_code') or pydash.get(data, 'hs_code'),
-        "org": pydash.get(pos, 'posorgshortdesc'),
-        "grade": pydash.get(pos, 'posgradecode'),
-        "pos_num": pydash.get(pos, 'posnumtext') or f"{pydash.get(data, 'seq_num')}" or None,
-        "pos_title": pydash.get(pos, 'postitledesc') or 'SEPARATION',
-        "pos_seq_num": pydash.get(pos, 'posseqnum'),
-        "cp_id": pydash.get(data, 'cp_id'),
-        "asg_seq_num": pydash.get(data, 'id') or pydash.get(data, 'seq_num'),
-        "revision_num": pydash.get(pos, 'asgd_revision_num'),
-        "languages": pydash.get(pos, 'languages'),
-        "start_date": pydash.get(data, 'start_date') or pydash.get(data, 'sepd_separation_date'),
-        "separation_location": {
-            "city": pydash.get(data, 'sepd_city'),
-            "country": pydash.get(data, 'sepd_country_state'),
-            "code": pydash.get(data, 'sepd_dsccd'),
+    if is_bid:
+        return {
+            "status": pydash.get(data, 'hs_code'),
+            "org": pydash.get(pos, 'posorgshortdesc'),
+            "grade": pydash.get(pos, 'posgradecode'),
+            "pos_num": pydash.get(pos, 'posnumtext'), 
+            "pos_title": pydash.get(pos, 'postitledesc'),
+            "pos_seq_num": pydash.get(pos, 'posseqnum'),
+            "cp_id": pydash.get(data, 'cp_id'),
+            "asg_seq_num": pydash.get(data, 'id'),
+            "revision_num": pydash.get(pos, 'asgd_revision_num'),
+            "languages": pydash.get(pos, 'languages'),
+            "start_date": pydash.get(data, 'start_date'),
+            "separation_location": {},
+            "is_bid": is_bid,
+            "is_assignment": is_assignment,
+            "is_separation": is_separation,
         }
-    }
+    if is_assignment:
+        return {
+            "status": pydash.get(data, 'status'),
+            "org": pydash.get(pos, 'posorgshortdesc'),
+            "grade": pydash.get(pos, 'posgradecode'),
+            "pos_num": pydash.get(pos, 'posnumtext'),
+            "pos_title": pydash.get(pos, 'postitledesc'),
+            "pos_seq_num": pydash.get(pos, 'posseqnum'),
+            "cp_id": pydash.get(data, 'cp_id'),
+            "asg_seq_num": pydash.get(data, 'id'),
+            "revision_num": pydash.get(pos, 'asgd_revision_num'),
+            "languages": pydash.get(pos, 'languages'),
+            "start_date": pydash.get(data, 'start_date'),
+            "separation_location": {},
+            "is_bid": is_bid,
+            "is_assignment": is_assignment,
+            "is_separation": is_separation,
+        }
+    if is_separation:
+        return {
+            "status": pydash.get(data, 'asgs_code'),
+            "org": pydash.get(pos, 'posorgshortdesc'),
+            "grade": pydash.get(pos, 'posgradecode'),
+            "pos_num": f"{pydash.get(data, 'seq_num')}" or None,
+            "pos_title": pydash.get(pos, 'postitledesc'),
+            "pos_seq_num": pydash.get(pos, 'posseqnum'),
+            "cp_id": None,
+            "asg_seq_num": pydash.get(data, 'seq_num'),
+            "revision_num": pydash.get(pos, 'asgd_revision_num'),
+            "languages": None,
+            "start_date": pydash.get(data, 'sepd_separation_date'),
+            "separation_location": {
+                "city": pydash.get(data, 'sepd_city'),
+                "country": pydash.get(data, 'sepd_country_state'),
+                "code": pydash.get(data, 'sepd_dsccd'),
+            },
+            "is_bid": is_bid,
+            "is_assignment": is_assignment,
+            "is_separation": is_separation,
+
+        }
+
