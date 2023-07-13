@@ -58,9 +58,10 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         # Add Vice/Vacancy data to AI for AIM page
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-            if leg["is_separation"]:
-                leg["vice"] = {}
+                if leg["is_separation"]:
+                    leg["vice"] = {}
+                else:
+                    leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
     return ai_return
 
 
@@ -349,7 +350,7 @@ def fsbid_legs_to_talentmap_legs(data):
     tod_is_dropdown = (tod_code != "X") and (tod_is_active is True)
     city = pydash.get(data, 'ailcitytext') or None
     country_state = pydash.get(data, 'ailcountrystatetext') or None
-    location = f"{city}, {country_state}"
+    location = f"{city or ''}, {country_state or ''}"
     lat_code = pydash.get(data, 'aillatcode')
 
     res = {
@@ -372,9 +373,11 @@ def fsbid_legs_to_talentmap_legs(data):
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
         "is_separation": False,
     }
-
-    # Avoid the need to do this logic on the front-end
-    if lat_code in ['H', 'M', 'N', 'O', 'P', 'Q']:
+    
+    # Remove fields not applicable for separation leg action types
+    separation_types = ['H', 'M', 'N', 'O', 'P']
+    if lat_code in separation_types:
+        res['is_separation'] = True
         res['pos_title'] = pydash.get(data, 'latdesctext')
         res['pos_num'] = '-'
         res['eta'] = '-'
@@ -384,10 +387,7 @@ def fsbid_legs_to_talentmap_legs(data):
         res['tod_long_desc'] = '-' 
         res['grade'] = '-'
         res['languages'] = '-'
-        res['is_separation'] = True
         res['org'] = location
-
-    # TODO - determine all edge cases for actions where there is no positions information
 
     return res
 
