@@ -348,9 +348,9 @@ def fsbid_legs_to_talentmap_legs(data):
     tod_is_active = pydash.get(data, "todstatuscode") == "A"
     # legacy and custom/other TOD Agenda Item Legs will not render as a dropdown
     tod_is_dropdown = (tod_code != "X") and (tod_is_active is True)
-    city = pydash.get(data, 'ailcitytext') or None
-    country_state = pydash.get(data, 'ailcountrystatetext') or None
-    location = f"{city or ''}, {country_state or ''}"
+    city = pydash.get(data, 'ailcitytext') or ''
+    country_state = pydash.get(data, 'ailcountrystatetext') or ''
+    location = f"{city}{', ' if (city and country_state) else ''}{country_state}"
     lat_code = pydash.get(data, 'aillatcode')
 
     res = {

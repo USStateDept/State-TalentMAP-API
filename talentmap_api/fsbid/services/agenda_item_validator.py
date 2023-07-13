@@ -134,7 +134,7 @@ def validate_individual_leg(leg):
         whole_leg_valid = False
 
     # Leg - must have duty station for separation
-    if leg['pos_title'] == 'SEPARATION' and not leg['separation_location']:
+    if leg.get('is_separation', False) and not leg.get('separation_location', False):
         individual_leg_validation['separation_location']['valid'] = False
         individual_leg_validation['separation_location']['errorMessage'] = 'Missing Location'
         whole_leg_valid = False
