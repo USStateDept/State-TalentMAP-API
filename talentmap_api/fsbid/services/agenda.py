@@ -796,9 +796,10 @@ def get_agendas_by_panel(pk, jwt_token):
         # append vice data to add to agendas_by_panel
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-            if leg["is_separation"]:
-                leg["vice"] = {} 
+                if leg["is_separation"]:
+                    leg["vice"] = {} 
+                else:
+                    leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):
