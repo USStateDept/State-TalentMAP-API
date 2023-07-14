@@ -388,6 +388,11 @@ def fsbid_legs_to_talentmap_legs(data):
         res['grade'] = '-'
         res['languages'] = '-'
         res['org'] = location
+        res['separation_location'] = {
+                "city": city,
+                "country": country_state,
+                "code": pydash.get(data, 'aildsccd'),
+            }
 
     return res
 
