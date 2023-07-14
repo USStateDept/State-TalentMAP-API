@@ -58,9 +58,10 @@ def get_single_agenda_item(jwt_token=None, pk=None):
         # Add Vice/Vacancy data to AI for AIM page
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                leg["vice"] = vice
-
+                if leg["is_separation"]:
+                    leg["vice"] = {}
+                else:
+                    leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
     return ai_return
 
 
@@ -347,6 +348,10 @@ def fsbid_legs_to_talentmap_legs(data):
     tod_is_active = pydash.get(data, "todstatuscode") == "A"
     # legacy and custom/other TOD Agenda Item Legs will not render as a dropdown
     tod_is_dropdown = (tod_code != "X") and (tod_is_active is True)
+    city = pydash.get(data, 'ailcitytext') or ''
+    country_state = pydash.get(data, 'ailcountrystatetext') or ''
+    location = f"{city}{', ' if (city and country_state) else ''}{country_state}"
+    lat_code = pydash.get(data, 'aillatcode')
 
     res = {
         "id": pydash.get(data, "ailaiseqnum", None),
@@ -366,29 +371,31 @@ def fsbid_legs_to_talentmap_legs(data):
         "languages": services.parseLanguagesToArr(pydash.get(data, "agendaLegPosition[0]", None)),
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
+        "is_separation": False,
     }
-
-    # Avoid the need to do this logic on the front-end
-    if res['action'] == 'Resign':
-        res['pos_title'] = 'RESIGNATION'
-        res['pos_num'] = 'N/A'
-
-    if res['action'] == 'Retire':
-        res['pos_title'] = 'RETIREMENT'
-        res['pos_num'] = 'N/A'
+    
+    # Remove fields not applicable for separation leg action types
+    separation_types = ['H', 'M', 'N', 'O', 'P']
+    if lat_code in separation_types:
+        res['is_separation'] = True
+        res['pos_title'] = pydash.get(data, 'latdesctext')
+        res['pos_num'] = '-'
         res['eta'] = '-'
-
-    if res['action'] == 'Termination':
-        res['pos_title'] = 'TERMINATION'
-        res['pos_num'] = 'N/A'
-
-    if res['action'] == 'Death in Service':
-        res['pos_title'] = 'DEATH IN SERVICE'
-        res['pos_num'] = 'N/A'
-
-    # TODO - determine all edge cases for actions where there is no positions information
+        res['tod'] = None
+        res['tod_short_desc'] = '-' 
+        res['tod_months'] = '-' 
+        res['tod_long_desc'] = '-' 
+        res['grade'] = '-'
+        res['languages'] = '-'
+        res['org'] = location
+        res['separation_location'] = {
+                "city": city,
+                "country": country_state,
+                "code": pydash.get(data, 'aildsccd'),
+            }
 
     return res
+
 
 def fsbid_ai_creators_updaters_to_talentmap_ai_creators_updaters(data):
     empUser = pydash.get(data, "empUser") or None
@@ -437,6 +444,7 @@ def fsbid_aia_to_talentmap_aia(data):
         "languages": services.parseLanguagesToArr(pydash.get(data, "position[0]", None)),
         "travel": "-",
         "action": "-",
+        "is_separation": False,
     }
 
 
@@ -541,10 +549,10 @@ def convert_agenda_item_leg_query(query, leg={}):
         "ailtodmonthsnum": tod_months if is_other_tod else None, # only custom/other TOD should pass back months and other_text
         "ailtodothertext": tod_long_desc if is_other_tod else None, # only custom/other TOD should pass back months and other_text
         "ailetadate": None,
-        "ailetdtedsepdate": pydash.get(leg, "ted", None),
-        "aildsccd": None,
-        "ailcitytext": None,
-        "ailcountrystatetext": None,
+        "ailetdtedsepdate": pydash.get(leg, "legEndDate", None),
+        "aildsccd": pydash.get(leg, "separation_location.code") or None,
+        "ailcitytext": pydash.get(leg, "separation_location.city") or None,
+        "ailcountrystatetext": pydash.get(leg, "separation_location.description") or None,
         "ailusind": None,
         "ailemprequestedsepind": None,
         "ailcreateid": user_id,
@@ -696,7 +704,7 @@ def get_agenda_leg_action_types(query, jwt_token):
         "query": query,
         "query_mapping_function": None,
         "jwt_token": jwt_token,
-        "mapping_function": fsbid_to_talentmap_agenda_leg_action_types,
+        "mapping_function": fsbid_to_tmap_agenda_leg_action_types,
         "count_function": None,
         "base_url": "/api/v1/agendas/",
         "api_root": AGENDA_API_ROOT,
@@ -708,24 +716,16 @@ def get_agenda_leg_action_types(query, jwt_token):
 
     return agenda_leg_action_types
 
+def fsbid_to_tmap_agenda_leg_action_types(data):
+    separation_types = ['H', 'M', 'N', 'O', 'P']
+    code = data.get('latcode')
 
-def fsbid_to_talentmap_agenda_leg_action_types(data):
-    # hard_coded are the default data points (opinionated EP)
-    # add_these are the additional data points we want returned
-
-    hard_coded = ['code', 'abbr_desc_text', 'desc_text']
-
-    add_these = []
-
-    cols_mapping = {
-        'code': 'latcode',
-        'abbr_desc_text': 'latabbrdesctext',
-        'desc_text': 'latdesctext'
+    return {
+        'code': code,
+        'abbr_desc_text': data.get('latabbrdesctext'),
+        'desc_text': data.get('latdesctext'),
+        'is_separation': True if code in separation_types else False,
     }
-
-    add_these.extend(hard_coded)
-
-    return services.map_return_template_cols(add_these, cols_mapping, data)
 
 
 def convert_agendas_by_panel_query(query):
@@ -801,8 +801,10 @@ def get_agendas_by_panel(pk, jwt_token):
         # append vice data to add to agendas_by_panel
         for leg in legs:
             if 'ail_pos_seq_num' in leg:
-                vice = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
-                leg["vice"] = vice
+                if leg["is_separation"]:
+                    leg["vice"] = {} 
+                else:
+                    leg["vice"] = vice_lookup.get(leg["ail_pos_seq_num"]) or {}
     return agendas_by_panel
 
 def get_agendas_by_panel_export(pk, jwt_token, host=None):

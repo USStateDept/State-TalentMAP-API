@@ -255,7 +255,7 @@ def tmap_to_fsbid_gsa_location_query(query):
             {"col": "loceffstatus", "val": query.get("status")},
             {"col": "locgvtstcntrydescr", "val": query.get("description")},
             {"col": "loccity", "val": query.get("city")},
-            {"col": "locstate", "val": query.get("state")},
+            {"col": "locstate", "val": query.get("countryState")},
             {"col": "loccounty", "val": query.get("county")},
             {"col": "loccountry", "val": query.get("country")},
             {"col": "locgvtleopayarea", "val": query.get("pay_area")},

@@ -16,6 +16,7 @@ def validate_agenda_item(query):
         'reportCategory': validate_report_category(query['panelMeetingCategory']),
         'panelDate': validate_panel_date(query['panelMeetingId']),
         'legs': validate_legs(query['agendaLegs']),
+        'allValid': False,
     }
 
     all_valid = True
@@ -107,6 +108,10 @@ def validate_individual_leg(leg):
         'travelFunctionCode': {
             'valid': True,
             'errorMessage': ''
+        },
+        'separation_location': {
+            'valid': True,
+            'errorMessage': ''
         }
     }
 
@@ -126,6 +131,12 @@ def validate_individual_leg(leg):
     if not leg['travelFunctionCode']:
         individual_leg_validation['travelFunctionCode']['valid'] = False
         individual_leg_validation['travelFunctionCode']['errorMessage'] = 'Missing Travel'
+        whole_leg_valid = False
+
+    # Leg - must have duty station for separation
+    if leg.get('is_separation', False) and not leg.get('separation_location', False):
+        individual_leg_validation['separation_location']['valid'] = False
+        individual_leg_validation['separation_location']['errorMessage'] = 'Missing Location'
         whole_leg_valid = False
 
     return (individual_leg_validation, whole_leg_valid)
