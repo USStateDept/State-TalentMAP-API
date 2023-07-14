@@ -96,7 +96,7 @@ def validate_legs(legs):
 def validate_individual_leg(leg):
     whole_leg_valid = True
     individual_leg_validation = {
-        'legEndDate': {
+        'ted': {
             'valid': True,
             'errorMessage': ''
         },
@@ -116,9 +116,9 @@ def validate_individual_leg(leg):
     }
 
     # Leg - must have TED
-    if not leg['legEndDate']:
-        individual_leg_validation['legEndDate']['valid'] = False
-        individual_leg_validation['legEndDate']['errorMessage'] = 'Missing TED'
+    if not leg['ted']:
+        individual_leg_validation['ted']['valid'] = False
+        individual_leg_validation['ted']['errorMessage'] = 'Missing TED'
         whole_leg_valid = False
 
     # Leg - must have Action

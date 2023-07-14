@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 def submit_create_remark(remark, jwt_token={}):
     url = f"{API_ROOT}/v1/admin_panels/"
 
+    remark['mutuallyExclusive'] = "N"
+
     args = {
         "uri": url,
         "query": remark,
@@ -36,5 +38,5 @@ def convert_panel_admin_remark_query(query):
         "TBD_WS_rmrkInsertionList":  pydash.get(query, 'rmrkInsertionList'),
         "TBD_WS_longDescription": pydash.get(query, 'longDescription'),
         "TBD_WS_activeIndicator": pydash.get(query, 'activeIndicator'),
-        "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive'),
+        "TBD_WS_mutuallyExclusive": pydash.get(query, 'mutuallyExclusive') or "N",
     }
