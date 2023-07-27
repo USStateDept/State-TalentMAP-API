@@ -84,11 +84,8 @@ def assignment_history_to_client_format(data):
                     },
                 }
             )
-    tmap_assignments.sort(key=sort_assignments_by_start_date, reverse=True)
     return tmap_assignments
 
-def sort_assignments_by_start_date(data):
-    return data['start_date']
 
 def convert_assignments_query(query):
     filters = services.convert_to_fsbid_ql([
@@ -102,6 +99,7 @@ def convert_assignments_query(query):
         "rp.pageRows": int(query.get('limit', 1000)),
         "rp.filter": filters,
         "rp.columns": "asgperdetseqnum",
+        "rp.orderBy": ['asgposseqnum desc'],
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
