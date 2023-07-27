@@ -84,8 +84,11 @@ def assignment_history_to_client_format(data):
                     },
                 }
             )
+    tmap_assignments.sort(key=sort_assignments_by_start_date, reverse=True)
     return tmap_assignments
 
+def sort_assignments_by_start_date(data):
+    return data['start_date']
 
 def convert_assignments_query(query):
     filters = services.convert_to_fsbid_ql([
