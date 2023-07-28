@@ -30,6 +30,7 @@ class FSBidAssignmentHistoryListView(BaseView):
         '''
         query_copy = request.query_params.copy()
         query_copy["perdet_seq_num"] = pk
+        query_copy["ordering"] = "-assignment_start_date"
         query_copy._mutable = False
         data = assignment_history_to_client_format(get_assignments(query_copy, request.META['HTTP_JWT']))
         return Response(data)
@@ -50,6 +51,7 @@ class FSBidPrivateAssignmentHistoryListView(BaseView):
             user = UserProfile.objects.get(user=self.request.user)
             query_copy = request.query_params.copy()
             query_copy["perdet_seq_num"] = user.emp_id
+            query_copy["ordering"] = "-assignment_start_date"
             query_copy._mutable = False
             data = assignment_history_to_client_format(get_assignments(query_copy, request.META['HTTP_JWT']))
             return Response(data)

@@ -99,7 +99,7 @@ def convert_assignments_query(query):
         "rp.pageRows": int(query.get('limit', 1000)),
         "rp.filter": filters,
         "rp.columns": "asgperdetseqnum",
-        "rp.orderBy": ['asgdetadate desc'],
+        "rp.orderBy": services.sorting_values(query.get("ordering", "-assignment_start_date")),
     }
     valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
     return urlencode(valuesToReturn, doseq=True, quote_via=quote)
