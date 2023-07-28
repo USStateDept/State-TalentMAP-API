@@ -236,6 +236,8 @@ sort_dict = {
     "bidlist_create_date": "create_date",
     "bidlist_location": "position_info.position.post.location.city",
     "panel_date": "pmddttm",
+    # Assignments
+    "assignment_start_date": "asgdetadate",
 }
 
 
