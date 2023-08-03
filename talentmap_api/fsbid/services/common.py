@@ -46,17 +46,17 @@ urls_expire_after = {
 
 
 def get_employee_profile_urls(userid, only_redacted):
-    suffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
-    suffixRedacted = f"Employees/{userid}/EmployeeProfileReportByCDO"
+    unredactedSuffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
+    redactedSuffix = f"Employees/{userid}/EmployeeProfileReportProtectedByCDO"
 
     urls = {
-        "internalRedacted": f"{HRDATA_URL}/{suffixRedacted}",
-        "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{suffixRedacted}",
+        "internalRedacted": f"{HRDATA_URL}/{redactedSuffix}",
+        "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{redactedSuffix}",
     }
 
     if not only_redacted:
-        urls['internal'] = f"{HRDATA_URL}/{suffix}"
-        urls['external'] = f"{HRDATA_URL_EXTERNAL}/{suffix}"
+        urls['internal'] = f"{HRDATA_URL}/{unredactedSuffix}"
+        urls['external'] = f"{HRDATA_URL_EXTERNAL}/{unredactedSuffix}"
 
     return urls
 
