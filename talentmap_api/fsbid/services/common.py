@@ -45,20 +45,16 @@ urls_expire_after = {
 # session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
 
 
-def get_employee_profile_urls(userid, only_redacted):
+def get_employee_profile_urls(userid):
     unredactedSuffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
     redactedSuffix = f"Employees/{userid}/EmployeeProfileReportProtectedByCDO"
 
-    urls = {
+    return {
+        "internal": f"{HRDATA_URL}/{unredactedSuffix}",
+        "external": f"{HRDATA_URL_EXTERNAL}/{unredactedSuffix}",
         "internalRedacted": f"{HRDATA_URL}/{redactedSuffix}",
         "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{redactedSuffix}",
     }
-
-    if not only_redacted:
-        urls['internal'] = f"{HRDATA_URL}/{unredactedSuffix}"
-        urls['external'] = f"{HRDATA_URL_EXTERNAL}/{unredactedSuffix}"
-
-    return urls
 
 
 def get_pagination(query, count, base_url, host=None):
