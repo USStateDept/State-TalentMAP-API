@@ -155,7 +155,7 @@ class UserProfileSerializer(PrefetchedSerializer):
         request = self.context['request']
         user = UserProfile.objects.get(user=request.user)
         emp_id = user.emp_id
-        return get_employee_profile_urls(emp_id, False) or {}
+        return get_employee_profile_urls(emp_id) or {}
 
     class Meta:
         model = UserProfile
