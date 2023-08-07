@@ -30,13 +30,19 @@ def create_remark_and_remark_insert(query={}, jwt_token=None, host=None):
     Create remark and inserts
     '''
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
+    query['rmrkcreateid'] = hru_id
+    query['rmrkupdateid'] = hru_id
+    query['rmrkactiveind'] = 'Y'
     remark = create_remark(query, jwt_token)
     rmrk_seq_num = pydash.get(remark, '[0].rmrk_seq_num')
 
     if rmrk_seq_num:
         if pydash.get(query, 'remarkInserts'):
-            query['rmrkseqnum'] = rmrk_seq_num
             for x in query['remarkInserts']:
+                x['ricreateid'] = hru_id
+                x['riupdateid'] = hru_id
+                x['rirolerestrictedind'] = 'N'
+                x['rirmrkseqnum'] = rmrk_seq_num
                 create_remark_insert(x, query, jwt_token)
         else:
             logger.error("Create remark insert failed")
@@ -82,7 +88,6 @@ def convert_remark_query(query):
     '''
     Converts TalentMap Remarks into FSBid Remarks
     '''
-    creator_id = pydash.get(query, "hru_id")
     return {
         'rmrkseqnum': query.get('rmrkseqnum'),
         'rmrkrccode': query.get('rmrkrccode'),
@@ -91,7 +96,7 @@ def convert_remark_query(query):
         'rmrkmutuallyexclusiveind': query.get('rmrkmutuallyexclusiveind'),
         'rmrktext': query.get('rmrktext'),
         'rmrkactiveind': query.get('rmrkactiveind'),
-        'rmrkcreateid': creator_id,
+        'rmrkcreateid': query.get('rmrkcreateid'),
         'rmrkcreatedate': query.get('rmrkcreatedate'),
         'rmrkupdateid': query.get('rmrkupdateid'),
         'rmrkupdatedate': query.get('rmrkupdatedate'),
@@ -99,17 +104,69 @@ def convert_remark_query(query):
 
 def convert_remark_insert_query(query):
     '''
-    Converts TalentMap Remarks into FSBid Remarks
+    Converts TalentMap Remark Inserts into FSBid Remark Inserts
     '''
-    creator_id = pydash.get(query, "hru_id")
     return {
         'riseqnum': query.get('riseqnum'),
-        'rmrkseqnum': query.get('rmrkseqnum'),
+        'rirmrkseqnum': query.get('rirmrkseqnum'),
         'riinsertiontext': query.get('riinsertiontext'),
         'rirolerestrictedind': query.get('rirolerestrictedind'),
-        'ricreateid': creator_id, 
+        'ricreateid': query.get('ricreateid'), 
         'ricreatedate': query.get('ricreatedate'), 
         'riupdateid': query.get('riupdateid'),
         'riupdatedate': query.get('riupdatedate'),
     }
+
+def edit_remark_and_remark_insert(query={}, jwt_token=None, host=None):
+    '''
+    Edit remark and inserts
+    '''
+    hru_id = jwt.decode(jwt_token, verify=False).get('sub')
+    remark = edit_remark(query, jwt_token)
+    rmrk_seq_num = pydash.get(remark, '[0].rmrk_seq_num')
+
+    if rmrk_seq_num:
+        if pydash.get(query, 'remarkInserts'):
+            query['rmrkseqnum'] = rmrk_seq_num
+            for x in query['remarkInserts']:
+                edit_remark_insert(x, query, jwt_token)
+        else:
+            logger.error("Create remark insert failed")
+    else:
+        logger.error("Create remark failed")
+
+
+def edit_remark(query, jwt_token):
+    '''
+    Create Remark
+    '''
+    args = {
+        "uri": "v1/remarks",
+        "query": query,
+        "query_mapping_function": convert_remark_query,
+        "jwt_token": jwt_token,
+        "mapping_function": "",
+    }
+
+    return services.send_put_request(
+        **args
+    )
+
+
+def edit_remark_insert(rmrk_seq_num, query, jwt_token):
+    '''
+    Create Remark Insert 
+    '''
+    args = {
+        "uri": f"v1/remarks/{rmrk_seq_num}/inserts",
+        "query": query,
+        "query_mapping_function": convert_remark_insert_query,
+        "jwt_token": jwt_token,
+        "mapping_function": "",
+    }
+
+    return services.send_put_request(
+        **args
+    )
+
 

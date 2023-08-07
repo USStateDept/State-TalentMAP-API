@@ -7,7 +7,7 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', views.RemarkView.as_view(), name="remark"),
-    url(r'^/$', views.RemarkActionView.as_view(), name="remark-action"),
+    url(r'^$', views.RemarkActionView.as_view(), name="remark-action"),
 ]
 
 urlpatterns += router.urls
