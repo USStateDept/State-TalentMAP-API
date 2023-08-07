@@ -47,7 +47,7 @@ urls_expire_after = {
 
 def get_employee_profile_urls(userid):
     unredactedSuffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
-    redactedSuffix = f"Employees/{userid}/EmployeeProfileReportProtectedByCDO"
+    redactedSuffix = f"Employees/{userid}/PrintEmployeeProfileReport"
 
     return {
         "internal": f"{HRDATA_URL}/{unredactedSuffix}",
