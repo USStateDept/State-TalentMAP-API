@@ -66,7 +66,6 @@ class RemarkActionView(BaseView):
                 type=openapi.TYPE_OBJECT,
                 properties={
                     'riseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Seq Num'),
-                    'rmrkseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Seq Num'),
                     'riinsertiontext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insertion Text'),
                     'rirolerestrictedind': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Role Restricted Indicator'),
                     'ricreateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Creater ID'),

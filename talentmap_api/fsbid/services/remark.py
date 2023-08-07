@@ -1,8 +1,4 @@
-import csv
 import logging
-from functools import partial
-from urllib.parse import urlencode, quote
-from datetime import datetime
 import jwt
 import pydash
 
@@ -12,13 +8,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
 from talentmap_api.fsbid.services import common as services
-from talentmap_api.fsbid.services import client as client_services
-import talentmap_api.fsbid.services.agenda_item_validator as ai_validator
-from talentmap_api.common.common_helpers import ensure_date, sort_legs
 
-AGENDA_API_ROOT = settings.AGENDA_API_URL
-PANEL_API_ROOT = settings.PANEL_API_URL
-CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
 API_ROOT = settings.WS_ROOT_API_URL
 
 logger = logging.getLogger(__name__)
