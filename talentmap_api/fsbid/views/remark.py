@@ -23,15 +23,15 @@ class RemarkView(BaseView):
             'rmrkseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Seq Num'),
             'rmrkrccode': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Category Code'),
             'rmrkordernum': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Order Num'),
-            'rmrkshortdesctext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Short Description'),
+            'shortDescription': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Short Description'),
             'rmrkmutuallyexclusiveind': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Mutually Exclusive Indicator'),
-            'rmrktext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Text'),
-            'rmrkactiveind': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Active Indicator'),
+            'longDescription': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Text'),
+            'activeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Active Indicator'),
             'rmrkcreateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Creator ID'),
             'rmrkcreatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Created Date'),
             'rmrkupdateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Updater ID'),
             'rmrkupdatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Updated Date'),
-            'remarkInserts': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
+            'rmrkInsertionList': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
                 type=openapi.TYPE_OBJECT,
                 properties={
                     'riseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Seq Num'),
@@ -42,7 +42,7 @@ class RemarkView(BaseView):
                     'ricreatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Create Date'),
                     'riupdateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Updater ID'),
                     'riupdatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Updated Date'), }
-            ), description='Legs'),
+            ), description='Remark Insertion'),
         }
     ))
 
@@ -59,20 +59,12 @@ class RemarkActionView(BaseView):
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'rmrkrccode': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Category Code'),
-            'rmrkshortdesctext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Short Description'),
-            'rmrktext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Text'),
-            'remarkInserts': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    'riseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Seq Num'),
-                    'riinsertiontext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insertion Text'),
-                    'rirolerestrictedind': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Role Restricted Indicator'),
-                    'ricreateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Creater ID'),
-                    'ricreatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Create Date'),
-                    'riupdateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Updater ID'),
-                    'riupdatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Updated Date'), }
-            ), description='Legs'),
+            'rmrkCategory': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Category Code'),
+            'shortDescription': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Short Description'),
+            'longDescription': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Text'),
+            'rmrkInsertionList': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
+                type=openapi.TYPE_STRING,
+            ), description='Insertion List'),
         }
     ))
 
