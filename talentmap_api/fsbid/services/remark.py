@@ -81,11 +81,11 @@ def convert_remark_query(query):
     '''
     return {
         'rmrkseqnum': query.get('rmrkseqnum'),
-        'rmrkrccode': query.get('rmrkrccode'),
+        'rmrkrccode': query.get('rmrkCategory'),
         'rmrkordernum': query.get('rmrkordernum'),
-        'rmrkshortdesctext': query.get('rmrkshortdesctext'),
+        'rmrkshortdesctext': query.get('shortDescription'),
         'rmrkmutuallyexclusiveind': query.get('rmrkmutuallyexclusiveind'),
-        'rmrktext': query.get('rmrktext'),
+        'rmrktext': query.get('longDescription'),
         'rmrkactiveind': query.get('rmrkactiveind'),
         'rmrkcreateid': query.get('rmrkcreateid'),
         'rmrkcreatedate': query.get('rmrkcreatedate'),
