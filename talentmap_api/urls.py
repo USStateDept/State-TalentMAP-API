@@ -77,6 +77,9 @@ urlpatterns = [
     # Panel
     url(r'^api/v1/fsbid/panel/', include('talentmap_api.fsbid.urls.panel')),
 
+    # Remark
+    url(r'^api/v1/fsbid/remark/', include('talentmap_api.fsbid.urls.remark')),
+ 
     # Bidding
     url(r'^api/v1/bidding/', include('talentmap_api.bidding.urls.bidding')),
     url(r'^api/v1/bidhandshakecycle/', include('talentmap_api.bidding.urls.bidhandshakecycle')),

@@ -323,6 +323,18 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
         "results": fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
 
+def send_put_request(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o is None)
+    url = f"{api_root}/{uri}"
+    response = requests.put(url, data=mappedQuery, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
+
 
 def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False, is_template=False):
     '''
