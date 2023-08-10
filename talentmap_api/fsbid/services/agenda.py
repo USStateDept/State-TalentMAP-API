@@ -447,6 +447,8 @@ def fsbid_aia_to_talentmap_aia(data):
         "travel": "-",
         "action": "-",
         "is_separation": False,
+        "pay_plan": pydash.get(data, "position[0].pospayplancode", None),
+        "pay_plan_desc": pydash.get(data, "position[0].pospayplandesc", None),
     }
 
 
