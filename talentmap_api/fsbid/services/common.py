@@ -45,20 +45,16 @@ urls_expire_after = {
 # session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
 
 
-def get_employee_profile_urls(userid, only_redacted):
-    suffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
-    suffixRedacted = f"Employees/{userid}/EmployeeProfileReportByCDO"
+def get_employee_profile_urls(userid):
+    unredactedSuffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
+    redactedSuffix = f"Employees/{userid}/PrintEmployeeProfileReport"
 
-    urls = {
-        "internalRedacted": f"{HRDATA_URL}/{suffixRedacted}",
-        "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{suffixRedacted}",
+    return {
+        "internal": f"{HRDATA_URL}/{unredactedSuffix}",
+        "external": f"{HRDATA_URL_EXTERNAL}/{unredactedSuffix}",
+        "internalRedacted": f"{HRDATA_URL}/{redactedSuffix}",
+        "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{redactedSuffix}",
     }
-
-    if not only_redacted:
-        urls['internal'] = f"{HRDATA_URL}/{suffix}"
-        urls['external'] = f"{HRDATA_URL_EXTERNAL}/{suffix}"
-
-    return urls
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -326,6 +322,18 @@ def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_func
         **pagination,
         "results": fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     }
+
+def send_put_request(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
+    mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o is None)
+    url = f"{api_root}/{uri}"
+    response = requests.put(url, data=mappedQuery, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    if mapping_function:
+        return list(map(mapping_function, response.get("Data", {})))
+    else:
+        return response.get("Data", {})
 
 
 def send_count_request(uri, query, query_mapping_function, jwt_token, host=None, api_root=API_ROOT, use_post=False, is_template=False):
