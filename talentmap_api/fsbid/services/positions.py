@@ -82,6 +82,8 @@ def fsbid_pos_to_talentmap_pos(pos):
             "bureau_code": pos.get('pos_bureau_code', None),
             "organization": f"({pos.get('pos_org_short_desc', None)}) {pos.get('pos_org_long_desc', None)}",
             "organization_code": pos.get('pos_org_code', None),
+            "pay_plan": pos.get('pos_pay_plan_code', None),
+            "pay_plan_desc": pos.get('pos_pay_plan_desc', None),
             "tour_of_duty": None,
             "classifications": None,
             "representation": None,
@@ -228,7 +230,7 @@ def fsbid_to_talentmap_pos(data):
 
     data['languages'] = services.parseLanguagesToArr(data)
 
-    hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title', 'languages']
+    hard_coded = ['pos_seq_num', 'organization', 'position_number', 'grade', 'title', 'languages', 'pay_plan']
 
     add_these = []
 
@@ -239,6 +241,7 @@ def fsbid_to_talentmap_pos(data):
         'grade': 'posgradecode',
         'title': 'postitledesc',
         'languages': 'languages',
+        'pay_plan' : 'pospayplancode',
     }
 
     add_these.extend(hard_coded)
@@ -272,7 +275,7 @@ def fsbid_to_talentmap_frequent_positions(data):
 
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
-    hard_coded = ['pos_seq_num', 'pos_org_short_desc', 'pos_num_text', 'pos_grade_code', 'pos_title_desc']
+    hard_coded = ['pos_seq_num', 'pos_org_short_desc', 'pos_num_text', 'pos_grade_code', 'pos_title_desc', 'pay_plan']
     add_these = []
 
     cols_mapping = {
@@ -280,7 +283,8 @@ def fsbid_to_talentmap_frequent_positions(data):
         'pos_org_short_desc': 'posorgshortdesc',
         'pos_num_text': 'posnumtext',
         'pos_grade_code': 'posgradecode',
-        'pos_title_desc': 'postitledesc'
+        'pos_title_desc': 'postitledesc',
+        'pay_plan': 'pospayplancode'
     }
 
     add_these.extend(hard_coded)

@@ -287,6 +287,7 @@ def map_assignments_separations_bids(data):
             "is_bid": is_bid,
             "is_assignment": is_assignment,
             "is_separation": is_separation,
+            "pay_plan": pydash.get(pos, 'pospayplancode'),
         }
     if is_assignment:
         return {
@@ -305,6 +306,7 @@ def map_assignments_separations_bids(data):
             "is_bid": is_bid,
             "is_assignment": is_assignment,
             "is_separation": is_separation,
+            "pay_plan": pydash.get(pos, 'pospayplancode'),
         }
     if is_separation:
         return {
@@ -327,6 +329,7 @@ def map_assignments_separations_bids(data):
             "is_bid": is_bid,
             "is_assignment": is_assignment,
             "is_separation": is_separation,
+            "pay_plan": pydash.get(pos, 'pospayplancode'),
 
         }
 
