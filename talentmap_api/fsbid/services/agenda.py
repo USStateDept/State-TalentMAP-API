@@ -372,6 +372,8 @@ def fsbid_legs_to_talentmap_legs(data):
         "action": pydash.get(data, "latabbrdesctext", None),
         "travel": map_tf(pydash.get(data, "ailtfcd", None)),
         "is_separation": False,
+        "pay_plan": pydash.get(data, "agendaLegPosition[0].pospayplancode", None),
+        "pay_plan_desc": pydash.get(data, "agendaLegPosition[0].pospayplandesc", None),
     }
     
     # Remove fields not applicable for separation leg action types
@@ -445,6 +447,8 @@ def fsbid_aia_to_talentmap_aia(data):
         "travel": "-",
         "action": "-",
         "is_separation": False,
+        "pay_plan": pydash.get(data, "position[0].pospayplancode", None),
+        "pay_plan_desc": pydash.get(data, "position[0].pospayplandesc", None),
     }
 
 
