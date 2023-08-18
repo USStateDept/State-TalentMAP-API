@@ -104,3 +104,13 @@ class FSBidAssignmentSeparationsBidsView(BaseView):
         Get an employee's assignments,separations, and bids
         '''
         return Response(services.get_assignments_separations_bids(request.query_params, request.META['HTTP_JWT'], pk))
+
+
+class FSBidEmployeeProfileReportView(BaseView):
+    permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
+
+    def get(self, request, pk):
+        '''
+        Get an employee's profile report
+        '''
+        return Response(services.get_employee_profile_report(request.META['HTTP_JWT'], pk))
