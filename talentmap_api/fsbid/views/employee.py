@@ -11,6 +11,7 @@ from drf_yasg import openapi
 
 from talentmap_api.common.permissions import isDjangoGroupMemberOrReadOnly, isDjangoGroupMember
 from talentmap_api.fsbid.views.base import BaseView
+from rest_framework.views import APIView
 import talentmap_api.fsbid.services.employee as services
 
 logger = logging.getLogger(__name__)
@@ -106,11 +107,11 @@ class FSBidAssignmentSeparationsBidsView(BaseView):
         return Response(services.get_assignments_separations_bids(request.query_params, request.META['HTTP_JWT'], pk))
 
 
-class FSBidEmployeeProfileReportView(BaseView):
+class FSBidEmployeeProfileReportView(APIView):
     permission_classes = [Or(isDjangoGroupMember('cdo'), isDjangoGroupMember('ao_user'),)]
 
     def get(self, request, pk):
         '''
         Get an employee's profile report
         '''
-        return Response(services.get_employee_profile_report(request.META['HTTP_JWT'], pk))
+        return services.get_employee_profile_report(request.query_params, pk, request.META['HTTP_JWT'])

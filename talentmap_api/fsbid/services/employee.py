@@ -4,6 +4,7 @@ from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.http import FileResponse, HttpResponse
 import jwt
 import pydash
 
@@ -333,28 +334,33 @@ def map_assignments_separations_bids(data):
 
         }
 
-def get_employee_profile_report(jwt_token, pk):
+def get_employee_profile_report(query, pk, jwt_token=None):
     '''
-    Get separations
+    Get Employee Profile Report
     '''
-    from talentmap_api.fsbid.services.common import send_get_request
 
-    args = {
-        "uri": f"Employees/{pk}/EmployeeProfileReportByCDO/",
-        "query": {},
-        "query_mapping_function": None,
-        "mapping_function": "",
-        "jwt_token": jwt_token,
-        "count_function": None,
-        "base_url": "",
-        "api_root": HR_DATA_ROOT,
+    url = f"{HR_DATA_ROOT}/Employees/{pk}/EmployeeProfileReportByCDO/"
+
+    if query.get("redacted_report") == "True":
+        url = f"{HR_DATA_ROOT}/Employees/{pk}/PrintEmployeeProfileReport/"
+
+    response_pdf = requests.get(url, headers={'JWTAuthorization': jwt_token})
+    response = HttpResponse(response_pdf, content_type='application/pdf')
+
+    return response
+    # return FileResponse(response, as_attachment=True, filename="emp-pro.pdf")
+
+def convert_employee_profile_report_query(query):
+    '''
+    Converts TalentMap query into FSBid query
+    '''
+    values = {
+        "rp.pageNum": int(query.get("page", 1)),
+        "rp.pageRows": int(query.get("limit", 1000)),
+        "rp.columns": None,
     }
 
-    employee_profile_pdf = send_get_request(
-        **args
-    )
+    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
 
-    print(employee_profile_pdf)
-
-    return employee_profile_pdf
+    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
 
