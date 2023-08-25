@@ -15,7 +15,6 @@ from talentmap_api.common.common_helpers import ensure_date
 from talentmap_api.fsbid.requests import requests
 
 HRDATA_URL = settings.HRDATA_URL
-HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 SECREF_ROOT = settings.SECREF_URL
 CLIENTS_ROOT = settings.CLIENTS_API_URL
 CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
@@ -125,7 +124,6 @@ def single_client(jwt_token, perdet_seq_num, host=None):
     Get a single client for a CDO
     '''
     from talentmap_api.fsbid.services.common import send_get_request
-    from talentmap_api.fsbid.services.common import get_employee_profile_urls
     ad_id = jwt.decode(jwt_token, verify=False).get('unique_name')
     query = {
         "ad_id": ad_id,

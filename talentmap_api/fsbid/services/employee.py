@@ -341,26 +341,12 @@ def get_employee_profile_report(query, pk, jwt_token=None):
 
     url = f"{HR_DATA_ROOT}/Employees/{pk}/EmployeeProfileReportByCDO/"
 
-    if query.get("redacted_report") == "True":
+    if query.get("redacted_report") == "true":
         url = f"{HR_DATA_ROOT}/Employees/{pk}/PrintEmployeeProfileReport/"
-
     response_pdf = requests.get(url, headers={'JWTAuthorization': jwt_token})
-    response = HttpResponse(response_pdf, content_type='application/pdf')
 
-    return response
-    # return FileResponse(response, as_attachment=True, filename="emp-pro.pdf")
-
-def convert_employee_profile_report_query(query):
-    '''
-    Converts TalentMap query into FSBid query
-    '''
-    values = {
-        "rp.pageNum": int(query.get("page", 1)),
-        "rp.pageRows": int(query.get("limit", 1000)),
-        "rp.columns": None,
-    }
-
-    valuesToReturn = pydash.omit_by(values, lambda o: o is None or o == [])
-
-    return urlencode(valuesToReturn, doseq=True, quote_via=quote)
-
+    if response_pdf.ok:
+        return HttpResponse(response_pdf, content_type='arrayBuffer')
+    else:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return HttpResponse()
