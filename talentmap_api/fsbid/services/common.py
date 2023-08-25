@@ -320,12 +320,12 @@ def send_post_back_office(uri, query, query_mapping_function, jwt_token, mapping
         url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     else:
         url = f"{api_root}/{uri}"
-    print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    print('url')
-    print(url)
-    print('json_input')
-    print(json_input)
-    print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
+    # print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
+    # print('url')
+    # print(url)
+    # print('json_input')
+    # print(json_input)
+    # print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_input).json()
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
@@ -335,20 +335,7 @@ def send_post_back_office(uri, query, query_mapping_function, jwt_token, mapping
     else:
         return response.get("Data", {})
 
-# def send_post_back_office(uri, query, query_mapping_function, jwt_token, mapping_function, api_root=API_ROOT):
-#     queryClone = query or {}
-#     if query_mapping_function:
-#         url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
-#     else:
-#         url = f"{api_root}/{uri}"
-#     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
-#     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
-#         logger.error(f"Fsbid call to '{url}' failed.")
-#         return None
-#     if mapping_function:
-#         return list(map(mapping_function, response.get("Data", {})))
-#     else:
-#         return response.get("Data", {})
+
 
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT, use_post=False):
     '''
