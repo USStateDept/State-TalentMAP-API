@@ -15,22 +15,25 @@ def get_search_post_access_filters(jwt_token, request):
         "query": request,
         "query_mapping_function": spa_filter_query_mapping,
         "mapping_function": None,
-        "count_function": None,
-        "base_url": "",
-        "host": None,
+        # "count_function": None,
+        # "base_url": "",
+        # "host": None,
+        "json_input": {
+          "PV_API_VERSION_I": "",
+          "PV_AD_ID_I": "",
+        },
         "api_root": WS_ROOT
     }
-    spa_req = services.send_get_request(
+    spa_req = services.send_post_back_office(
         **args
     )
-    spa_data = pydash.get(spa_req, 'results')
-
-    return spa_data
+    return spa_req
+    # spa_data = pydash.get(spa_req, 'results')
+    # return spa_data
 
 
 def spa_filter_query_mapping(query):
     values = {
-      "jsonInput": {},
       "procName": 'prc_lst_bureau_org_tree',
       "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
     }
