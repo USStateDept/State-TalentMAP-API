@@ -18,11 +18,12 @@ def get_search_post_access_filters(jwt_token, request):
         # "count_function": None,
         # "base_url": "",
         # "host": None,
+        # "use_post": True
+        "api_root": WS_ROOT,
         "json_input": {
-          "PV_API_VERSION_I": "",
-          "PV_AD_ID_I": "",
-        },
-        "api_root": WS_ROOT
+            "PV_API_VERSION_I": '',
+            "PV_AD_ID_I": '',
+        }
     }
     spa_req = services.send_post_back_office(
         **args
