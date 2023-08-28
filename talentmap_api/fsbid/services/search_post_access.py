@@ -13,26 +13,29 @@ def get_search_post_access_filters(jwt_token, request):
     Gets Filters for Search Post Access Page
     '''
   
-    req_body = {
-      "json_input": {
-        "PV_API_VERSION_I": '',
-        "PV_AD_ID_I": '',
-      },
-      "procName": 'prc_lst_bureau_org_tree',
-      "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',    
-    }
+    # req_body = {
+    #   "json_input": {
+    #     "PV_API_VERSION_I": '',
+    #     "PV_AD_ID_I": '',
+    #   },
+    #   "procName": 'prc_lst_bureau_org_tree',
+    #   "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',    
+    # }
 
     args = {
         "uri": "v1/backoffice/BackOfficeCRUD",
         "jwt_token": jwt_token,
         "query": request,
-        "query_mapping_function": None,
+        "query_mapping_function": spa_filter_query_mapping,
         "mapping_function": None,
         # "count_function": None,
         # "base_url": "",
         # "host": None,
         "api_root": WS_ROOT,
-        "json_body": req_body, 
+        "json_body": {
+          "PV_API_VERSION_I": '',
+          "PV_AD_ID_I": '',
+        }, 
     }
     spa_req = services.send_post_back_office(
         **args
@@ -41,12 +44,12 @@ def get_search_post_access_filters(jwt_token, request):
     # spa_data = pydash.get(spa_req, 'results')
     # return spa_data
 
-# def spa_filter_query_mapping(query):
-#     values = {
-#       "procName": 'prc_lst_bureau_org_tree',
-#       "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
-#     }
-#     return urlencode(values, doseq=True, quote_via=quote)
+def spa_filter_query_mapping(query):
+    values = {
+      "procName": 'prc_lst_bureau_org_tree',
+      "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
+    }
+    return urlencode(values, doseq=True, quote_via=quote)
 
 
 # def fsbid_spa_to_tm_data_mapping(data):
