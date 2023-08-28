@@ -57,17 +57,17 @@ def spa_filter_query_mapping(query):
 #     print('Mapping')
 #     print(data)
 #     print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    # bureau = data.get('PQRY_BUREAU_LEVEL_O') or None
-    # country = data.get('PQRY_COUNTRY_O') or None
-    # org = data.get('PQRY_ORG_LEVEL_O') or None
-    # person = data.get('PQRY_PERSON_LEVEL_O') or None
-    # position = data.get('PQRY_POSITION_LEVEL_O') or None
+#     # bureau = data.get('PQRY_BUREAU_LEVEL_O') or None
+#     # country = data.get('PQRY_COUNTRY_O') or None
+#     # org = data.get('PQRY_ORG_LEVEL_O') or None
+#     # person = data.get('PQRY_PERSON_LEVEL_O') or None
+#     # position = data.get('PQRY_POSITION_LEVEL_O') or None
 
-    # return {
-    #     "bureau": bureau,
-    #     "country": country,
-    #     "org": org,
-    #     "person": person,
-    #     "position": position
-    # }
-    # return data
+#     # return {
+#     #     "bureau": bureau,
+#     #     "country": country,
+#     #     "org": org,
+#     #     "person": person,
+#     #     "position": position
+#     # }
+#     return data

@@ -328,11 +328,12 @@ def send_post_back_office(uri, query, query_mapping_function, jwt_token, mapping
     print(json_body)
     print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_body).json()
-    if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
-        logger.error(f"Fsbid call to '{url}' failed.")
-        return None
+    print(response)
+    # if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
+    #     logger.error(f"Fsbid call to '{url}' failed.")
+    #     return None
     if mapping_function:
-        return list(map(mapping_function, response.get("Data", {})))
+        return list(map(mapping_function, response.get("Data", {} ) ))
     else:
         return response
         # return response.get("Data", {})
