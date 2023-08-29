@@ -35,7 +35,7 @@ def create_remark_and_remark_insert(query={}, jwt_token=None, host=None):
                 formattedInsert['riupdateid'] = hru_id
                 formattedInsert['rirolerestrictedind'] = 'N'
                 formattedInsert['rirmrkseqnum'] = rmrk_seq_num
-                create_remark_insert(formattedInsert, query, jwt_token)
+                create_remark_insert(rmrk_seq_num, formattedInsert, jwt_token)
             else:
                 logger.error("Create remark insert failed")
     else:
