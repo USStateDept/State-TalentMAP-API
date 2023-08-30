@@ -27,17 +27,16 @@ def create_remark_and_remark_insert(query={}, jwt_token=None, host=None):
     rmrk_seq_num = pydash.get(remark, '[0].rmrk_seq_num')
 
     if rmrk_seq_num:
-        if query['rmrkInsertionList']:
-            for x in query['rmrkInsertionList']:
-                formattedInsert = {}
-                formattedInsert['ritext'] = x
-                formattedInsert['ricreateid'] = hru_id
-                formattedInsert['riupdateid'] = hru_id
-                formattedInsert['rirolerestrictedind'] = 'N'
-                formattedInsert['rirmrkseqnum'] = rmrk_seq_num
-                create_remark_insert(rmrk_seq_num, formattedInsert, jwt_token)
-            else:
-                logger.error("Create remark insert failed")
+        for x in query['rmrkInsertionList']:
+            formattedInsert = {}
+            formattedInsert['ritext'] = x
+            formattedInsert['ricreateid'] = hru_id
+            formattedInsert['riupdateid'] = hru_id
+            formattedInsert['rirolerestrictedind'] = 'N'
+            formattedInsert['rirmrkseqnum'] = rmrk_seq_num
+            create_remark_insert(rmrk_seq_num, formattedInsert, jwt_token)
+        else:
+            logger.error("Create remark insert failed")
     else:
         logger.error("Create remark failed")
 
