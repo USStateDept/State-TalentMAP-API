@@ -28,8 +28,9 @@ def get_search_post_access_filters(jwt_token, request):
     spa_req = services.send_post_back_office(
         **args
     )
-    result = fsbid_spa_to_tm_filter_data_mapping(spa_req)
-    return result
+    if spa_req is not None:
+      result = fsbid_spa_to_tm_filter_data_mapping(spa_req)
+      return result
 
 def search_post_access_query_mapping(query):
     values = {
@@ -121,9 +122,9 @@ def get_search_post_access_data(jwt_token, request):
     spa_req = services.send_post_back_office(
         **args
     )
-    # TODO add error handling here?
-    result = fsbid_to_tm_spa_data_mapping(spa_req)
-    return result
+    if spa_req is not None:
+      result = fsbid_to_tm_spa_data_mapping(spa_req)
+      return result
 
 def search_post_access_get_data_mapping(query):
     values = {
@@ -135,11 +136,8 @@ def search_post_access_get_data_mapping(query):
 def fsbid_to_tm_spa_data_mapping(data):
     table = data['PQRY_ORG_ACCESS_O']
 
-    half = len(table) // 2
-    half_table = table[:half]
-
     # TODO - only return needed data
-    for item in half_table:
+    for item in table:
         for key, value in item.items():
             if key == 'BUREAUNAME':
                 item['bureau'] = item.pop(key)
@@ -196,11 +194,6 @@ def remove_search_post_access(jwt_token, request):
     Remove Access for a Post
     '''
     mapped_request = map_search_post_access_post_request(request)
-
-    logger.info('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    logger.info('spa POST request mapped request')
-    logger.info(mapped_request)
-
     args = {
         "uri": "v1/backoffice/BackOfficeCRUD",
         "jwt_token": jwt_token,
@@ -212,9 +205,8 @@ def remove_search_post_access(jwt_token, request):
     spa_req = services.send_post_back_office(
         **args
     )
-    # TODO add error handling
-    result = fsbid_to_tm_spa_data_mapping(spa_req)
-    return result
+    if spa_req is not None:
+      return spa_req
 
 def map_search_post_access_post_request(req):
     mapped_request = {

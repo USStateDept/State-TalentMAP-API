@@ -318,13 +318,9 @@ def send_post_back_office(uri, query, query_mapping_function, jwt_token, json_bo
     queryClone = query or {}
     url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_body).json()
-    # if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
-    #     logger.error(f"Fsbid call to '{url}' failed.")
-    #     return None
-    # if mapping_function:
-    #     return list(map(mapping_function, response ))
-    # else:
-    # TODO add error handling here
+    if response is None or (response['PV_RETURN_CODE_O'] and response['PV_RETURN_CODE_O'] is not 0):
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
     return response
 
 
