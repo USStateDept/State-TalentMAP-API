@@ -1,7 +1,10 @@
+import logging
 import pydash
 from django.conf import settings
 from urllib.parse import urlencode, quote
 from talentmap_api.fsbid.services import common as services
+
+logger = logging.getLogger(__name__)
 
 WS_ROOT = settings.WS_ROOT_API_URL
 
@@ -103,9 +106,9 @@ def get_search_post_access_data(jwt_token, request):
     '''
     mapped_request = map_search_post_access_query(request)
 
-    print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    print('spa GET request mapped request')
-    print(mapped_request)
+    logger.info('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
+    logger.info('spa GET request mapped request')
+    logger.info(mapped_request)
 
     args = {
         "uri": "v1/backoffice/BackOfficeCRUD",
@@ -131,8 +134,12 @@ def search_post_access_get_data_mapping(query):
 
 def fsbid_to_tm_spa_data_mapping(data):
     table = data['PQRY_ORG_ACCESS_O']
+
+    half = len(table) // 2
+    half_table = table[:half]
+
     # TODO - only return needed data
-    for item in table:
+    for item in half_table:
         for key, value in item.items():
             if key == 'BUREAUNAME':
                 item['bureau'] = item.pop(key)
@@ -190,9 +197,9 @@ def remove_search_post_access(jwt_token, request):
     '''
     mapped_request = map_search_post_access_post_request(request)
 
-    print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    print('spa POST request mapped request')
-    print(mapped_request)
+    logger.info('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
+    logger.info('spa POST request mapped request')
+    logger.info(mapped_request)
 
     args = {
         "uri": "v1/backoffice/BackOfficeCRUD",
