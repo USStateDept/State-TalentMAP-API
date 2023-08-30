@@ -34,7 +34,7 @@ def create_remark_and_remark_insert(query={}, jwt_token=None, host=None):
             formattedInsert['riupdateid'] = hru_id
             formattedInsert['rirolerestrictedind'] = 'N'
             formattedInsert['rirmrkseqnum'] = rmrk_seq_num
-            create_remark_insert(formattedInsert, query, jwt_token)
+            create_remark_insert(rmrk_seq_num, formattedInsert, jwt_token)
         else:
             logger.error("Create remark insert failed")
     else:
@@ -82,9 +82,9 @@ def convert_remark_query(query):
     return {
         'rmrkseqnum': query.get('rmrkseqnum'),
         'rmrkrccode': query.get('rmrkCategory'),
-        'rmrkordernum': query.get('rmrkordernum'),
+        'rmrkordernum': 0,
         'rmrkshortdesctext': query.get('shortDescription'),
-        'rmrkmutuallyexclusiveind': query.get('rmrkmutuallyexclusiveind'),
+        'rmrkmutuallyexclusiveind': 'N',
         'rmrktext': query.get('longDescription'),
         'rmrkactiveind': query.get('rmrkactiveind'),
         'rmrkcreateid': query.get('rmrkcreateid'),
