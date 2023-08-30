@@ -11,17 +11,22 @@ class FSBidSearchPostAccessViewFilters(BaseView):
     def get(self, request):
         jwt = request.META['HTTP_JWT']
         result = services.get_search_post_access_filters(jwt, request.query_params)
-        if result is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(result)
 
 class FSBidSearchPostAccessActionView(BaseView):
     '''
     Gets the Data for the Search Post Access Page
     '''
-    def get(self, request):
+    def post(self, request):
         jwt = request.META['HTTP_JWT']
-        result = services.get_search_post_access_data(jwt, request.query_params)
-        if result is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        result = services.get_search_post_access_data(jwt, request.data)
+        return Response(result)
+
+class FSBidSearchPostAccessRemoveActionView(BaseView):
+    '''
+    Gets the Data for the Search Post Access Page
+    '''
+    def post(self, request):
+        jwt = request.META['HTTP_JWT']
+        result = services.remove_search_post_access(jwt, request.data)
         return Response(result)

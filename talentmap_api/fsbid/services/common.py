@@ -315,19 +315,8 @@ def get_individual(uri, query, query_mapping_function, jwt_token, mapping_functi
 
 # for calls to BackOffice CRUD POST EP
 def send_post_back_office(uri, query, query_mapping_function, jwt_token, json_body, api_root=API_ROOT):
-
-    # mappedQuery = pydash.omit_by(query_mapping_function(query), lambda o: o is None)
     queryClone = query or {}
-    if query_mapping_function:
-        url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
-    else:
-        url = f"{api_root}/{uri}"
-    # print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    # print('url')
-    # print(url)
-    # print('json_body')
-    # print(json_body)
-    # print('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
+    url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_body).json()
     # if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
     #     logger.error(f"Fsbid call to '{url}' failed.")
@@ -335,9 +324,8 @@ def send_post_back_office(uri, query, query_mapping_function, jwt_token, json_bo
     # if mapping_function:
     #     return list(map(mapping_function, response ))
     # else:
-    # TODO add error handling
+    # TODO add error handling here
     return response
-        # return response.get("Data", {})
 
 
 

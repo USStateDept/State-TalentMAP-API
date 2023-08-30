@@ -7,6 +7,7 @@ router = routers.SimpleRouter()
 urlpatterns = [
     url(r'^filters/$', views.FSBidSearchPostAccessViewFilters.as_view(), name='FSBid-search-post-access-filters'),
     url(r'^data/$', views.FSBidSearchPostAccessActionView.as_view(), name='FSBid-search-post-access-data'),
+    url(r'^remove/$', views.FSBidSearchPostAccessRemoveActionView.as_view(), name='FSBid-search-post-access-remove'),
 ]
 
 urlpatterns += router.urls
