@@ -126,29 +126,31 @@ def get_search_post_access_data(jwt_token, request):
       return result
 
 def fsbid_to_tm_spa_data_mapping(data):
-    copy = deepcopy(data)
-    table = copy['PQRY_ORG_ACCESS_O']
+    data_table = data['PQRY_ORG_ACCESS_O']
+    return_table = []
 
-    # TODO - only return needed data
-    for item in table:
+    for item in data_table:
+        new_item = {}
         for key, value in item.items():
             if key == 'BUREAUNAME':
-                item['bureau'] = item.pop(key)
+                new_item['bureau'] = value
             elif key == 'LOCATIONNAME':
-                item['post'] = item.pop(key)
+                new_item['post'] = value
             elif key == 'PERFULLNAME':
-                item['employee'] = item.pop(key)
+                new_item['employee'] = value
             elif key == 'BOAID':
-                item['id'] = item.pop(key)
+                new_item['id'] = value
             elif key == 'BAT_DESCR_TXT':
-                item['access_type'] = item.pop(key)
+                new_item['access_type'] = value
             elif key == 'ROLEDESCR':
-                item['role'] = item.pop(key)
+                new_item['role'] = value
             elif key == 'POS_TITLE_DESC':
-                item['title'] = item.pop(key)
+                new_item['title'] = value
             elif key == 'POS_SEQ_NUM':
-                item['position'] = item.pop(key)
-    return table
+                new_item['position'] = value
+        return_table.append(new_item)
+
+    return return_table
 
 
 def format_request_data_to_string(request_values, table_key):
