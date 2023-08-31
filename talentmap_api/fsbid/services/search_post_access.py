@@ -1,5 +1,6 @@
 import logging
 import pydash
+from copy import deepcopy
 from django.conf import settings
 from urllib.parse import urlencode, quote
 from talentmap_api.fsbid.services import common as services
@@ -18,7 +19,8 @@ def get_search_post_access_filters(jwt_token, request):
         "uri": "v1/backoffice/BackOfficeCRUD",
         "jwt_token": jwt_token,
         "query": request,
-        "query_mapping_function": search_post_access_query_mapping,
+        "proc_name": 'prc_lst_bureau_org_tree',
+        "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
         "api_root": WS_ROOT,
         "json_body": {
           "PV_API_VERSION_I": '',
@@ -32,15 +34,11 @@ def get_search_post_access_filters(jwt_token, request):
       result = fsbid_spa_to_tm_filter_data_mapping(spa_req)
       return result
 
-def search_post_access_query_mapping(query):
-    values = {
-      "procName": 'prc_lst_bureau_org_tree',
-      "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
-    }
-    return urlencode(values, doseq=True, quote_via=quote)
 
 def fsbid_spa_to_tm_filter_data_mapping(data):
-    bureau_filters = data['PQRY_BUREAU_LEVEL_O']
+    dict_copy = deepcopy(data)
+
+    bureau_filters = dict_copy['PQRY_BUREAU_LEVEL_O']
     for item in bureau_filters:
         for key, value in item.items():
             if key == 'Bureau':
@@ -48,7 +46,7 @@ def fsbid_spa_to_tm_filter_data_mapping(data):
             elif key == 'ORG_SHORT_DESC':
                 item['description'] = item.pop(key)
 
-    org_filters = data['PQRY_ORG_LEVEL_O']
+    org_filters = dict_copy['PQRY_ORG_LEVEL_O']
     for item in org_filters:
         for key, value in item.items():
             if key == 'Org':
@@ -56,7 +54,7 @@ def fsbid_spa_to_tm_filter_data_mapping(data):
             elif key == 'ORG_DESC':
                 item['description'] = item.pop(key)
 
-    person_filters = data['PQRY_PERSON_LEVEL_O']
+    person_filters = dict_copy['PQRY_PERSON_LEVEL_O']
     for item in person_filters:
         for key, value in item.items():
             if key == 'PER_SEQ_NUM':
@@ -64,7 +62,7 @@ def fsbid_spa_to_tm_filter_data_mapping(data):
             elif key == 'PER_FULL_NAME':
                 item['description'] = item.pop(key)
 
-    role_filters = data['PQRY_POST_ROLE_O']
+    role_filters = dict_copy['PQRY_POST_ROLE_O']
     for item in role_filters:
         for key, value in item.items():
             if key == 'ROLE_CODE':
@@ -72,7 +70,7 @@ def fsbid_spa_to_tm_filter_data_mapping(data):
             elif key == 'ROLE_DESC':
                 item['description'] = item.pop(key)
 
-    position_filters = data['PQRY_POSITION_LEVEL_O']
+    position_filters = dict_copy['PQRY_POSITION_LEVEL_O']
     for item in position_filters:
         for key, value in item.items():
             if key == 'POS_SKILL_CODE':
@@ -80,7 +78,7 @@ def fsbid_spa_to_tm_filter_data_mapping(data):
             elif key == 'POS_SKILL_DESC':
                 item['description'] = item.pop(key)
 
-    location_filters = data['PQRY_COUNTRY_O']
+    location_filters = dict_copy['PQRY_COUNTRY_O']
     for item in location_filters:
         for key, value in item.items():
             if key == 'COUNTRY_STATE_CODE':
@@ -115,7 +113,8 @@ def get_search_post_access_data(jwt_token, request):
         "uri": "v1/backoffice/BackOfficeCRUD",
         "jwt_token": jwt_token,
         "query": request,
-        "query_mapping_function": search_post_access_get_data_mapping,
+        "proc_name": 'prc_lst_org_access',
+        "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
         "api_root": WS_ROOT,
         "json_body": mapped_request,
     }
@@ -126,15 +125,9 @@ def get_search_post_access_data(jwt_token, request):
       result = fsbid_to_tm_spa_data_mapping(spa_req)
       return result
 
-def search_post_access_get_data_mapping(query):
-    values = {
-      "procName": 'prc_lst_org_access',
-      "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
-    }
-    return urlencode(values, doseq=True, quote_via=quote)
-
 def fsbid_to_tm_spa_data_mapping(data):
-    table = data['PQRY_ORG_ACCESS_O']
+    copy = deepcopy(data)
+    table = copy['PQRY_ORG_ACCESS_O']
 
     # TODO - only return needed data
     for item in table:
@@ -198,7 +191,8 @@ def remove_search_post_access(jwt_token, request):
         "uri": "v1/backoffice/BackOfficeCRUD",
         "jwt_token": jwt_token,
         "query": request,
-        "query_mapping_function": remove_search_post_access_query_mapping,
+        "proc_name": 'prc_mod_org_access',
+        "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
         "api_root": WS_ROOT,
         "json_body": mapped_request, 
     }
@@ -225,9 +219,3 @@ def format_request_post_data_to_string(request_values, table_key):
     result_string = "{" + ",".join(data_entries) + "}"
     return result_string
 
-def remove_search_post_access_query_mapping(query):
-    values = {
-      "procName": 'prc_mod_org_access',
-      "packageName": 'PKG_WEBAPI_WRAP_SPRINT99',
-    }
-    return urlencode(values, doseq=True, quote_via=quote)

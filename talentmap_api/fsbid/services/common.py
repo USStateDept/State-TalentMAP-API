@@ -314,9 +314,8 @@ def get_individual(uri, query, query_mapping_function, jwt_token, mapping_functi
 
 
 # for calls to BackOffice CRUD POST EP
-def send_post_back_office(uri, query, query_mapping_function, jwt_token, json_body, api_root=API_ROOT):
-    queryClone = query or {}
-    url = f"{api_root}/{uri}?{query_mapping_function(queryClone)}"
+def send_post_back_office(uri, query, proc_name, package_name, jwt_token, json_body, api_root=API_ROOT):
+    url = f"{api_root}/{uri}?procName={proc_name}&packageName={package_name}"
     response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_body).json()
     if response is None or (response['PV_RETURN_CODE_O'] and response['PV_RETURN_CODE_O'] is not 0):
         logger.error(f"Fsbid call to '{url}' failed.")
