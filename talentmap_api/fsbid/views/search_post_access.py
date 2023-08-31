@@ -10,7 +10,7 @@ class FSBidSearchPostAccessViewFilters(BaseView):
 
     def get(self, request):
         jwt = request.META['HTTP_JWT']
-        result = services.get_search_post_access_filters(jwt, request.query_params)
+        result = services.get_search_post_access_filters(jwt)
         return Response(result)
 
 class FSBidSearchPostAccessActionView(BaseView):

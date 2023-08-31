@@ -3,7 +3,7 @@ import pydash
 from copy import deepcopy
 from django.conf import settings
 from urllib.parse import urlencode, quote
-from talentmap_api.fsbid.services import common as services
+from talentmap_api.fsbid.services import common as services, employee
 
 logger = logging.getLogger(__name__)
 
@@ -11,28 +11,27 @@ WS_ROOT = settings.WS_ROOT_API_URL
 
 # FILTERS
 
-def get_search_post_access_filters(jwt_token, request):
+def get_search_post_access_filters(jwt_token):
     '''
     Gets Filters for Search Post Access Page
     '''
     args = {
-        "uri": "v1/backoffice/BackOfficeCRUD",
-        "jwt_token": jwt_token,
-        "query": request,
         "proc_name": 'prc_lst_bureau_org_tree',
         "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
-        "api_root": WS_ROOT,
-        "json_body": {
-          "PV_API_VERSION_I": '',
-          "PV_AD_ID_I": '',
-        }, 
+        "request_body": {},
+        "request_mapping_function": spa_filter_req_mapping,
+        "response_mapping_function": spa_filter_res_mapping,
+        "jwt_token": jwt_token,
     }
-    spa_req = services.send_post_back_office(
+    return services.send_post_back_office(
         **args
     )
-    if spa_req is not None:
-      result = fsbid_spa_to_tm_filter_data_mapping(spa_req)
-      return result
+
+def spa_filter_req_mapping(request):
+    return {
+        "PV_API_VERSION_I": '',
+        "PV_AD_ID_I": '',
+    }
 
 def get_filter_data_from_response(data, data_map):
     filter_data = []
@@ -45,84 +44,74 @@ def get_filter_data_from_response(data, data_map):
     return filter_data
 
 
-def fsbid_spa_to_tm_filter_data_mapping(data):
-    data_map = {
-        'PER_SEQ_NUM': 'code',
-        'PER_FULL_NAME': 'description',
+def spa_filter_res_mapping(data):
+    bureau_map = {
         'Bureau': 'code',
         'ORG_SHORT_DESC': 'description',
+    }
+    person_map = {
+        'PER_SEQ_NUM': 'code',
+        'PER_FULL_NAME': 'description',
+    }
+    role_map = {
         'ROLE_CODE': 'code',
         'ROLE_DESC': 'description',
-        'POS_SKILL_CODE': 'code',
-        'POS_SKILL_DESC': 'description',
+    }
+    org_map = {
+        'Org': 'code',
+        'ORG_DESC': 'description',
+    }
+    location_map = {
         'COUNTRY_STATE_CODE': 'code',
         'COUNTRY_STATE_DESC': 'description',
     }
-
-    return {
-        'bureauFilters': get_filter_data_from_response(data['PQRY_BUREAU_LEVEL_O'], data_map),
-        'personFilters': get_filter_data_from_response(data['PQRY_PERSON_LEVEL_O'], data_map),
-        'roleFilters': get_filter_data_from_response(data['PQRY_POST_ROLE_O'], data_map),
-        'positionFilters': get_filter_data_from_response(data['PQRY_POSITION_LEVEL_O'], data_map),
-        'locationFilters': get_filter_data_from_response(data['PQRY_COUNTRY_O'], data_map),
+    position_map = {
+        'POS_SEQ_NUM': 'code',
+        'POS_NUM_TEXT': 'description',
     }
 
-
-# GET DATA
+    return {
+        'bureauFilters': get_filter_data_from_response(data['PQRY_BUREAU_LEVEL_O'], bureau_map),
+        'personFilters': get_filter_data_from_response(data['PQRY_PERSON_LEVEL_O'], person_map),
+        'roleFilters': get_filter_data_from_response(data['PQRY_POST_ROLE_O'], role_map),
+        'positionFilters': get_filter_data_from_response(data['PQRY_POSITION_LEVEL_O'], position_map),
+        'locationFilters': get_filter_data_from_response(data['PQRY_COUNTRY_O'], location_map),
+        'orgFilters': get_filter_data_from_response(data['PQRY_ORG_LEVEL_O'], org_map),
+    }
 
 
 def get_search_post_access_data(jwt_token, request):
     '''
-    Gets Data for Search Post Access Page
+    Gets data for Search Post Access
     '''
-    mapped_request = map_search_post_access_query(request)
-
-    logger.info('🐙🐙🐙🐙🐙🐙🐙🐙🐙🐙');
-    logger.info('spa GET request mapped request')
-    logger.info(mapped_request)
-
     args = {
-        "uri": "v1/backoffice/BackOfficeCRUD",
-        "jwt_token": jwt_token,
-        "query": request,
         "proc_name": 'prc_lst_org_access',
         "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
-        "api_root": WS_ROOT,
-        "json_body": mapped_request,
+        "request_body": request,
+        "request_mapping_function": map_search_post_access_query,
+        "response_mapping_function": fsbid_to_tm_spa_data_mapping,
+        "jwt_token": jwt_token,
     }
-    spa_req = services.send_post_back_office(
+    return services.send_post_back_office(
         **args
     )
-    if spa_req is not None:
-      result = fsbid_to_tm_spa_data_mapping(spa_req)
-      return result
+
 
 def fsbid_to_tm_spa_data_mapping(data):
-    data_table = data['PQRY_ORG_ACCESS_O']
-    return_table = []
+    data = data['PQRY_ORG_ACCESS_O']
 
-    for item in data_table:
-        new_entry = {}
-        for key, value in item.items():
-            if key == 'BUREAUNAME':
-                new_entry['bureau'] = value
-            elif key == 'LOCATIONNAME':
-                new_entry['post'] = value
-            elif key == 'PERFULLNAME':
-                new_entry['employee'] = value
-            elif key == 'BOAID':
-                new_entry['id'] = value
-            elif key == 'BAT_DESCR_TXT':
-                new_entry['access_type'] = value
-            elif key == 'ROLEDESCR':
-                new_entry['role'] = value
-            elif key == 'POS_TITLE_DESC':
-                new_entry['title'] = value
-            elif key == 'POS_SEQ_NUM':
-                new_entry['position'] = value
-        return_table.append(new_entry)
-
-    return return_table
+    def mapping_helper(x):
+        return {
+            'bureau': x.get('BUREAUNAME'),
+            'post': x.get('ORGNAME'),
+            'employee': x.get('PERFULLNAME'),
+            'id': x.get('BOAID'),
+            'access_type': x.get('BAT_DESCR_TXT'),
+            'role': x.get('ROLEDESCR'),
+            'title': x.get('POS_TITLE_DESC'),
+            'position': x.get('POS_NUM_TEXT'),
+        }
+    return list(map(mapping_helper, data))
 
 
 def format_request_data_to_string(request_values, table_key):

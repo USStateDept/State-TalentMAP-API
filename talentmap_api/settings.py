@@ -533,6 +533,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'talentmap_api/static/')
 
 WS_ROOT_API_URL = get_delineated_environment_variable('WS_ROOT_API_URL', 'http://mock_fsbid:3333')
+BACKOFFICE_CRUD_URL = get_delineated_environment_variable('BACKOFFICE_CRUD_URL', 'http://mock_fsbid:3333/v1/backoffice/BackOfficeCRUD')
 SECREF_URL = get_delineated_environment_variable('SECREF_URL', 'http://mock_fsbid:3333/v2/SECREF')
 EMPLOYEES_API_URL = get_delineated_environment_variable('EMPLOYEES_API_URL', 'http://mock_fsbid:3333/v1/Employees')
 CP_API_URL = get_delineated_environment_variable('CP_API_URL', 'http://mock_fsbid:3333/v1/cyclePositions')
