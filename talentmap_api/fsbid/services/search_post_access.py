@@ -134,7 +134,7 @@ def fsbid_to_tm_spa_data_mapping(data):
         for key, value in item.items():
             if key == 'BUREAUNAME':
                 item['bureau'] = item.pop(key)
-            elif key == 'ORGNAME':
+            elif key == 'LOCATIONNAME':
                 item['post'] = item.pop(key)
             elif key == 'PERFULLNAME':
                 item['employee'] = item.pop(key)
