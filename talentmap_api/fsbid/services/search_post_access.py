@@ -34,65 +34,37 @@ def get_search_post_access_filters(jwt_token, request):
       result = fsbid_spa_to_tm_filter_data_mapping(spa_req)
       return result
 
+def get_filter_data_from_response(data, data_map):
+    filter_data = []
+    for item in data:
+        new_entry = {}
+        for key, value in item.items():
+            if key in data_map and (len(new_entry) != 2):
+                new_entry[data_map[key]] = value
+        filter_data.append(new_entry)
+    return filter_data
+
 
 def fsbid_spa_to_tm_filter_data_mapping(data):
-    dict_copy = deepcopy(data)
-
-    bureau_filters = dict_copy['PQRY_BUREAU_LEVEL_O']
-    for item in bureau_filters:
-        for key, value in item.items():
-            if key == 'Bureau':
-                item['code'] = item.pop(key)
-            elif key == 'ORG_SHORT_DESC':
-                item['description'] = item.pop(key)
-
-    org_filters = dict_copy['PQRY_ORG_LEVEL_O']
-    for item in org_filters:
-        for key, value in item.items():
-            if key == 'Org':
-                item['code'] = item.pop(key)
-            elif key == 'ORG_DESC':
-                item['description'] = item.pop(key)
-
-    person_filters = dict_copy['PQRY_PERSON_LEVEL_O']
-    for item in person_filters:
-        for key, value in item.items():
-            if key == 'PER_SEQ_NUM':
-                item['code'] = item.pop(key)
-            elif key == 'PER_FULL_NAME':
-                item['description'] = item.pop(key)
-
-    role_filters = dict_copy['PQRY_POST_ROLE_O']
-    for item in role_filters:
-        for key, value in item.items():
-            if key == 'ROLE_CODE':
-                item['code'] = item.pop(key)
-            elif key == 'ROLE_DESC':
-                item['description'] = item.pop(key)
-
-    position_filters = dict_copy['PQRY_POSITION_LEVEL_O']
-    for item in position_filters:
-        for key, value in item.items():
-            if key == 'POS_SKILL_CODE':
-                item['code'] = item.pop(key)
-            elif key == 'POS_SKILL_DESC':
-                item['description'] = item.pop(key)
-
-    location_filters = dict_copy['PQRY_COUNTRY_O']
-    for item in location_filters:
-        for key, value in item.items():
-            if key == 'COUNTRY_STATE_CODE':
-                item['code'] = item.pop(key)
-            elif key == 'COUNTRY_STATE_DESC':
-                item['description'] = item.pop(key)
+    data_map = {
+        'PER_SEQ_NUM': 'code',
+        'PER_FULL_NAME': 'description',
+        'Bureau': 'code',
+        'ORG_SHORT_DESC': 'description',
+        'ROLE_CODE': 'code',
+        'ROLE_DESC': 'description',
+        'POS_SKILL_CODE': 'code',
+        'POS_SKILL_DESC': 'description',
+        'COUNTRY_STATE_CODE': 'code',
+        'COUNTRY_STATE_DESC': 'description',
+    }
 
     return {
-        'bureauFilters': bureau_filters,
-        'orgFilters': org_filters,
-        'personFilters': person_filters,
-        'roleFilters': role_filters,
-        'positionFilters': position_filters,
-        'locationFilters': location_filters,
+        'bureauFilters': get_filter_data_from_response(data['PQRY_BUREAU_LEVEL_O'], data_map),
+        'personFilters': get_filter_data_from_response(data['PQRY_PERSON_LEVEL_O'], data_map),
+        'roleFilters': get_filter_data_from_response(data['PQRY_POST_ROLE_O'], data_map),
+        'positionFilters': get_filter_data_from_response(data['PQRY_POSITION_LEVEL_O'], data_map),
+        'locationFilters': get_filter_data_from_response(data['PQRY_COUNTRY_O'], data_map),
     }
 
 
@@ -130,25 +102,25 @@ def fsbid_to_tm_spa_data_mapping(data):
     return_table = []
 
     for item in data_table:
-        new_item = {}
+        new_entry = {}
         for key, value in item.items():
             if key == 'BUREAUNAME':
-                new_item['bureau'] = value
+                new_entry['bureau'] = value
             elif key == 'LOCATIONNAME':
-                new_item['post'] = value
+                new_entry['post'] = value
             elif key == 'PERFULLNAME':
-                new_item['employee'] = value
+                new_entry['employee'] = value
             elif key == 'BOAID':
-                new_item['id'] = value
+                new_entry['id'] = value
             elif key == 'BAT_DESCR_TXT':
-                new_item['access_type'] = value
+                new_entry['access_type'] = value
             elif key == 'ROLEDESCR':
-                new_item['role'] = value
+                new_entry['role'] = value
             elif key == 'POS_TITLE_DESC':
-                new_item['title'] = value
+                new_entry['title'] = value
             elif key == 'POS_SEQ_NUM':
-                new_item['position'] = value
-        return_table.append(new_item)
+                new_entry['position'] = value
+        return_table.append(new_entry)
 
     return return_table
 
