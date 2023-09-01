@@ -31,8 +31,6 @@ logger = logging.getLogger(__name__)
 
 API_ROOT = settings.WS_ROOT_API_URL
 CP_API_V2_ROOT = settings.CP_API_V2_URL
-HRDATA_URL = settings.HRDATA_URL
-HRDATA_URL_EXTERNAL = settings.HRDATA_URL_EXTERNAL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 PV_API_V2_URL = settings.PV_API_V2_URL
 CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
@@ -44,18 +42,6 @@ urls_expire_after = {
     '*': 0,  # Every other non-matching URL: do not cache
 }
 # session = requests_cache.CachedSession(backend='memory', namespace='tmap-cache', urls_expire_after=urls_expire_after)
-
-
-def get_employee_profile_urls(userid):
-    unredactedSuffix = f"Employees/{userid}/EmployeeProfileReportByCDO"
-    redactedSuffix = f"Employees/{userid}/PrintEmployeeProfileReport"
-
-    return {
-        "internal": f"{HRDATA_URL}/{unredactedSuffix}",
-        "external": f"{HRDATA_URL_EXTERNAL}/{unredactedSuffix}",
-        "internalRedacted": f"{HRDATA_URL}/{redactedSuffix}",
-        "externalRedacted": f"{HRDATA_URL_EXTERNAL}/{redactedSuffix}",
-    }
 
 
 def get_pagination(query, count, base_url, host=None):
@@ -263,6 +249,7 @@ def get_results(uri, query, query_mapping_function, jwt_token, mapping_function,
     else:
         url = f"{api_root}/{uri}"
     response = requests.get(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}).json()
+
     if response.get("Data") is None or ((response.get('return_code') and response.get('return_code', -1) == -1) or (response.get('ReturnCode') and response.get('ReturnCode', -1) == -1)):
         logger.error(f"Fsbid call to '{url}' failed.")
         return None

@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from talentmap_api.common.common_helpers import get_group_by_name, in_superuser_group
 from talentmap_api.fsbid.views.base import BaseView
 import talentmap_api.fsbid.services.client as services
 
@@ -37,11 +36,7 @@ class FSBidClientView(BaseView):
         '''
         Gets a single client by perdet_seq_num
         '''
-        bureau_group = get_group_by_name("bureau_user")
-        is_superuser = in_superuser_group(self.request.user)
-        isBureauNotSuperuser = (bureau_group in request.user.groups.all()) and not is_superuser
-        # Option 2: we return to FE based on BE check and FE remains same
-        return Response(services.single_client(request.META['HTTP_JWT'], pk, isBureauNotSuperuser))
+        return Response(services.single_client(request.META['HTTP_JWT'], pk))
 
 
 class FSBidClientSuggestionsView(BaseView):

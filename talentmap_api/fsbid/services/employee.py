@@ -4,6 +4,7 @@ from urllib.parse import urlencode, quote
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.http import FileResponse, HttpResponse
 import jwt
 import pydash
 
@@ -17,6 +18,7 @@ import talentmap_api.fsbid.services.bid as bid_services
 API_ROOT = settings.EMPLOYEES_API_URL
 ORG_ROOT = settings.ORG_API_URL
 WS_ROOT = settings.WS_ROOT_API_URL
+HR_DATA_ROOT = settings.HRDATA_URL
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +265,6 @@ def get_assignments_separations_bids(query, jwt_token, pk):
 
     return map(map_assignments_separations_bids, pydash.interleave(asg, bids, sep))
 
-
 def map_assignments_separations_bids(data):
     is_bid = bool(data.get('hs_code')) 
     is_assignment = bool(data.get('status')) 
@@ -333,3 +334,19 @@ def map_assignments_separations_bids(data):
 
         }
 
+def get_employee_profile_report(query, pk, jwt_token=None):
+    '''
+    Get Employee Profile Report
+    '''
+
+    url = f"{HR_DATA_ROOT}/Employees/{pk}/EmployeeProfileReportByCDO/"
+
+    if query.get("redacted_report") == "true":
+        url = f"{HR_DATA_ROOT}/Employees/{pk}/PrintEmployeeProfileReport/"
+    response_pdf = requests.get(url, headers={'JWTAuthorization': jwt_token})
+
+    if response_pdf.ok:
+        return HttpResponse(response_pdf, content_type='arrayBuffer')
+    else:
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return HttpResponse()
