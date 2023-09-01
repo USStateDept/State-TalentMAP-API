@@ -144,21 +144,18 @@ def remove_search_post_access(jwt_token, request):
     '''
     Remove Access for a Post
     '''
-    mapped_request = map_search_post_access_post_request(request)
     args = {
-        "uri": "v1/backoffice/BackOfficeCRUD",
-        "jwt_token": jwt_token,
-        "query": request,
         "proc_name": 'prc_mod_org_access',
         "package_name": 'PKG_WEBAPI_WRAP_SPRINT99',
-        "api_root": WS_ROOT,
-        "json_body": mapped_request, 
+        "request_body": request,
+        "request_mapping_function": map_search_post_access_post_request,
+        "response_mapping_function": None,
+        "jwt_token": jwt_token,
+
     }
-    spa_req = services.send_post_back_office(
+    return services.send_post_back_office(
         **args
     )
-    if spa_req is not None:
-      return spa_req
 
 def map_search_post_access_post_request(req):
     mapped_request = {
