@@ -162,7 +162,7 @@ def map_search_post_access_post_request(req):
       "PV_API_VERSION_I": "2",  
     }
     
-    mapped_request['PJSON_ORG_ACCESS_I'] = format_request_post_data_to_string(req.get('positions'), 'BOAID')
+    mapped_request['PJSON_ORG_ACCESS_I'] = format_request_post_data_to_string(req, 'BOAID')
     return mapped_request
 
 def format_request_post_data_to_string(request_values, table_key):

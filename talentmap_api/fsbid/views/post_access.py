@@ -3,7 +3,7 @@ import logging
 from talentmap_api.fsbid.views.base import BaseView
 from rest_framework.response import Response
 from rest_framework import status
-import talentmap_api.fsbid.services.search_post_access as services
+import talentmap_api.fsbid.services.post_access as services
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,5 @@ class FSBidPostAccessActionView(BaseView):
     '''
     def delete(self, request):
         jwt = request.META['HTTP_JWT']
-        print(request)
         result = services.remove_post_access_permissions(jwt, request.data)
         return Response(result)
