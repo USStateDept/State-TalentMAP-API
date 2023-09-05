@@ -11,7 +11,7 @@ WS_ROOT = settings.WS_ROOT_API_URL
 
 # FILTERS
 
-def get_search_post_access_filters(jwt_token):
+def get_post_access_filters(jwt_token):
     '''
     Gets Filters for Search Post Access Page
     '''
@@ -75,7 +75,7 @@ def spa_filter_res_mapping(data):
     }
 
 
-def get_search_post_access_data(jwt_token, request):
+def get_post_access_data(jwt_token, request):
     '''
     Gets data for Search Post Access
     '''
@@ -140,7 +140,7 @@ def map_search_post_access_query(req):
 # POST REQUEST
 
 
-def remove_search_post_access(jwt_token, request):
+def remove_post_access_permissions(jwt_token, request):
     '''
     Remove Access for a Post
     '''
