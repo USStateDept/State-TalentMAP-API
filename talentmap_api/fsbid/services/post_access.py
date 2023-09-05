@@ -109,7 +109,7 @@ def fsbid_to_tm_spa_data_mapping(data):
 
 def format_request_data_to_string(request_values, table_key):
     data_entries = []
-    for item in request_values:
+    for item in request_values.split(","):
         data_entry = f'"Data": {{"{table_key}": "{item}"}}'
         data_entries.append(data_entry)
 
