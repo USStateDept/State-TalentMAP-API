@@ -15,7 +15,7 @@ import maya
 import pydash
 
 from talentmap_api.organization.models import Obc
-from talentmap_api.settings import OBC_URL, OBC_URL_EXTERNAL
+from talentmap_api.settings import BACKOFFICE_CRUD_URL, OBC_URL, OBC_URL_EXTERNAL
 
 from talentmap_api.available_positions.models import AvailablePositionFavorite, AvailablePositionRanking
 from talentmap_api.projected_vacancies.models import ProjectedVacancyFavorite
@@ -34,6 +34,7 @@ CP_API_V2_ROOT = settings.CP_API_V2_URL
 FAVORITES_LIMIT = settings.FAVORITES_LIMIT
 PV_API_V2_URL = settings.PV_API_V2_URL
 CLIENTS_ROOT_V2 = settings.CLIENTS_API_V2_URL
+BACKOFFICE_CRUD_URL = settings.BACKOFFICE_CRUD_URL
 
 
 urls_expire_after = {
@@ -297,6 +298,21 @@ def get_individual(uri, query, query_mapping_function, jwt_token, mapping_functi
     fetch_method = get_results_with_post if use_post else get_results
     response = fetch_method(uri, query, query_mapping_function, jwt_token, mapping_function, api_root)
     return pydash.get(response, '[0]') or None
+
+
+
+# for calls to BackOffice CRUD POST EP
+def send_post_back_office(proc_name, package_name, request_body, request_mapping_function, response_mapping_function, jwt_token):
+    url = f"{BACKOFFICE_CRUD_URL}?procName={proc_name}&packageName={package_name}"
+    json_body = request_mapping_function(request_body)
+    response = requests.post(url, headers={'JWTAuthorization': jwt_token, 'Content-Type': 'application/json'}, json=json_body).json()
+    if response is None or (response['PV_RETURN_CODE_O'] and response['PV_RETURN_CODE_O'] is not 0):
+        logger.error(f"Fsbid call to '{url}' failed.")
+        return None
+    if response_mapping_function:
+        return response_mapping_function(response)
+    return response
+
 
 
 def send_get_request(uri, query, query_mapping_function, jwt_token, mapping_function, count_function, base_url, host=None, api_root=API_ROOT, use_post=False):

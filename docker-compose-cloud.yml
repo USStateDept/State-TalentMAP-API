@@ -22,6 +22,7 @@ services:
       - DATABASE_PW=${ORACLE_PW}
       - DJANGO_DEBUG=true
       - WS_ROOT_API_URL=http://host.docker.internal:3333
+      - BACKOFFICE_CRUD_URL=http://host.docker.internal:3333/v1/backoffice/BackOfficeCRUD
       - EMPLOYEES_API_URL=http://host.docker.internal:3333/v1/Employees
       - SECREF_URL=http://host.docker.internal:3333/v2/SECREF
       - CP_API_URL=http://host.docker.internal:3333/v1/cyclePositions
