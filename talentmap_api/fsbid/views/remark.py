@@ -28,29 +28,16 @@ class RemarkView(BaseView):
             'longDescription': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Text'),
             'activeIndicator': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Active Indicator'),
             'rmrkcreateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Creator ID'),
-            'rmrkcreatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Created Date'),
             'rmrkupdateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Updater ID'),
             'rmrkupdatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Updated Date'),
-            'rmrkInsertionList': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Items(
-                type=openapi.TYPE_OBJECT,
-                properties={
-                    'riseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Seq Num'),
-                    'rmrkseqnum': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Seq Num'),
-                    'riinsertiontext': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insertion Text'),
-                    'rirolerestrictedind': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Role Restricted Indicator'),
-                    'ricreateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Creater ID'),
-                    'ricreatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Create Date'),
-                    'riupdateid': openapi.Schema(type=openapi.TYPE_INTEGER, description='Remark Insert Updater ID'),
-                    'riupdatedate': openapi.Schema(type=openapi.TYPE_STRING, description='Remark Insert Updated Date'), }
-            ), description='Remark Insertion'),
         }
     ))
 
     def put(self, request):
         '''
-        Edit remark by rmrk_seq_num
+        Edit remark to mark inactive/active
         '''
-        return Response(services.edit_remark_and_remark_insert(request.data, request.META['HTTP_JWT']))
+        return Response(services.edit_remark(request.data, request.META['HTTP_JWT']))
 
 
 class RemarkActionView(BaseView):

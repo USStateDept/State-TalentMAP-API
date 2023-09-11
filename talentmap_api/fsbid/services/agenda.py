@@ -638,7 +638,7 @@ def fsbid_to_talentmap_agenda_remarks_ref(data):
     # hard_coded are the default data points (opinionated EP)
     # add_these are the additional data points we want returned
 
-    hard_coded = ['seq_num', 'rc_code', 'order_num', 'short_desc_text', 'mutually_exclusive_ind', 'text', 'active_ind', 'remark_inserts', 'ref_text']
+    hard_coded = ['seq_num', 'rc_code', 'order_num', 'short_desc_text', 'mutually_exclusive_ind', 'text', 'active_ind', 'remark_inserts', 'ref_text', 'update_date']
 
     add_these = []
 
@@ -651,6 +651,10 @@ def fsbid_to_talentmap_agenda_remarks_ref(data):
         'text': 'rmrktext',
         'ref_text': 'rmrktext',
         'active_ind': 'rmrkactiveind',
+        'update_date': 'rmrkupdatedate',
+        'update_id': 'rmrkupdateid',
+        'create_date': 'rmrkcreatedate',
+        'create_id': 'rmrkcreateid',
         'remark_inserts': 'RemarkInserts'
     }
 

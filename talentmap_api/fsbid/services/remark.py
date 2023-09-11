@@ -75,11 +75,11 @@ def create_remark_insert(rmrk_seq_num, query, jwt_token):
     )
 
 
-def convert_remark_query(query):
+def convert_remark_query(query, is_edit=False):
     '''
     Converts TalentMap Remarks into FSBid Remarks
     '''
-    return {
+    formatted_query = {
         'rmrkseqnum': query.get('rmrkseqnum'),
         'rmrkrccode': query.get('rmrkCategory'),
         'rmrkordernum': 0,
@@ -90,8 +90,13 @@ def convert_remark_query(query):
         'rmrkcreateid': query.get('rmrkcreateid'),
         'rmrkcreatedate': query.get('rmrkcreatedate'),
         'rmrkupdateid': query.get('rmrkupdateid'),
-        'rmrkupdatedate': query.get('rmrkupdatedate'),
+        # Need to format the date for fsbid service, expects space b/w date and time, not T
+        'rmrkupdatedate': query.get('rmrkupdatedate', '').replace('T', ' '),
     }
+    if is_edit:
+        del formatted_query['rmrkcreatedate']
+    return formatted_query
+
 
 def convert_remark_insert_query(query):
     '''
@@ -108,29 +113,16 @@ def convert_remark_insert_query(query):
         'riupdatedate': query.get('riupdatedate'),
     }
 
-def edit_remark_and_remark_insert(query={}, jwt_token=None, host=None):
+
+def edit_remark(query, jwt_token, host=None):
     '''
-    Edit remark and inserts
+    Edit Remark
     '''
     hru_id = jwt.decode(jwt_token, verify=False).get('sub')
-    remark = edit_remark(query, jwt_token)
-    rmrk_seq_num = pydash.get(remark, '[0].rmrk_seq_num')
-
-    if rmrk_seq_num:
-        if pydash.get(query, 'remarkInserts'):
-            query['rmrkseqnum'] = rmrk_seq_num
-            for x in query['remarkInserts']:
-                edit_remark_insert(x, query, jwt_token)
-        else:
-            logger.error("Create remark insert failed")
-    else:
-        logger.error("Create remark failed")
-
-
-def edit_remark(query, jwt_token):
-    '''
-    Create Remark
-    '''
+    query['rmrkupdateid'] = hru_id
+    update_date = query['rmrkupdatedate'] 
+    # format update date
+    query['rmrkupdatedate'] = update_date
     args = {
         "uri": "v1/remarks",
         "query": query,
@@ -142,22 +134,4 @@ def edit_remark(query, jwt_token):
     return services.send_put_request(
         **args
     )
-
-
-def edit_remark_insert(rmrk_seq_num, query, jwt_token):
-    '''
-    Create Remark Insert 
-    '''
-    args = {
-        "uri": f"v1/remarks/{rmrk_seq_num}/inserts",
-        "query": query,
-        "query_mapping_function": convert_remark_insert_query,
-        "jwt_token": jwt_token,
-        "mapping_function": "",
-    }
-
-    return services.send_put_request(
-        **args
-    )
-
 
