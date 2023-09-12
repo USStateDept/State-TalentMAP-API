@@ -33,7 +33,7 @@ class RemarkView(BaseView):
         }
     ))
 
-    def put(self, request):
+    def put(self, request, pk):
         '''
         Edit remark to mark inactive/active
         '''
