@@ -84,7 +84,7 @@ def convert_remark_query(query, is_edit=False):
         'rmrkshortdesctext': query.get('shortDescription'),
         'rmrkmutuallyexclusiveind': 'N',
         'rmrktext': query.get('longDescription'),
-        'rmrkactiveind': query.get('activeIndicator', 'Y'),
+        'rmrkactiveind': 'Y' if query.get('activeIndicator') else 'N',
         'rmrkcreateid': query.get('create_id'),
         'rmrkupdateid': query.get('update_id'),
         # Need to format the date for fsbid service, expects space b/w date and time, not T
